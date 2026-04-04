@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: hsl(var(--primary-border));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: hsl(var(--secondary-border));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: hsl(var(--muted-border));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: hsl(var(--accent-border));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: hsl(var(--destructive-border));
+  --font-sans: var(--app-font-sans);
+  --font-display: var(--app-font-display);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 220 15% 4%;
+  --foreground: 40 10% 92%;
+  --card: 220 12% 7%;
+  --card-foreground: 40 10% 92%;
+  --card-border: 220 8% 13%;
+  --popover: 220 12% 7%;
+  --popover-foreground: 40 10% 92%;
+  --popover-border: 220 8% 13%;
+  --primary: 40 52% 55%;
+  --primary-foreground: 220 15% 4%;
+  --primary-border: 40 52% 55%;
+  --secondary: 220 8% 13%;
+  --secondary-foreground: 40 10% 92%;
+  --secondary-border: 220 6% 18%;
+  --muted: 220 8% 13%;
+  --muted-foreground: 220 5% 52%;
+  --muted-border: 220 6% 18%;
+  --accent: 40 52% 55%;
+  --accent-foreground: 220 15% 4%;
+  --accent-border: 40 52% 55%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 40 10% 92%;
+  --destructive-border: 0 84% 60%;
+  --border: 220 8% 13%;
+  --input: 220 8% 13%;
+  --ring: 40 52% 55%;
+  --app-font-sans: 'Inter', system-ui, sans-serif;
+  --app-font-display: 'Cormorant Garamond', serif;
+  --radius: 0rem;
+}
+
+.dark {
+  --background: 220 15% 4%;
+  --foreground: 40 10% 92%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--app-font-display);
+    @apply font-normal;
+  }
+  ::selection {
+    background: hsla(40, 52%, 55%, 0.25);
+    color: hsl(40, 10%, 92%);
+  }
+}
+
+/* ─── Premium Utilities ─── */
+@layer utilities {
+  .glow-radial {
+    background: radial-gradient(circle at center, hsla(var(--primary) / 0.15) 0%, hsla(var(--background) / 0) 60%);
+  }
+}
+
+/* ─── Noise Texture Overlay ─── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px;
+}
+
+/* ─── Shimmer Animation ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsla(40, 52%, 55%, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ─── Gold border trace on hover ─── */
+@keyframes border-trace {
+  0% { clip-path: inset(0 100% 100% 0); }
+  25% { clip-path: inset(0 0 100% 0); }
+  50% { clip-path: inset(0 0 0 0); }
+  75% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+/* ─── Scroll indicator pulse ─── */
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.3; transform: translateX(-50%) scaleY(1); }
+  50% { opacity: 0.8; transform: translateX(-50%) scaleY(1.15); }
+}
+
+/* ─── Float animation ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(-4px); }
+  50% { transform: translateY(4px); }
+}
+
+/* ─── Subtle rotate for particles ─── */
+@keyframes drift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+/* ─── Page transition ─── */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ─── Glassmorphism header ─── */
+.glass-header {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: hsla(220, 15%, 4%, 0.72);
+  border-bottom: 1px solid hsla(40, 52%, 55%, 0.06);
+}
+.glass-header.scrolled {
+  background: hsla(220, 15%, 4%, 0.88);
+  border-bottom-color: hsla(40, 52%, 55%, 0.12);
+  box-shadow: 0 8px 32px hsla(220, 15%, 4%, 0.5);
+}
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: hsla(220, 15%, 4%, 1);
+  border-left: 1px solid hsla(40, 52%, 55%, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: hsla(40, 52%, 55%, 0.25);
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(40, 52%, 55%, 0.5);
+}
+
+/* ─── Animated allocation bar ─── */
+@keyframes bar-fill {
+  from { width: 0; }
+}
+
+/* ─── Glow button hover ─── */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(90deg, transparent, hsla(40, 52%, 55%, 0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-glow:hover::before {
+  opacity: 1;
+}
