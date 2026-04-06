@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import GoiasFlowMap from "@/components/GoiasFlowMap";
+import GlobalFlowMap from "@/components/GlobalFlowMap";
 import { FadeIn } from "@/components/FadeIn";
 
 const zonas = [
@@ -13,31 +13,31 @@ const zonas = [
   {
     cidade: "Brasília",
     tag: "CAPITAL FEDERAL",
-    desc: "Regulação e governança.",
+    desc: "Regulação e governança institucional.",
     accent: true,
   },
   {
     cidade: "Rio Verde",
     tag: "SOJA · MILHO",
-    desc: "US$ 4.2B em exportações.",
+    desc: "US$ 4.2B em exportação (Hedge Estrutural).",
     accent: false,
   },
   {
     cidade: "Jataí",
-    tag: "GRÃOS · PROTEÍNA",
-    desc: "Top 10 municípios agro.",
+    tag: "PROTEÍNA ANIMAL",
+    desc: "Exportação de carne e exposição a derivativos.",
     accent: false,
   },
   {
     cidade: "Catalão",
     tag: "NIÓBIO",
-    desc: "CMOC International (Niobras)",
+    desc: "Assimetria no mercado de minerais raros.",
     accent: false,
   },
   {
     cidade: "Campos Verdes",
     tag: "ESMERALDAS",
-    desc: "Polo mundial de gemas.",
+    desc: "Conexão direta com o mercado global de gemas.",
     accent: false,
   },
 ];
@@ -63,14 +63,14 @@ export default function ZonaPiloto() {
           <div className="flex-1 w-full flex flex-col justify-center">
             <FadeIn>
               <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">
-                Zona Piloto · Operação Brasil
+                Operação Global · Infraestrutura
               </p>
               <h2 className="font-display text-4xl sm:text-5xl text-primary mb-4 tracking-widest uppercase">
-                Goiás
+                Fluxo Macro
               </h2>
               <p className="text-muted-foreground text-xs tracking-widest uppercase mb-10 leading-relaxed">
                 Multi-bilhões em exportações <br className="hidden sm:block" /> 
-                Minerais · Soja · Proteína Animal · Esmeraldas · Nióbio
+                Assimetrias em Soja · Milho · Proteína Animal · Esmeraldas
               </p>
             </FadeIn>
 
@@ -107,7 +107,7 @@ export default function ZonaPiloto() {
           {/* Map/Video (Right side) */}
           <div className="flex-1 w-full h-[40vh] lg:h-[70vh] min-h-[300px]">
              <div className="w-full h-full border border-white/5 bg-[#08090c] p-2 sm:p-4 rounded-sm shadow-2xl relative">
-                <GoiasFlowMap scrollProgress={scrollYProgress} />
+                <GlobalFlowMap scrollProgress={scrollYProgress} />
              </div>
           </div>
 

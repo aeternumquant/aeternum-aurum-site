@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useMemo, useId } from "react";
-import { motion, MotionValue, useMotionValueEvent, useTransform, AnimatePresence } from "framer-motion";
+import { motion, MotionValue, useMotionValueEvent, useTransform, AnimatePresence, useScroll } from "framer-motion";
 
 /*
  * Premium interactive map visualization for the Goiás pilot zone.
@@ -12,12 +12,12 @@ const GOIAS_PATH = `m 416.97257,334.13114 -0.87,-1.01 0.21,-2.44 0.59,-1.19 -0.0
 
 /* Cities with coordinates fitting the viewBox */
 const cities = [
-  { id: "goiania",      name: "Goiânia",       x: 392, y: 330, tag: "HUB FINANCEIRO",      value: "R$ 12B PIB",   lx: 3, ly: -2, anchor: "start" as const },
-  { id: "brasilia",     name: "Brasília",       x: 410, y: 318, tag: "CAPITAL FEDERAL",      value: "Governança",   lx: 3, ly: -2, anchor: "start" as const },
-  { id: "rioverde",     name: "Rio Verde",      x: 370, y: 362, tag: "SOJA · MILHO",         value: "US$ 4.2B exp", lx: 3, ly: -2, anchor: "start" as const },
-  { id: "jatai",        name: "Jataí",          x: 356, y: 356, tag: "GRÃOS · PROTEÍNA",     value: "Top 10 Agro",  lx: -3, ly: -2, anchor: "end" as const },
-  { id: "catalao",      name: "Catalão",        x: 396, y: 362, tag: "NIÓBIO · MINERAÇÃO",   value: "CMOC/Niobras", lx: 3, ly: -2, anchor: "start" as const },
-  { id: "camposverdes", name: "Campos Verdes",  x: 368, y: 296, tag: "ESMERALDAS",           value: "Polo mundial", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "goiania",      name: "Goiânia",       x: 395, y: 335, tag: "HUB FINANCEIRO",      value: "R$ 12B PIB",   lx: 3, ly: -2, anchor: "start" as const },
+  { id: "brasilia",     name: "Brasília",       x: 412, y: 312, tag: "CAPITAL FEDERAL",      value: "Governança",   lx: 3, ly: -2, anchor: "start" as const },
+  { id: "rioverde",     name: "Rio Verde",      x: 365, y: 355, tag: "SOJA · MILHO",         value: "US$ 4.2B exp", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "jatai",        name: "Jataí",          x: 350, y: 360, tag: "GRÃOS · PROTEÍNA",     value: "Top 10 Agro",  lx: -3, ly: -2, anchor: "end" as const },
+  { id: "catalao",      name: "Catalão",        x: 405, y: 360, tag: "NIÓBIO · MINERAÇÃO",   value: "CMOC/Niobras", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "camposverdes", name: "Campos Verdes",  x: 375, y: 290, tag: "ESMERALDAS",           value: "Polo mundial", lx: 3, ly: -2, anchor: "start" as const },
 ];
 
 const routes = [
@@ -114,7 +114,10 @@ export default function GoiasFlowMap({ scrollProgress }: GoiasFlowMapProps) {
   const uid = useId();
 
   // Listen to scroll progress
-  useMotionValueEvent(scrollProgress || ({} as any), "change", (latest: number) => {
+  const { scrollYProgress } = useScroll();
+  const activeProgress = scrollProgress || scrollYProgress;
+
+  useMotionValueEvent(activeProgress, "change", (latest: number) => {
     if (typeof latest === "number" && !isNaN(latest)) {
       setProgress(latest);
     }

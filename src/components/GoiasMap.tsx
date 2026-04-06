@@ -9,12 +9,12 @@ const GOIAS_PATH = `m 416.97257,334.13114 -0.87,-1.01 0.21,-2.44 0.59,-1.19 -0.0
 
 /* Cities positioned relative to the viewBox — based on real geographic reference */
 const cities = [
-  { id: "goiania",      name: "Goiânia",       x: 392, y: 330, desc: "Centro financeiro e hub de liquidação",    lx: 3.5, ly: -2.5, anchor: "start" as const },
-  { id: "brasilia",     name: "Brasília (DF)",  x: 410, y: 318, desc: "Capital federal · Regulação e governança", lx: 3.5, ly: -2.5, anchor: "start" as const },
-  { id: "rioverde",     name: "Rio Verde",      x: 370, y: 362, desc: "Maior polo exportador de soja e milho",   lx: 3,   ly: -2.5, anchor: "start" as const },
-  { id: "jatai",        name: "Jataí",          x: 356, y: 356, desc: "Zona estratégica de grãos e proteína",    lx: -3,  ly: -2,   anchor: "end" as const },
-  { id: "catalao",      name: "Catalão",        x: 396, y: 362, desc: "Mineração e processamento industrial",    lx: 3.5, ly: -2.5, anchor: "start" as const },
-  { id: "camposverdes", name: "Campos Verdes",  x: 368, y: 296, desc: "Polo mundial de esmeraldas",              lx: 3.5, ly: -2,   anchor: "start" as const },
+  { id: "goiania",      name: "Goiânia",       x: 395, y: 335, desc: "Centro financeiro e hub de liquidação",    lx: 3.5, ly: -2.5, anchor: "start" as const },
+  { id: "brasilia",     name: "Brasília (DF)",  x: 412, y: 312, desc: "Capital federal · Regulação e governança", lx: 3.5, ly: -2.5, anchor: "start" as const },
+  { id: "rioverde",     name: "Rio Verde",      x: 365, y: 355, desc: "Maior polo exportador de soja e milho",   lx: 3,   ly: -2.5, anchor: "start" as const },
+  { id: "jatai",        name: "Jataí",          x: 350, y: 360, desc: "Zona estratégica de grãos e proteína",    lx: -3,  ly: -2,   anchor: "end" as const },
+  { id: "catalao",      name: "Catalão",        x: 405, y: 360, desc: "Mineração e processamento industrial",    lx: 3.5, ly: -2.5, anchor: "start" as const },
+  { id: "camposverdes", name: "Campos Verdes",  x: 375, y: 290, desc: "Polo mundial de esmeraldas",              lx: 3.5, ly: -2,   anchor: "start" as const },
 ];
 
 const connections = [

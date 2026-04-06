@@ -1,6 +1,5 @@
 import Footer from "@/components/Footer";
 import { FadeIn } from "@/components/FadeIn";
-import VolatilitySurface from "@/components/VolatilitySurface";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell, AreaChart, Area } from "recharts";
 
 const GOLD = "#C6A75C";
@@ -110,30 +109,6 @@ export default function ExecucaoPage() {
               </div>
             </FadeIn>
           </div>
-        </div>
-      </section>
-
-      {/* Vol Surface */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Modelagem de Opções</p>
-            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-12">Superfície de Volatilidade</h2>
-          </FadeIn>
-          <FadeIn delay={0.15}>
-            <div className="border border-white/5 bg-card/20 p-6 sm:p-10">
-              <VolatilitySurface />
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { t: "Skew de Volatilidade", d: "Puts out-of-the-money têm vol implícita maior." },
-                  { t: "Term Structure", d: "Vols de curto prazo sobem em eventos." },
-                  { t: "Smile de Opções", d: "A forma da superfície revela onde o mercado precifica maior risco." },
-                ].map((item, i) => (
-                  <div key={i} className="p-4 border border-white/5 bg-background/60"><p className="font-display text-sm text-primary mb-1">{item.t}</p><p className="text-muted-foreground text-xs font-light leading-relaxed">{item.d}</p></div>
-                ))}
-              </div>
-            </div>
-          </FadeIn>
         </div>
       </section>
 

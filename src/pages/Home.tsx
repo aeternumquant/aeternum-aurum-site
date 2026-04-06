@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Hero from "@/components/Hero";
-import FrameworkSection from "@/components/Framework";
 import Allocation from "@/components/Allocation";
 import ZonaPiloto from "@/components/ZonaPiloto";
 import CTA from "@/components/CTA";
@@ -28,9 +27,6 @@ export default function Home() {
     <main className="pt-14">
       {/* HERO: full viewport with parallax */}
       <Hero />
-
-      {/* FRAMEWORK: scroll-driven card reveals */}
-      <FrameworkSection />
 
       {/* ALLOCATION: animated bars */}
       <Allocation />
