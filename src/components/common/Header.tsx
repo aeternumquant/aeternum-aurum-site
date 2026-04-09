@@ -1,8 +1,9 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { WireframeCube } from "@/components/WireframeCube";
+import { WireframeCube } from "./WireframeCube";
 import { Menu, X } from "lucide-react";
+import { LanguageSelector } from "./LanguageSelector";
 
 const NAV_LINKS = [
   { label: "Início", to: "/" },
@@ -67,6 +68,7 @@ export default function Header() {
 
         {/* Right: buttons */}
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           <NavLink
             to="/acesso"
             className="hidden sm:flex items-center px-4 py-1.5 border border-primary/40 text-primary text-[9px] tracking-[0.2em] uppercase font-sans hover:bg-primary hover:text-background transition-all duration-300 btn-glow relative overflow-hidden"

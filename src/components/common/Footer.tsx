@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { WireframeCube } from "@/components/WireframeCube";
+import { WireframeCube } from "./WireframeCube";
 import { motion } from "framer-motion";
 
 const links = [

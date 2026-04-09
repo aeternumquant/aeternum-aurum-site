@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./common/FadeIn";
 
 const alvo = [
   { valor: "200+", titulo: "Produtores Segurados", desc: "Grandes produtores com cobertura de hedge digital ativa dentro do ciclo de 18 meses." },

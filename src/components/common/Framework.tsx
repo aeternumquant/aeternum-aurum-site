@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Globe, LineChart, ShieldAlert } from "lucide-react";
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./FadeIn";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 
 const cards = [

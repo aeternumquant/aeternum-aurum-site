@@ -1,8 +1,9 @@
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
-import { NavLink, Link } from "react-router-dom";
+import Footer from "../../components/common/Footer";
+import { FadeIn } from "../../components/common/FadeIn";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { shortPapers } from "@/lib/researchData";
+import { shortPapers } from "../../lib/researchData";
+import { useAuth } from "../../context/AuthContext";
 
 const tagColor: Record<string, string> = {
   Macro: "text-blue-400/70 border-blue-400/20",
@@ -19,7 +20,17 @@ const allTags = ["Todos", ...Array.from(new Set(shortPapers.map((p) => p.tag)))]
 
 export default function ResearchPage() {
   const [activeTag, setActiveTag] = useState("Todos");
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const papers = activeTag === "Todos" ? shortPapers : shortPapers.filter((p) => p.tag === activeTag);
+
+  const handlePaperClick = (paperId: string) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/research/${paperId}`);
+  };
 
   return (
     <main className="pt-14 min-h-screen">
@@ -48,7 +59,10 @@ export default function ResearchPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           {papers.map((p, i) => (
             <FadeIn key={p.id} delay={i * 0.06}>
-              <Link to={`/research/${p.id}`} className="block group p-6 border border-white/5 bg-card hover:bg-white/[0.02] hover:border-primary/20 transition-all cursor-pointer">
+              <div 
+                onClick={() => handlePaperClick(p.id)} 
+                className={`group p-6 border border-white/5 bg-card hover:bg-white/[0.02] hover:border-primary/20 transition-all cursor-pointer ${!isAuthenticated ? 'blur-sm hover:blur-sm' : ''}`}
+              >
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className={`text-[9px] tracking-widest uppercase border px-2 py-0.5 font-sans ${tagColor[p.tag] ?? "text-primary/60 border-primary/20"}`}>
@@ -65,7 +79,13 @@ export default function ResearchPage() {
                 </h3>
                 <p className="text-muted-foreground text-sm font-light leading-relaxed mb-4">{p.desc}</p>
                 <p className="text-[9px] text-primary/40 uppercase tracking-[0.2em]">{p.author}</p>
-              </Link>
+                
+                {!isAuthenticated && (
+                  <div className="mt-4 pt-4 border-t border-white/5 text-center">
+                    <p className="text-[10px] text-primary/60 tracking-widest uppercase font-medium">Clique para fazer login →</p>
+                  </div>
+                )}
+              </div>
             </FadeIn>
           ))}
         </div>

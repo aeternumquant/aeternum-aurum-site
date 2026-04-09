@@ -1,4 +1,4 @@
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./FadeIn";
 import { Wheat, TrendingUp, BarChart2, Droplets } from "lucide-react";
 import { motion } from "framer-motion";
 

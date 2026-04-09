@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { WireframeCube } from "@/components/WireframeCube";
+import { WireframeCube } from "./WireframeCube";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);

@@ -1,7 +1,8 @@
-import Allocation from "@/components/Allocation";
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
-import VolatilitySurface from "@/components/VolatilitySurface";
+import Allocation from "../components/common/Allocation";
+import Footer from "../components/common/Footer";
+import { FadeIn } from "../components/common/FadeIn";
+import VolatilitySurface from "../components/common/VolatilitySurface";
+import AllocationVisuals from "../components/AllocationVisuals";
 
 const categories = [
   { label: "Commodities & Real Assets", pct: "35%", color: "border-primary/30", intro: "Exposição estrutural a mercados físicos com alta correlação a choques de oferta e ciclos inflacionários.", topics: ["Agricultura", "Energia", "Metais Preciosos", "Índices Globais de Commodities"], strategy: "Futuros de commodities com roll estrutural. Em backwardation, o roll captura retorno positivo independente de direção de preço.", visual: [{ label: "Produção", arrow: "→", dest: "Armazenagem" }, { label: "Armazenagem", arrow: "→", dest: "Exportação" }, { label: "Exportação", arrow: "→", dest: "Futuros / Hedge" }] },
@@ -53,23 +54,14 @@ export default function AlocacoesPage() {
                       <p className="text-[9px] text-primary/50 tracking-widest uppercase mb-2">Estratégia Exemplo</p>
                       <p className="text-muted-foreground text-xs font-light leading-relaxed">{cat.strategy}</p>
                     </div>
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center h-full">
                       {(cat as any).hasVolSurface ? (
-                        <div className="w-full border border-white/5 bg-background/40 p-4"><VolatilitySurface /></div>
-                      ) : cat.visual ? (
+                        <div className="w-full border border-white/5 bg-background/40 p-4 min-h-[12rem] flex items-center justify-center"><VolatilitySurface /></div>
+                      ) : (
                         <div className="w-full">
-                          <p className="text-[9px] text-muted-foreground/30 tracking-widest uppercase mb-4 text-center">Fluxo da Estratégia</p>
-                          <div className="space-y-2">
-                            {cat.visual.map((v, j) => (
-                              <div key={j} className="flex items-center gap-2">
-                                <div className="flex-1 p-3 border border-white/5 bg-background/60 text-center"><span className="text-[10px] text-primary/70 tracking-wider">{v.label}</span></div>
-                                <span className="text-primary/30 text-xs shrink-0">{v.arrow}</span>
-                                <div className="flex-1 p-3 border border-white/5 bg-background/60 text-center"><span className="text-[10px] text-muted-foreground/60 tracking-wider">{v.dest}</span></div>
-                              </div>
-                            ))}
-                          </div>
+                          <AllocationVisuals type={cat.label} />
                         </div>
-                      ) : null}
+                      )}
                     </div>
                   </div>
                 </div>

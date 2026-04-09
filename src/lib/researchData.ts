@@ -142,7 +142,16 @@ export const researchPapers: ResearchPaper[] = [
 // O resto das antigas do Research para popular o grid e parecer ter volume, mas redirecionarão / não abrirão detalhe por enquanto (ou posso mockar rápido)
 export const shortPapers = [
   ...researchPapers,
-  { id: "artigo-ma", date: "Jan 2026", tag: "Event-Driven", title: "M&A Cross-Border em Setores Regulados: Oportunidades e Riscos", desc: "Levantamento de 48 transações em setores regulados nos últimos 5 anos e sua correlação com retornos anormais.", author: "Analista de Arbitragem", readTime: "8 min", sections: [] },
-  { id: "artigo-iso", date: "Mar 2026", tag: "Finanças Digitais", title: "ISO 20022 e Infraestrutura de Pagamentos Institucionais", desc: "Como o novo padrão de mensageria financeira redefine liquidação, custódia e fluxos interbancários globais.", author: "Tech & Ops", readTime: "10 min", sections: [] },
-  { id: "artigo-diesel", date: "Jan 2026", tag: "Logística", title: "Influência do Diesel no Plantio Agrícola de Goiás", desc: "Correlação entre preço do diesel e custo de plantio no estado de Goiás: impacto direto na margem do produtor.", author: "Operação Brasil", readTime: "5 min", sections: [] },
+  { id: "artigo-ma", date: "Jan 2026", tag: "Event-Driven", title: "M&A Cross-Border em Setores Regulados: Oportunidades e Riscos", desc: "Levantamento de 48 transações em setores regulados nos últimos 5 anos e sua correlação com retornos anormais.", author: "Analista de Arbitragem", readTime: "8 min", sections: [
+    { type: "abstract", content: "M&A em setores regulados apresentam distorções de preço que nossa mesa de Event-Driven explora com eficiência institucional." },
+    { type: "paragraph", content: "Este paper resume fatores observados em 48 transações que foram mapeadas globalmente entre 2021 e 2025. O prêmio de risco ('spread') captura as chances de veto por entidades reguladoras." }
+  ] },
+  { id: "artigo-iso", date: "Mar 2026", tag: "Finanças Digitais", title: "ISO 20022 e Infraestrutura de Pagamentos Institucionais", desc: "Como o novo padrão de mensageria financeira redefine liquidação, custódia e fluxos interbancários globais.", author: "Tech & Ops", readTime: "10 min", sections: [
+    { type: "abstract", content: "O padrão ISO 20022 oferece granularidade de dados sem precedentes, habilitando novos modelos de liquidação e reconciliação automática para Aeternum." },
+    { type: "paragraph", content: "A adoção por centrais interbancárias exige uma nova infraestrutura tecnológica de ponta que reduz custos de fricção transfronteiriça." }
+  ] },
+  { id: "artigo-diesel", date: "Jan 2026", tag: "Logística", title: "Influência do Diesel no Plantio Agrícola de Goiás", desc: "Correlação entre preço do diesel e custo de plantio no estado de Goiás: impacto direto na margem do produtor.", author: "Operação Brasil", readTime: "5 min", sections: [
+    { type: "abstract", content: "Nossos modelos quantitativos isolam o preço do diesel como o vetor de custo marginal mais expressivo no estado de Goiás para grãos." },
+    { type: "paragraph", content: "Através da análise de componentes principais (PCA), demonstramos que as oscilações de margem dos produtores goianos podem ser hedgiadas prevendo oscilações de combustíveis aliadas aos custos de frete rodoviário." }
+  ] },
 ];

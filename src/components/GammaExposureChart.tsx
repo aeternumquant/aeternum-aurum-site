@@ -1,25 +1,52 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import { useId, useState } from 'react';
-import { FadeIn } from './FadeIn';
+import { FadeIn } from './common/FadeIn';
 
-// Dados simulados realistas de Gamma Exposure para VALE3 / PETR4
-const gexData = [
-  { strike: 36.50, callGex: 120, putGex: -450 },
-  { strike: 37.00, callGex: 210, putGex: -580 },
-  { strike: 37.50, callGex: 340, putGex: -710 },
-  { strike: 38.00, callGex: 420, putGex: -890 }, // Suporte Delta Put
-  { strike: 38.50, callGex: 610, putGex: -520 },
-  { strike: 39.00, callGex: 950, putGex: -200 }, // Spot Atual Aprox.
-  { strike: 39.50, callGex: 1100, putGex: -100 },
-  { strike: 40.00, callGex: 1450, putGex: -50 },  // Call Wall / Resistência
-  { strike: 40.50, callGex: 850, putGex: -20 },
-  { strike: 41.00, callGex: 620, putGex: -10 },
-  { strike: 41.50, callGex: 310, putGex: 0 },
+// Dados de Gamma Exposure com preços reais B3 - 07/04/2026
+const gexDataPETR4 = [
+  { strike: 46.00, callGex: 120, putGex: -450 },
+  { strike: 47.00, callGex: 210, putGex: -580 },
+  { strike: 48.00, callGex: 340, putGex: -710 },
+  { strike: 48.50, callGex: 420, putGex: -890 }, // Suporte Delta Put
+  { strike: 49.00, callGex: 610, putGex: -520 },
+  { strike: 49.25, callGex: 950, putGex: -200 }, // Spot Atual - R$ 49.25
+  { strike: 49.50, callGex: 1100, putGex: -100 },
+  { strike: 50.00, callGex: 1450, putGex: -50 },  // Call Wall / Resistência
+  { strike: 50.50, callGex: 850, putGex: -20 },
+  { strike: 51.00, callGex: 620, putGex: -10 },
+  { strike: 51.50, callGex: 310, putGex: 0 },
 ];
+
+const gexDataVALE3 = [
+  { strike: 78.00, callGex: 80, putGex: -620 },
+  { strike: 79.00, callGex: 150, putGex: -850 },
+  { strike: 80.50, callGex: 220, putGex: -1100 }, // Put Support
+  { strike: 81.50, callGex: 450, putGex: -500 },
+  { strike: 83.00, callGex: 780, putGex: -200 }, // Spot Atual - R$ 83.00
+  { strike: 84.00, callGex: 1250, putGex: -50 },
+  { strike: 85.00, callGex: 1800, putGex: -10 }, // Call Wall
+  { strike: 86.00, callGex: 900, putGex: 0 },
+  { strike: 87.00, callGex: 400, putGex: 0 },
+];
+
+const gexDataJBSS3 = [
+  { strike: 35.50, callGex: 50, putGex: -300 },
+  { strike: 36.50, callGex: 120, putGex: -450 }, // Put Support
+  { strike: 37.50, callGex: 300, putGex: -150 },
+  { strike: 39.03, callGex: 500, putGex: -50 }, // Spot Atual - R$ 39.03
+  { strike: 40.00, callGex: 850, putGex: 0 },   // Call Wall
+  { strike: 41.00, callGex: 320, putGex: 0 },
+];
+
+const assetConfig = {
+   "PETR4": { data: gexDataPETR4, spot: 49.25, putSupport: 48.50, callWall: 50.00 },
+   "VALE3": { data: gexDataVALE3, spot: 83.00, putSupport: 80.50, callWall: 85.00 },
+   "JBSS3": { data: gexDataJBSS3, spot: 39.03, putSupport: 36.50, callWall: 40.00 }
+};
 
 export default function GammaExposureChart() {
   const uid = useId();
-  const [activeAsset, setActiveAsset] = useState("PETR4");
+  const [activeAsset, setActiveAsset] = useState<"PETR4" | "VALE3" | "JBSS3">("PETR4");
 
   // Formatador para o Tooltip com visual "Quant"
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -88,15 +115,15 @@ export default function GammaExposureChart() {
         <div className="grid grid-cols-3 gap-4 mb-8 border-y border-white/5 py-4 relative z-10">
           <div className="text-center border-r border-white/5">
             <p className="text-[10px] text-white/40 tracking-widest uppercase mb-1">Spot Price</p>
-            <p className="font-mono text-xl text-white/90">R$ 38.85</p>
+            <p className="font-mono text-xl text-white/90">R$ {assetConfig[activeAsset].spot.toFixed(2)}</p>
           </div>
           <div className="text-center border-r border-white/5">
             <p className="text-[10px] text-[#4CAF50]/60 tracking-widest uppercase mb-1">Call Wall</p>
-            <p className="font-mono text-xl text-[#4CAF50]">R$ 40.00</p>
+            <p className="font-mono text-xl text-[#4CAF50]">R$ {assetConfig[activeAsset].callWall.toFixed(2)}</p>
           </div>
           <div className="text-center">
             <p className="text-[10px] text-[#F44336]/60 tracking-widest uppercase mb-1">Put Support</p>
-            <p className="font-mono text-xl text-[#F44336]">R$ 38.00</p>
+            <p className="font-mono text-xl text-[#F44336]">R$ {assetConfig[activeAsset].putSupport.toFixed(2)}</p>
           </div>
         </div>
 
@@ -104,7 +131,7 @@ export default function GammaExposureChart() {
         <div className="h-[300px] w-full relative z-10">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={activeAsset === "PETR4" ? gexData : gexData.map(d => ({...d, callGex: d.callGex * Math.random(), putGex: d.putGex * Math.random()})) } // Simula mudança por enquanto
+              data={assetConfig[activeAsset].data}
               margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
               barGap={0}
             >
@@ -142,7 +169,7 @@ export default function GammaExposureChart() {
               
               {/* Linha indicando o Spot */}
               <ReferenceLine 
-                x={39.00} 
+                x={assetConfig[activeAsset].spot} 
                 stroke="rgba(198,167,92,0.4)" 
                 strokeDasharray="3 3" 
                 label={{ position: 'top', value: 'SPOT', fill: 'rgba(198,167,92,0.8)', fontSize: 10, fontFamily: 'monospace' }}

@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
-import { WireframeCube } from "@/components/WireframeCube";
-import ParticleField from "@/components/ParticleField";
+import { WireframeCube } from "../components/common/WireframeCube";
+import ParticleField from "../components/common/ParticleField";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <ParticleField />
-      <div className="relative z-10 flex flex-col items-center">
-        <WireframeCube className="w-16 h-16 mb-8 opacity-50" animate={false} />
-        <h1 className="font-display text-4xl text-primary mb-4 tracking-widest uppercase">404</h1>
-        <p className="text-muted-foreground text-sm tracking-wider uppercase mb-8">Página não encontrada</p>
-        <Link
-          to="/"
-          className="px-6 py-3 border border-primary/40 text-foreground/80 text-xs tracking-widest uppercase hover:bg-primary hover:text-background hover:border-primary transition-all duration-300"
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="text-center">
+        <WireframeCube />
+        <h1 className="text-6xl font-bold mt-8 mb-4">404</h1>
+        <p className="text-2xl mb-8">Página não encontrada</p>
+        
+        <Link 
+          to="/" 
+          className="inline-block px-8 py-4 bg-yellow-400 text-black font-medium rounded-lg hover:bg-yellow-300 transition-colors"
         >
-          Retornar à página inicial
+          Voltar para Home
         </Link>
       </div>
     </div>

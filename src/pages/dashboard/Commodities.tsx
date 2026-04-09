@@ -1,9 +1,9 @@
-import Agro from "@/components/Agro";
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
-import EscudoReal from "@/components/EscudoReal";
-import GovernancaEstrategica from "@/components/GovernancaEstrategica";
-import CommodityHedgeTabs from "@/components/CommodityHedgeTabs";
+import Agro from "../../components/common/Agro";
+import Footer from "../../components/common/Footer";
+import { FadeIn } from "../../components/common/FadeIn";
+import EscudoReal from "../../components/common/EscudoReal";
+import GovernancaEstrategica from "../../components/GovernancaEstrategica";
+import CommodityTerminal from "../../components/CommodityTerminal";
 
 const stats = [
   { value: "20%", label: "Alocação em Commodities" },
@@ -60,7 +60,7 @@ export default function CommoditiesPage() {
           </FadeIn>
           
           <FadeIn delay={0.2}>
-            <CommodityHedgeTabs />
+            <CommodityTerminal />
           </FadeIn>
         </div>
       </section>

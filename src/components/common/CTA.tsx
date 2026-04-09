@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./FadeIn";
 import { motion } from "framer-motion";
 
 export default function CTA() {

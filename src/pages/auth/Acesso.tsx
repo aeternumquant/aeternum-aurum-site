@@ -1,5 +1,5 @@
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
+import Footer from "../../components/common/Footer";
+import { FadeIn } from "../../components/common/FadeIn";
 import { useState } from "react";
 
 export default function AcessoPage() {

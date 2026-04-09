@@ -1,4 +1,4 @@
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./FadeIn";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 

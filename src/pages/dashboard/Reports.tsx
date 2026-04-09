@@ -1,5 +1,5 @@
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
+import Footer from "../../components/common/Footer";
+import { FadeIn } from "../../components/common/FadeIn";
 import { NavLink } from "react-router-dom";
 import { FileText, Lock } from "lucide-react";
 

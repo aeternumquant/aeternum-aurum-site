@@ -12,12 +12,12 @@ const GOIAS_PATH = `m 416.97257,334.13114 -0.87,-1.01 0.21,-2.44 0.59,-1.19 -0.0
 
 /* Cities with coordinates fitting the viewBox */
 const cities = [
-  { id: "goiania",      name: "Goiânia",       x: 395, y: 335, tag: "HUB FINANCEIRO",      value: "R$ 12B PIB",   lx: 3, ly: -2, anchor: "start" as const },
-  { id: "brasilia",     name: "Brasília",       x: 412, y: 312, tag: "CAPITAL FEDERAL",      value: "Governança",   lx: 3, ly: -2, anchor: "start" as const },
-  { id: "rioverde",     name: "Rio Verde",      x: 365, y: 355, tag: "SOJA · MILHO",         value: "US$ 4.2B exp", lx: 3, ly: -2, anchor: "start" as const },
-  { id: "jatai",        name: "Jataí",          x: 350, y: 360, tag: "GRÃOS · PROTEÍNA",     value: "Top 10 Agro",  lx: -3, ly: -2, anchor: "end" as const },
-  { id: "catalao",      name: "Catalão",        x: 405, y: 360, tag: "NIÓBIO · MINERAÇÃO",   value: "CMOC/Niobras", lx: 3, ly: -2, anchor: "start" as const },
-  { id: "camposverdes", name: "Campos Verdes",  x: 375, y: 290, tag: "ESMERALDAS",           value: "Polo mundial", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "goiania",      name: "Goiânia",       x: 394, y: 343, tag: "HUB FINANCEIRO",      value: "R$ 12B PIB",   lx: 3, ly: -2, anchor: "start" as const },
+  { id: "brasilia",     name: "Brasília",      x: 409.5, y: 329.5, tag: "CAPITAL FEDERAL", value: "Governança",   lx: 3, ly: -2, anchor: "start" as const },
+  { id: "rioverde",     name: "Rio Verde",     x: 374, y: 360, tag: "SOJA · MILHO",        value: "US$ 4.2B exp", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "jatai",        name: "Jataí",         x: 365, y: 377, tag: "GRÃOS · PROTEÍNA",    value: "Top 10 Agro",  lx: -3, ly: -2, anchor: "end" as const },
+  { id: "catalao",      name: "Catalão",       x: 409, y: 366, tag: "NIÓBIO · MINERAÇÃO",  value: "CMOC/Niobras", lx: 3, ly: -2, anchor: "start" as const },
+  { id: "camposverdes", name: "Campos Verdes", x: 390, y: 306, tag: "ESMERALDAS",          value: "Polo mundial", lx: 3, ly: -2, anchor: "start" as const },
 ];
 
 const routes = [
@@ -34,6 +34,7 @@ function getCity(id: string) {
 
 interface GoiasFlowMapProps {
   scrollProgress?: MotionValue<number>;
+  standalone?: boolean;
 }
 
 /* ─── Animated flow line between two cities ─── */
@@ -43,6 +44,7 @@ function AnimatedRoute({ from, to, index, progress }: {
   index: number;
   progress: number;
 }) {
+// ... Keep AnimatedRoute same
   const f = getCity(from);
   const t = getCity(to);
 
@@ -108,22 +110,38 @@ function AnimatedRoute({ from, to, index, progress }: {
   );
 }
 
-export default function GoiasFlowMap({ scrollProgress }: GoiasFlowMapProps) {
-  const [progress, setProgress] = useState(0);
+export default function GoiasFlowMap({ scrollProgress, standalone = false }: GoiasFlowMapProps) {
+  const [progress, setProgress] = useState(standalone ? 0 : 0);
   const [activeCity, setActiveCity] = useState<string | null>(null);
   const uid = useId();
 
-  // Listen to scroll progress
+  // Listen to scroll progress only if not standalone
   const { scrollYProgress } = useScroll();
   const activeProgress = scrollProgress || scrollYProgress;
 
+  useEffect(() => {
+    if (standalone) {
+      let currentProgress = 0;
+      const interval = setInterval(() => {
+        currentProgress += 0.01;
+        if (currentProgress >= 1) {
+          clearInterval(interval);
+          setProgress(1);
+        } else {
+          setProgress(currentProgress);
+        }
+      }, 30);
+      return () => clearInterval(interval);
+    }
+  }, [standalone]);
+
   useMotionValueEvent(activeProgress, "change", (latest: number) => {
-    if (typeof latest === "number" && !isNaN(latest)) {
+    if (!standalone && typeof latest === "number" && !isNaN(latest)) {
       setProgress(latest);
     }
   });
 
-  // Derive which cities are visible based on scroll
+  // Derive which cities are visible based on scroll (or auto progress)
   const visibleCities = useMemo(() => {
     const count = Math.floor(progress * cities.length * 1.8) + 1;
     return cities.slice(0, Math.min(count, cities.length));

@@ -1,7 +1,7 @@
-import FrameworkSection from "@/components/Framework";
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
-import GoiasFlowMap from "@/components/GoiasFlowMap";
+import FrameworkSection from "../components/common/Framework";
+import Footer from "../components/common/Footer";
+import { FadeIn } from "../components/common/FadeIn";
+import MacroRiskModels from "../components/common/MacroRiskModels";
 
 const steps = [
   { num: "01", title: "Identificação de Oportunidades", desc: "Mapeamento sistemático de distorções de preço em mercados globais via modelos quantitativos e análise fundamentalista." },
@@ -57,7 +57,7 @@ export default function FrameworkPage() {
             <p className="text-center text-muted-foreground text-sm font-light max-w-2xl mx-auto mb-16">Agentes operam 24 horas por dia, 7 dias por semana, monitorando fluxos globais de informação relevantes para mercados macro.</p>
           </FadeIn>
           <FadeIn delay={0.15}>
-            <div className="border border-white/5 bg-[#08090c] p-2 sm:p-4 mb-12"><GoiasFlowMap /></div>
+            <div className="mb-12"><MacroRiskModels /></div>
           </FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {streams.map((s, i) => (
@@ -76,6 +76,151 @@ export default function FrameworkPage() {
           </div>
         </div>
       </section>
+
+      {/* New: Capital Protection in Crises Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl opacity-30" />
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <FadeIn>
+            <p className="text-[10px] text-accent/60 tracking-[0.3em] uppercase mb-4">Resiliência & Proteção</p>
+            <h2 className="font-display text-4xl text-accent uppercase tracking-widest mb-6">Proteção de Capital em Crises</h2>
+            <p className="text-muted-foreground text-base leading-relaxed font-light max-w-3xl mb-12">
+              Implementamos protocolos multi-camada para monitorar liquidez em mercados, rastrear exposição a risco político e financeiro, e execute hedges preventivos usando ISO 20022 para liquidações internacionais seguras.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {/* Liquidity Tracking Card */}
+            <FadeIn delay={0.1}>
+              <div className="border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8 group hover:border-accent/40 transition-colors">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-display text-lg group-hover:bg-accent/30 transition-colors">
+                    ≋
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-accent tracking-wide mb-1">Rastreamento de Liquidez</h3>
+                    <p className="text-muted-foreground text-sm">Monitoramos spreads bid-ask, volumes de ordem, e profundidade de livro em tempo real</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded border border-white/10 p-4 space-y-3 text-xs font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Spread Médio</span>
+                    <span className="text-accent">0.15 bps</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Volume Diário</span>
+                    <span className="text-accent">$2.45B</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Profundidade (10M)</span>
+                    <span className="text-accent">$125M</span>
+                  </div>
+                  <div className="h-px bg-white/10 my-2" />
+                  <div className="flex justify-between text-primary">
+                    <span>Status Liquidez</span>
+                    <span className="animate-pulse">● Saudável</span>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Risk Management Card */}
+            <FadeIn delay={0.2}>
+              <div className="border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-8 group hover:border-primary/40 transition-colors">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-display text-lg group-hover:bg-primary/30 transition-colors">
+                    ◆
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-primary tracking-wide mb-1">Proteção contra Crises</h3>
+                    <p className="text-muted-foreground text-sm">Hedges dinâmicos contra risco político, bancário e de câmbio com derivativos cross-border</p>
+                  </div>
+                </div>
+                <div className="bg-white/5 rounded border border-white/10 p-4 space-y-3 text-xs font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Risco Político</span>
+                    <span className="text-primary">Cobertura 85%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Risco Câmbio</span>
+                    <span className="text-primary">Cobertura 92%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Risco Crédito</span>
+                    <span className="text-primary">Cobertura 78%</span>
+                  </div>
+                  <div className="h-px bg-white/10 my-2" />
+                  <div className="flex justify-between text-accent">
+                    <span>Exposição Residual</span>
+                    <span>2.3%</span>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+
+          {/* ISO 20022 & Cross-Border Payments Section */}
+          <FadeIn delay={0.3}>
+            <div className="border border-white/10 bg-gradient-to-r from-white/5 to-transparent p-8 mb-8">
+              <h3 className="font-display text-2xl text-primary uppercase tracking-wider mb-4">ISO 20022 - Pagamentos Transfronteiriços Modernos</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    Operamos sob o protocolo <span className="text-accent font-semibold">ISO 20022</span>, o padrão internacional para mensagens financeiras estruturadas. Isso permite:
+                  </p>
+                  <ul className="space-y-2 text-xs text-muted-foreground">
+                    <li className="flex gap-2"><span className="text-primary">✓</span> <span>Liquidação T+0 em múltiplas moedas</span></li>
+                    <li className="flex gap-2"><span className="text-primary">✓</span> <span>Rastreabilidade fim-a-fim de transferências</span></li>
+                    <li className="flex gap-2"><span className="text-primary">✓</span> <span>Conformidade com reguladores globais (Basel III, EMIR)</span></li>
+                    <li className="flex gap-2"><span className="text-primary">✓</span> <span>Redução de risco operacional em 40%</span></li>
+                  </ul>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded p-4 space-y-3 font-mono text-xs">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Tempo Médio de Liquidação</span>
+                    <span className="text-primary">2.1 min</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Taxa de Confirmação</span>
+                    <span className="text-accent">99.97%</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Moedas Suportadas</span>
+                    <span className="text-primary">45+</span>
+                  </div>
+                  <div className="h-px bg-white/10 my-2" />
+                  <div className="text-center text-accent">
+                    <p className="text-[10px] uppercase tracking-wider">Última Atualização</p>
+                    <p>07/04/2026 14:35 UTC</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Crisis Scenarios Card */}
+          <FadeIn delay={0.4}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="border border-white/5 bg-white/3 p-5 hover:bg-white/5 transition-colors">
+                <p className="text-[10px] text-primary/70 uppercase tracking-widest mb-2 font-semibold">Cenário 1: Crise Banco Central</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">Proteção via forwards de moeda, ouro e ativos não-correlacionados. Redução de drawdown: 65%</p>
+              </div>
+              <div className="border border-white/5 bg-white/3 p-5 hover:bg-white/5 transition-colors">
+                <p className="text-[10px] text-accent/70 uppercase tracking-widest mb-2 font-semibold">Cenário 2: Crack Acionário Global</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">Pivô para ativos defensivos e liquidez. Put spreads dinâmicas. Redução de drawdown: 48%</p>
+              </div>
+              <div className="border border-white/5 bg-white/3 p-5 hover:bg-white/5 transition-colors">
+                <p className="text-[10px] text-orange-400/70 uppercase tracking-widest mb-2 font-semibold">Cenário 3: Evento Geopolítico</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">Realocação para mercados não-afetados, comodidades e ativos seguros. Redução de drawdown: 72%</p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       <FrameworkSection />
       <Footer />
     </main>

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FadeIn } from "@/components/FadeIn";
+import { FadeIn } from "./FadeIn";
 
 const triade = [
   { num: "01", titulo: "Desvalorização Monetária", desc: "Preservação de poder de compra via Hard Assets físicos e derivativos lastreados em commodities reais.", icone: "◈" },

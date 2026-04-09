@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FadeIn } from "./FadeIn";
+import { FadeIn } from "./common/FadeIn";
 
 const hedgeTabs = [
   {

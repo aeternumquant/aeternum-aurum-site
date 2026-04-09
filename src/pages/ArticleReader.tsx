@@ -1,12 +1,15 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { MoveLeft } from "lucide-react";
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
-import { shortPapers } from "@/lib/researchData";
-import NotFound from "@/pages/not-found";
+import Footer from "../components/common/Footer";
+import { FadeIn } from "../components/common/FadeIn";
+import { shortPapers } from "../lib/researchData";
+import { useAuth } from "../context/AuthContext";
+import NotFound from "./not-found";
 
 export default function ArticleReader() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const paper = shortPapers.find((p) => p.id === id);
 
   if (!paper || !paper.sections || paper.sections.length === 0) {
@@ -63,7 +66,7 @@ export default function ArticleReader() {
         </FadeIn>
 
         {/* Article Body */}
-        <div className="prose prose-invert prose-p:font-serif prose-p:text-lg prose-p:text-muted-foreground prose-p:leading-loose prose-h2:font-display prose-h2:text-3xl prose-h2:text-primary prose-h2:font-normal prose-h2:mt-16 prose-h2:tracking-wide max-w-none">
+        <div className={`prose prose-invert prose-p:font-serif prose-p:text-lg prose-p:text-muted-foreground prose-p:leading-loose prose-h2:font-display prose-h2:text-3xl prose-h2:text-primary prose-h2:font-normal prose-h2:mt-16 prose-h2:tracking-wide max-w-none ${!isAuthenticated ? 'blur-md' : ''}`}>
           {paper.sections.map((sec, idx) => (
             <FadeIn key={idx} delay={0.1 * (idx % 3)}>
               {sec.type === "abstract" && (
@@ -158,6 +161,33 @@ export default function ArticleReader() {
             </Link>
           </div>
         </FadeIn>
+
+        {!isAuthenticated && (
+          <FadeIn delay={0.8}>
+            <div className="mt-16 p-8 border border-primary/30 bg-card/40 backdrop-blur-sm rounded-sm">
+              <p className="text-center font-display text-xl text-primary tracking-widest uppercase mb-6">
+                Acesso Requerido
+              </p>
+              <p className="text-center text-muted-foreground text-sm font-light mb-8 max-w-2xl mx-auto">
+                O conteúdo completo desta pesquisa é restrito a parceiros e investidores qualificados. Faça login para acessar o relatório com toda a análise quantitativa, apêndices matemáticos e código de execução.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="px-8 py-3 bg-primary text-background text-[10px] tracking-[0.2em] uppercase font-sans hover:bg-primary/90 transition-all duration-300 font-medium"
+                >
+                  Fazer Login
+                </button>
+                <Link
+                  to="/acesso"
+                  className="px-8 py-3 border border-primary/40 text-primary text-[10px] tracking-[0.2em] uppercase font-sans hover:border-primary/60 hover:bg-primary/5 transition-all duration-300"
+                >
+                  Solicitar Acesso
+                </Link>
+              </div>
+            </div>
+          </FadeIn>
+        )}
       </article>
 
       <Footer />

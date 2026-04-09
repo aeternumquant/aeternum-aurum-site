@@ -1,8 +1,8 @@
-import Footer from "@/components/Footer";
-import { FadeIn } from "@/components/FadeIn";
+import Footer from "../../components/common/Footer";
+import { FadeIn } from "../../components/common/FadeIn";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { WireframeCube } from "@/components/WireframeCube";
+import { WireframeCube } from "../../components/common/WireframeCube";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
