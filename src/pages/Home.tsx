@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Hero from "../components/common/Hero";
-import ZonaPiloto from "../components/common/ZonaPiloto";
 import CTA from "../components/common/CTA";
 import Footer from "../components/common/Footer";
 import AnimatedCounter from "../components/common/AnimatedCounter";
@@ -20,59 +20,64 @@ const accessTiers = [
     id: "circle",
     name: "Aeternum Circle",
     audience: "Grandes capitalistas e investidores institucionais",
-    description: "O nível mais exclusivo para quem constrói império de capital duradouro.",
+    description: "O nível mais exclusivo para quem constrói império de capital duradouro. Mediante convite.",
+    badge: "Mediante Convite",
     benefits: [
-      "Acesso total aos modelos quantitativos proprietários",
+      "Modelos quantitativos proprietários com Sharpe 0.94+",
       "Portal privado com análises diárias de risco macro",
-      "Conexão direta com especialistas em proteção de capital",
-      "Sinais de entrada/saída em crises políticas e financeiras",
-      "Acessibilidade a ISO 20022 e fluxos institucionais",
+      "Sinais de entrada/saída em crises em tempo real",
+      "Dados de fluxo Brasil-EUA institucionais",
+      "Padrões ISO 20022 e liquidação global",
       "Consultoria personalizada trimestral",
-      "Índice Sharpe 0.94+",
+      "Acesso ilimitado a inteligência proprietária",
     ],
     price: "Sob consulta",
     cta: "Solicitar Acesso",
+    capabilities: "Alerta em tempo real + Consultoria + Full Access",
     highlight: true,
   },
   {
     id: "partners",
     name: "Strategic Partners",
     audience: "Afiliados, consultores e analistas",
-    description: "Para quem quer distribuir inteligência institucional com nosso suporte.",
+    description: "Para quem quer distribuir inteligência institucional com nosso suporte de classe mundial.",
     benefits: [
-      "Biblioteca de análises macro quantitativas",
+      "Biblioteca completa: análises macro quantitativas",
       "Dados de fluxo Brasil-EUA em tempo real",
       "Modelos de proteção assimétrica de capital",
-      "Dashboards customizáveis",
-      "Suporte técnico dedicado",
-      "Comissão em cada indicação ativa",
-      "Updates semanais de inteligência",
+      "Dashboards customizáveis para seus clientes",
+      "Suporte técnico e comercial dedicado",
+      "Estrutura de comissão em cada indicação ativa",
+      "Updates semanais e relatórios premium",
     ],
     price: "A partir de R$ 5.000/mês",
-    cta: "Virar Parceiro",
+    cta: "Solicitar Acesso",
+    capabilities: "Análises Full + Dashboards + Suporte Dedicado",
     highlight: false,
   },
   {
     id: "access",
     name: "Intelligence Access",
     audience: "Traders em formação e jovens analistas",
-    description: "Para quem quer aprender e acompanhar os melhores modelos do mercado.",
+    description: "Para quem quer aprender e acompanhar os melhores modelos de proteção de capital.",
     benefits: [
-      "Acesso aos relatórios de inteligência macro",
-      "Histórico de análises e correlações",
-      "Webinários mensais sobre modelos quantitativos",
-      "Comunidade privada com especialistas",
-      "Análise de fluxos agro-institucionais",
-      "Ferramentas de backtesting básicas",
-      "Certificado de conclusão disponível",
+      "Acesso aos relatórios de inteligência macro quantitativa",
+      "Histórico de análises e backtesting de correlações",
+      "Webinários mensais com especialistas em modelos",
+      "Comunidade privada com traders e analistas",
+      "Análise de fluxos agro-institucionais Brasil-EUA",
+      "Ferramentas básicas de análise e backtesting",
+      "Certificado de conclusão e acesso permanente",
     ],
     price: "R$ 299/mês",
-    cta: "Começar Agora",
+    cta: "Solicitar Acesso",
+    capabilities: "Análises + Educação + Comunidade",
     highlight: false,
   },
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const metricsRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: metricsProgress } = useScroll({
     target: metricsRef,
@@ -82,39 +87,17 @@ export default function Home() {
 
   const [hoveredTier, setHoveredTier] = useState<string | null>(null);
 
+  const handleAccessClick = () => {
+    navigate("/acesso");
+  };
+
   return (
     <main className="pt-14">
       {/* HERO: full viewport with parallax */}
       <Hero />
 
-      {/* METRICS: parallax strip with animated counters - right after Hero */}
-      <section
-        ref={metricsRef}
-        className="py-20 border-y border-white/5 bg-background relative overflow-hidden"
-      >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px shimmer-line" />
-        <motion.div style={{ y: metricsY }} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 divide-x divide-white/5">
-            {metrics.map((m, i) => (
-              <FadeIn key={i} delay={i * 0.1} direction="none">
-                <div className="text-center px-4">
-                  <AnimatedCounter
-                    value={m.value}
-                    className="font-display sm:text-4xl lg:text-5xl text-primary mb-3 text-center text-[35px]"
-                  />
-                  <div className="font-sans text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest">
-                    {m.label}
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </motion.div>
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px shimmer-line" />
-      </section>
-
       {/* QUEM SOMOS */}
-      <section className="py-24 border-b border-white/5 bg-background relative overflow-hidden">
+      <section className="py-24 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -141,7 +124,7 @@ export default function Home() {
       </section>
 
       {/* O QUE FAZEMOS */}
-      <section className="py-24 border-b border-white/5 bg-background relative overflow-hidden">
+      <section className="py-24 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -206,12 +189,44 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            <div className="mt-16 pt-8 border-t border-white/5 text-center">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Esses são os fundamentos que alimentam nossa capacidade de proteger e multiplicar capital em qualquer cenário de mercado.
+              </p>
+            </div>
           </FadeIn>
         </div>
       </section>
 
+      {/* METRICS: ativos sob gestão e outros dados */}
+      <section
+        ref={metricsRef}
+        className="py-20 border-y border-white/5 bg-background relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px shimmer-line" />
+        <motion.div style={{ y: metricsY }} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 divide-x divide-white/5">
+            {metrics.map((m, i) => (
+              <FadeIn key={i} delay={i * 0.1} direction="none">
+                <div className="text-center px-4">
+                  <AnimatedCounter
+                    value={m.value}
+                    className="font-display sm:text-4xl lg:text-5xl text-primary mb-3 text-center text-[35px]"
+                  />
+                  <div className="font-sans text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest">
+                    {m.label}
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </motion.div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px shimmer-line" />
+      </section>
+
       {/* NÍVEIS DE ACESSO */}
-      <section className="py-24 border-b border-white/5 bg-background relative overflow-hidden">
+      <section className="py-24 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -246,10 +261,10 @@ export default function Home() {
                 } ${tier.highlight ? "scale-105 md:scale-110" : ""} p-8`}
               >
                 {/* Badge */}
-                {tier.highlight && (
+                {tier.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <div className="bg-gradient-to-r from-primary to-primary/70 px-3 py-1 rounded-full text-xs font-bold text-background uppercase tracking-wider">
-                      Mais Exclusivo
+                      {tier.badge}
                     </div>
                   </div>
                 )}
@@ -268,9 +283,11 @@ export default function Home() {
                   <p className="font-display text-3xl text-primary font-bold mb-1">
                     {tier.price}
                   </p>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Acesso completo a todas as ferramentas
-                  </p>
+                  {tier.capabilities && (
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                      {tier.capabilities}
+                    </p>
+                  )}
                 </div>
 
                 {/* Benefits */}
@@ -292,6 +309,7 @@ export default function Home() {
 
                 {/* CTA Button */}
                 <motion.button
+                  onClick={handleAccessClick}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   className={`w-full py-3 px-4 rounded-sm font-display uppercase tracking-wider text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 group/btn ${
@@ -310,9 +328,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ZONA PILOTO: world map (Fluxo Macro) - KEEP AT END */}
-      <ZonaPiloto />
 
       {/* CTA */}
       <CTA />

@@ -2,6 +2,7 @@ import FrameworkSection from "../components/common/Framework";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
 import MacroRiskModels from "../components/common/MacroRiskModels";
+import ZonaPiloto from "../components/common/ZonaPiloto";
 
 const steps = [
   { num: "01", title: "Identificação de Oportunidades", desc: "Mapeamento sistemático de distorções de preço em mercados globais via modelos quantitativos e análise fundamentalista." },
@@ -76,6 +77,9 @@ export default function FrameworkPage() {
           </div>
         </div>
       </section>
+
+      {/* ZONA PILOTO: World Map with Real-Time Commodity Flows */}
+      <ZonaPiloto />
 
       {/* New: Capital Protection in Crises Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
