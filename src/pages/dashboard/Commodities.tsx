@@ -53,7 +53,7 @@ export default function CommoditiesPage() {
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Intervenção Quantitativa</p>
-            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4">Hedge Estrutural & Assimetrias</h2>
+            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4">Hedge Estrutural & Assimetrias por Commodity</h2>
             <p className="text-muted-foreground text-sm leading-relaxed font-light max-w-2xl mb-12">
               Transformamos riscos em teses de proteção. Selecione o segmento abaixo para entender como a plataforma isola e protege o capital em cenários não-lineares.
             </p>

@@ -1,12 +1,35 @@
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { WireframeCube } from "../../components/common/WireframeCube";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  function handleSubmit(e: React.FormEvent) { e.preventDefault(); setLoading(true); setTimeout(() => setLoading(false), 1500); }
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  async function handleSubmit(e: React.FormEvent) { 
+    e.preventDefault(); 
+    setLoading(true); 
+    setError("");
+    try {
+      const res = await login(email, password);
+      if (res.success) {
+        navigate("/reports");
+      } else {
+        setError(res.message || "Falha na autenticação");
+      }
+    } catch (err) {
+      setError("Erro ao autenticar");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="pt-14 min-h-screen flex flex-col">
@@ -19,13 +42,14 @@ export default function LoginPage() {
             <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Aeternum Aurum Partners</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <div className="text-red-500/80 text-[11px] tracking-wide text-center bg-red-500/10 border border-red-500/20 py-2 rounded-sm mb-4">{error}</div>}
             <div>
               <label htmlFor="email" className="block text-[10px] text-muted-foreground tracking-[0.2em] uppercase mb-2 font-sans">E-mail</label>
-              <input id="email" type="email" placeholder="seu@email.com" required className="w-full bg-card border border-white/8 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 transition-colors font-sans" />
+              <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required className="w-full bg-card border border-white/8 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 transition-colors font-sans" />
             </div>
             <div>
               <label htmlFor="password" className="block text-[10px] text-muted-foreground tracking-[0.2em] uppercase mb-2 font-sans">Senha</label>
-              <input id="password" type="password" placeholder="••••••••" required className="w-full bg-card border border-white/8 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 transition-colors font-sans" />
+              <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="w-full bg-card border border-white/8 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 transition-colors font-sans" />
             </div>
             <div className="flex justify-end">
               <button type="button" className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground tracking-wider font-sans transition-colors">Esqueci minha senha</button>

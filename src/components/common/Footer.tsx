@@ -42,7 +42,7 @@ export default function Footer() {
           <div className="space-y-2 text-[10px] text-muted-foreground/40 tracking-wider font-light">
             <p>© {new Date().getFullYear()} Aeternum Aurum Partners. Todos os direitos reservados.</p>
             <p className="max-w-md mx-auto leading-relaxed">
-              Material destinado exclusivamente a investidores profissionais qualificados. Não constitui oferta pública de valores mobiliários.
+              Exclusivo para investidores profissionais.
             </p>
           </div>
         </div>

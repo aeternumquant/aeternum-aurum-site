@@ -22,7 +22,7 @@ const streams = [
 
 export default function FrameworkPage() {
   return (
-    <main className="pt-14 min-h-screen">
+    <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
@@ -33,6 +33,98 @@ export default function FrameworkPage() {
           </FadeIn>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════════════
+          RESUMO PARA O PÚBLICO — LINGUAGEM ACESSÍVEL
+          Posicionado logo após o hero, antes dos passos técnicos
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
+        <div className="max-w-4xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+              Entendendo a Plataforma
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+              Em Linguagem Simples
+            </h2>
+            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-8" />
+            <p className="text-muted-foreground text-base leading-relaxed text-center max-w-2xl mx-auto mb-12">
+              Você não precisa ser matemático ou economista para entender o que fazemos.
+              Aqui está o que a Aeternum Aurum faz, explicado de forma direta.
+            </p>
+          </FadeIn>
+
+          {/* 4 Conceitos em Linguagem Simples */}
+          <div className="grid sm:grid-cols-2 gap-5 mb-12">
+            {[
+              {
+                icone: "◆",
+                titulo: "O que é o 'medo do mercado' e por que importa?",
+                corpo: `Existe um indicador chamado VIX — chamamos de "termômetro do medo". Quando está alto,
+                  os grandes investidores estão com medo. Quando está baixo, estão confiantes demais.
+                  Ambos os extremos criam oportunidades. A Aeternum lê esse termômetro antes de qualquer decisão.`,
+              },
+              {
+                icone: "◆",
+                titulo: "Por que dados valem mais que opiniões?",
+                corpo: `Um analista pode estar certo ou errado. Dados de posicionamento de mercado mostram
+                  o que as pessoas realmente estão fazendo com seu dinheiro — não o que elas falam.
+                  Nosso sistema lê essas "pegadas digitais" e toma decisões baseadas em fatos, não em narrativas.`,
+              },
+              {
+                icone: "◆",
+                titulo: "Como protegemos seu capital em crises?",
+                corpo: `Usamos um sistema de proteção chamado hedge — como um seguro para seu investimento.
+                  Quando identificamos risco crescendo (o VIX subindo, por exemplo), compramos proteção
+                  preventiva. É o equivalente a colocar um seguro no carro antes de sair na chuva forte.`,
+              },
+              {
+                icone: "◆",
+                titulo: "O que significa 'quantitativo' na prática?",
+                corpo: `Significa que todas as nossas decisões têm número. Em vez de dizer "achamos que soja vai
+                  subir", dizemos "há 68% de probabilidade de soja entre R$128 e R$148 nos próximos 30 dias,
+                  baseado em dados de opções, estoques e sazonalidade". Isso permite tamanhar o risco corretamente.`,
+              },
+            ].map((item, i) => (
+              <FadeIn key={i} delay={i * 0.1} direction="up">
+                <div className="border border-white/8 bg-card/40 p-6 h-full hover:border-primary/20 transition-colors">
+                  <div className="flex items-start gap-3 mb-3">
+                    <span className="text-primary/50 text-xs mt-0.5 flex-shrink-0">{item.icone}</span>
+                    <h3 className="font-display text-sm text-foreground tracking-wide leading-snug">
+                      {item.titulo}
+                    </h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{item.corpo}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+
+          {/* 5 Princípios de Investimento Responsável */}
+          <FadeIn delay={0.4}>
+            <div className="border border-primary/15 bg-primary/3 p-6">
+              <h3 className="font-display text-base text-primary uppercase tracking-wider mb-5 text-center">
+                5 Princípios que Guiam Todas as Nossas Decisões
+              </h3>
+              <div className="grid sm:grid-cols-5 gap-4">
+                {[
+                  { num: "I",    txt: "Dados primeiro, sempre" },
+                  { num: "II",   txt: "Risco definido antes da entrada" },
+                  { num: "III",  txt: "Diversificação real, não aparente" },
+                  { num: "IV",   txt: "Proteção automática em crises" },
+                  { num: "V",    txt: "Transparência total no processo" },
+                ].map((p) => (
+                  <div key={p.num} className="text-center">
+                    <div className="font-display text-2xl text-primary/30 mb-1">{p.num}</div>
+                    <p className="text-[10px] text-muted-foreground/60 leading-tight">{p.txt}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/20 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-10">

@@ -1,13 +1,12 @@
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
-// Service ID e Template ID do EmailJS
-const EMAILJS_SERVICE_ID = "service_eadau0k";
+// Configurações do EmailJS
+const EMAILJS_SERVICE_ID = "service_hxdhhwl";
 const EMAILJS_TEMPLATE_ID = "template_7qpvcfb";
-const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "xBkCxEH6hbqTg0i_j";
 
 interface FormData {
   nome: string;
@@ -40,6 +39,10 @@ export default function AcessoPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    emailjs.init("sgKrol4iaQOGwXuFk");
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -65,7 +68,7 @@ export default function AcessoPage() {
     setLoading(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
@@ -83,41 +86,29 @@ export default function AcessoPage() {
     setLoading(true);
 
     try {
-      emailjs.init(EMAILJS_PUBLIC_KEY);
-
-      const response = await emailjs.send(
+      const result = await emailjs.sendForm(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
-        {
-          to_email: "gabriel@aeternumaurum.com",
-          from_name: formData.nome,
-          from_email: formData.email,
-          telefone: formData.telefone || "Não informado",
-          empresa: formData.empresa,
-          tipo: tiposInvestidor.find((t) => t.value === formData.tipo)?.label || formData.tipo,
-          mensagem: formData.mensagem || "Sem mensagem adicional",
-          reply_to: formData.email,
-        }
+        e.currentTarget
       );
 
-      if (response.status === 200) {
-        setSuccess(true);
-        setLoading(false);
-        setTimeout(() => {
-          setFormData({
-            nome: "",
-            email: "",
-            telefone: "",
-            empresa: "",
-            tipo: "",
-            mensagem: "",
-          });
-        }, 500);
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Erro ao enviar formulário. Tente novamente.";
-      setError(errorMessage);
+      console.log('✅ Email enviado!', result.text);
+      setSuccess(true);
+      
+      setTimeout(() => {
+        setFormData({
+          nome: "",
+          email: "",
+          telefone: "",
+          empresa: "",
+          tipo: "",
+          mensagem: "",
+        });
+      }, 500);
+    } catch (err: any) {
+      console.error('❌ Erro ao enviar:', err);
+      setError(err.text || 'Erro ao enviar formulário. Tente novamente.');
+    } finally {
       setLoading(false);
     }
   };
@@ -206,6 +197,7 @@ export default function AcessoPage() {
                     </label>
                     <input
                       id={field.id}
+                      name={field.id}
                       type={field.type}
                       placeholder={field.placeholder}
                       value={formData[field.id as keyof FormData]}
@@ -224,6 +216,7 @@ export default function AcessoPage() {
                   </label>
                   <select
                     id="tipo"
+                    name="tipo"
                     value={formData.tipo}
                     onChange={handleChange}
                     disabled={loading}
@@ -248,6 +241,7 @@ export default function AcessoPage() {
                   </label>
                   <textarea
                     id="mensagem"
+                    name="mensagem"
                     rows={4}
                     placeholder="Descreva brevemente seu perfil ou interesse específico..."
                     value={formData.mensagem}

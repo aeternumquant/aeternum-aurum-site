@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage, type Locale } from "../../context/LanguageContext";
 
-const LANGUAGES = [
+const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
   { code: "pt-BR", label: "PORTUGUÊS", flag: "🇧🇷" },
   { code: "en-US", label: "ENGLISH", flag: "🇺🇸" },
   { code: "es-ES", label: "ESPAÑOL", flag: "🇪🇸" },
@@ -10,8 +11,10 @@ const LANGUAGES = [
 
 export function LanguageSelector() {
   const [open, setOpen] = useState(false);
-  const [activeLang, setActiveLang] = useState(LANGUAGES[0]);
+  const { locale, setLocale } = useLanguage();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const activeLang = LANGUAGES.find((l) => l.code === locale) || LANGUAGES[0];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -24,7 +27,7 @@ export function LanguageSelector() {
   }, []);
 
   const handleSelect = (lang: typeof LANGUAGES[0]) => {
-    setActiveLang(lang);
+    setLocale(lang.code);
     setOpen(false);
   };
 
@@ -54,7 +57,7 @@ export function LanguageSelector() {
                 key={lang.code}
                 onClick={() => handleSelect(lang)}
                 className={`flex items-center gap-2 px-3 py-2 text-left hover:bg-white/[0.04] transition-colors rounded-sm ${
-                  activeLang.code === lang.code ? "bg-primary/5 text-primary" : "text-muted-foreground hover:text-foreground"
+                  locale === lang.code ? "bg-primary/5 text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <span className="text-sm leading-none">{lang.flag}</span>
