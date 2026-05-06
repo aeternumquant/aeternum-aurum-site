@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -6,18 +6,21 @@ import Header from "./components/common/Header";
 import CursorGlow from "./components/common/CursorGlow";
 import { useLenis } from "./hooks/useLenis";
 
+// Importações Críticas (Carregam na hora)
 import Home from "./pages/Home";
-import FrameworkPage from "./pages/Framework";
-import AlocacoesPage from "./pages/Alocacoes";
-import ResearchPage from "./pages/dashboard/Research";
-import CommoditiesPage from "./pages/dashboard/Commodities";
-import AcessoPage from "./pages/auth/Acesso";
-import ReportsPage from "./pages/dashboard/Reports";
-import LoginPage from "./pages/auth/Login";
-import TecnologiaPage from "./pages/dashboard/Tecnologia";
-import ArticleReader from "./pages/ArticleReader";
-import ExecucaoPage from "./pages/dashboard/Execucao";
-import NotFound from "./pages/not-found";
+
+// Lazy Loading para Rotas Secundárias (Carregam sob demanda)
+const FrameworkPage = lazy(() => import("./pages/Framework"));
+const AlocacoesPage = lazy(() => import("./pages/Alocacoes"));
+const ResearchPage = lazy(() => import("./pages/dashboard/Research"));
+const CommoditiesPage = lazy(() => import("./pages/dashboard/Commodities"));
+const AcessoPage = lazy(() => import("./pages/auth/Acesso"));
+const ReportsPage = lazy(() => import("./pages/dashboard/Reports"));
+const LoginPage = lazy(() => import("./pages/auth/Login"));
+const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
+const ArticleReader = lazy(() => import("./pages/ArticleReader"));
+const ExecucaoPage = lazy(() => import("./pages/dashboard/Execucao"));
+const NotFound = lazy(() => import("./pages/not-found"));
 
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -48,34 +51,43 @@ function AnimatedRoutes() {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [location.pathname]);
 
+  // Loading State minimalista e elegante (estética de Terminal)
+  const TerminalLoader = () => (
+    <div className="w-full h-screen flex items-center justify-center bg-background text-primary font-mono text-[10px] tracking-[0.2em] uppercase">
+      <span className="animate-pulse">Loading modules...</span>
+    </div>
+  );
+
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        {/* Rotas Públicas - General Pages */}
-        <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
-        <Route path="/framework" element={<PageWrapper><FrameworkPage /></PageWrapper>} />
-        <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
-        <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
-        <Route path="/alocacoes" element={<PageWrapper><AlocacoesPage /></PageWrapper>} />
-        <Route path="/execucao" element={<PageWrapper><ExecucaoPage /></PageWrapper>} />
+      <Suspense fallback={<TerminalLoader />}>
+        <Routes location={location} key={location.pathname}>
+          {/* Rotas Públicas - General Pages */}
+          <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+          <Route path="/framework" element={<PageWrapper><FrameworkPage /></PageWrapper>} />
+          <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
+          <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
+          <Route path="/alocacoes" element={<PageWrapper><AlocacoesPage /></PageWrapper>} />
+          <Route path="/execucao" element={<PageWrapper><ExecucaoPage /></PageWrapper>} />
 
-        {/* Rotas Públicas - Authentication */}
-        <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
-        <Route path="/acesso" element={<PageWrapper><AcessoPage /></PageWrapper>} />
+          {/* Rotas Públicas - Authentication */}
+          <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
+          <Route path="/acesso" element={<PageWrapper><AcessoPage /></PageWrapper>} />
 
-        {/* Rotas Públicas - Research Section (Blurred Premium Content) */}
-        <Route path="/research" element={<PageWrapper><ResearchPage /></PageWrapper>} />
-        <Route path="/research/:id" element={<PageWrapper><ArticleReader /></PageWrapper>} />
+          {/* Rotas Públicas - Research Section (Blurred Premium Content) */}
+          <Route path="/research" element={<PageWrapper><ResearchPage /></PageWrapper>} />
+          <Route path="/research/:id" element={<PageWrapper><ArticleReader /></PageWrapper>} />
 
-        {/* Rotas Protegidas - Reports Only */}
-        <Route path="/reports" element={
-          <PrivateRoute>
-            <PageWrapper><ReportsPage /></PageWrapper>
-          </PrivateRoute>
-        } />
+          {/* Rotas Protegidas - Reports Only */}
+          <Route path="/reports" element={
+            <PrivateRoute>
+              <PageWrapper><ReportsPage /></PageWrapper>
+            </PrivateRoute>
+          } />
 
-        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
-      </Routes>
+          <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 }
