@@ -155,10 +155,11 @@ export default function Header() {
       <AnimatePresence>
         {menuAberto && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, scaleY: 0 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            style={{ transformOrigin: "top", willChange: "transform, opacity" }}
             className="overflow-hidden border-t border-white/5 bg-background/98 backdrop-blur-xl md:hidden"
           >
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-0.5">

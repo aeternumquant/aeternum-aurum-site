@@ -47,6 +47,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
+          style={{ willChange: "transform, opacity" }}
           className="mb-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 rounded-full bg-primary/5">
@@ -58,13 +59,14 @@ export default function Hero() {
         </motion.div>
 
         {/* Main Headline */}
-        <motion.div style={{ y: titleY, opacity: contentOpacity }}>
+        <motion.div style={{ y: titleY, opacity: contentOpacity, willChange: "transform, opacity" }}>
           <div className="overflow-hidden mb-4">
             <motion.h1
               className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl uppercase tracking-[0.15em] text-foreground font-light leading-tight"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              style={{ willChange: "transform, opacity" }}
             >
               Inteligência Quantitativa
             </motion.h1>
@@ -75,6 +77,7 @@ export default function Hero() {
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              style={{ willChange: "transform, opacity" }}
             >
               Institucional
             </motion.h2>
@@ -130,8 +133,8 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.6 }}
+          style={{ willChange: "transform, opacity", opacity: contentOpacity }}
           className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center"
-          style={{ opacity: contentOpacity }}
         >
           <button
             onClick={() => navigate("/acesso")}

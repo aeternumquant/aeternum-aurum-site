@@ -13,8 +13,8 @@ export function WireframeCube({ className, animate = true }: WireframeCubeProps)
       pathLength: 1,
       opacity: 1,
       transition: {
-        pathLength: { delay: i * 0.2, type: "spring", duration: 2, bounce: 0 },
-        opacity: { delay: i * 0.2, duration: 0.5 },
+        pathLength: { delay: i * 0.2, type: "spring", duration: 2.6, bounce: 0 },
+        opacity: { delay: i * 0.2, duration: 0.65 },
       },
     }),
   };
@@ -24,8 +24,8 @@ export function WireframeCube({ className, animate = true }: WireframeCubeProps)
         y: ["-4px", "4px", "-4px"],
         rotate: [0, 1, 0, -1, 0],
         transition: {
-          y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-          rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+          y: { duration: 7.8, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: 10.4, repeat: Infinity, ease: "easeInOut" },
         },
       }
     : {};
@@ -34,6 +34,7 @@ export function WireframeCube({ className, animate = true }: WireframeCubeProps)
     <motion.div
       className={cn("relative flex items-center justify-center", className)}
       animate={floatAnimation}
+      style={{ willChange: "transform" }}
     >
       <div className="absolute inset-0 glow-radial blur-2xl opacity-60 scale-150 rounded-full" />
       {/* Outer rotating ring */}
@@ -41,7 +42,8 @@ export function WireframeCube({ className, animate = true }: WireframeCubeProps)
         <motion.div
           className="absolute inset-[-12px] rounded-full border border-primary/[0.06]"
           animate={{ rotate: 360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 39, repeat: Infinity, ease: "linear" }}
+          style={{ willChange: "transform" }}
         />
       )}
       <svg
@@ -54,6 +56,7 @@ export function WireframeCube({ className, animate = true }: WireframeCubeProps)
           <motion.polygon
             points="50,5 95,30 95,80 50,105 5,80 5,30"
             variants={draw} custom={0} initial="hidden" animate="visible"
+            style={{ willChange: "pathLength, opacity" }}
           />
           <motion.polygon
             points="50,25 75,40 75,70 50,85 25,70 25,40"

@@ -38,6 +38,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
       animate="animate"
       exit="exit"
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      style={{ willChange: "transform, opacity, filter" }}
     >
       {children}
     </motion.div>
