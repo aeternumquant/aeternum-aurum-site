@@ -7,7 +7,9 @@ import VolatilitySurface from "../../components/common/VolatilitySurface";
 const DarkPoolLiquidity = lazy(() => import("../../components/DarkPoolLiquidity"));
 import { Tooltip } from "../../components/common/Tooltip";
 import { useLanguage } from "../../context/LanguageContext";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+const GexProfileChart = lazy(() => import("../../components/charts/tecnologia/GexProfileChart"));
+const FuturesCurveChart = lazy(() => import("../../components/charts/tecnologia/FuturesCurveChart"));
+const ScoreHistoryChart = lazy(() => import("../../components/charts/tecnologia/ScoreHistoryChart"));
 
 const curveData = [
   { days: 0, price: 2370, past: 2345 },
@@ -334,16 +336,9 @@ export default function TecnologiaPage() {
                 <h3 className="text-[#F5F5F5] font-display text-lg tracking-widest">{t("tec.dash.gexTitle", "Exposição Gamma Líquida (GEX)")}</h3>
                 <p className="text-[10px] text-muted-foreground mb-6">{t("tec.dash.gexDesc", "Analisa as métricas de formadores de mercado para antecipar pontos de rejeição de preço.")}</p>
                 <div className="w-full h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={gexProfileData} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }} barCategoryGap={1}>
-                      <XAxis type="number" hide />
-                      <YAxis type="category" dataKey="strike" tick={{ fill: "#8A8A8A", fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <RTooltip cursor={{ fill: "rgba(255,255,255,0.02)" }} contentStyle={{ backgroundColor: "#000", borderColor: "#333", fontSize: "10px" }} />
-                      <ReferenceLine x={0} stroke="rgba(255,255,255,0.2)" />
-                      <Bar dataKey="put" fill="#F44336" stackId="a" />
-                      <Bar dataKey="call" fill="#4CAF50" stackId="a" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}>
+                    <GexProfileChart data={gexProfileData} />
+                  </Suspense>
                 </div>
               </div>
               <div className="lg:col-span-4 bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-5">
@@ -361,15 +356,15 @@ export default function TecnologiaPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
                 <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.futuresCurve", "Estrutura Termo (Futuros)")}</h3>
-                <div className="flex-1 w-full"><ResponsiveContainer width="100%" height="100%"><LineChart data={curveData} margin={{ top: 10, right: 5, left: -20, bottom: 0 }}><XAxis dataKey="days" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><YAxis domain={['dataMin', 'dataMax']} tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.05)" vertical={false} /><Line type="monotone" dataKey="price" stroke="#4CAF50" strokeWidth={1.5} dot={false} /><Line type="monotone" dataKey="past" stroke="#F44336" strokeWidth={1} strokeDasharray="3 3" dot={false} /></LineChart></ResponsiveContainer></div>
+                <div className="flex-1 w-full"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><FuturesCurveChart data={curveData} /></Suspense></div>
               </div>
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
                 <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.momentumHistory", "Histórico de Momentum")}</h3>
-                <div className="flex-1 w-full mt-2"><ResponsiveContainer width="100%" height="100%"><LineChart data={scoreHistoryData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}><XAxis dataKey="d" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><YAxis domain={[0, 5]} ticks={[1,2,3,4,5]} tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.05)" vertical={false} /><Line type="stepAfter" dataKey="mom" stroke="#4CAF50" strokeWidth={1.5} dot={false} /></LineChart></ResponsiveContainer></div>
+                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="mom" stroke="#4CAF50" /></Suspense></div>
               </div>
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
                 <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.volHistory", "Histórico de Volatilidade")}</h3>
-                <div className="flex-1 w-full mt-2"><ResponsiveContainer width="100%" height="100%"><LineChart data={scoreHistoryData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}><XAxis dataKey="d" tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><YAxis domain={[0, 5]} ticks={[1,2,3,4,5]} tick={{ fill: "#666", fontSize: 9 }} axisLine={false} tickLine={false} /><CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.05)" vertical={false} /><Line type="stepAfter" dataKey="vol" stroke="#9C27B0" strokeWidth={1.5} dot={false} /></LineChart></ResponsiveContainer></div>
+                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="vol" stroke="#9C27B0" /></Suspense></div>
               </div>
             </div>
           </div>
