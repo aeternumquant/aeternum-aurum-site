@@ -29,7 +29,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const geoUrl = "https://unpkg.com/world-atlas@2.0.2/countries-110m.json";
+const geoUrl = "/data/countries-110m.json";
 
 /* ── Dourado da marca ── */
 const GOLD = "#C6A85A";
