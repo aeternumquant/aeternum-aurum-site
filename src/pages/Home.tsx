@@ -29,7 +29,7 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <section ref={ref} className="relative min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden bg-black pt-14">
+    <section id="hero" ref={ref} className="relative min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden bg-black pt-14">
       {/* Background texture */}
       <div
         className="absolute inset-0 z-0 opacity-70"
@@ -146,7 +146,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Nossa Abordagem */}
-      <section className="relative z-10 pt-20 pb-10 px-4 sm:px-6">
+      <section id="abordagem" className="relative z-10 pt-20 pb-10 px-4 sm:px-6">
         <RevealSection>
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-[#C6A85A] mb-4">Nossa Abordagem</h2>
@@ -161,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Os 4 Pilares */}
-      <section className="relative z-10 py-10 pb-16 px-4 sm:px-6">
+      <section id="pilares" className="relative z-10 py-10 pb-16 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -189,14 +189,14 @@ export default function Home() {
       </section>
 
       {/* Mapa Global logo abaixo de Nossa Abordagem */}
-      <section className="relative z-10 pt-4 pb-16">
+      <div className="relative z-10 pt-4 pb-16">
         <RevealSection delay={0.2}>
           <ZonaPiloto />
         </RevealSection>
-      </section>
+      </div>
 
       {/* Seção: Risco no Mercado */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 bg-[#0a0a0a]/50 border-y border-white/5">
+      <section id="risco-mensuravel" className="relative z-10 py-16 px-4 sm:px-6 bg-[#0a0a0a]/50 border-y border-white/5">
         <RevealSection>
           <div className="max-w-4xl mx-auto text-center">
             <h3 className="text-2xl sm:text-4xl font-display font-light text-[#C6A85A] mb-4 leading-snug">
@@ -211,7 +211,7 @@ export default function Home() {
       </section>
 
       {/* Seção: Proteção Mensurável (3 Passos) */}
-      <section className="relative z-10 py-24 px-4 sm:px-6">
+      <section id="metodologia" className="relative z-10 py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <RevealSection>
             <div className="text-center mb-16">
@@ -271,7 +271,7 @@ export default function Home() {
       </section>
 
       {/* Disclaimer Institucional */}
-      <section className="relative z-10 py-12 px-4 sm:px-6 bg-[#0a0a0a] border-t border-white/5">
+      <section id="disclaimer" className="relative z-10 py-12 px-4 sm:px-6 bg-[#0a0a0a] border-t border-white/5">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-[10px] sm:text-xs text-white/40 uppercase tracking-widest mb-4">Disclaimer & Risk Disclosure</p>
           <p className="text-[9px] sm:text-[10px] text-white/30 leading-relaxed font-light text-justify sm:text-center max-w-5xl mx-auto">

@@ -44,7 +44,7 @@ const zonas = [
 
 export default function ZonaPiloto() {
   return (
-    <section className="relative bg-[#08090c] border-t border-white/5">
+    <section id="fluxo-macro" className="relative bg-[#08090c] border-t border-white/5">
       {/* ── Título ── */}
       <div className="px-6 pt-12 pb-6 text-center">
         <motion.p
