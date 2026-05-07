@@ -42,7 +42,7 @@
 
 :root {
   --background: 0 0% 4%;          /* #0A0A0A Preto Profundo */
-  --foreground: 0 0% 96%;         /* #F5F5F5 Branco Neutro */
+  --foreground: 0 0% 98%;         /* #FAFAFA Contraste Máximo */
   --card: 0 0% 11%;               /* #1C1C1C Grafite */
   --card-foreground: 0 0% 96%;
   --card-border: 0 0% 14%;
@@ -56,7 +56,7 @@
   --secondary-foreground: 0 0% 96%;
   --secondary-border: 0 0% 18%;
   --muted: 0 0% 14%;
-  --muted-foreground: 0 0% 45%;
+  --muted-foreground: 0 0% 70%;   /* #B3B3B3 Legibilidade Premium */
   --muted-border: 0 0% 18%;
   --accent: 43 49% 57%;
   --accent-foreground: 0 0% 4%;
@@ -221,4 +221,13 @@ body::after {
 }
 .btn-glow:hover::before {
   opacity: 1;
+}
+
+/* Correção de Contraste WCAG 2.1 para Placeholders (Dark Theme) */
+::placeholder {
+  color: #949494 !important; 
+  opacity: 1 !important; /* Corrige transparência nativa do Firefox */
+}
+::-ms-input-placeholder { 
+  color: #949494 !important; 
 }

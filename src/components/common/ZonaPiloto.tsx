@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
-import GlobalFlowMap from "../maps/GlobalFlowMap";
+import { lazy, Suspense } from "react";
+
+const GlobalFlowMap = lazy(() => import("../maps/GlobalFlowMap"));
 
 const zonas = [
   {
@@ -67,7 +69,9 @@ export default function ZonaPiloto() {
 
       {/* ── Mapa Interativo ── */}
       <div className="w-full" style={{ height: "70vh", minHeight: 400, maxHeight: 700 }}>
-        <GlobalFlowMap />
+        <Suspense fallback={<div className="w-full h-full bg-[#1C1C1C] animate-pulse rounded" />}>
+          <GlobalFlowMap />
+        </Suspense>
       </div>
 
       {/* ── Cards de Zonas ── */}

@@ -17,10 +17,10 @@ export default function Hero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
 
   const stats = [
-    { number: "+30", label: "Indicadores Quantitativos" },
-    { number: "4", label: "Mercados Cobertos" },
-    { number: "24/7", label: "Monitoramento em Tempo Real" },
-    { number: "23+", label: "Anos de Track Record" },
+    { number: "Sigma-4", label: "Controle de Risco" },
+    { number: "24/7", label: "Monitoramento Sistêmico" },
+    { number: "0-Bias", label: "Execução Algorítmica" },
+    { number: "Decades", label: "Track Record Institucional" },
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function Hero() {
           <div className="inline-flex items-center gap-2 px-4 py-2 border border-primary/30 rounded-full bg-primary/5">
             <Zap className="w-4 h-4 text-primary" />
             <span className="text-[10px] font-display uppercase tracking-widest text-primary">
-              Plataforma Institucional
+              Private Partnership
             </span>
           </div>
         </motion.div>
@@ -68,7 +68,7 @@ export default function Hero() {
               transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
               style={{ willChange: "transform, opacity" }}
             >
-              Inteligência Quantitativa
+              Superioridade Matemática
             </motion.h1>
           </div>
           <div className="overflow-hidden">
@@ -79,7 +79,7 @@ export default function Hero() {
               transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
               style={{ willChange: "transform, opacity" }}
             >
-              Institucional
+              Gestão de Capital
             </motion.h2>
           </div>
         </motion.div>
@@ -93,15 +93,15 @@ export default function Hero() {
           style={{ opacity: contentOpacity }}
         >
           <p className="font-sans text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mb-6">
-            Dados que movem o Agro. Inteligência quantitativa institucional, feita para quem produz e protege capital no Brasil.
+            Implementando a Arquitetura da Inevitabilidade. Inteligência quantitativa estruturada para a preservação de legado e proteção sistemática de ativos reais.
           </p>
 
           <div className="w-16 h-px bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-8" />
 
           <p className="font-sans text-sm sm:text-base text-muted-foreground/90 leading-relaxed max-w-3xl">
-            <span className="text-primary font-semibold">Todo ângulo. Uma única plataforma.</span>
+            <span className="text-primary font-semibold">Exclusividade absoluta. Disciplina Institucional.</span>
             <br />
-            Todos os nossos modelos são quantitativos. Sem opiniões. Sem narrativa. Apenas dados puros, matemática e machine learning aplicados à estrutura de mercado. O mesmo rigor usado por mesas institucionais, agora acessível ao produtor, empresário e investidor brasileiro.
+            Nossa abordagem elimina o viés emocional através de modelagem matemática rigorosa. Operamos na fronteira da inteligência macro e tecnologia quantitativa, garantindo que o capital de nossos parceiros seja gerido com o mesmo rigor técnico das maiores mesas institucionais do globo.
           </p>
         </motion.div>
 

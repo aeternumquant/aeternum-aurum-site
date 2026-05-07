@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
-import GammaExposureChart from "../../components/GammaExposureChart";
+const GammaExposureChart = lazy(() => import("../../components/GammaExposureChart"));
 import OptionsMatrixGrid from "../../components/OptionsMatrixGrid";
 import VolatilitySurface from "../../components/common/VolatilitySurface";
-import DarkPoolLiquidity from "../../components/DarkPoolLiquidity";
+const DarkPoolLiquidity = lazy(() => import("../../components/DarkPoolLiquidity"));
 import { Tooltip } from "../../components/common/Tooltip";
 import { useLanguage } from "../../context/LanguageContext";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine } from "recharts";
@@ -246,7 +246,9 @@ export default function TecnologiaPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             <FadeIn delay={0.1} className="lg:col-span-7">
-              <GammaExposureChart />
+              <Suspense fallback={<div className="h-96 bg-[#1C1C1C] animate-pulse rounded" />}>
+                <GammaExposureChart />
+              </Suspense>
             </FadeIn>
             <FadeIn delay={0.2} className="lg:col-span-5 flex items-stretch">
               <div className="w-full flex items-center justify-center">
@@ -260,7 +262,9 @@ export default function TecnologiaPage() {
               <OptionsMatrixGrid />
             </FadeIn>
             <FadeIn delay={0.4} className="lg:col-span-4 flex items-stretch">
-              <DarkPoolLiquidity />
+              <Suspense fallback={<div className="h-96 bg-[#1C1C1C] animate-pulse rounded" />}>
+                <DarkPoolLiquidity />
+              </Suspense>
             </FadeIn>
           </div>
 

@@ -2,7 +2,9 @@ import Allocation from "../components/common/Allocation";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
 import VolatilitySurface from "../components/common/VolatilitySurface";
-import AllocationVisuals from "../components/AllocationVisuals";
+import { lazy, Suspense } from "react";
+
+const AllocationVisuals = lazy(() => import("../components/AllocationVisuals"));
 
 const GOLD = "#C6A85A";
 
@@ -70,7 +72,9 @@ export default function AlocacoesPage() {
                         <div className="w-full border border-white/5 bg-background/40 p-4 min-h-[12rem] flex items-center justify-center"><VolatilitySurface /></div>
                       ) : (
                         <div className="w-full">
-                          <AllocationVisuals type={cat.label} />
+                          <Suspense fallback={<div className="h-96 bg-[#1C1C1C] animate-pulse rounded" />}>
+                            <AllocationVisuals type={cat.label} />
+                          </Suspense>
                         </div>
                       )}
                     </div>
