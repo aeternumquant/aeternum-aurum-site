@@ -47,7 +47,7 @@ export default function CursorGlow() {
       {/* Primary glow */}
       <div
         ref={glowRef}
-        className="pointer-events-none fixed top-0 left-0 z-0"
+        className="pointer-events-none fixed top-0 left-0 z-0 max-w-[100vw] overflow-hidden"
         style={{
           width: 1000,
           height: 1000,
@@ -60,7 +60,7 @@ export default function CursorGlow() {
       {/* Trailing glow - more diffuse, slower */}
       <div
         ref={trailRef}
-        className="pointer-events-none fixed top-0 left-0 z-0"
+        className="pointer-events-none fixed top-0 left-0 z-0 max-w-[100vw] overflow-hidden"
         style={{
           width: 700,
           height: 700,
