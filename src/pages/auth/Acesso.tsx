@@ -3,6 +3,7 @@ import { FadeIn } from "../../components/common/FadeIn";
 import { useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { RouteSeo } from "../../lib/seo/RouteSeo";
 
 // Configurações do EmailJS
 const EMAILJS_SERVICE_ID = "service_hxdhhwl";
@@ -115,6 +116,11 @@ export default function AcessoPage() {
 
   return (
     <main className="pt-14 min-h-screen bg-background">
+      <RouteSeo
+        title="Acesso"
+        description="Plataforma privada de inteligência de capital. Acesso restrito a investidores qualificados."
+        path="/acesso"
+      />
       {/* HERO SECTION */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />

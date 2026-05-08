@@ -2,12 +2,18 @@ import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
 import GoiasFlowMap from "../../components/maps/GoiasFlowMap";
 import { useLanguage } from "../../context/LanguageContext";
+import { RouteSeo } from "../../lib/seo/RouteSeo";
 
 export default function ExecucaoPage() {
   const { t } = useLanguage();
 
   return (
     <main className="pt-14 min-h-screen bg-[#0A0A0A]">
+      <RouteSeo
+        title="Execução"
+        description="Plataforma Autônoma (ATO): Agentes de Reinforcement Learning e NLP para execução dinâmica e contenção de risco de cauda."
+        path="/execucao"
+      />
       {/* Hero */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background z-0" />

@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { WireframeCube } from "../../components/common/WireframeCube";
 import { useAuth } from "../../context/AuthContext";
+import { RouteSeo } from "../../lib/seo/RouteSeo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,11 @@ export default function LoginPage() {
 
   return (
     <main className="pt-14 min-h-screen flex flex-col">
+      <RouteSeo
+        title="Acesso"
+        description="Plataforma privada de inteligência de capital. Acesso restrito a investidores qualificados."
+        path="/login"
+      />
       <section className="flex-1 flex items-center justify-center py-20 px-4 sm:px-6 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <FadeIn direction="none" className="relative z-10 w-full max-w-sm">

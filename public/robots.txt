@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /acesso
+Disallow: /reports
+
+Sitemap: https://aeternumaurum.com/sitemap.xml

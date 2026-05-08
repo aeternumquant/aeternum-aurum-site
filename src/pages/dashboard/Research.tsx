@@ -8,6 +8,7 @@ import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { RouteSeo } from "../../lib/seo/RouteSeo";
 import { shortPapers } from "../../lib/researchData";
 import { ArrowRight, Lock } from "lucide-react";
 
@@ -191,6 +192,11 @@ export default function ResearchPage() {
 
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
+      <RouteSeo
+        title="Pesquisa"
+        description="Inteligência institucional aplicada: relatórios técnicos sobre regimes de volatilidade, spillovers DCC-GARCH e inferência causal em cadeias de commodities."
+        path="/research"
+      />
 
       {/* ══ HERO ══ */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">

@@ -2,6 +2,7 @@ import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
 import { NavLink } from "react-router-dom";
 import { FileText, Lock } from "lucide-react";
+import { RouteSeo } from "../../lib/seo/RouteSeo";
 
 const reports = [
   { month: "Março 2024", title: "Relatório Mensal: Macro & Portfólio", type: "Mensal", locked: false, desc: "Análise de cenário, performance do portfólio e movimentações táticas do mês." },
@@ -20,6 +21,11 @@ const typeColor: Record<string, string> = {
 export default function ReportsPage() {
   return (
     <main className="pt-14 min-h-screen">
+      <RouteSeo
+        title="Relatórios"
+        description="Relatórios institucionais e backtests verificáveis. Acesso restrito a investidores qualificados."
+        path="/reports"
+      />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">

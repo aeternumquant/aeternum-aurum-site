@@ -3,6 +3,7 @@ import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
 import VolatilitySurface from "../components/common/VolatilitySurface";
 import { lazy, Suspense } from "react";
+import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const AllocationVisuals = lazy(() => import("../components/AllocationVisuals"));
 
@@ -28,6 +29,11 @@ const swiftComparison = [
 export default function AlocacoesPage() {
   return (
     <main className="pt-14 min-h-screen">
+      <RouteSeo
+        title="Alocações"
+        description="Otimização CVaR e construção de portfólios assimétricos via simulação Monte Carlo acelerada por GPU."
+        path="/alocacoes"
+      />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
