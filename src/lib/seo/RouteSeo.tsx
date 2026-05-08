@@ -21,6 +21,7 @@ export function RouteSeo({ title, description, path }: Props) {
       <meta property="og:url" content={url} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:url" content={url} />
     </Helmet>
   );
 }
