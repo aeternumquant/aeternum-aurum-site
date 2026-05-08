@@ -42,7 +42,10 @@ export default function Footer() {
           <div className="space-y-2 text-[10px] text-muted-foreground/40 tracking-wider font-light">
             <p>© {new Date().getFullYear()} Aeternum Aurum Partners. Todos os direitos reservados.</p>
             <p className="max-w-md mx-auto leading-relaxed">
-              Exclusivo para investidores profissionais.
+              Goiânia, GO — Brasil · Atuação global via plataforma
+            </p>
+            <p className="max-w-md mx-auto leading-relaxed">
+              Exclusivo para clientes institucionais.
             </p>
           </div>
         </div>

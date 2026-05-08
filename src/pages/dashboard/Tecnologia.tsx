@@ -98,7 +98,7 @@ export default function TecnologiaPage() {
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
         title="Tecnologia"
-        description="Stack quantitativo: Time-MoE, EGARCH, Redes Bayesianas e otimização CVaR com aceleração de 160x via NVIDIA cuOpt."
+        description="Stack técnico da plataforma: Time-MoE, EGARCH, Redes Bayesianas e otimização CVaR com aceleração de 160x via NVIDIA cuOpt."
         path="/tecnologia"
       />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">

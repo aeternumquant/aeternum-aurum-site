@@ -31,7 +31,7 @@ export default function AlocacoesPage() {
     <main className="pt-14 min-h-screen">
       <RouteSeo
         title="Alocações"
-        description="Otimização CVaR e construção de portfólios assimétricos via simulação Monte Carlo acelerada por GPU."
+        description="Ferramentas de otimização CVaR e construção de portfólios via simulação Monte Carlo acelerada por GPU. Infraestrutura analítica para clientes institucionais."
         path="/alocacoes"
       />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">

@@ -36,7 +36,7 @@ export default function LoginPage() {
     <main className="pt-14 min-h-screen flex flex-col">
       <RouteSeo
         title="Acesso"
-        description="Plataforma privada de inteligência de capital. Acesso restrito a investidores qualificados."
+        description="Plataforma privada de inteligência quantitativa. Acesso restrito a clientes institucionais."
         path="/login"
       />
       <section className="flex-1 flex items-center justify-center py-20 px-4 sm:px-6 relative">

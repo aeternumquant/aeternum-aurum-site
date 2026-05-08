@@ -25,7 +25,7 @@ export default function CommoditiesPage() {
     <main className="pt-14 min-h-screen">
       <RouteSeo
         title="Commodities"
-        description="Inteligência geopolítica de commodities. Fluxos macro, choques de cauda e proteção volumétrica via derivativos climáticos."
+        description="Visualização de fluxos macro de commodities globais. Infraestrutura analítica para identificação de gargalos geopolíticos e regimes de risco."
         path="/commodities"
       />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">

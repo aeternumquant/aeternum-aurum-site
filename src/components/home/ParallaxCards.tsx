@@ -21,7 +21,7 @@ const CARDS: Card[] = [
   {
     label: "Framework",
     title: "Inteligência Institucional",
-    desc: "Modelos com o mesmo rigor de mesas proprietárias em Nova York e Chicago.",
+    desc: "Modelos com rigor metodológico de mesas proprietárias institucionais.",
     route: "/framework",
     side: "left",
   },

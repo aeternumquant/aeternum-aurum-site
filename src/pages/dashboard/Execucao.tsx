@@ -11,7 +11,7 @@ export default function ExecucaoPage() {
     <main className="pt-14 min-h-screen bg-[#0A0A0A]">
       <RouteSeo
         title="Execução"
-        description="Plataforma Autônoma (ATO): Agentes de Reinforcement Learning e NLP para execução dinâmica e contenção de risco de cauda."
+        description="Plataforma Autônoma (ATO): Agentes de Reinforcement Learning e NLP para suporte à decisão e contenção de risco de cauda em tempo real."
         path="/execucao"
       />
       {/* Hero */}

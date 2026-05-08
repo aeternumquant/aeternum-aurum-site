@@ -23,7 +23,7 @@ export default function ReportsPage() {
     <main className="pt-14 min-h-screen">
       <RouteSeo
         title="Relatórios"
-        description="Relatórios institucionais e backtests verificáveis. Acesso restrito a investidores qualificados."
+        description="Relatórios técnicos da plataforma. Acesso restrito a clientes institucionais."
         path="/reports"
       />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">

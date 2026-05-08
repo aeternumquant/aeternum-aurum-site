@@ -26,7 +26,7 @@ export default function FrameworkPage() {
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
         title="Framework"
-        description="Arquitetura quantitativa em quatro pilares: Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos."
+        description="Arquitetura quantitativa em quatro pilares: Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos. Plataforma de tecnologia para clientes institucionais."
         path="/framework"
       />
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">

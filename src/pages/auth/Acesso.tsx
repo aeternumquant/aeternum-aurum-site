@@ -118,7 +118,7 @@ export default function AcessoPage() {
     <main className="pt-14 min-h-screen bg-background">
       <RouteSeo
         title="Acesso"
-        description="Plataforma privada de inteligência de capital. Acesso restrito a investidores qualificados."
+        description="Plataforma privada de inteligência quantitativa. Acesso restrito a clientes institucionais."
         path="/acesso"
       />
       {/* HERO SECTION */}

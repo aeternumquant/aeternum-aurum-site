@@ -194,7 +194,7 @@ export default function ResearchPage() {
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
         title="Pesquisa"
-        description="Inteligência institucional aplicada: relatórios técnicos sobre regimes de volatilidade, spillovers DCC-GARCH e inferência causal em cadeias de commodities."
+        description="Inteligência aplicada: análises técnicas sobre regimes de volatilidade, spillovers DCC-GARCH e inferência causal em cadeias de commodities. Conteúdo de caráter educacional."
         path="/research"
       />
 
@@ -217,7 +217,7 @@ export default function ResearchPage() {
             </h1>
             <p className="text-sm leading-relaxed font-light max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.38)" }}>
               Publicações proprietárias de análise macroeconômica, quantitativa, geopolítica e estratégica.
-              Conteúdo construído com o mesmo rigor das mesas proprietárias de Chicago e Genebra.
+              Conteúdo construído com o mesmo rigor metodológico aplicado em mesas proprietárias institucionais.
             </p>
           </FadeIn>
         </div>
