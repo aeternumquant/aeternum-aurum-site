@@ -5,6 +5,7 @@ import { WireframeCube } from "../components/common/WireframeCube";
 import CursorGlow from "../components/common/CursorGlow";
 import Footer from "../components/common/Footer";
 import ZonaPiloto from "../components/common/ZonaPiloto";
+import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const GOLD = "#C6A85A";
 
@@ -139,6 +140,12 @@ function HeroSection() {
 export default function Home() {
   return (
     <main className="relative" style={{ backgroundColor: "#0a0a0a", minHeight: "100vh" }}>
+      <RouteSeo
+        title="Plataforma de Inteligência Quantitativa"
+        fullTitle="Aeternum Aurum Partners — Plataforma de Inteligência Quantitativa"
+        description="Plataforma de tecnologia quantitativa para clientes institucionais. Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos. Goiânia, Brasil — atuação global."
+        path="/"
+      />
       {/* Efeito de luz dourada que segue o mouse */}
       <CursorGlow />
       

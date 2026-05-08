@@ -4,22 +4,23 @@ interface Props {
   title: string;
   description: string;
   path: string;
+  fullTitle?: string;
 }
 
 const SITE = "https://aeternumaurum.com";
 
-export function RouteSeo({ title, description, path }: Props) {
+export function RouteSeo({ title, description, path, fullTitle }: Props) {
   const url = `${SITE}${path}`;
-  const fullTitle = `${title} — Aeternum Aurum Partners`;
+  const finalTitle = fullTitle ?? `${title} — Aeternum Aurum Partners`;
   return (
     <Helmet>
-      <title>{fullTitle}</title>
+      <title>{finalTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
-      <meta property="og:title" content={fullTitle} />
+      <meta property="og:title" content={finalTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
-      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:title" content={finalTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:url" content={url} />
     </Helmet>
