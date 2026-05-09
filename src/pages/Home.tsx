@@ -277,16 +277,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Disclaimer Institucional */}
-      <section id="disclaimer" className="relative z-10 py-12 px-4 sm:px-6 bg-[#0a0a0a] border-t border-white/5">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-[10px] sm:text-xs text-white/40 uppercase tracking-widest mb-4">Disclaimer & Risk Disclosure</p>
-          <p className="text-[9px] sm:text-[10px] text-white/30 leading-relaxed font-light text-justify sm:text-center max-w-5xl mx-auto">
-            Aeternum Aurum Partners é uma plataforma de inteligência quantitativa e estruturação tecnológica focada em clientes institucionais e High-Net-Worth Individuals (HNWI). Não atuamos como corretora, gestora de recursos de terceiros (asset management) ou consultoria de valores mobiliários aberta ao público geral. Todas as informações, dados quantitativos e modelos preditivos disponibilizados na plataforma têm caráter estritamente educacional e de inteligência de mercado, não constituindo oferta, solicitação ou recomendação para compra ou venda de qualquer ativo financeiro, derivativo ou commodity. O mercado de commodities e derivativos envolve alto risco e pode não ser adequado para todos os investidores. Desempenho passado não é garantia de resultados futuros. As estratégias de proteção (hedge) e modelos GARCH apresentados são ilustrativos das capacidades tecnológicas da plataforma e dependem da execução por entidades reguladas nas respectivas jurisdições (CVM, SEC, CFTC). Ao solicitar acesso, o usuário atesta ter capacidade técnica e financeira para compreender os riscos sistêmicos inerentes aos mercados globais de capital.
-          </p>
-        </div>
-      </section>
-
       <Footer />
     </main>
   );

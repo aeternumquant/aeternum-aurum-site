@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { WireframeCube } from "./WireframeCube";
+import { DisclaimerLegal } from "./DisclaimerLegal";
 import { motion } from "framer-motion";
 
 const links = [
@@ -40,13 +41,14 @@ export default function Footer() {
           <div className="w-16 h-[1px] shimmer-line" />
 
           <div className="space-y-2 text-[10px] text-muted-foreground/40 tracking-wider font-light">
-            <p>© {new Date().getFullYear()} Aeternum Aurum Partners. Todos os direitos reservados.</p>
             <p className="max-w-md mx-auto leading-relaxed">
               Goiânia, GO — Brasil · Atuação global via plataforma
             </p>
+            <DisclaimerLegal variant="footer" />
             <p className="max-w-md mx-auto leading-relaxed">
               Exclusivo para clientes institucionais.
             </p>
+            <p>© {new Date().getFullYear()} Aeternum Aurum Partners. Todos os direitos reservados.</p>
           </div>
         </div>
       </div>
