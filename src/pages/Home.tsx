@@ -5,6 +5,7 @@ import { WireframeCube } from "../components/common/WireframeCube";
 import CursorGlow from "../components/common/CursorGlow";
 import Footer from "../components/common/Footer";
 import ZonaPiloto from "../components/common/ZonaPiloto";
+import ExportCalculator from "../components/tokenization/ExportCalculator";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const GOLD = "#C6A85A";
@@ -201,6 +202,8 @@ export default function Home() {
           <ZonaPiloto />
         </RevealSection>
       </div>
+
+      <ExportCalculator />
 
       {/* Seção: Risco no Mercado */}
       <section id="risco-mensuravel" className="relative z-10 py-16 px-4 sm:px-6 bg-[#0a0a0a]/50 border-y border-white/5">
