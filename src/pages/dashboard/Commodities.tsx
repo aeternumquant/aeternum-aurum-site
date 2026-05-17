@@ -13,13 +13,6 @@ const stats = [
   { value: "Diária", label: "Frequência de rebalanceamento" },
 ];
 
-const gatilhosOleo = [
-  { num: "01", titulo: "Sanções & Embargos", desc: "Restrições a exportadores-chave (Irã, Venezuela, Rússia) reduzem a oferta global instantaneamente." },
-  { num: "02", titulo: "Tensões no Estreito de Ormuz", desc: "Aproximadamente 20% do petróleo mundial transita pelo Estreito de Ormuz." },
-  { num: "03", titulo: "Decisões da OPEP+", desc: "Cortes de produção coordenados elevam a backwardation, preço spot acima dos futuros." },
-  { num: "04", titulo: "Pressão de Hedge de Refinarias", desc: "Refinarias são vendedores sistemáticos de futuros para proteger margens." },
-];
-
 export default function CommoditiesPage() {
   return (
     <main className="pt-14 min-h-screen">
