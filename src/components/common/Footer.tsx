@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 const links = [
   { label: "Framework", to: "/framework" },
   { label: "Alocações", to: "/alocacoes" },
-  { label: "Research", to: "/research" },
+  { label: "Pesquisa", to: "/research" },
   { label: "Commodities", to: "/commodities" },
   { label: "Acesso", to: "/acesso" },
   { label: "Reports", to: "/reports" },
