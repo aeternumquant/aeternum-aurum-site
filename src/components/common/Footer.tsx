@@ -42,7 +42,7 @@ export default function Footer() {
 
           <div className="space-y-2 text-[10px] text-muted-foreground/40 tracking-wider font-light">
             <p className="max-w-md mx-auto leading-relaxed">
-              Goiânia, GO — Brasil · Atuação global via plataforma
+              Goiânia · San Francisco · Atuação global
             </p>
             <DisclaimerLegal variant="footer" />
             <p className="max-w-md mx-auto leading-relaxed">

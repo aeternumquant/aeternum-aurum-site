@@ -44,7 +44,7 @@ const zonas = [
 
 export default function ZonaPiloto() {
   return (
-    <section id="fluxo-macro" className="relative bg-[#08090c] border-t border-white/5">
+    <section id="fluxo-macro" className="relative bg-[#0a0a0a] border-t border-white/5 overflow-x-hidden">
       {/* ── Título ── */}
       <div className="px-6 pt-12 pb-6 text-center">
         <motion.p
@@ -75,7 +75,7 @@ export default function ZonaPiloto() {
       </div>
 
       {/* ── Cards de Zonas ── */}
-      <div className="relative bg-gradient-to-t from-[#0a0a0a] via-[#08090c]/80 to-transparent border-t border-white/5 overflow-x-auto overflow-y-hidden">
+      <div className="relative bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent border-t border-white/5 overflow-x-auto overflow-y-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/2 via-transparent to-transparent pointer-events-none" />
 
         <div className="flex gap-3 sm:gap-4 p-4 sm:p-6 min-w-max">
