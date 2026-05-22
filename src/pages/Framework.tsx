@@ -8,10 +8,34 @@ import ZonaPiloto from "../components/common/ZonaPiloto";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
-  { num: "01", title: "Identificação de Oportunidades", desc: "Mapeamento sistemático de distorções de preço em mercados globais via modelos quantitativos e análise fundamentalista." },
-  { num: "02", title: "Validação e Due Diligence", desc: "Processo rigoroso de validação com múltiplas camadas de análise. Independência entre as equipes de pesquisa e gestão." },
-  { num: "03", title: "Construção do Portfólio", desc: "Sizing baseado em volatilidade ajustada ao risco. Diversificação multidimensional por ativo, região e fator de risco." },
-  { num: "04", title: "Monitoramento Ativo", desc: "Acompanhamento em tempo real com sistemas proprietários de alerta e re-balanceamento tático conforme condições de mercado." },
+  {
+    num: "01",
+    title: "Diagnóstico",
+    subtitle: "Mapeamento da exposição atual.",
+    desc: "Levantamento completo das exposições do cliente: commodities, câmbio, contratos a termo, basis, marcação a mercado, contratos de crédito. Identificação dos riscos materiais e da janela de decisão típica da tesouraria.",
+    entregavel: "Diagnóstico de exposição em documento auditável, com mapa de riscos e prioridades.",
+  },
+  {
+    num: "02",
+    title: "Modelagem Adaptativa",
+    subtitle: "Calibração ao caso específico.",
+    desc: "Aplicação dos modelos quantitativos peer-reviewed ao contexto do cliente. Calibração local com dados próprios da operação, séries de mercado relevantes e tratamento de quebras estruturais. Validação por backtesting antes da implantação.",
+    entregavel: "Modelos calibrados e validados, com relatório de aceitação técnica.",
+  },
+  {
+    num: "03",
+    title: "Implantação",
+    subtitle: "Integração ao fluxo de tesouraria.",
+    desc: "Instalação da plataforma na infraestrutura do cliente. Integração com sistemas internos (ERP, sistemas de tesouraria, planilhas de risco). Treinamento da equipe interna no uso diário do painel, dos alertas e da leitura dos modelos.",
+    entregavel: "Plataforma operacional, equipe treinada, documentação técnica completa.",
+  },
+  {
+    num: "04",
+    title: "Acompanhamento",
+    subtitle: "Manutenção contínua e revisão de modelos.",
+    desc: "Atualização contínua dos modelos conforme mudanças de regime e novas evidências da literatura. Suporte técnico à equipe interna, revisões periódicas dos calibradores e relatórios de desempenho dos alertas. Decisão de operação permanece com a tesouraria do cliente.",
+    entregavel: "Relatórios periódicos, suporte técnico ativo, revisão semestral dos modelos.",
+  },
 ];
 
 const streams = [
@@ -304,14 +328,32 @@ export default function FrameworkPage() {
 
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/20 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+              Implementação
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+              Como a consultoria acontece
+            </h2>
+            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-6" />
+            <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto mb-14">
+              A implantação personalizada segue quatro etapas estruturadas, com escopo definido,
+              entregáveis claros e ponto de aceitação antes da próxima começar.
+            </p>
+          </FadeIn>
           <div className="space-y-10">
             {steps.map((step, i) => (
               <FadeIn key={i} delay={i * 0.15}>
                 <div className="flex gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
                   <span className="font-display text-4xl text-primary/20 shrink-0 tabular-nums group-hover:text-primary/40 transition-colors">{step.num}</span>
                   <div>
-                    <h3 className="font-display text-lg text-foreground uppercase tracking-wider mb-3">{step.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed font-light">{step.desc}</p>
+                    <h3 className="font-display text-lg text-foreground uppercase tracking-wider mb-1">{step.title}</h3>
+                    <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                      <span className="text-primary/60 uppercase tracking-wider text-[10px] mr-1">Entregável:</span>
+                      {step.entregavel}
+                    </p>
                   </div>
                 </div>
               </FadeIn>
