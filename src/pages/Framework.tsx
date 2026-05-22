@@ -273,23 +273,27 @@ export default function FrameworkPage() {
             ))}
           </div>
 
-          {/* 5 Princípios de Investimento Responsável */}
+          {/* 5 Princípios — Bloco 4 */}
           <FadeIn delay={0.4}>
             <div className="border border-primary/15 bg-primary/3 p-6">
-              <h3 className="font-display text-base text-primary uppercase tracking-wider mb-5 text-center">
-                5 Princípios que Guiam Todas as Nossas Decisões
+              <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+                Princípios
+              </p>
+              <h3 className="font-display text-base sm:text-lg text-primary uppercase tracking-wider mb-8 text-center">
+                Cinco princípios que orientam toda decisão
               </h3>
-              <div className="grid sm:grid-cols-5 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
-                  { num: "I",    txt: "Dados primeiro, sempre" },
-                  { num: "II",   txt: "Risco definido antes da entrada" },
-                  { num: "III",  txt: "Diversificação real, não aparente" },
-                  { num: "IV",   txt: "Proteção automática em crises" },
-                  { num: "V",    txt: "Transparência total no processo" },
+                  { num: "I", titulo: "Dados primeiro, sempre", corpo: "Toda decisão parte do dado, não da opinião. A intuição entra depois, calibrada pelo modelo, nunca antes." },
+                  { num: "II", titulo: "Risco definido antes da entrada", corpo: "Cada decisão de capital tem perda máxima conhecida antes de ser tomada. Quando o cenário muda, o modelo recalibra; quando o risco muda, o cliente decide." },
+                  { num: "III", titulo: "Diversificação real, não aparente", corpo: "Diversificação verdadeira começa onde as correlações dinâmicas começam. Ativos que parecem descorrelacionados em mercados calmos podem se mover juntos em crises. Os modelos medem isso continuamente, não assumem." },
+                  { num: "IV", titulo: "Alertas antes do estresse, não depois", corpo: "Modelos de risco de cauda e detecção de regime sinalizam mudança estrutural antes que ela apareça nos preços. O cliente recebe o alerta com tempo de decidir, ajustar ou esperar." },
+                  { num: "V", titulo: "Transparência total no processo", corpo: "Cada modelo carrega referência ao paper, à janela de validação e ao limite onde ele falha. O que entregamos é auditável do início ao fim." },
                 ].map((p) => (
-                  <div key={p.num} className="text-center">
-                    <div className="font-display text-2xl text-primary/30 mb-1">{p.num}</div>
-                    <p className="text-[10px] text-muted-foreground/60 leading-tight">{p.txt}</p>
+                  <div key={p.num} className="border border-white/8 bg-card/40 p-5 h-full">
+                    <div className="font-display text-2xl text-primary/30 mb-2">{p.num}</div>
+                    <h4 className="font-display text-sm text-foreground tracking-wide mb-2 leading-snug">{p.titulo}</h4>
+                    <p className="text-muted-foreground text-xs leading-relaxed">{p.corpo}</p>
                   </div>
                 ))}
               </div>
