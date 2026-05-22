@@ -33,9 +33,9 @@ export default function FrameworkPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Metodologia</p>
-            <h1 className="font-display text-4xl sm:text-5xl text-primary uppercase tracking-widest mb-6">Framework</h1>
-            <p className="text-muted-foreground text-sm leading-relaxed font-light">Nossa metodologia integra análise macroeconômica, modelos quantitativos e inteligência de risco para gerar retornos consistentes e assimétricos.</p>
+            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Tecnologia Aplicada</p>
+            <h1 className="font-display text-4xl sm:text-5xl text-primary uppercase tracking-widest mb-6">Soluções</h1>
+            <p className="text-muted-foreground text-sm leading-relaxed font-light">A Aeternum Aurum constrói a ponte tecnológica entre o cliente brasileiro e a infraestrutura financeira global. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre risco e capital com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
           </FadeIn>
         </div>
       </section>
