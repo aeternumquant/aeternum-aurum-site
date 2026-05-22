@@ -232,7 +232,7 @@ export default function FrameworkPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          RESUMO PARA O PÚBLICO — LINGUAGEM ACESSÍVEL
+          RESUMO PARA O PÚBLICO: LINGUAGEM ACESSÍVEL
           Posicionado logo após o hero, antes dos passos técnicos
       ══════════════════════════════════════════════════════ */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
@@ -257,7 +257,7 @@ export default function FrameworkPage() {
               {
                 icone: "◆",
                 titulo: "O que é o 'medo do mercado' e por que importa?",
-                corpo: `Existe um indicador chamado VIX — chamamos de "termômetro do medo". Quando está alto,
+                corpo: `Existe um indicador chamado VIX, que chamamos de "termômetro do medo". Quando está alto,
                   os grandes investidores estão com medo. Quando está baixo, estão confiantes demais.
                   Ambos os extremos criam oportunidades. A Aeternum lê esse termômetro antes de qualquer decisão.`,
               },
@@ -265,13 +265,13 @@ export default function FrameworkPage() {
                 icone: "◆",
                 titulo: "Por que dados valem mais que opiniões?",
                 corpo: `Um analista pode estar certo ou errado. Dados de posicionamento de mercado mostram
-                  o que as pessoas realmente estão fazendo com seu dinheiro — não o que elas falam.
+                  o que as pessoas realmente estão fazendo com seu dinheiro, não o que elas falam.
                   Nosso sistema lê essas "pegadas digitais" e toma decisões baseadas em fatos, não em narrativas.`,
               },
               {
                 icone: "◆",
                 titulo: "Como protegemos seu capital em crises?",
-                corpo: `Usamos um sistema de proteção chamado hedge — como um seguro para seu investimento.
+                corpo: `Usamos um sistema de proteção chamado hedge, como um seguro para seu investimento.
                   Quando identificamos risco crescendo (o VIX subindo, por exemplo), compramos proteção
                   preventiva. É o equivalente a colocar um seguro no carro antes de sair na chuva forte.`,
               },
