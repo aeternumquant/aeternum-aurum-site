@@ -41,6 +41,68 @@ export default function FrameworkPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
+          BLOCO 2 — AS TRÊS FRENTES
+          O que a plataforma entrega: três frentes de atuação
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+              Frentes de atuação
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+              O que entregamos
+            </h2>
+            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-12" />
+          </FadeIn>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[
+              {
+                titulo: "Inteligência Quantitativa",
+                subtitulo: "Leitura macro e modelagem de ciclos.",
+                descricao: "Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em literatura científica peer-reviewed e calibrados para o mercado brasileiro.",
+                paraQuem: "Para quem precisa ler o cenário antes de tomar a próxima decisão de capital.",
+                selo: false,
+              },
+              {
+                titulo: "Plataforma de Risco",
+                subtitulo: "Painel quantitativo em tempo real.",
+                descricao: "Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um painel claro. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.",
+                paraQuem: "Para tesourarias, mesas e operadores que precisam decidir sobre risco com base quantitativa, todos os dias.",
+                selo: false,
+              },
+              {
+                titulo: "Consultoria Institucional",
+                subtitulo: "Integração da plataforma à sua operação.",
+                descricao: "Implantação da inteligência quantitativa dentro da tesouraria do cliente. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.",
+                paraQuem: "Para grandes empresas que querem inteligência de risco moderna integrada à sua estrutura de capital, não como ferramenta avulsa.",
+                selo: true,
+              },
+            ].map((frente, i) => (
+              <FadeIn key={i} delay={i * 0.1} direction="up">
+                <div className="border border-white/8 bg-card/40 p-6 h-full hover:border-primary/20 transition-colors relative flex flex-col">
+                  {frente.selo && (
+                    <span className="absolute top-4 right-4 text-[8px] tracking-[0.2em] uppercase text-primary/80 border border-primary/40 rounded-full px-2.5 py-1">
+                      Serviço Dedicado
+                    </span>
+                  )}
+                  <h3 className="font-display text-base text-foreground tracking-wide mb-1.5 pr-24">
+                    {frente.titulo}
+                  </h3>
+                  <p className="text-primary/70 text-xs tracking-wide mb-4">{frente.subtitulo}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-grow">{frente.descricao}</p>
+                  <p className="text-muted-foreground/70 text-xs leading-relaxed italic border-t border-white/5 pt-4">
+                    {frente.paraQuem}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
           RESUMO PARA O PÚBLICO — LINGUAGEM ACESSÍVEL
           Posicionado logo após o hero, antes dos passos técnicos
       ══════════════════════════════════════════════════════ */}
