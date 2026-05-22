@@ -113,7 +113,7 @@ export default function FrameworkPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          BLOCO 2 — AS TRÊS FRENTES
+          BLOCO 2: AS TRÊS FRENTES
           O que a plataforma entrega: três frentes de atuação
       ══════════════════════════════════════════════════════ */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5">
@@ -175,7 +175,7 @@ export default function FrameworkPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          BLOCO 3 — A ESPINHA CIENTÍFICA
+          BLOCO 3: A ESPINHA CIENTÍFICA
           Fundamentação peer-reviewed dos modelos da plataforma
       ══════════════════════════════════════════════════════ */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
@@ -297,7 +297,7 @@ export default function FrameworkPage() {
             ))}
           </div>
 
-          {/* 5 Princípios — Bloco 4 */}
+          {/* 5 Princípios (Bloco 4) */}
           <FadeIn delay={0.4}>
             <div className="border border-primary/15 bg-primary/3 p-6">
               <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
