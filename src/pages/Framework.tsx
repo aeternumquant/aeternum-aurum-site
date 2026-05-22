@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import FrameworkSection from "../components/common/Framework";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
@@ -20,6 +22,52 @@ const streams = [
   { icon: "◈", label: "Geopolítica & Diplomacia", desc: "Sanções, acordos bilaterais e tensões regionais convertidos em sinais de posicionamento para o portfólio." },
   { icon: "◈", label: "Fluxos de Capital Institucional", desc: "Posicionamento de fundos soberanos, hedge funds e bancos centrais via dados de custódia e prime brokers." },
 ];
+
+const scienceModels = [
+  {
+    categoria: "Risco de cauda",
+    detalhe: "GARCH-EVT (McNeil & Frey, 2000, Journal of Empirical Finance), com extensões assimétricas EGARCH-EVT e FIAPARCH-EVT. Backtesting: Kupiec (cobertura incondicional), Christoffersen (cobertura condicional e independência), Acerbi-Szekely Z1/Z2/Z3 para Expected Shortfall. Aplicação: VaR/ES 97.5% para portfólios expostos a commodities, câmbio e renda variável.",
+  },
+  {
+    categoria: "Previsão de volatilidade",
+    detalhe: "HAR-RV (Corsi, 2009, Journal of Financial Econometrics) como benchmark de referência. EGARCH e FIGARCH para mercados assimétricos. REGARCH-Jump para séries com saltos. Comparação out-of-sample via QLIKE, MSE e Diebold-Mariano. Ensembles com machine learning quando há ganho líquido após custos de transação.",
+  },
+  {
+    categoria: "Dependência entre ativos",
+    detalhe: "Copulas tempo-variantes (DCC, GAS) para risco sistêmico e spillovers. Vine copulas para portfólios de mais de três ativos. CoVaR e ΔCoVaR (Adrian & Brunnermeier, 2016, American Economic Review) para medidas canônicas de risco sistêmico. Aplicação direta no spillover petróleo-agricultura relevante para o agronegócio brasileiro.",
+  },
+  {
+    categoria: "Construção de portfólio",
+    detalhe: "Otimização CVaR (Rockafellar & Uryasev, 2002, Journal of Banking & Finance) como medida coerente de risco. Risk Parity (Maillard, Roncalli & Teiletche, 2010) e Hierarchical Risk Parity (López de Prado, 2016). Validação via Combinatorial Purged Cross-Validation com Deflated Sharpe Ratio (Bailey & López de Prado, 2014) como métrica de aceitação.",
+  },
+];
+
+function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <FadeIn delay={index * 0.08} direction="up">
+      <div className="border border-white/8 bg-card/40 hover:border-primary/20 transition-colors">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="w-full flex items-center justify-between gap-4 p-5 text-left"
+        >
+          <span className="font-display text-base text-foreground tracking-wide">{model.categoria}</span>
+          <span className={`text-primary/60 text-xl leading-none transition-transform duration-300 ${open ? "rotate-45" : ""}`}>+</span>
+        </button>
+        {open && (
+          <div className="px-5 pb-5 -mt-1">
+            <p className="text-muted-foreground text-xs leading-relaxed mb-4">{model.detalhe}</p>
+            <Link to="/research" className="text-primary/80 hover:text-primary text-xs tracking-wide transition-colors">
+              Ver fundamentação completa →
+            </Link>
+          </div>
+        )}
+      </div>
+    </FadeIn>
+  );
+}
 
 export default function FrameworkPage() {
   return (
@@ -99,6 +147,63 @@ export default function FrameworkPage() {
               </FadeIn>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          BLOCO 3 — A ESPINHA CIENTÍFICA
+          Fundamentação peer-reviewed dos modelos da plataforma
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
+        <div className="max-w-4xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+              Fundamentação
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+              A ciência por trás da plataforma
+            </h2>
+            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-10" />
+            <p
+              className="font-display text-2xl sm:text-3xl text-center mb-8 leading-snug"
+              style={{ color: "rgba(198,168,90,0.90)", fontWeight: 500 }}
+            >
+              Inevitabilidade Matemática Aplicada.
+            </p>
+            <p className="text-muted-foreground text-base leading-relaxed text-center max-w-2xl mx-auto mb-10">
+              Não inventamos teoria. Aplicamos, com rigor, o que a fronteira da pesquisa já validou.
+              A Aeternum trabalha com modelos consolidados na literatura científica internacional,
+              peer-reviewed em periódicos como Journal of Financial Economics, Journal of Banking
+              &amp; Finance, Energy Economics e Mathematical Finance.
+            </p>
+          </FadeIn>
+
+          {/* Camada 1: em superfície */}
+          <FadeIn delay={0.1}>
+            <div className="border border-primary/15 bg-primary/3 p-5 mb-8 text-center">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Os modelos centrais cobrem risco de cauda, previsão de volatilidade, dependência
+                entre ativos e construção de portfólio.
+              </p>
+            </div>
+          </FadeIn>
+
+          {/* Camada 2: 4 cards expandíveis */}
+          <div className="space-y-3 mb-10">
+            {scienceModels.map((model, i) => (
+              <ScienceCard key={i} model={model} index={i} />
+            ))}
+          </div>
+
+          {/* Fechamento */}
+          <FadeIn delay={0.2}>
+            <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto">
+              Cada modelo carrega referência ao paper e à janela em que foi validado. Quando a
+              literatura diverge, mostramos a divergência e indicamos a evidência que sustenta nossa
+              escolha metodológica. Modelos consolidados nas maiores mesas institucionais do mundo,
+              agora calibrados para o solo brasileiro. Esse é o piso técnico da plataforma.
+            </p>
+          </FadeIn>
         </div>
       </section>
 
