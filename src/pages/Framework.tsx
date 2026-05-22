@@ -83,7 +83,7 @@ function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: 
         {open && (
           <div className="px-5 pb-5 -mt-1">
             <p className="text-muted-foreground text-xs leading-relaxed mb-4">{model.detalhe}</p>
-            <Link to="/research" className="text-primary/80 hover:text-primary text-xs tracking-wide transition-colors">
+            <Link to="/pesquisa" className="text-primary/80 hover:text-primary text-xs tracking-wide transition-colors">
               Ver fundamentação completa →
             </Link>
           </div>
