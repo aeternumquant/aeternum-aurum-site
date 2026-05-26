@@ -77,6 +77,8 @@ function AnimatedRoutes() {
 
           {/* Rotas Públicas - Research Section (Blurred Premium Content) */}
           <Route path="/research" element={<PageWrapper><ResearchPage /></PageWrapper>} />
+          {/* Alias semântico: /pesquisa serve o mesmo componente que /research (sem redirect) */}
+          <Route path="/pesquisa" element={<PageWrapper><ResearchPage /></PageWrapper>} />
           <Route path="/research/:id" element={<PageWrapper><ArticleReader /></PageWrapper>} />
 
           {/* Rotas Protegidas - Reports Only */}

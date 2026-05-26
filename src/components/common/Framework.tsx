@@ -6,18 +6,21 @@ import { motion, useScroll, useTransform, useInView } from "framer-motion";
 const cards = [
   {
     icon: Globe,
-    title: "Global Macro",
-    desc: "Análise profunda de tendências macroeconômicas globais, ciclos de liquidez e políticas monetárias para identificar distorções sistêmicas.",
+    title: "Análise Macro Global",
+    subtitle: "Fluxos de capital, política monetária, ciclos.",
+    desc: "Leitura sistemática do contexto macro que determina o comportamento dos ativos: política monetária dos principais bancos centrais, fluxos de capital entre regiões, ciclos de commodities, choques de oferta e dinâmica de taxa de câmbio. Calibração contínua para o mercado brasileiro, com integração de indicadores BCB, CEPEA e séries internacionais.",
   },
   {
     icon: LineChart,
-    title: "Event-Driven",
-    desc: "Identificação cirúrgica de oportunidades em eventos corporativos complexos, fusões, aquisições e reestruturações de capital.",
+    title: "Eventos e Descontinuidades",
+    subtitle: "Quebras estruturais, regimes, choques.",
+    desc: "Análise dos eventos que rompem a continuidade estatística do mercado: mudanças de regime, choques geopolíticos, decisões regulatórias, quebras de safra, crises de liquidez. Modelos de detecção de regime e testes de quebra estrutural informam quando os parâmetros clássicos deixam de valer.",
   },
   {
     icon: ShieldAlert,
-    title: "Quantitative Risk",
-    desc: "Emprego de modelos matemáticos proprietários e aprendizado de máquina para mitigação ativa de riscos e preservação patrimonial.",
+    title: "Risco Quantitativo",
+    subtitle: "Cauda, dependência, drawdown.",
+    desc: "Medição rigorosa do risco em todas as suas dimensões: risco de cauda, dependência entre ativos, drawdown máximo, exposição condicional. Cada portfólio é avaliado contra benchmarks de risco coerente e seu comportamento em cenários históricos e hipotéticos.",
   },
 ];
 
@@ -63,7 +66,8 @@ function FrameworkCard({ item, index }: { item: typeof cards[0]; index: number }
         <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center mb-6 border border-primary/20 group-hover:border-primary/40 group-hover:bg-primary/15 transition-all duration-500">
           <item.icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
         </div>
-        <h3 className="font-display text-xl text-foreground mb-4 tracking-wider uppercase">{item.title}</h3>
+        <h3 className="font-display text-xl text-foreground mb-2 tracking-wider uppercase">{item.title}</h3>
+        <p className="text-primary/70 text-xs tracking-wide mb-4">{item.subtitle}</p>
         <p className="text-muted-foreground text-sm leading-relaxed font-light">{item.desc}</p>
       </div>
 
@@ -96,11 +100,16 @@ export default function FrameworkSection() {
     >
       <motion.div style={{ y: sectionY }} className="max-w-6xl mx-auto">
         <FadeIn>
-          <h2 className="font-display text-3xl sm:text-4xl text-primary text-center mb-4 tracking-widest uppercase">
-            Filosofia de Capital
+          <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+            Domínios de competência
+          </p>
+          <h2 className="font-display text-3xl sm:text-4xl text-primary text-center mb-6 tracking-widest uppercase">
+            Os três eixos da análise quantitativa Aeternum
           </h2>
-          <p className="text-center text-muted-foreground text-xs tracking-widest uppercase mb-16">
-            Framework de Investimento
+          <p className="text-center text-muted-foreground text-sm leading-relaxed max-w-2xl mx-auto mb-16 font-light">
+            Toda decisão de risco passa por três perguntas diferentes: o que o cenário macro está dizendo,
+            o que pode acontecer de descontinuidade, e o que o risco mede em cada portfólio. Cada uma exige
+            um conjunto de modelos próprio, e a plataforma trabalha os três em paralelo.
           </p>
         </FadeIn>
 
