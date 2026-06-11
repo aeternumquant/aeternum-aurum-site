@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Header from "./components/common/Header";
 import CursorGlow from "./components/common/CursorGlow";
-import { useLenis } from "./hooks/useLenis";
 
 // Importações Críticas (Carregam na hora)
 import Home from "./pages/Home";
@@ -96,7 +95,6 @@ function AnimatedRoutes() {
 }
 
 function AppInner() {
-  useLenis();
   return (
     <>
       <CursorGlow />
