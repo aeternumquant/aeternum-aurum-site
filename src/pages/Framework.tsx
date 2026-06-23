@@ -4,7 +4,6 @@ import FrameworkSection from "../components/common/Framework";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
 import MacroRiskModels from "../components/common/MacroRiskModels";
-import ZonaPiloto from "../components/common/ZonaPiloto";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -175,8 +174,8 @@ export default function FrameworkPage() {
       </section>
 
       {/* ══════════════════════════════════════════════════════
-          BLOCO 3: A ESPINHA CIENTÍFICA
-          Fundamentação peer-reviewed dos modelos da plataforma
+          A CIÊNCIA  (fusão: Espinha Científica + Em Linguagem Simples)
+          Camada acessível primeiro, cards técnicos depois
       ══════════════════════════════════════════════════════ */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
         <div className="max-w-4xl mx-auto">
@@ -202,48 +201,14 @@ export default function FrameworkPage() {
             </p>
           </FadeIn>
 
-          {/* Camada 1: em superfície */}
-          <FadeIn delay={0.1}>
-            <div className="border border-primary/15 bg-primary/3 p-5 mb-8 text-center">
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Os modelos centrais cobrem risco de cauda, previsão de volatilidade, dependência
-                entre ativos e construção de portfólio.
-              </p>
-            </div>
-          </FadeIn>
-
-          {/* Camada 2: 4 cards expandíveis */}
-          <div className="space-y-3 mb-10">
-            {scienceModels.map((model, i) => (
-              <ScienceCard key={i} model={model} index={i} />
-            ))}
-          </div>
-
-          {/* Fechamento */}
-          <FadeIn delay={0.2}>
-            <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto">
-              Cada modelo carrega referência ao paper e à janela em que foi validado. Quando a
-              literatura diverge, mostramos a divergência e indicamos a evidência que sustenta nossa
-              escolha metodológica. Modelos consolidados nas maiores mesas institucionais do mundo,
-              agora calibrados para o solo brasileiro. Esse é o piso técnico da plataforma.
-            </p>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════
-          RESUMO PARA O PÚBLICO: LINGUAGEM ACESSÍVEL
-          Posicionado logo após o hero, antes dos passos técnicos
-      ══════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
-        <div className="max-w-4xl mx-auto">
-          <FadeIn>
+          {/* Camada acessível: Em Linguagem Simples (rebaixado de seção própria para subtítulo interno) */}
+          <FadeIn delay={0.05}>
             <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
               Entendendo a Plataforma
             </p>
-            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+            <h3 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
               Em Linguagem Simples
-            </h2>
+            </h3>
             <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-8" />
             <p className="text-muted-foreground text-base leading-relaxed text-center max-w-2xl mx-auto mb-12">
               Você não precisa ser matemático ou economista para entender o que fazemos.
@@ -297,31 +262,31 @@ export default function FrameworkPage() {
             ))}
           </div>
 
-          {/* 5 Princípios (Bloco 4) */}
-          <FadeIn delay={0.4}>
-            <div className="border border-primary/15 bg-primary/3 p-6">
-              <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
-                Princípios
+          {/* Camada 1: em superfície */}
+          <FadeIn delay={0.1}>
+            <div className="border border-primary/15 bg-primary/3 p-5 mb-8 text-center">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Os modelos centrais cobrem risco de cauda, previsão de volatilidade, dependência
+                entre ativos e construção de portfólio.
               </p>
-              <h3 className="font-display text-base sm:text-lg text-primary uppercase tracking-wider mb-8 text-center">
-                Cinco princípios que orientam toda decisão
-              </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { num: "I", titulo: "Dados primeiro, sempre", corpo: "Toda decisão parte do dado, não da opinião. A intuição entra depois, calibrada pelo modelo, nunca antes." },
-                  { num: "II", titulo: "Risco definido antes da entrada", corpo: "Cada decisão de capital tem perda máxima conhecida antes de ser tomada. Quando o cenário muda, o modelo recalibra; quando o risco muda, o cliente decide." },
-                  { num: "III", titulo: "Diversificação real, não aparente", corpo: "Diversificação verdadeira começa onde as correlações dinâmicas começam. Ativos que parecem descorrelacionados em mercados calmos podem se mover juntos em crises. Os modelos medem isso continuamente, não assumem." },
-                  { num: "IV", titulo: "Alertas antes do estresse, não depois", corpo: "Modelos de risco de cauda e detecção de regime sinalizam mudança estrutural antes que ela apareça nos preços. O cliente recebe o alerta com tempo de decidir, ajustar ou esperar." },
-                  { num: "V", titulo: "Transparência total no processo", corpo: "Cada modelo carrega referência ao paper, à janela de validação e ao limite onde ele falha. O que entregamos é auditável do início ao fim." },
-                ].map((p) => (
-                  <div key={p.num} className="border border-white/8 bg-card/40 p-5 h-full">
-                    <div className="font-display text-2xl text-primary/30 mb-2">{p.num}</div>
-                    <h4 className="font-display text-sm text-foreground tracking-wide mb-2 leading-snug">{p.titulo}</h4>
-                    <p className="text-muted-foreground text-xs leading-relaxed">{p.corpo}</p>
-                  </div>
-                ))}
-              </div>
             </div>
+          </FadeIn>
+
+          {/* Camada 2: 4 cards expandíveis */}
+          <div className="space-y-3 mb-10">
+            {scienceModels.map((model, i) => (
+              <ScienceCard key={i} model={model} index={i} />
+            ))}
+          </div>
+
+          {/* Fechamento */}
+          <FadeIn delay={0.2}>
+            <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto">
+              Cada modelo carrega referência ao paper e à janela em que foi validado. Quando a
+              literatura diverge, mostramos a divergência e indicamos a evidência que sustenta nossa
+              escolha metodológica. Modelos consolidados nas maiores mesas institucionais do mundo,
+              agora calibrados para o solo brasileiro. Esse é o piso técnico da plataforma.
+            </p>
           </FadeIn>
         </div>
       </section>
@@ -389,10 +354,42 @@ export default function FrameworkPage() {
         </div>
       </section>
 
-      {/* ZONA PILOTO: World Map with Real-Time Commodity Flows */}
-      <ZonaPiloto />
-
       <FrameworkSection />
+
+      {/* ══════════════════════════════════════════════════════
+          CINCO PRINCÍPIOS  (desaninhado de Em Linguagem Simples;
+          seção solta por ora, vira modal no Prompt C)
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
+        <div className="max-w-4xl mx-auto">
+          <FadeIn delay={0.4}>
+            <div className="border border-primary/15 bg-primary/3 p-6">
+              <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
+                Princípios
+              </p>
+              <h3 className="font-display text-base sm:text-lg text-primary uppercase tracking-wider mb-8 text-center">
+                Cinco princípios que orientam toda decisão
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { num: "I", titulo: "Dados primeiro, sempre", corpo: "Toda decisão parte do dado, não da opinião. A intuição entra depois, calibrada pelo modelo, nunca antes." },
+                  { num: "II", titulo: "Risco definido antes da entrada", corpo: "Cada decisão de capital tem perda máxima conhecida antes de ser tomada. Quando o cenário muda, o modelo recalibra; quando o risco muda, o cliente decide." },
+                  { num: "III", titulo: "Diversificação real, não aparente", corpo: "Diversificação verdadeira começa onde as correlações dinâmicas começam. Ativos que parecem descorrelacionados em mercados calmos podem se mover juntos em crises. Os modelos medem isso continuamente, não assumem." },
+                  { num: "IV", titulo: "Alertas antes do estresse, não depois", corpo: "Modelos de risco de cauda e detecção de regime sinalizam mudança estrutural antes que ela apareça nos preços. O cliente recebe o alerta com tempo de decidir, ajustar ou esperar." },
+                  { num: "V", titulo: "Transparência total no processo", corpo: "Cada modelo carrega referência ao paper, à janela de validação e ao limite onde ele falha. O que entregamos é auditável do início ao fim." },
+                ].map((p) => (
+                  <div key={p.num} className="border border-white/8 bg-card/40 p-5 h-full">
+                    <div className="font-display text-2xl text-primary/30 mb-2">{p.num}</div>
+                    <h4 className="font-display text-sm text-foreground tracking-wide mb-2 leading-snug">{p.titulo}</h4>
+                    <p className="text-muted-foreground text-xs leading-relaxed">{p.corpo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
