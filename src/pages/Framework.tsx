@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import FrameworkSection from "../components/common/Framework";
 import Footer from "../components/common/Footer";
@@ -92,6 +92,38 @@ function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: 
   );
 }
 
+function SectionHeader({
+  eyebrow,
+  title,
+  align = "left",
+}: {
+  eyebrow: string;
+  title: ReactNode;
+  align?: "left" | "center";
+}) {
+  const isCenter = align === "center";
+  return (
+    <div className={`flex flex-col ${isCenter ? "items-center text-center" : "items-start text-left"}`}>
+      <p
+        className="font-sans uppercase text-[11px] tracking-[0.22em]"
+        style={{ color: "rgba(198,168,90,0.60)" }}
+      >
+        {eyebrow}
+      </p>
+      <div
+        className={`h-px w-9 mt-3 mb-5 ${isCenter ? "mx-auto" : ""}`}
+        style={{ backgroundColor: "rgba(198,168,90,0.35)" }}
+      />
+      <h2
+        className="font-display text-[28px] md:text-[34px] leading-[1.1] tracking-[-0.015em]"
+        style={{ color: "#e8e6dd" }}
+      >
+        {title}
+      </h2>
+    </div>
+  );
+}
+
 export default function FrameworkPage() {
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
@@ -100,13 +132,15 @@ export default function FrameworkPage() {
         description="Arquitetura quantitativa em quatro pilares: Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos. Plataforma de tecnologia para clientes institucionais."
         path="/framework"
       />
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5 relative" style={{ backgroundColor: "#0a0a0a" }}>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
-        <div className="relative z-10 max-w-3xl mx-auto text-center">
+        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 md:items-center">
           <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Tecnologia Aplicada</p>
-            <h1 className="font-display text-4xl sm:text-5xl text-primary uppercase tracking-widest mb-6">Soluções</h1>
-            <p className="text-muted-foreground text-sm leading-relaxed font-light">A Aeternum Aurum constrói a ponte tecnológica entre o cliente brasileiro e a infraestrutura financeira global. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre risco e capital com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
+            <p className="font-sans uppercase text-[11px] tracking-[0.22em] mb-4" style={{ color: "rgba(198,168,90,0.60)" }}>Tecnologia Aplicada</p>
+            <h1 className="font-display text-[56px] md:text-[60px] leading-[0.95] tracking-[-0.015em]" style={{ color: "#e8e6dd" }}>Soluções</h1>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <p className="text-muted-foreground text-base leading-relaxed font-light">A Aeternum Aurum constrói a <span style={{ color: "rgba(198,168,90,0.90)" }}>ponte tecnológica</span> entre o cliente brasileiro e a <span style={{ color: "rgba(198,168,90,0.90)" }}>infraestrutura financeira global</span>. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre <span style={{ color: "rgba(198,168,90,0.90)" }}>risco e capital</span> com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
           </FadeIn>
         </div>
       </section>
@@ -115,38 +149,32 @@ export default function FrameworkPage() {
           BLOCO 2: AS TRÊS FRENTES
           O que a plataforma entrega: três frentes de atuação
       ══════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+      <section className="py-14 md:py-24 px-6 md:px-10 border-y" style={{ backgroundColor: "#0c0c0c", borderColor: "rgba(198,168,90,0.08)" }}>
         <div className="max-w-5xl mx-auto">
           <FadeIn>
-            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
-              Frentes de atuação
-            </p>
-            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
-              O que entregamos
-            </h2>
-            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-12" />
+            <SectionHeader eyebrow="Frentes de atuação" title="O que entregamos" />
           </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-12">
             {[
               {
                 titulo: "Inteligência Quantitativa",
                 subtitulo: "Leitura macro e modelagem de ciclos.",
-                descricao: "Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em literatura científica peer-reviewed e calibrados para o mercado brasileiro.",
+                descricao: (<>Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em <span style={{ color: "rgba(198,168,90,0.90)" }}>literatura científica peer-reviewed</span> e calibrados para o mercado brasileiro.</>),
                 paraQuem: "Para quem precisa ler o cenário antes de tomar a próxima decisão de capital.",
                 selo: false,
               },
               {
                 titulo: "Plataforma de Risco",
                 subtitulo: "Painel quantitativo em tempo real.",
-                descricao: "Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um painel claro. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.",
+                descricao: (<>Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um <span style={{ color: "rgba(198,168,90,0.90)" }}>painel claro</span>. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.</>),
                 paraQuem: "Para tesourarias, mesas e operadores que precisam decidir sobre risco com base quantitativa, todos os dias.",
                 selo: false,
               },
               {
                 titulo: "Consultoria Institucional",
                 subtitulo: "Integração da plataforma à sua operação.",
-                descricao: "Implantação da inteligência quantitativa dentro da tesouraria do cliente. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.",
+                descricao: (<>Implantação da inteligência quantitativa <span style={{ color: "rgba(198,168,90,0.90)" }}>dentro da tesouraria do cliente</span>. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.</>),
                 paraQuem: "Para grandes empresas que querem inteligência de risco moderna integrada à sua estrutura de capital, não como ferramenta avulsa.",
                 selo: true,
               },
@@ -177,29 +205,24 @@ export default function FrameworkPage() {
           A CIÊNCIA  (fusão: Espinha Científica + Em Linguagem Simples)
           Camada acessível primeiro, cards técnicos depois
       ══════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
-        <div className="max-w-4xl mx-auto">
-          <FadeIn>
-            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
-              Fundamentação
-            </p>
-            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
-              A ciência por trás da plataforma
-            </h2>
-            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-10" />
-            <p
-              className="font-display text-2xl sm:text-3xl text-center mb-8 leading-snug"
-              style={{ color: "rgba(198,168,90,0.90)", fontWeight: 500 }}
-            >
-              Inevitabilidade Matemática Aplicada.
-            </p>
-            <p className="text-muted-foreground text-base leading-relaxed text-center max-w-2xl mx-auto mb-10">
-              Não inventamos teoria. Aplicamos, com rigor, o que a fronteira da pesquisa já validou.
-              A Aeternum trabalha com modelos consolidados na literatura científica internacional,
-              peer-reviewed em periódicos como Journal of Financial Economics, Journal of Banking
-              &amp; Finance, Energy Economics e Mathematical Finance.
-            </p>
-          </FadeIn>
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-14">
+            <FadeIn>
+              <SectionHeader eyebrow="Fundamentação" title="A ciência por trás da plataforma" />
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <p className="font-display text-2xl sm:text-3xl mb-6 leading-snug" style={{ color: "#e8e6dd", fontWeight: 500 }}>
+                <span style={{ color: "rgba(198,168,90,0.90)" }}>Inevitabilidade Matemática</span> Aplicada.
+              </p>
+              <p className="text-muted-foreground text-base leading-relaxed">
+                Não inventamos teoria. Aplicamos, com rigor, o que a fronteira da pesquisa já validou.
+                A Aeternum trabalha com modelos consolidados na <span style={{ color: "rgba(198,168,90,0.90)" }}>literatura científica internacional</span>,
+                peer-reviewed em periódicos como Journal of Financial Economics, Journal of Banking
+                &amp; Finance, Energy Economics e Mathematical Finance.
+              </p>
+            </FadeIn>
+          </div>
 
           {/* Camada acessível: Em Linguagem Simples (rebaixado de seção própria para subtítulo interno) */}
           <FadeIn delay={0.05}>
@@ -291,18 +314,12 @@ export default function FrameworkPage() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/20 border-b border-white/5">
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
         <div className="max-w-4xl mx-auto">
           <FadeIn>
-            <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
-              Implementação
-            </p>
-            <h2 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
-              Como a consultoria acontece
-            </h2>
-            <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-6" />
-            <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto mb-14">
-              A implantação personalizada segue quatro etapas estruturadas, com escopo definido,
+            <SectionHeader eyebrow="Implementação" title="Como a consultoria acontece" />
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl mt-6 mb-14">
+              A implantação personalizada segue <span style={{ color: "rgba(198,168,90,0.90)" }}>quatro etapas estruturadas</span>, com escopo definido,
               entregáveis claros e ponto de aceitação antes da próxima começar.
             </p>
           </FadeIn>
@@ -316,7 +333,7 @@ export default function FrameworkPage() {
                     <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
                     <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
                     <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                      <span className="text-primary/60 uppercase tracking-wider text-[10px] mr-1">Entregável:</span>
+                      <span className="uppercase tracking-[0.18em] text-[10px] mr-1" style={{ color: "rgba(198,168,90,0.75)" }}>Entregável:</span>
                       {step.entregavel}
                     </p>
                   </div>
@@ -326,12 +343,11 @@ export default function FrameworkPage() {
           </div>
         </div>
       </section>
-      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-background border-b border-white/5">
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
         <div className="max-w-5xl mx-auto">
           <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4 text-center">Operação Contínua</p>
-            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4 text-center">Inteligência em Tempo Real</h2>
-            <p className="text-center text-muted-foreground text-sm font-light max-w-2xl mx-auto mb-16">Agentes operam 24 horas por dia, 7 dias por semana, monitorando fluxos globais de informação relevantes para mercados macro.</p>
+            <SectionHeader eyebrow="Operação Contínua" title="Inteligência em Tempo Real" />
+            <p className="text-muted-foreground text-sm font-light max-w-2xl mt-6 mb-16">Agentes operam 24 horas por dia, 7 dias por semana, monitorando fluxos globais de informação relevantes para mercados macro.</p>
           </FadeIn>
           <FadeIn delay={0.15}>
             <div className="mb-12"><MacroRiskModels /></div>
@@ -360,16 +376,11 @@ export default function FrameworkPage() {
           CINCO PRINCÍPIOS  (desaninhado de Em Linguagem Simples;
           seção solta por ora, vira modal no Prompt C)
       ══════════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
         <div className="max-w-4xl mx-auto">
           <FadeIn delay={0.4}>
-            <div className="border border-primary/15 bg-primary/3 p-6">
-              <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
-                Princípios
-              </p>
-              <h3 className="font-display text-base sm:text-lg text-primary uppercase tracking-wider mb-8 text-center">
-                Cinco princípios que orientam toda decisão
-              </h3>
+            <SectionHeader eyebrow="Princípios" title="Cinco princípios que orientam toda decisão" />
+            <div className="border border-primary/15 bg-primary/3 p-6 mt-10">
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                   { num: "I", titulo: "Dados primeiro, sempre", corpo: "Toda decisão parte do dado, não da opinião. A intuição entra depois, calibrada pelo modelo, nunca antes." },
