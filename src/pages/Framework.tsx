@@ -1,9 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import FrameworkSection from "../components/common/Framework";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
-import MacroRiskModels from "../components/common/MacroRiskModels";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -35,15 +33,6 @@ const steps = [
     desc: "Atualização contínua dos modelos conforme mudanças de regime e novas evidências da literatura. Suporte técnico à equipe interna, revisões periódicas dos calibradores e relatórios de desempenho dos alertas. Decisão de operação permanece com a tesouraria do cliente.",
     entregavel: "Relatórios periódicos, suporte técnico ativo, revisão semestral dos modelos.",
   },
-];
-
-const streams = [
-  { icon: "◈", label: "Redes de Televisão Globais", desc: "CNN, Bloomberg, Reuters. Captura de eventos de alto impacto antes da digestão pelo mercado." },
-  { icon: "◈", label: "Desenvolvimentos Militares", desc: "Movimentos de tropas, escaladas e sanções monitorados como preditores de prêmio de risco em commodities e câmbio." },
-  { icon: "◈", label: "Anúncios Macroeconômicos", desc: "Fed, BCE, OPEP. Leitura antecipada de fluxos de liquidez e reposicionamento institucional." },
-  { icon: "◈", label: "Choques de Oferta em Commodities", desc: "Estoques do EIA, dados CFTC, relatórios de safra USDA. Identificação de desequilíbrios estruturais." },
-  { icon: "◈", label: "Geopolítica & Diplomacia", desc: "Sanções, acordos bilaterais e tensões regionais convertidos em sinais de posicionamento para o portfólio." },
-  { icon: "◈", label: "Fluxos de Capital Institucional", desc: "Posicionamento de fundos soberanos, hedge funds e bancos centrais via dados de custódia e prime brokers." },
 ];
 
 const scienceModels = [
@@ -348,63 +337,6 @@ export default function FrameworkPage() {
               </FadeIn>
             ))}
           </div>
-        </div>
-      </section>
-      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
-        <div className="max-w-5xl mx-auto">
-          <FadeIn>
-            <SectionHeader eyebrow="Operação Contínua" title="Inteligência em Tempo Real" />
-            <p className="text-muted-foreground text-sm font-light max-w-2xl mt-6 mb-16">Agentes operam 24 horas por dia, 7 dias por semana, monitorando fluxos globais de informação relevantes para mercados macro.</p>
-          </FadeIn>
-          <FadeIn delay={0.15}>
-            <div className="mb-12"><MacroRiskModels /></div>
-          </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {streams.map((s, i) => (
-              <FadeIn key={i} delay={0.1 + i * 0.08}>
-                <div className="p-5 border border-white/5 bg-card/30 hover:bg-card/60 transition-colors group">
-                  <div className="flex items-start gap-3">
-                    <span className="text-primary/40 text-xs mt-0.5 shrink-0">{s.icon}</span>
-                    <div>
-                      <p className="font-display text-sm text-primary tracking-wide mb-1">{s.label}</p>
-                      <p className="text-muted-foreground text-xs font-light leading-relaxed">{s.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <FrameworkSection />
-
-      {/* ══════════════════════════════════════════════════════
-          CINCO PRINCÍPIOS  (desaninhado de Em Linguagem Simples;
-          seção solta por ora, vira modal no Prompt C)
-      ══════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
-        <div className="max-w-4xl mx-auto">
-          <FadeIn delay={0.4}>
-            <SectionHeader eyebrow="Princípios" title="Cinco princípios que orientam toda decisão" />
-            <div className="border border-primary/15 bg-primary/3 p-6 mt-10">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { num: "I", titulo: "Dados primeiro, sempre", corpo: "Toda decisão parte do dado, não da opinião. A intuição entra depois, calibrada pelo modelo, nunca antes." },
-                  { num: "II", titulo: "Risco definido antes da entrada", corpo: "Cada decisão de capital tem perda máxima conhecida antes de ser tomada. Quando o cenário muda, o modelo recalibra; quando o risco muda, o cliente decide." },
-                  { num: "III", titulo: "Diversificação real, não aparente", corpo: "Diversificação verdadeira começa onde as correlações dinâmicas começam. Ativos que parecem descorrelacionados em mercados calmos podem se mover juntos em crises. Os modelos medem isso continuamente, não assumem." },
-                  { num: "IV", titulo: "Alertas antes do estresse, não depois", corpo: "Modelos de risco de cauda e detecção de regime sinalizam mudança estrutural antes que ela apareça nos preços. O cliente recebe o alerta com tempo de decidir, ajustar ou esperar." },
-                  { num: "V", titulo: "Transparência total no processo", corpo: "Cada modelo carrega referência ao paper, à janela de validação e ao limite onde ele falha. O que entregamos é auditável do início ao fim." },
-                ].map((p) => (
-                  <div key={p.num} className="border border-white/8 bg-card/40 p-5 h-full">
-                    <div className="font-display text-2xl text-primary/30 mb-2">{p.num}</div>
-                    <h4 className="font-display text-sm text-foreground tracking-wide mb-2 leading-snug">{p.titulo}</h4>
-                    <p className="text-muted-foreground text-xs leading-relaxed">{p.corpo}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
