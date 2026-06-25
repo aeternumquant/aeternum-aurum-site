@@ -114,6 +114,24 @@ function SectionHeader({
 }
 
 export default function FrameworkPage() {
+  const [ctaEmail, setCtaEmail] = useState("");
+  const [ctaSent, setCtaSent] = useState(false);
+  const [ctaError, setCtaError] = useState(false);
+
+  const handleCtaSubmit = () => {
+    const valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ctaEmail.trim());
+    if (!valido) {
+      setCtaError(true);
+      return;
+    }
+    setCtaError(false);
+    // TODO: conectar EmailJS quando as credenciais reais estiverem em .env.local.
+    // O hook useEmailJS (src/hooks/useEmailJS.ts) ja existe; hoje as chaves
+    // VITE_EMAILJS_* sao placeholders, entao o envio fica em modo visual.
+    setCtaSent(true);
+    setCtaEmail("");
+  };
+
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
@@ -337,6 +355,54 @@ export default function FrameworkPage() {
               </FadeIn>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          CTA DE CONTATO  (campo de email + envio)
+          Nivel 1: validacao + estado visual. EmailJS pendente de credenciais.
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
+        <div className="max-w-2xl mx-auto text-center">
+          <FadeIn>
+            <SectionHeader eyebrow="Contato" title="Vamos conversar" align="center" />
+            <p className="text-muted-foreground text-base leading-relaxed mt-6 mb-8">
+              Deixe seu email e a equipe entra em contato.
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            {ctaSent ? (
+              <p className="text-base" style={{ color: "rgba(198,168,90,0.90)" }}>
+                Obrigado, entraremos em contato.
+              </p>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="email"
+                  inputMode="email"
+                  placeholder="email@instituicao.com"
+                  value={ctaEmail}
+                  onChange={(e) => { setCtaEmail(e.target.value); if (ctaError) setCtaError(false); }}
+                  className="flex-1 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none transition-colors font-sans"
+                  style={{ border: "1px solid rgba(198,168,90,0.20)" }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(198,168,90,0.45)"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(198,168,90,0.20)"; }}
+                />
+                <button
+                  type="button"
+                  onClick={handleCtaSubmit}
+                  className="py-3 px-6 border border-primary text-primary text-[10px] tracking-[0.25em] uppercase font-sans bg-primary/0 hover:bg-primary hover:text-background transition-all duration-300 whitespace-nowrap"
+                >
+                  Enviar
+                </button>
+              </div>
+            )}
+            {ctaError && (
+              <p className="text-xs text-muted-foreground/70 mt-3">
+                Digite um email válido.
+              </p>
+            )}
+          </FadeIn>
         </div>
       </section>
 
