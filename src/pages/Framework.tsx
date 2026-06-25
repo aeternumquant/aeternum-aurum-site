@@ -151,11 +151,18 @@ export default function FrameworkPage() {
       ══════════════════════════════════════════════════════ */}
       <section className="py-14 md:py-24 px-6 md:px-10 border-y" style={{ backgroundColor: "#0c0c0c", borderColor: "rgba(198,168,90,0.08)" }}>
         <div className="max-w-5xl mx-auto">
-          <FadeIn>
-            <SectionHeader eyebrow="Frentes de atuação" title="O que entregamos" />
-          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-12">
+            <FadeIn>
+              <SectionHeader eyebrow="Frentes de atuação" title="O que entregamos" />
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <p className="text-muted-foreground text-base leading-relaxed">
+                Três frentes que funcionam <span style={{ color: "rgba(198,168,90,0.90)" }}>isoladas ou em conjunto</span>, conforme a necessidade do cliente.
+              </p>
+            </FadeIn>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
               {
                 titulo: "Inteligência Quantitativa",
