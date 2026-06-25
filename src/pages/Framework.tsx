@@ -129,7 +129,7 @@ export default function FrameworkPage() {
             <h1 className="font-display text-[56px] md:text-[60px] leading-[0.95] tracking-[-0.015em]" style={{ color: "#e8e6dd" }}>Soluções</h1>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <p className="text-muted-foreground text-base leading-relaxed font-light">A Aeternum Aurum constrói a <span style={{ color: "rgba(198,168,90,0.90)" }}>ponte tecnológica</span> entre o cliente brasileiro e a <span style={{ color: "rgba(198,168,90,0.90)" }}>infraestrutura financeira global</span>. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre <span style={{ color: "rgba(198,168,90,0.90)" }}>risco e capital</span> com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
+            <p className="text-muted-foreground text-base leading-relaxed font-light">A Aeternum Aurum constrói a ponte tecnológica entre o cliente brasileiro e a <span style={{ color: "rgba(198,168,90,0.90)" }}>infraestrutura financeira global</span>. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre risco e capital com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
           </FadeIn>
         </div>
       </section>
@@ -156,21 +156,21 @@ export default function FrameworkPage() {
               {
                 titulo: "Inteligência Quantitativa",
                 subtitulo: "Leitura macro e modelagem de ciclos.",
-                descricao: (<>Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em <span style={{ color: "rgba(198,168,90,0.90)" }}>literatura científica peer-reviewed</span> e calibrados para o mercado brasileiro.</>),
+                descricao: "Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em literatura científica peer-reviewed e calibrados para o mercado brasileiro.",
                 paraQuem: "Para quem precisa ler o cenário antes de tomar a próxima decisão de capital.",
                 selo: false,
               },
               {
                 titulo: "Plataforma de Risco",
                 subtitulo: "Painel quantitativo em tempo real.",
-                descricao: (<>Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um <span style={{ color: "rgba(198,168,90,0.90)" }}>painel claro</span>. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.</>),
+                descricao: "Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um painel claro. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.",
                 paraQuem: "Para tesourarias, mesas e operadores que precisam decidir sobre risco com base quantitativa, todos os dias.",
                 selo: false,
               },
               {
                 titulo: "Consultoria Institucional",
                 subtitulo: "Integração da plataforma à sua operação.",
-                descricao: (<>Implantação da inteligência quantitativa <span style={{ color: "rgba(198,168,90,0.90)" }}>dentro da tesouraria do cliente</span>. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.</>),
+                descricao: "Implantação da inteligência quantitativa dentro da tesouraria do cliente. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.",
                 paraQuem: "Para grandes empresas que querem inteligência de risco moderna integrada à sua estrutura de capital, não como ferramenta avulsa.",
                 selo: true,
               },
@@ -213,7 +213,7 @@ export default function FrameworkPage() {
               </p>
               <p className="text-muted-foreground text-base leading-relaxed">
                 Não inventamos teoria. Aplicamos, com rigor, o que a fronteira da pesquisa já validou.
-                A Aeternum trabalha com modelos consolidados na <span style={{ color: "rgba(198,168,90,0.90)" }}>literatura científica internacional</span>,
+                A Aeternum trabalha com modelos consolidados na literatura científica internacional,
                 peer-reviewed em periódicos como Journal of Financial Economics, Journal of Banking
                 &amp; Finance, Energy Economics e Mathematical Finance.
               </p>
@@ -329,7 +329,7 @@ export default function FrameworkPage() {
                     <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
                     <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
                     <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                      <span className="uppercase tracking-[0.18em] text-[10px] mr-1" style={{ color: "rgba(198,168,90,0.75)" }}>Entregável:</span>
+                      <span className="text-muted-foreground/60 uppercase tracking-[0.18em] text-[10px] mr-1">Entregável:</span>
                       {step.entregavel}
                     </p>
                   </div>
