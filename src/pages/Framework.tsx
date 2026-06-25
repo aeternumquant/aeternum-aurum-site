@@ -243,7 +243,7 @@ export default function FrameworkPage() {
             <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
               Entendendo a Plataforma
             </p>
-            <h3 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-4 text-center">
+            <h3 className="font-display text-2xl sm:text-3xl uppercase tracking-widest mb-4 text-center" style={{ color: "#e8e6dd" }}>
               Em Linguagem Simples
             </h3>
             <div className="h-px w-20 bg-gradient-to-r from-primary to-primary/10 mx-auto mb-8" />
