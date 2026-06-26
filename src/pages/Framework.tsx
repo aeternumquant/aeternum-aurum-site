@@ -108,6 +108,43 @@ function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: 
   );
 }
 
+function FrenteCard({ frente, index }: { frente: typeof frentes[0]; index: number }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <FadeIn delay={index * 0.08} direction="up">
+      <div className="border border-white/8 bg-card/40 hover:border-primary/20 transition-colors">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="w-full flex items-center justify-between gap-4 p-5 text-left"
+        >
+          <span className="flex flex-col gap-1">
+            <span className="flex items-center gap-2 flex-wrap">
+              <span className="font-display text-base text-foreground tracking-wide">{frente.titulo}</span>
+              {frente.selo && (
+                <span className="text-[8px] tracking-[0.2em] uppercase text-primary/80 border border-primary/40 rounded-full px-2 py-0.5">
+                  Serviço Dedicado
+                </span>
+              )}
+            </span>
+            <span className="text-muted-foreground text-sm leading-relaxed">{frente.fraseCurta}</span>
+          </span>
+          <span className={`text-primary/60 text-xl leading-none transition-transform duration-300 shrink-0 ${open ? "rotate-45" : ""}`}>+</span>
+        </button>
+        {open && (
+          <div className="px-5 pb-5 -mt-1">
+            <p className="text-primary/70 text-xs tracking-wide mb-3">{frente.subtitulo}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-5">{frente.descricao}</p>
+            <p className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: "rgba(198,168,90,0.70)" }}>Para quem é</p>
+            <p className="text-muted-foreground text-sm leading-relaxed">{frente.paraQuem}</p>
+          </div>
+        )}
+      </div>
+    </FadeIn>
+  );
+}
+
 function SectionHeader({
   eyebrow,
   title,
@@ -196,21 +233,9 @@ export default function FrameworkPage() {
             </FadeIn>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="space-y-3">
             {frentes.map((frente, i) => (
-              <FadeIn key={i} delay={i * 0.1} direction="up">
-                <div className="border border-white/8 bg-card/40 p-6 h-full relative flex flex-col">
-                  {frente.selo && (
-                    <span className="absolute top-4 right-4 text-[8px] tracking-[0.2em] uppercase text-primary/80 border border-primary/40 rounded-full px-2.5 py-1">
-                      Serviço Dedicado
-                    </span>
-                  )}
-                  <h3 className="font-display text-base text-foreground tracking-wide mb-3 pr-24">
-                    {frente.titulo}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{frente.fraseCurta}</p>
-                </div>
-              </FadeIn>
+              <FrenteCard key={i} frente={frente} index={i} />
             ))}
           </div>
         </div>
