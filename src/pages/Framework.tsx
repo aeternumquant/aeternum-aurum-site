@@ -1,8 +1,7 @@
-import { useState, useRef, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
-import SideModal from "../components/common/SideModal";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -160,18 +159,6 @@ export default function FrameworkPage() {
     setCtaEmail("");
   };
 
-  const [openFrente, setOpenFrente] = useState<number | null>(null);
-  const lastFrenteRef = useRef(0);
-  if (openFrente !== null) lastFrenteRef.current = openFrente;
-  const frenteAtiva = frentes[openFrente ?? lastFrenteRef.current];
-
-  const irParaContato = () => {
-    window.setTimeout(() => {
-      document.getElementById("contato")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      document.getElementById("contato-email")?.focus({ preventScroll: true });
-    }, 80);
-  };
-
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
@@ -212,14 +199,7 @@ export default function FrameworkPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {frentes.map((frente, i) => (
               <FadeIn key={i} delay={i * 0.1} direction="up">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-haspopup="dialog"
-                  onClick={() => setOpenFrente(i)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenFrente(i); } }}
-                  className="group cursor-pointer border border-[rgba(198,168,90,0.18)] hover:border-[rgba(198,168,90,0.40)] bg-card/40 p-6 h-full relative flex flex-col transition-colors duration-200 ease-rapido focus:outline-none focus-visible:border-[rgba(198,168,90,0.45)]"
-                >
+                <div className="border border-white/8 bg-card/40 p-6 h-full relative flex flex-col">
                   {frente.selo && (
                     <span className="absolute top-4 right-4 text-[8px] tracking-[0.2em] uppercase text-primary/80 border border-primary/40 rounded-full px-2.5 py-1">
                       Serviço Dedicado
@@ -228,11 +208,7 @@ export default function FrameworkPage() {
                   <h3 className="font-display text-base text-foreground tracking-wide mb-3 pr-24">
                     {frente.titulo}
                   </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed flex-grow">{frente.fraseCurta}</p>
-                  <div className="mt-6 pt-4 flex items-center justify-between border-t border-white/5">
-                    <span className="text-[11px] tracking-[0.2em] uppercase" style={{ color: "rgba(198,168,90,0.70)" }}>Saiba mais</span>
-                    <span className="text-primary/60 text-xl leading-none transition-transform duration-200 ease-rapido group-hover:rotate-[15deg]">+</span>
-                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{frente.fraseCurta}</p>
                 </div>
               </FadeIn>
             ))}
@@ -431,26 +407,6 @@ export default function FrameworkPage() {
           </FadeIn>
         </div>
       </section>
-
-      <SideModal
-        isOpen={openFrente !== null}
-        onClose={() => setOpenFrente(null)}
-        title={frenteAtiva.titulo}
-        footer={
-          <button
-            type="button"
-            onClick={() => { setOpenFrente(null); irParaContato(); }}
-            className="w-full py-3 px-6 border border-primary text-primary text-[10px] tracking-[0.25em] uppercase font-sans bg-primary/0 hover:bg-primary hover:text-background transition-all duration-300"
-          >
-            Entrar em contato
-          </button>
-        }
-      >
-        <p className="text-sm italic mb-5" style={{ color: "rgba(198,168,90,0.80)" }}>{frenteAtiva.subtitulo}</p>
-        <p className="text-muted-foreground text-sm leading-relaxed mb-8">{frenteAtiva.descricao}</p>
-        <p className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: "rgba(198,168,90,0.70)" }}>Para quem é</p>
-        <p className="text-muted-foreground text-sm leading-relaxed">{frenteAtiva.paraQuem}</p>
-      </SideModal>
 
       <Footer />
     </main>

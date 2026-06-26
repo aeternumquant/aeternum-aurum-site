@@ -1,3 +1,9 @@
+// COMPONENTE RESERVADO - nao usado atualmente.
+// Construido no sprint da Solucoes mas nao adotado la.
+// Reservado para uso futuro: preview de pesquisas (lead sem
+// login ve inicio + CTA), Commodities ou Tokenizados, onde
+// ha mais texto e o painel lateral faz sentido.
+
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface SideModalProps {
