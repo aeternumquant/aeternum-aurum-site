@@ -125,3 +125,25 @@ export default function SolucoesRemovidos() {
     </main>
   );
 }
+
+// === EM LINGUAGEM SIMPLES - CONCEITO VIX (removido 2026-06-25) ===
+// Removido da Solucoes por ser basico demais. Preservado caso
+// util em outra aba (ex: material didatico, FAQ).
+export const conceitoVixRemovido = {
+  icone: "◆",
+  titulo: "O que é o 'medo do mercado' e por que importa?",
+  corpo: `Existe um indicador chamado VIX, que chamamos de "termômetro do medo". Quando está alto,
+    os grandes investidores estão com medo. Quando está baixo, estão confiantes demais.
+    Ambos os extremos criam oportunidades. A Aeternum lê esse termômetro antes de qualquer decisão.`,
+};
+
+// === EM LINGUAGEM SIMPLES - PROTECAO (versao antiga, substituida 2026-06-25) ===
+// Substituida pela Versao B aprovada pelo advogado. Preservada
+// para historico.
+export const conceitoProtecaoAntigo = {
+  icone: "◆",
+  titulo: "Como protegemos seu capital em crises?",
+  corpo: `Usamos um sistema de proteção chamado hedge, como um seguro para seu investimento.
+    Quando identificamos risco crescendo (o VIX subindo, por exemplo), compramos proteção
+    preventiva. É o equivalente a colocar um seguro no carro antes de sair na chuva forte.`,
+};

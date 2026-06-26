@@ -279,16 +279,9 @@ export default function FrameworkPage() {
             </p>
           </FadeIn>
 
-          {/* 4 Conceitos em Linguagem Simples */}
-          <div className="grid sm:grid-cols-2 gap-5 mb-12">
+          {/* 3 Conceitos em Linguagem Simples (conceito do indicador de medo movido para rascunho) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
             {[
-              {
-                icone: "◆",
-                titulo: "O que é o 'medo do mercado' e por que importa?",
-                corpo: `Existe um indicador chamado VIX, que chamamos de "termômetro do medo". Quando está alto,
-                  os grandes investidores estão com medo. Quando está baixo, estão confiantes demais.
-                  Ambos os extremos criam oportunidades. A Aeternum lê esse termômetro antes de qualquer decisão.`,
-              },
               {
                 icone: "◆",
                 titulo: "Por que dados valem mais que opiniões?",
@@ -298,10 +291,8 @@ export default function FrameworkPage() {
               },
               {
                 icone: "◆",
-                titulo: "Como protegemos seu capital em crises?",
-                corpo: `Usamos um sistema de proteção chamado hedge, como um seguro para seu investimento.
-                  Quando identificamos risco crescendo (o VIX subindo, por exemplo), compramos proteção
-                  preventiva. É o equivalente a colocar um seguro no carro antes de sair na chuva forte.`,
+                titulo: "Como proteger seu capital em crises",
+                corpo: "Implementamos nosso modelo de proteção: um sistema que acompanha os sinais de estresse no mercado e antecipa quando o risco começa a crescer. É como um sistema de alerta meteorológico, ele não impede a tempestade, mas avisa a tempo de você se preparar. A decisão de operação permanece com o cliente.",
               },
               {
                 icone: "◆",
