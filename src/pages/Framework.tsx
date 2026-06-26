@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
+import SideModal from "../components/common/SideModal";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -32,6 +33,33 @@ const steps = [
     subtitle: "Manutenção contínua e revisão de modelos.",
     desc: "Atualização contínua dos modelos conforme mudanças de regime e novas evidências da literatura. Suporte técnico à equipe interna, revisões periódicas dos calibradores e relatórios de desempenho dos alertas. Decisão de operação permanece com a tesouraria do cliente.",
     entregavel: "Relatórios periódicos, suporte técnico ativo, revisão semestral dos modelos.",
+  },
+];
+
+const frentes = [
+  {
+    titulo: "Inteligência Quantitativa",
+    fraseCurta: "Análise sistemática de macro, ciclos e choques de oferta.",
+    subtitulo: "Leitura macro e modelagem de ciclos.",
+    descricao: "Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em literatura científica peer-reviewed e calibrados para o mercado brasileiro.",
+    paraQuem: "Para quem precisa ler o cenário antes de tomar a próxima decisão de capital.",
+    selo: false,
+  },
+  {
+    titulo: "Plataforma de Risco",
+    fraseCurta: "Painel claro de preço, câmbio, basis e exposição.",
+    subtitulo: "Painel quantitativo em tempo real.",
+    descricao: "Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um painel claro. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.",
+    paraQuem: "Para tesourarias, mesas e operadores que precisam decidir sobre risco com base quantitativa, todos os dias.",
+    selo: false,
+  },
+  {
+    titulo: "Consultoria Institucional",
+    fraseCurta: "Implantação na tesouraria do cliente.",
+    subtitulo: "Integração da plataforma à sua operação.",
+    descricao: "Implantação da inteligência quantitativa dentro da tesouraria do cliente. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.",
+    paraQuem: "Para grandes empresas que querem inteligência de risco moderna integrada à sua estrutura de capital, não como ferramenta avulsa.",
+    selo: true,
   },
 ];
 
@@ -132,6 +160,18 @@ export default function FrameworkPage() {
     setCtaEmail("");
   };
 
+  const [openFrente, setOpenFrente] = useState<number | null>(null);
+  const lastFrenteRef = useRef(0);
+  if (openFrente !== null) lastFrenteRef.current = openFrente;
+  const frenteAtiva = frentes[openFrente ?? lastFrenteRef.current];
+
+  const irParaContato = () => {
+    window.setTimeout(() => {
+      document.getElementById("contato")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("contato-email")?.focus({ preventScroll: true });
+    }, 80);
+  };
+
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
       <RouteSeo
@@ -170,44 +210,29 @@ export default function FrameworkPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              {
-                titulo: "Inteligência Quantitativa",
-                subtitulo: "Leitura macro e modelagem de ciclos.",
-                descricao: "Análise sistemática de fluxos globais de capital, política monetária, ciclos de commodities e choques de oferta. Os modelos são fundamentados em literatura científica peer-reviewed e calibrados para o mercado brasileiro.",
-                paraQuem: "Para quem precisa ler o cenário antes de tomar a próxima decisão de capital.",
-                selo: false,
-              },
-              {
-                titulo: "Plataforma de Risco",
-                subtitulo: "Painel quantitativo em tempo real.",
-                descricao: "Software de inteligência de risco que traduz preço, câmbio, basis e marcação a mercado em um painel claro. O cliente acompanha sua exposição em tempo real e recebe alertas quando os modelos identificam mudança relevante no risco.",
-                paraQuem: "Para tesourarias, mesas e operadores que precisam decidir sobre risco com base quantitativa, todos os dias.",
-                selo: false,
-              },
-              {
-                titulo: "Consultoria Institucional",
-                subtitulo: "Integração da plataforma à sua operação.",
-                descricao: "Implantação da inteligência quantitativa dentro da tesouraria do cliente. Diagnóstico da exposição, modelagem dos riscos específicos da empresa, integração da plataforma ao fluxo interno de decisão e acompanhamento contínuo da equipe.",
-                paraQuem: "Para grandes empresas que querem inteligência de risco moderna integrada à sua estrutura de capital, não como ferramenta avulsa.",
-                selo: true,
-              },
-            ].map((frente, i) => (
+            {frentes.map((frente, i) => (
               <FadeIn key={i} delay={i * 0.1} direction="up">
-                <div className="border border-white/8 bg-card/40 p-6 h-full hover:border-primary/20 transition-colors relative flex flex-col">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-haspopup="dialog"
+                  onClick={() => setOpenFrente(i)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenFrente(i); } }}
+                  className="group cursor-pointer border border-[rgba(198,168,90,0.18)] hover:border-[rgba(198,168,90,0.40)] bg-card/40 p-6 h-full relative flex flex-col transition-colors duration-200 ease-rapido focus:outline-none focus-visible:border-[rgba(198,168,90,0.45)]"
+                >
                   {frente.selo && (
                     <span className="absolute top-4 right-4 text-[8px] tracking-[0.2em] uppercase text-primary/80 border border-primary/40 rounded-full px-2.5 py-1">
                       Serviço Dedicado
                     </span>
                   )}
-                  <h3 className="font-display text-base text-foreground tracking-wide mb-1.5 pr-24">
+                  <h3 className="font-display text-base text-foreground tracking-wide mb-3 pr-24">
                     {frente.titulo}
                   </h3>
-                  <p className="text-primary/70 text-xs tracking-wide mb-4">{frente.subtitulo}</p>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-5 flex-grow">{frente.descricao}</p>
-                  <p className="text-muted-foreground/70 text-xs leading-relaxed italic border-t border-white/5 pt-4">
-                    {frente.paraQuem}
-                  </p>
+                  <p className="text-muted-foreground text-sm leading-relaxed flex-grow">{frente.fraseCurta}</p>
+                  <div className="mt-6 pt-4 flex items-center justify-between border-t border-white/5">
+                    <span className="text-[11px] tracking-[0.2em] uppercase" style={{ color: "rgba(198,168,90,0.70)" }}>Saiba mais</span>
+                    <span className="text-primary/60 text-xl leading-none transition-transform duration-200 ease-rapido group-hover:rotate-[15deg]">+</span>
+                  </div>
                 </div>
               </FadeIn>
             ))}
@@ -362,7 +387,7 @@ export default function FrameworkPage() {
           CTA DE CONTATO  (campo de email + envio)
           Nivel 1: validacao + estado visual. EmailJS pendente de credenciais.
       ══════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
+      <section id="contato" className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
         <div className="max-w-2xl mx-auto text-center">
           <FadeIn>
             <SectionHeader eyebrow="Contato" title="Vamos conversar" align="center" />
@@ -378,6 +403,7 @@ export default function FrameworkPage() {
             ) : (
               <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <input
+                  id="contato-email"
                   type="email"
                   inputMode="email"
                   placeholder="email@instituicao.com"
@@ -405,6 +431,26 @@ export default function FrameworkPage() {
           </FadeIn>
         </div>
       </section>
+
+      <SideModal
+        isOpen={openFrente !== null}
+        onClose={() => setOpenFrente(null)}
+        title={frenteAtiva.titulo}
+        footer={
+          <button
+            type="button"
+            onClick={() => { setOpenFrente(null); irParaContato(); }}
+            className="w-full py-3 px-6 border border-primary text-primary text-[10px] tracking-[0.25em] uppercase font-sans bg-primary/0 hover:bg-primary hover:text-background transition-all duration-300"
+          >
+            Entrar em contato
+          </button>
+        }
+      >
+        <p className="text-sm italic mb-5" style={{ color: "rgba(198,168,90,0.80)" }}>{frenteAtiva.subtitulo}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed mb-8">{frenteAtiva.descricao}</p>
+        <p className="text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: "rgba(198,168,90,0.70)" }}>Para quem é</p>
+        <p className="text-muted-foreground text-sm leading-relaxed">{frenteAtiva.paraQuem}</p>
+      </SideModal>
 
       <Footer />
     </main>
