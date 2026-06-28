@@ -280,7 +280,7 @@ export default function FrameworkPage() {
           </FadeIn>
 
           {/* 3 Conceitos em Linguagem Simples (conceito do indicador de medo movido para rascunho) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12 items-start">
             {[
               {
                 icone: "◆",
@@ -303,10 +303,10 @@ export default function FrameworkPage() {
               },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 0.1} direction="up">
-                <div className="border border-white/8 bg-card/40 p-6 h-full hover:border-primary/20 transition-colors">
+                <div className="border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
-                    <span className="text-primary/50 text-xs mt-0.5 flex-shrink-0">{item.icone}</span>
-                    <h3 className="font-display text-sm text-foreground tracking-wide leading-snug">
+                    <span className="text-primary/50 text-xs mt-1.5 flex-shrink-0">{item.icone}</span>
+                    <h3 className="font-display text-lg text-foreground tracking-wide leading-snug">
                       {item.titulo}
                     </h3>
                   </div>
