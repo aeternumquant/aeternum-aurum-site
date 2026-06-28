@@ -292,7 +292,7 @@ export default function FrameworkPage() {
                 titulo: "O que significa 'quantitativo' na prática?",
                 corpo: `Significa que todas as nossas decisões têm número. Em vez de dizer "achamos que soja vai
                   subir", dizemos "há 68% de probabilidade de soja entre R$128 e R$148 nos próximos 30 dias,
-                  baseado em dados de opções, estoques e sazonalidade". Isso permite tamanhar o risco corretamente.`,
+                  baseado em dados de opções, estoques e sazonalidade". Isso permite medir o risco corretamente.`,
               },
               {
                 icone: "◆",
@@ -305,7 +305,7 @@ export default function FrameworkPage() {
               <FadeIn key={i} delay={i * 0.1} direction="up">
                 <div className="border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
-                    <span className="text-primary/50 text-xs mt-1.5 flex-shrink-0">{item.icone}</span>
+                    <span className="text-foreground text-xs mt-1.5 flex-shrink-0">{item.icone}</span>
                     <h3 className="font-display text-lg tracking-wide leading-snug" style={{ color: "rgba(198,168,90,0.90)" }}>
                       {item.titulo}
                     </h3>
