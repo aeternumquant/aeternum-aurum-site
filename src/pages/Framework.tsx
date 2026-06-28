@@ -6,28 +6,28 @@ import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
   {
-    num: "01",
+    num: "I",
     title: "Diagnóstico",
     subtitle: "Mapeamento da exposição atual.",
     desc: "Levantamento completo das exposições do cliente: commodities, câmbio, contratos a termo, basis, marcação a mercado, contratos de crédito. Identificação dos riscos materiais e da janela de decisão típica da tesouraria.",
     entregavel: "Diagnóstico de exposição em documento auditável, com mapa de riscos e prioridades.",
   },
   {
-    num: "02",
+    num: "II",
     title: "Modelagem Adaptativa",
     subtitle: "Calibração ao caso específico.",
     desc: "Aplicação dos modelos quantitativos peer-reviewed ao contexto do cliente. Calibração local com dados próprios da operação, séries de mercado relevantes e tratamento de quebras estruturais. Validação por backtesting antes da implantação.",
     entregavel: "Modelos calibrados e validados, com relatório de aceitação técnica.",
   },
   {
-    num: "03",
+    num: "III",
     title: "Implantação",
     subtitle: "Integração ao fluxo de tesouraria.",
     desc: "Instalação da plataforma na infraestrutura do cliente. Integração com sistemas internos (ERP, sistemas de tesouraria, planilhas de risco). Treinamento da equipe interna no uso diário do painel, dos alertas e da leitura dos modelos.",
     entregavel: "Plataforma operacional, equipe treinada, documentação técnica completa.",
   },
   {
-    num: "04",
+    num: "IV",
     title: "Acompanhamento",
     subtitle: "Manutenção contínua e revisão de modelos.",
     desc: "Atualização contínua dos modelos conforme mudanças de regime e novas evidências da literatura. Suporte técnico à equipe interna, revisões periódicas dos calibradores e relatórios de desempenho dos alertas. Decisão de operação permanece com a tesouraria do cliente.",
@@ -357,10 +357,10 @@ export default function FrameworkPage() {
           <div className="space-y-10">
             {steps.map((step, i) => (
               <FadeIn key={i} delay={i * 0.15}>
-                <div className="flex gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
-                  <span className="font-display text-4xl text-primary/20 shrink-0 tabular-nums group-hover:text-primary/40 transition-colors">{step.num}</span>
+                <div className="flex items-start gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
+                  <span className="font-display text-4xl text-primary/20 shrink-0 w-12 text-right group-hover:text-primary/70 transition-colors duration-200 ease-rapido">{step.num}</span>
                   <div>
-                    <h3 className="font-display text-lg text-foreground uppercase tracking-wider mb-1">{step.title}</h3>
+                    <h3 className="font-display text-xl text-foreground uppercase tracking-wider mb-1">{step.title}</h3>
                     <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
                     <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
                     <p className="text-xs text-muted-foreground/70 leading-relaxed">
