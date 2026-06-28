@@ -147,3 +147,12 @@ export const conceitoProtecaoAntigo = {
     Quando identificamos risco crescendo (o VIX subindo, por exemplo), compramos proteção
     preventiva. É o equivalente a colocar um seguro no carro antes de sair na chuva forte.`,
 };
+
+// === EM LINGUAGEM SIMPLES - PROTECAO (Versao B, substituida 2026-06-25) ===
+// Versao aprovada anteriormente, substituida pela versao final
+// curta aprovada pelo advogado. Preservada para historico.
+export const conceitoProtecaoVersaoB = {
+  icone: "◆",
+  titulo: "Como proteger seu capital em crises",
+  corpo: "Implementamos nosso modelo de proteção: um sistema que acompanha os sinais de estresse no mercado e antecipa quando o risco começa a crescer. É como um sistema de alerta meteorológico, ele não impede a tempestade, mas avisa a tempo de você se preparar. A decisão de operação permanece com o cliente.",
+};

@@ -284,15 +284,15 @@ export default function FrameworkPage() {
             {[
               {
                 icone: "◆",
+                titulo: "Como protejo meu capital em crises?",
+                corpo: "Ao implementar o modelo de proteção Aeternum, o sistema acompanha os sinais de estresse do mercado e antecipa quando o risco começa a crescer. Ele enxerga o cenário global com um alcance e uma velocidade além da capacidade humana, e traduz isso de forma simples, para qualquer nível de conhecimento. Como um alerta meteorológico, ele não impede a tempestade, mas avisa a tempo de você decidir como se preparar.",
+              },
+              {
+                icone: "◆",
                 titulo: "Por que dados valem mais que opiniões?",
                 corpo: `Um analista pode estar certo ou errado. Dados de posicionamento de mercado mostram
                   o que as pessoas realmente estão fazendo com seu dinheiro, não o que elas falam.
                   Nosso sistema lê essas "pegadas digitais" e toma decisões baseadas em fatos, não em narrativas.`,
-              },
-              {
-                icone: "◆",
-                titulo: "Como proteger seu capital em crises",
-                corpo: "Implementamos nosso modelo de proteção: um sistema que acompanha os sinais de estresse no mercado e antecipa quando o risco começa a crescer. É como um sistema de alerta meteorológico, ele não impede a tempestade, mas avisa a tempo de você se preparar. A decisão de operação permanece com o cliente.",
               },
               {
                 icone: "◆",
