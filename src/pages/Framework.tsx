@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
-import { FadeIn } from "../components/common/FadeIn";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -81,10 +81,44 @@ const scienceModels = [
   },
 ];
 
+/**
+ * Reveal de entrada no scroll (opacity + translateY apenas).
+ * Usa useScrollReveal (IntersectionObserver puro) + easing --ease-respira.
+ * `delay` em segundos (mantem a mesma assinatura do antigo FadeIn).
+ * `direction` aceito por compatibilidade, mas o movimento e sempre subida sobria.
+ */
+function Reveal({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: ReactNode;
+  delay?: number;
+  direction?: "up" | "down" | "left" | "right" | "none";
+  className?: string;
+}) {
+  const { ref, visible } = useScrollReveal<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(18px)",
+        transition: "opacity 700ms var(--ease-respira), transform 700ms var(--ease-respira)",
+        transitionDelay: `${delay * 1000}ms`,
+        willChange: "opacity, transform",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <FadeIn delay={index * 0.08} direction="up">
+    <Reveal delay={index * 0.1} direction="up">
       <div className="border border-white/8 bg-card/40 hover:border-primary/20 transition-colors">
         <button
           type="button"
@@ -104,14 +138,14 @@ function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: 
           </div>
         )}
       </div>
-    </FadeIn>
+    </Reveal>
   );
 }
 
 function FrenteCard({ frente, index }: { frente: typeof frentes[0]; index: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <FadeIn delay={index * 0.08} direction="up">
+    <Reveal delay={index * 0.1} direction="up">
       <div className="border border-white/8 bg-card/40 hover:border-primary/20 transition-colors">
         <button
           type="button"
@@ -141,7 +175,7 @@ function FrenteCard({ frente, index }: { frente: typeof frentes[0]; index: numbe
           </div>
         )}
       </div>
-    </FadeIn>
+    </Reveal>
   );
 }
 
@@ -206,13 +240,13 @@ export default function FrameworkPage() {
       <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5 relative" style={{ backgroundColor: "#0a0a0a" }}>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/4 via-background to-background z-0" />
         <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 md:items-center">
-          <FadeIn>
+          <Reveal>
             <p className="font-sans uppercase text-[11px] tracking-[0.22em] mb-4" style={{ color: "rgba(198,168,90,0.60)" }}>Tecnologia Aplicada</p>
             <h1 className="font-display text-[56px] md:text-[60px] leading-[0.95] tracking-[-0.015em]" style={{ color: "#e8e6dd" }}>Soluções</h1>
-          </FadeIn>
-          <FadeIn delay={0.1}>
+          </Reveal>
+          <Reveal delay={0.1}>
             <p className="text-muted-foreground text-base leading-relaxed font-light">A Aeternum Aurum constrói a ponte tecnológica entre o cliente brasileiro e a <span style={{ color: "rgba(198,168,90,0.90)" }}>infraestrutura financeira global</span>. Holdings, indústrias, tesourarias corporativas e instituições parceiras usam os nossos modelos quantitativos para decidir sobre risco e capital com o mesmo rigor matemático que move as maiores mesas institucionais do mundo.</p>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
@@ -223,14 +257,14 @@ export default function FrameworkPage() {
       <section className="py-14 md:py-24 px-6 md:px-10 border-y" style={{ backgroundColor: "#0c0c0c", borderColor: "rgba(198,168,90,0.08)" }}>
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-12">
-            <FadeIn>
+            <Reveal>
               <SectionHeader eyebrow="Frentes de atuação" title="O que entregamos" />
-            </FadeIn>
-            <FadeIn delay={0.1}>
+            </Reveal>
+            <Reveal delay={0.1}>
               <p className="text-muted-foreground text-base leading-relaxed">
                 Três frentes que funcionam <span style={{ color: "rgba(198,168,90,0.90)" }}>isoladas ou em conjunto</span>, conforme a necessidade do cliente.
               </p>
-            </FadeIn>
+            </Reveal>
           </div>
 
           <div className="space-y-3">
@@ -248,10 +282,10 @@ export default function FrameworkPage() {
       <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-14">
-            <FadeIn>
+            <Reveal>
               <SectionHeader eyebrow="Fundamentação" title="A ciência por trás da plataforma" />
-            </FadeIn>
-            <FadeIn delay={0.1}>
+            </Reveal>
+            <Reveal delay={0.1}>
               <p className="font-display text-2xl sm:text-3xl mb-6 leading-snug" style={{ color: "#e8e6dd", fontWeight: 500 }}>
                 <span style={{ color: "rgba(198,168,90,0.90)" }}>Inevitabilidade Matemática</span> Aplicada.
               </p>
@@ -261,11 +295,11 @@ export default function FrameworkPage() {
                 peer-reviewed em periódicos como Journal of Financial Economics, Journal of Banking
                 &amp; Finance, Energy Economics e Mathematical Finance.
               </p>
-            </FadeIn>
+            </Reveal>
           </div>
 
           {/* Camada acessível: Em Linguagem Simples (rebaixado de seção própria para subtítulo interno) */}
-          <FadeIn delay={0.05}>
+          <Reveal delay={0.05}>
             <p className="text-[9px] tracking-[0.3em] uppercase mb-3 text-center" style={{ color: "rgba(198,168,90,0.65)" }}>
               Entendendo a Plataforma
             </p>
@@ -277,7 +311,7 @@ export default function FrameworkPage() {
               Você não precisa ser matemático ou economista para entender o que fazemos.
               Aqui está o que a Aeternum Aurum faz, explicado de forma direta.
             </p>
-          </FadeIn>
+          </Reveal>
 
           {/* 3 Conceitos em Linguagem Simples (conceito do indicador de medo movido para rascunho) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12 items-start">
@@ -302,7 +336,7 @@ export default function FrameworkPage() {
                   Nosso sistema lê essas "pegadas digitais" e toma decisões baseadas em fatos, não em narrativas.`,
               },
             ].map((item, i) => (
-              <FadeIn key={i} delay={i * 0.1} direction="up">
+              <Reveal key={i} delay={i * 0.1} direction="up">
                 <div className="border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors">
                   <div className="flex items-start gap-3 mb-3">
                     <span className="text-foreground text-xs mt-1.5 flex-shrink-0">{item.icone}</span>
@@ -312,19 +346,19 @@ export default function FrameworkPage() {
                   </div>
                   <p className="text-muted-foreground text-sm leading-relaxed">{item.corpo}</p>
                 </div>
-              </FadeIn>
+              </Reveal>
             ))}
           </div>
 
           {/* Camada 1: em superfície */}
-          <FadeIn delay={0.1}>
+          <Reveal delay={0.1}>
             <div className="border border-primary/15 bg-primary/3 p-5 mb-8 text-center">
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Os modelos centrais cobrem risco de cauda, previsão de volatilidade, dependência
                 entre ativos e construção de portfólio.
               </p>
             </div>
-          </FadeIn>
+          </Reveal>
 
           {/* Camada 2: 4 cards expandíveis */}
           <div className="space-y-3 mb-10">
@@ -334,29 +368,29 @@ export default function FrameworkPage() {
           </div>
 
           {/* Fechamento */}
-          <FadeIn delay={0.2}>
+          <Reveal delay={0.2}>
             <p className="text-muted-foreground text-sm leading-relaxed text-center max-w-2xl mx-auto">
               Cada modelo carrega referência ao paper e à janela em que foi validado. Quando a
               literatura diverge, mostramos a divergência e indicamos a evidência que sustenta nossa
               escolha metodológica. Modelos consolidados nas maiores mesas institucionais do mundo,
               agora calibrados para o solo brasileiro. Esse é o piso técnico da plataforma.
             </p>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
       <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0c0c0c" }}>
         <div className="max-w-4xl mx-auto">
-          <FadeIn>
+          <Reveal>
             <SectionHeader eyebrow="Implementação" title="Como a consultoria acontece" />
             <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl mt-6 mb-14">
               A implantação personalizada segue <span style={{ color: "rgba(198,168,90,0.90)" }}>quatro etapas estruturadas</span>, com escopo definido,
               entregáveis claros e ponto de aceitação antes da próxima começar.
             </p>
-          </FadeIn>
+          </Reveal>
           <div className="space-y-10">
             {steps.map((step, i) => (
-              <FadeIn key={i} delay={i * 0.15}>
+              <Reveal key={i} delay={i * 0.1}>
                 <div className="flex items-start gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
                   <span className="font-display text-4xl text-primary/20 shrink-0 w-12 text-right group-hover:text-primary/70 transition-colors duration-200 ease-rapido">{step.num}</span>
                   <div>
@@ -369,7 +403,7 @@ export default function FrameworkPage() {
                     </p>
                   </div>
                 </div>
-              </FadeIn>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -381,13 +415,13 @@ export default function FrameworkPage() {
       ══════════════════════════════════════════════════════ */}
       <section id="contato" className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
         <div className="max-w-2xl mx-auto text-center">
-          <FadeIn>
+          <Reveal>
             <SectionHeader eyebrow="Contato" title="Vamos conversar" align="center" />
             <p className="text-muted-foreground text-base leading-relaxed mt-6 mb-8">
               Deixe seu email e a equipe entra em contato.
             </p>
-          </FadeIn>
-          <FadeIn delay={0.1}>
+          </Reveal>
+          <Reveal delay={0.1}>
             {ctaSent ? (
               <p className="text-base" style={{ color: "rgba(198,168,90,0.90)" }}>
                 Obrigado, entraremos em contato.
@@ -420,7 +454,7 @@ export default function FrameworkPage() {
                 Digite um email válido.
               </p>
             )}
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
