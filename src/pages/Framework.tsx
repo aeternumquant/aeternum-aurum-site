@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import { useScrollReveal } from "../hooks/useScrollReveal";
+import { useTravelingHighlight } from "../hooks/useTravelingHighlight";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
 const steps = [
@@ -211,6 +212,41 @@ function SectionHeader({
   );
 }
 
+/**
+ * Lista das 4 Etapas com realce viajante no numeral: o romano da etapa
+ * mais central na viewport acende (text-primary/80) e as demais ficam no
+ * base (text-primary/20). Estado isolado aqui para nao re-renderizar a
+ * pagina inteira. O hover manual (group-hover) continua funcionando.
+ */
+function EtapasList() {
+  const { active, setRef } = useTravelingHighlight(steps.length);
+  return (
+    <div className="space-y-10">
+      {steps.map((step, i) => (
+        <Reveal key={i} delay={i * 0.1}>
+          <div className="flex items-start gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
+            <span
+              ref={setRef(i)}
+              className={`font-display text-4xl shrink-0 w-12 text-right transition-colors duration-200 ease-rapido group-hover:text-primary/70 ${active === i ? "text-primary/80" : "text-primary/20"}`}
+            >
+              {step.num}
+            </span>
+            <div>
+              <h3 className="font-display text-xl text-foreground uppercase tracking-wider mb-1">{step.title}</h3>
+              <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
+              <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                <span className="text-muted-foreground/60 uppercase tracking-[0.18em] text-[10px] mr-1">Entregável:</span>
+                {step.entregavel}
+              </p>
+            </div>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+  );
+}
+
 export default function FrameworkPage() {
   const [ctaEmail, setCtaEmail] = useState("");
   const [ctaSent, setCtaSent] = useState(false);
@@ -388,24 +424,7 @@ export default function FrameworkPage() {
               entregáveis claros e ponto de aceitação antes da próxima começar.
             </p>
           </Reveal>
-          <div className="space-y-10">
-            {steps.map((step, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="flex items-start gap-8 border-b border-white/5 pb-10 last:border-0 last:pb-0 group">
-                  <span className="font-display text-4xl text-primary/20 shrink-0 w-12 text-right group-hover:text-primary/70 transition-colors duration-200 ease-rapido">{step.num}</span>
-                  <div>
-                    <h3 className="font-display text-xl text-foreground uppercase tracking-wider mb-1">{step.title}</h3>
-                    <p className="text-primary/70 text-xs tracking-wide mb-3">{step.subtitle}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed font-light mb-4">{step.desc}</p>
-                    <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                      <span className="text-muted-foreground/60 uppercase tracking-[0.18em] text-[10px] mr-1">Entregável:</span>
-                      {step.entregavel}
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <EtapasList />
         </div>
       </section>
 
