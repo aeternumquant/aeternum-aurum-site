@@ -94,10 +94,16 @@ function AnimatedRoutes() {
   );
 }
 
+// Rotas onde o CursorGlow monta. Nas demais ele nao renderiza (nem no DOM).
+// /research e /pesquisa sao a mesma pagina (Pesquisa) via alias semantico.
+const GLOW_ROUTES = ["/", "/research", "/pesquisa", "/reports", "/commodities"];
+
 function AppInner() {
+  const { pathname } = useLocation();
+  const showGlow = GLOW_ROUTES.includes(pathname);
   return (
     <>
-      <CursorGlow />
+      {showGlow && <CursorGlow />}
       <Header />
       <AnimatedRoutes />
     </>
