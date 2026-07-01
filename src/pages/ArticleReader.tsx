@@ -141,6 +141,28 @@ export default function ArticleReader() {
                   </p>
                 </div>
               )}
+
+              {sec.type === "bullet-list" && sec.data?.items && (
+                <ul className="not-prose my-8 space-y-4">
+                  {sec.data.items.map((item: string, i: number) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-3 w-1.5 h-1.5 rounded-full bg-primary/60 flex-shrink-0" />
+                      <span className="font-serif text-lg text-muted-foreground leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {sec.type === "stat-grid" && sec.data?.items && (
+                <div className="not-prose my-12 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {sec.data.items.map((item: { stat: string; label: string }, i: number) => (
+                    <div key={i} className="p-5 border border-white/5 bg-card/20 text-center">
+                      <div className="font-display text-3xl text-primary mb-2">{item.stat}</div>
+                      <p className="font-sans text-[11px] text-muted-foreground leading-relaxed">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </FadeIn>
           ))}
         </div>
