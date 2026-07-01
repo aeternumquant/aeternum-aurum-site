@@ -373,7 +373,10 @@ export default function FrameworkPage() {
               },
             ].map((item, i) => (
               <Reveal key={i} delay={i * 0.1} direction="up">
-                <div className="border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors">
+                <Link
+                  to="/execucao"
+                  className="group block border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors duration-200 ease-rapido"
+                >
                   <div className="flex items-start gap-3 mb-3">
                     <span className="text-foreground text-xs mt-1.5 flex-shrink-0">{item.icone}</span>
                     <h3 className="font-display text-lg tracking-wide leading-snug" style={{ color: "rgba(198,168,90,0.90)" }}>
@@ -381,7 +384,12 @@ export default function FrameworkPage() {
                     </h3>
                   </div>
                   <p className="text-muted-foreground text-sm leading-relaxed">{item.corpo}</p>
-                </div>
+                  <div className="mt-5">
+                    <span className="text-[11px] tracking-[0.15em] uppercase opacity-0 group-hover:opacity-100 max-md:opacity-100 transition-opacity duration-200 ease-rapido" style={{ color: "rgba(198,168,90,0.75)" }}>
+                      Saiba como funciona
+                    </span>
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>
