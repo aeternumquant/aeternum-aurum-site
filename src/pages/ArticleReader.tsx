@@ -163,6 +163,10 @@ export default function ArticleReader() {
                   ))}
                 </div>
               )}
+
+              {!["abstract", "heading", "paragraph", "callout", "table", "chart-placeholder", "bullet-list", "stat-grid"].includes(sec.type) && sec.content && (
+                <p className="mb-8">{sec.content}</p>
+              )}
             </FadeIn>
           ))}
         </div>

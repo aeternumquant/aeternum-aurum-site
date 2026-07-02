@@ -111,7 +111,7 @@ export const researchPapers: ResearchPaper[] = [
   {
     id: "tail-risk-hedging",
     date: "Dez 2025",
-    tag: "Risco",
+    tag: "Risco e Hedge",
     title: "Tail Risk Hedging Institucional em Carteiras Multi-Ativo",
     desc: "Estruturas de proteção eficientes para cenários de cauda: abordagens com opções fora do dinheiro, minerais escassos e tesouraria direta.",
     author: "Diretoria de Risco (CRO)",

@@ -1,8 +1,8 @@
 /**
  * Research.tsx — Pesquisa Institucional Aeternum Aurum
  *
- * Layout: Hero → Termômetro → Armadilhas → Teses Brasil (Drew Crawford)
- *         → Filtros → Grid de Publicações (público vs. acesso restrito)
+ * Layout: Hero → label Publicações & Análises → Filtros (sticky)
+ *         → Grid de Publicações (público vs. acesso restrito) → CTA
  */
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
@@ -84,100 +84,6 @@ function GoldLine() {
   );
 }
 
-function ContentBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="p-6 sm:p-8"
-      style={{
-        border: `1px solid ${GOLD}20`,
-        backgroundColor: "rgba(10,10,10,0.55)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SubHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h3
-      className="font-display font-light uppercase tracking-wider mb-4 mt-6 first:mt-0"
-      style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.1rem)", color: GOLD }}
-    >
-      {children}
-    </h3>
-  );
-}
-
-function BodyText({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <p
-      className={`font-sans leading-relaxed ${className}`}
-      style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)", color: "rgba(255,255,255,0.58)" }}
-    >
-      {children}
-    </p>
-  );
-}
-
-function Callout({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="my-6 px-5 py-4 border-l-2 text-sm leading-relaxed"
-      style={{
-        borderColor: GOLD,
-        backgroundColor: `${GOLD}08`,
-        color: `${GOLD}cc`,
-        fontStyle: "italic",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function StatGrid({ items }: { items: { stat: string; label: string }[] }) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 my-6">
-      {items.map((item, i) => (
-        <div
-          key={i}
-          className="p-4 text-center"
-          style={{ border: `1px solid ${GOLD}22`, backgroundColor: `${GOLD}07` }}
-        >
-          <div
-            className="font-display font-light text-2xl mb-1"
-            style={{ color: GOLD }}
-          >
-            {item.stat}
-          </div>
-          <p className="font-sans text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
-            {item.label}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <ul className="space-y-3 my-4">
-      {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-3">
-          <span
-            className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: GOLD }}
-          />
-          <span className="font-sans text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {item}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 /* ══════════════════════════════════════════════════════════
    PÁGINA PRINCIPAL
 ══════════════════════════════════════════════════════════ */
@@ -188,7 +94,7 @@ export default function ResearchPage() {
   const papers =
     activeTag === "Todos"
       ? shortPapers
-      : shortPapers.filter((p) => p.tag === activeTag || p.tag === activeTag);
+      : shortPapers.filter((p) => p.tag === activeTag);
 
   return (
     <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
