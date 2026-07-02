@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
-import { useScrollReveal } from "../hooks/useScrollReveal";
+import Reveal from "../components/common/Reveal";
 import { useTravelingHighlight } from "../hooks/useTravelingHighlight";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
@@ -81,40 +81,6 @@ const scienceModels = [
     detalhe: "Otimização CVaR (Rockafellar & Uryasev, 2002, Journal of Banking & Finance) como medida coerente de risco. Risk Parity (Maillard, Roncalli & Teiletche, 2010) e Hierarchical Risk Parity (López de Prado, 2016). Validação via Combinatorial Purged Cross-Validation com Deflated Sharpe Ratio (Bailey & López de Prado, 2014) como métrica de aceitação.",
   },
 ];
-
-/**
- * Reveal de entrada no scroll (opacity + translateY apenas).
- * Usa useScrollReveal (IntersectionObserver puro) + easing --ease-respira.
- * `delay` em segundos (mantem a mesma assinatura do antigo FadeIn).
- * `direction` aceito por compatibilidade, mas o movimento e sempre subida sobria.
- */
-function Reveal({
-  children,
-  delay = 0,
-  className,
-}: {
-  children: ReactNode;
-  delay?: number;
-  direction?: "up" | "down" | "left" | "right" | "none";
-  className?: string;
-}) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>();
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(18px)",
-        transition: "opacity 700ms var(--ease-respira), transform 700ms var(--ease-respira)",
-        transitionDelay: `${delay * 1000}ms`,
-        willChange: "opacity, transform",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function ScienceCard({ model, index }: { model: typeof scienceModels[0]; index: number }) {
   const [open, setOpen] = useState(false);

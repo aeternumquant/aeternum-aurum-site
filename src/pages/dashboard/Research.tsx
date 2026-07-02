@@ -5,7 +5,7 @@
  *         → Grid de Publicações (público vs. acesso restrito) → CTA
  */
 import Footer from "../../components/common/Footer";
-import { FadeIn } from "../../components/common/FadeIn";
+import Reveal from "../../components/common/Reveal";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
@@ -97,7 +97,7 @@ export default function ResearchPage() {
       : shortPapers.filter((p) => p.tag === activeTag);
 
   return (
-    <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
+    <main className="pt-14 min-h-screen">
       <RouteSeo
         title="Pesquisa"
         description="Inteligência aplicada: análises técnicas sobre regimes de volatilidade, spillovers DCC-GARCH e inferência causal em cadeias de commodities. Conteúdo de caráter educacional."
@@ -111,7 +111,7 @@ export default function ResearchPage() {
           style={{ background: `radial-gradient(ellipse at top, ${GOLD}09 0%, transparent 60%)` }}
         />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <FadeIn>
+          <Reveal>
             <p className="font-sans text-[9px] tracking-[0.35em] uppercase mb-4" style={{ color: `${GOLD}80` }}>
               Inteligência Estrutural
             </p>
@@ -125,21 +125,21 @@ export default function ResearchPage() {
               Publicações proprietárias de análise macroeconômica, quantitativa, geopolítica e estratégica.
               Conteúdo construído com o mesmo rigor metodológico aplicado em mesas proprietárias institucionais.
             </p>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
       {/* ══ BLOCO 3: PUBLICAÇÕES E FILTROS ══ */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
-          <FadeIn>
+          <Reveal>
             <SectionLabel>The MIT Intelligence Core</SectionLabel>
             <SectionTitle>
               Publicações &{" "}
               <span className="text-white">Análises</span>
             </SectionTitle>
             <GoldLine />
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
@@ -167,12 +167,12 @@ export default function ResearchPage() {
       </div>
 
       {/* ── Grid de artigos ── */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: "#0A0A0A" }}>
+      <section className="py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-3">
           {papers.map((p, i) => {
             const isPublic = PUBLIC_IDS.has(p.id) || p.isPublic;
             return (
-              <FadeIn key={p.id} delay={i * 0.04}>
+              <Reveal key={p.id} delay={Math.min(i, 5) * 0.05}>
                 <div
                   className="group relative p-6 border border-white/5 cursor-pointer transition-all duration-200"
                   style={{ backgroundColor: "rgba(10,8,4,0.5)" }}
@@ -228,13 +228,13 @@ export default function ResearchPage() {
                     </span>
                   </div>
                 </div>
-              </FadeIn>
+              </Reveal>
             );
           })}
         </div>
 
         {/* CTA */}
-        <FadeIn delay={0.4} direction="none">
+        <Reveal delay={0.4} direction="none">
           <div className="max-w-4xl mx-auto mt-14 text-center border-t border-white/5 pt-10">
             <p
               className="text-[10px] tracking-wider mb-6 uppercase font-sans"
@@ -251,7 +251,7 @@ export default function ResearchPage() {
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </NavLink>
           </div>
-        </FadeIn>
+        </Reveal>
       </section>
 
       <Footer />
