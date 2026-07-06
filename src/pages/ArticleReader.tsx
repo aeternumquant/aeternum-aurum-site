@@ -1,10 +1,50 @@
+import { type ReactNode } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { MoveLeft } from "lucide-react";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import Footer from "../components/common/Footer";
 import { FadeIn } from "../components/common/FadeIn";
 import { shortPapers } from "../lib/researchData";
 import { useAuth } from "../context/AuthContext";
 import NotFound from "./not-found";
+
+/* Cor de erro do KaTeX coerente com a paleta (nao vermelho berrante). */
+const KATEX_ERR = "#c6a85a";
+
+/**
+ * Renderiza LaTeX inline dentro de um texto, delimitado por \( ... \).
+ * Escolhemos \( \) de proposito para NAO colidir com precos "R$..." nos
+ * textos (um parser de $...$ quebraria "R$128"). Como nenhum paragrafo
+ * existente usa \( \), o caminho rapido devolve a string intacta.
+ * throwOnError:false -> LaTeX invalido vira erro colorido, nao derruba a pagina.
+ */
+function renderInline(text: string): ReactNode {
+  if (!text.includes("\\(")) return text;
+  const nodes: ReactNode[] = [];
+  const re = /\\\((.+?)\\\)/g;
+  let last = 0;
+  let key = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    nodes.push(
+      <span
+        key={key++}
+        dangerouslySetInnerHTML={{
+          __html: katex.renderToString(m[1], {
+            displayMode: false,
+            throwOnError: false,
+            errorColor: KATEX_ERR,
+          }),
+        }}
+      />
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
 
 export default function ArticleReader() {
   const { id } = useParams();
@@ -81,7 +121,22 @@ export default function ArticleReader() {
 
               {sec.type === "heading" && <h2 className="mt-16 mb-8">{sec.content}</h2>}
 
-              {sec.type === "paragraph" && <p className="mb-8">{sec.content}</p>}
+              {sec.type === "paragraph" && <p className="mb-8">{renderInline(sec.content)}</p>}
+
+              {sec.type === "equation" && sec.content && (
+                <div className="not-prose my-10 flex justify-center overflow-x-auto py-2">
+                  <div
+                    className="text-foreground/90 text-[1.15em]"
+                    dangerouslySetInnerHTML={{
+                      __html: katex.renderToString(sec.content, {
+                        displayMode: true,
+                        throwOnError: false,
+                        errorColor: KATEX_ERR,
+                      }),
+                    }}
+                  />
+                </div>
+              )}
 
               {sec.type === "callout" && (
                 <blockquote className="border-l-2 border-primary/40 pl-6 my-12 py-2">
@@ -164,8 +219,8 @@ export default function ArticleReader() {
                 </div>
               )}
 
-              {!["abstract", "heading", "paragraph", "callout", "table", "chart-placeholder", "bullet-list", "stat-grid"].includes(sec.type) && sec.content && (
-                <p className="mb-8">{sec.content}</p>
+              {!["abstract", "heading", "paragraph", "callout", "table", "chart-placeholder", "bullet-list", "stat-grid", "equation"].includes(sec.type) && sec.content && (
+                <p className="mb-8">{renderInline(sec.content)}</p>
               )}
             </FadeIn>
           ))}

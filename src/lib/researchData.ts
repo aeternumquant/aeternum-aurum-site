@@ -1,8 +1,22 @@
 export interface ResearchSection {
-  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list";
+  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list" | "equation";
   content: string;
   data?: any;
 }
+
+/*
+ * Equacoes LaTeX (KaTeX). Dois modos:
+ *
+ *   Bloco (destacada, centralizada) -> secao dedicada:
+ *     { type: "equation", content: "\\text{ES}_\\alpha(X) = \\frac{1}{1-\\alpha} \\int_\\alpha^1 \\text{VaR}_u(X) \\, du" }
+ *
+ *   Inline (no meio de um paragrafo) -> delimitador \( ... \) dentro do content:
+ *     { type: "paragraph", content: "O nivel de confianca \\(\\alpha\\) define o corte da cauda." }
+ *
+ * Observacao: NAO usamos $...$ para inline de proposito, para nao colidir
+ * com precos em reais (ex: "R$128") que aparecem nos textos. So \( ... \).
+ * Em string TS, cada "\" vira "\\".
+ */
 
 export interface ResearchPaper {
   id: string;
