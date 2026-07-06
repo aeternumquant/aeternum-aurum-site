@@ -86,7 +86,7 @@ function GoldLine() {
 
 /* ── Busca: normalizacao (case + acento insensitive) ── */
 const norm = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 /* ── Datas "MMM YYYY" (PT) -> valor ordenavel. Formato confirmado em todos os papers ── */
 const MESES: Record<string, number> = {
