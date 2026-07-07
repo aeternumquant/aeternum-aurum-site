@@ -995,6 +995,72 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 4 ── */
+  {
+    id: "previsao-volatilidade",
+    date: "Jun 2026",
+    tag: "Quantitativo",
+    title: "Previsão de Volatilidade: Do GARCH ao HAR-RV, Modelos com Saltos e Machine Learning em Commodities",
+    desc: "A volatilidade direciona hedging, dimensionamento de posições e precificação de opções. Do GARCH clássico ao HAR-RV e ao machine learning, com o ceticismo necessário sobre os ganhos de IA e a integração de dados locais brasileiros.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "15 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "A previsão de volatilidade é uma das tarefas mais críticas, e desafiadoras, das finanças quantitativas. Em commodities, a volatilidade não é apenas um insumo para o cálculo de VaR e ES: ela direciona decisões de hedging, dimensionamento de posições, precificação de opções e construção de estratégias sistemáticas. Este artigo percorre a evolução dos modelos, do GARCH ao HAR-RV e ao machine learning, com o ceticismo necessário." },
+      { type: "heading", content: "Família GARCH: o padrão clássico" },
+      { type: "bullet-list", content: "", data: { items: [
+        "GARCH(1,1) com distribuição Student-t ou GED frequentemente supera a versão gaussiana (Hung, Lee & Liu, 2008).",
+        "EGARCH(1,1) destaca-se em horizontes médios pela capacidade de modelar o leverage effect, comum em petróleo e grãos (Lux, Segnon & Gupta, 2018).",
+        "FIAPARCH e FIGARCH são recomendados quando há longa memória na volatilidade.",
+        "GARCH-MIDAS (Engle et al.) incorpora variáveis macroeconômicas de baixa frequência, melhorando previsões em horizontes semanais ou mensais (Wei et al., 2024; Salisu et al., 2023)."
+      ] } },
+      { type: "paragraph", content: "Estudos comparativos em petróleo (Lux, Segnon & Gupta, 2018) mostram que RiskMetrics e GARCH(1,1) competem bem em horizontes curtos, enquanto o EGARCH domina no médio prazo. Modelos Markov-Switching GARCH apresentam bom ajuste in-sample, mas ganhos out-of-sample mais limitados (Wang, Wu & Yang, 2016)." },
+      { type: "heading", content: "HAR-RV: o benchmark moderno (Corsi, 2009)" },
+      { type: "paragraph", content: "O Heterogeneous AutoRegressive model of Realized Volatility (HAR-RV), proposto por Corsi (2009), revolucionou a previsão de volatilidade ao explorar dados intradiários. O modelo decompõe a volatilidade realizada em componentes de diferentes horizontes: diária (1 dia), semanal (5 dias) e mensal (22 dias). A equação básica é estimada por OLS:" },
+      { type: "equation", content: "RV_{t+1}^{(d)} = \\beta_0 + \\beta_1 RV_t^{(d)} + \\beta_2 RV_t^{(w)} + \\beta_3 RV_t^{(m)} + \\epsilon_{t+1}" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Haugom et al. e Ma et al. (2017): HAR-RV supera GARCH em WTI e Brent com dados de 5 minutos.",
+        "Wang & Lu (2024), em cobre COMEX: HAR-RV apresenta o menor erro QLIKE entre GARCH, RNN, LSTM e GRU em frequência diária.",
+        "Variantes como HAR-RV-J (saltos), HAR-CJ e HARQ (Bollerslev, Patton & Quaedvlieg, 2016) melhoram o desempenho.",
+        "REGARCH-Jump (Lu, Ma & Wang, 2025) mostra resultados promissores em futuros de Brent."
+      ] } },
+      { type: "heading", content: "Machine learning na previsão de volatilidade" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Sen & Choudhury (2023): PSO-GRU alcançou RMSE de 1,23 e R² de 99,39% em previsão de WTI out-of-sample.",
+        "Jabeur et al. (2024): LightGBM supera modelos recorrentes em sequências curtas; LSTM, BiLSTM e GRU em sequências longas.",
+        "Bouri et al. (2023): Reservoir Computing supera LSTM com menor custo computacional.",
+        "Estudo em energia (arXiv 2405.19849, 2024): o ML supera o GARCH univariado em MSE e MAE, mas com viés oposto, sugerindo abordagens híbridas."
+      ] } },
+      { type: "callout", content: "Goyal, Welch e Zafirov (2024) alertam que muitos ganhos de ML desaparecem após custos de transação realistas e são sensíveis à janela de estimação. O overfitting é um risco elevado em modelos com muitos parâmetros." },
+      { type: "heading", content: "Implicações práticas por frequência de dados" },
+      { type: "table", content: "", data: {
+        headers: ["Frequência", "Modelo recomendado", "Observações"],
+        rows: [
+          ["Diária", "HAR-RV ou EGARCH(1,1)-t", "HAR geralmente domina"],
+          ["Intradiária (5-15 min)", "HAR-RV-J, LSTM/GRU, Reservoir Computing", "Deep learning ganha força"],
+          ["Semanal/Mensal", "GARCH-MIDAS com variáveis macro", "Incorpora GEPU, clima, PTAX"],
+          ["Híbrido", "Ensemble HAR + LightGBM/LSTM", "Melhor tradeoff atual"]
+        ]
+      } },
+      { type: "heading", content: "Aplicações no contexto brasileiro" },
+      { type: "paragraph", content: "Para o agronegócio brasileiro, a previsão de volatilidade deve incorporar fatores locais: sazonalidade agrícola (safra e entressafra), variáveis macroeconômicas (PTAX, inflação, política monetária), indicadores da CEPEA e da CONAB, e o risco de base entre preços físicos e futuros da B3. Para boi gordo, etanol e açúcar, onde a efetividade de hedge direto é baixa, uma boa previsão de volatilidade é essencial para estratégias de basis trading e cross-hedge." },
+      { type: "paragraph", content: "Para o quant brasileiro, o diferencial não está necessariamente na maior sofisticação, mas na integração inteligente de dados locais e no rigor da validação out-of-sample. Uma previsão de volatilidade confiável serve de base para todos os pilares seguintes: hedging eficaz, otimização de portfólio e estratégias sistemáticas de retorno." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "CORSI, F. A simple approximate long-memory model of realized volatility. Journal of Financial Econometrics, v. 7, n. 2, p. 174-196, 2009.",
+        "LUX, T.; SEGNON, M.; GUPTA, R. Forecasting crude oil price volatility and value-at-risk: evidence from historical and recent data. Energy Economics, v. 56, p. 117-133, 2016. [verificar ano: 2016/2018]",
+        "BOLLERSLEV, T.; PATTON, A. J.; QUAEDVLIEG, R. Exploiting the errors: a simple approach for improved volatility forecasting. Journal of Econometrics, v. 192, n. 1, p. 1-18, 2016.",
+        "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
+        "SEN, J.; CHOUDHURY, S. [titulo] PSO-GRU forecasting of crude oil. [verificar periodico/volume/paginas], 2023.",
+        "JABEUR, S. B. et al. Forecasting commodity prices with machine learning. [verificar periodico/volume/paginas], 2024.",
+        "GOYAL, A.; WELCH, I.; ZAFIROV, A. A comprehensive 2022 look at the empirical performance of equity premium prediction. The Review of Financial Studies, 2024. [verificar volume/paginas]",
+        "WANG, Y.; WU, C.; YANG, L. Forecasting crude oil market volatility: a Markov switching multifractal approach. [verificar periodico], 2016."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];

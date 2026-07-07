@@ -42,6 +42,7 @@ const PUBLIC_IDS = new Set([
   "fundamentos-medidas-risco",
   "garch-evt-commodities",
   "backtesting-var-es",
+  "previsao-volatilidade",
 ]);
 
 /* Filtros disponíveis */
