@@ -46,6 +46,13 @@ const PUBLIC_IDS = new Set([
   "hedging-commodities-b3",
   "risco-sistemico-copulas",
   "otimizacao-portfolios-estrategias",
+  "geopolitica-brics-hard-assets",
+  "clima-resiliencia-commodities",
+  "hard-assets-hub-global",
+  "tokenizacao-empresas-familiares",
+  "gap-financiamento-credito-tokenizado",
+  "demografia-tokenizacao-terras",
+  "pagamentos-transfronteiricos-ledgers",
 ]);
 
 /* Filtros disponíveis */

@@ -1243,6 +1243,223 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 11 (Geopolítica/BRICS) ── */
+  {
+    id: "geopolitica-brics-hard-assets",
+    date: "Jan 2026",
+    tag: "Macro",
+    title: "Geopolítica, BRICS e o Futuro da Economia Baseada em Hard Assets no Brasil",
+    desc: "Em um mundo multipolar, os hard assets brasileiros (terras, commodities, minérios críticos, água e energia) ganham peso como âncora de estabilidade. Uma análise da posição estratégica do Brasil.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil ocupa uma posição estratégica singular na economia global: detentor de vastos recursos naturais, produção agrícola líder mundial e localização atlântica privilegiada. Em um mundo marcado por tensões geopolíticas, desdolarização gradual e busca por segurança em ativos reais, os hard assets brasileiros ganham relevância crescente como âncora de estabilidade e crescimento." },
+      { type: "heading", content: "O contexto geopolítico atual e a relevância dos hard assets" },
+      { type: "paragraph", content: "A multipolaridade tem acelerado a busca por alternativas ao sistema centrado no dólar. Países do BRICS ampliam o comércio em moedas locais, desenvolvem sistemas de pagamento alternativos e priorizam segurança alimentar e energética. Disrupções em rotas críticas (Ormuz, Suez, Mar Vermelho) reforçam uma vantagem logística brasileira: exportações pelo Atlântico, sem passagem por chokepoints." },
+      { type: "paragraph", content: "O Brasil se destaca por alguns atributos estruturais: cerca de 12% da água doce renovável mundial, com baixo uso atual para irrigação; produção agrícola que permite duas safras anuais em grande escala; reservas de minérios críticos (nióbio, ferro de alta qualidade, cobre, bauxita); e uma matriz elétrica majoritariamente renovável (em torno de 88%). Esses atributos não dependem de ciclos eleitorais ou reformas passageiras: são ativos físicos permanentes." },
+      { type: "heading", content: "BRICS e a multilateralidade dos recursos brasileiros" },
+      { type: "paragraph", content: "No âmbito do BRICS, o Brasil pode se consolidar como um polo de hard assets. A expansão do grupo tende a fortalecer a demanda por commodities brasileiras por parte de China, Índia e novos membros. Acordos comerciais (como o Mercosul-União Europeia) e projetos de infraestrutura ampliam a capacidade exportadora. Os minérios críticos ganham destaque na transição energética: o nióbio brasileiro é essencial para ligas de alta resistência, e o ferro de Carajás compete em qualidade mundial." },
+      { type: "heading", content: "Risco, volatilidade e modelos quantitativos" },
+      { type: "paragraph", content: "A geopolítica introduz novas camadas de risco que demandam ferramentas quantitativas. Para a volatilidade, modelos HAR-RV com dados intradiários capturam melhor os choques de oferta do que o GARCH tradicional. Para o risco de cauda, GARCH-EVT e extensões assimétricas melhoram a previsão de VaR e ES em períodos de tensão. Para o hedging, DCC-GARCH e copulas modelam a dependência entre commodities brasileiras, o dólar e variáveis globais. E na otimização de portfólio, risk parity e CVaR incorporam a exposição a hard assets como diversificador. A literatura (Lux, Segnon & Gupta, 2018; Wang & Lu, 2024) reforça a superioridade de abordagens híbridas sob estresse." },
+      { type: "heading", content: "Perspectivas para uma economia baseada em hard assets" },
+      { type: "paragraph", content: "Entre as prioridades que a análise sugere: consolidação produtiva via escala e tecnologia; infraestrutura logística (ferrovias Norte-Sul, Arco Norte); fortalecimento de cadeias de valor em minérios críticos e bioeconomia; e posicionamento como fornecedor confiável em um mundo fragmentado. Hard assets não são apenas commodities: são a base material de soberania e prosperidade em um cenário multipolar incerto. O Brasil reúne as condições físicas para ter papel de destaque nessa transição, desde que combine políticas de longo prazo, investimentos em infraestrutura e integração com parceiros globais." },
+      { type: "paragraph", content: "Fontes: dados sobre recursos hídricos, matriz elétrica e produção agrícola (fontes oficiais brasileiras); e literatura quantitativa sobre volatilidade de commodities." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 12 (Clima/Commodities) ── */
+  {
+    id: "clima-resiliencia-commodities",
+    date: "Fev 2026",
+    tag: "Geopolítica de Commodities",
+    title: "Mudanças Climáticas, Resiliência Agrícola e o Papel Estratégico das Commodities Brasileiras",
+    desc: "As mudanças climáticas são um fator geopolítico de primeira ordem. Secas e enchentes elevam o valor estratégico de países com água abundante e escala produtiva. A posição do Brasil na segurança alimentar global.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "As mudanças climáticas não são apenas um desafio ambiental: são um fator geopolítico de primeira ordem. Secas prolongadas, ondas de calor, enchentes extremas e alterações nos padrões de precipitação já impactam a produção agrícola mundial, elevando o valor estratégico de países com recursos hídricos abundantes, solos adaptáveis e escala produtiva, como o Brasil." },
+      { type: "heading", content: "Vulnerabilidades e vantagens climáticas do Brasil" },
+      { type: "paragraph", content: "O Brasil possui aproximadamente 12% da água doce renovável do planeta, mas utiliza menos de 2% para irrigação. Essa reserva representa uma vantagem competitiva crescente em um mundo onde a escassez hídrica afeta grandes produtores tradicionais (Califórnia, Índia, partes da China e da Europa). Estudos do IPCC e da EMBRAPA indicam que, com manejo adequado, o Cerrado e as regiões do MATOPIBA possuem potencial significativo de expansão sobre pastagens degradadas, sem necessidade de desmatamento primário." },
+      { type: "paragraph", content: "Por outro lado, eventos extremos já causam perdas expressivas: enchentes no Sul, secas no Centro-Oeste e impactos na Amazônia afetam safras, infraestrutura e cadeias logísticas. A resiliência não depende apenas de sorte geográfica, mas de investimento em adaptação: irrigação eficiente, genética tropical, sistemas de alerta e diversificação produtiva." },
+      { type: "heading", content: "Commodities brasileiras como ativo geopolítico" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Soja, milho e grãos: o Brasil é uma alternativa confiável à produção norte-americana e ucraniana, especialmente para China e Ásia.",
+        "Proteína animal (boi, frango, suíno): as exportações respondem por fatia relevante do suprimento global, com potencial de crescimento em mercados do BRICS e de países muçulmanos.",
+        "Minérios críticos: nióbio, ferro de alta qualidade, cobre e terras raras, essenciais para defesa, energia limpa e tecnologia.",
+        "Bioenergia: etanol e biodiesel posicionam o Brasil como protagonista na descarbonização."
+      ] } },
+      { type: "paragraph", content: "A dinâmica de friendshoring, a realocação de cadeias de suprimento para parceiros mais estáveis, tende a favorecer o Brasil, dada sua posição atlântica e sua estabilidade como fornecedor." },
+      { type: "heading", content: "Risco climático e dependência geopolítica" },
+      { type: "paragraph", content: "A interseção entre clima e geopolítica exige novas abordagens de análise. Secas na Argentina ou na Ucrânia elevam o prêmio da produção brasileira estável. Disrupções em outras regiões (Mar Negro, Oriente Médio) redirecionam a demanda para exportadores atlânticos. E a transição energética cria demanda de longo prazo por cobre, lítio e níquel. Países com resource power (poder baseado em recursos), como Brasil, Austrália e Canadá, tendem a ganhar influência relativa em um mundo fragmentado." },
+      { type: "heading", content: "Estratégias de resiliência e posicionamento" },
+      { type: "paragraph", content: "Para transformar a vulnerabilidade climática em vantagem estratégica, entre as prioridades: investimentos em irrigação e manejo de solo; diversificação de mercados exportadores; infraestrutura logística resiliente (ferrovias, portos do Arco Norte); parcerias multilaterais para pesquisa climática aplicada à agricultura tropical; e desenvolvimento de uma bioeconomia amazônica sustentável. O futuro das commodities brasileiras não será definido apenas pelo volume produzido, mas pela capacidade de oferecer fornecimento confiável em um mundo cada vez mais instável, climática e geopoliticamente." },
+      { type: "paragraph", content: "Fontes: relatórios do IPCC e da EMBRAPA sobre clima e agricultura tropical; e dados oficiais brasileiros sobre recursos hídricos e produção agrícola." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 14 (Hard Assets/Hub) ── */
+  {
+    id: "hard-assets-hub-global",
+    date: "Mar 2026",
+    tag: "Macro",
+    title: "Hard Assets na Economia do Futuro: Brasil como Hub Global de Recursos Reais",
+    desc: "Terras, commodities, minérios críticos, água e energia renovável reassumem papel central como base material de riqueza e influência. Por que o Brasil tem condições de ser um dos principais hubs mundiais de hard assets.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Em meio à fragmentação geopolítica, à instabilidade monetária e à transição climática, os hard assets (terras agrícolas, commodities, minérios críticos, água doce e energia renovável) reassumem um papel central como base material de riqueza, segurança e influência global. O Brasil, por sua dotação natural excepcional, tem condições de se consolidar como um dos principais hubs mundiais desses ativos." },
+      { type: "heading", content: "Por que os hard assets ganham relevância estratégica" },
+      { type: "paragraph", content: "A economia global enfrenta três grandes pressões simultâneas. A geopolítica, com tensões entre blocos, sanções e friendshoring, eleva o valor de fornecedores confiáveis e rotas seguras. A climática, com escassez hídrica e eventos extremos, reduz a confiabilidade da produção em várias regiões. E a monetária, com dívida pública elevada e questionamentos sobre reservas fiduciárias, aumenta a preferência por ativos tangíveis. Nesse cenário, países com abundância de recursos físicos ganham poder relativo. O Brasil combina escala, diversidade e posição geográfica privilegiada (costa atlântica sem chokepoints)." },
+      { type: "heading", content: "Vantagens competitivas brasileiras" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Agricultura: líder mundial em soja, café, açúcar, etanol, carne bovina e frango, com capacidade de dupla safra e potencial de expansão sobre pastagens degradadas.",
+        "Minérios críticos: maior produtor de nióbio, grande produtor de ferro de alta qualidade, cobre e bauxita, com potencial em lítio e terras raras.",
+        "Recursos naturais: cerca de 12% da água doce renovável mundial e uma matriz elétrica majoritariamente limpa.",
+        "Logística atlântica: acesso direto aos principais mercados sem depender de rotas contestadas."
+      ] } },
+      { type: "paragraph", content: "Estudos de instituições internacionais (Banco Mundial, FAO, IEA) reforçam que a demanda por alimentos, por metais para a transição energética e por recursos hídricos deve crescer de forma substancial nas próximas décadas." },
+      { type: "heading", content: "Brasil no contexto BRICS e multipolar" },
+      { type: "paragraph", content: "O bloco BRICS ampliado representa grande parte da população e da demanda futura por commodities. O Brasil pode atuar como fornecedor estável e diversificador para China, Índia, Rússia e novos membros. Acordos comerciais, investimentos em infraestrutura (ferrovias, portos do Arco Norte) e parcerias tecnológicas fortalecem essa posição. A integração Sul-Sul permite reduzir a dependência excessiva de mercados tradicionais e construir cadeias de valor mais resilientes." },
+      { type: "heading", content: "Riscos, desafios e visão de longo prazo" },
+      { type: "paragraph", content: "O caminho tem obstáculos reais: adaptação climática, gargalos de infraestrutura, exigências de governança e sustentabilidade (transparência, rastreabilidade, baixo carbono como pré-requisitos de mercados premium) e necessidade de capital e tecnologia de longo prazo. O futuro econômico brasileiro pode ser construído sobre a abundância de hard assets, convertida em desenvolvimento sustentável, emprego qualificado e influência internacional. O Brasil não precisa inventar uma vocação: ela já existe em sua geografia e em seus recursos. A questão é desenvolver a capacidade de extrair valor máximo, de forma sustentável e estratégica." },
+      { type: "paragraph", content: "Fontes: relatórios do Banco Mundial, da FAO e da IEA; e dados oficiais brasileiros sobre produção agrícola, mineral e matriz elétrica." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 8 (Tokenização Empresas Familiares) ── */
+  {
+    id: "tokenizacao-empresas-familiares",
+    date: "Abr 2026",
+    tag: "Finanças Digitais",
+    title: "Tokenização de Empresas Familiares Brasileiras: uma Ponte para a Sucessão e a Continuidade",
+    desc: "90% das empresas no Brasil são familiares, mas a maioria não sobrevive à aposentadoria do fundador. Como a tokenização de ativos reais pode oferecer um caminho para a sucessão e a continuidade empresarial.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Noventa por cento das empresas no Brasil são familiares. Elas respondem por mais da metade do PIB nacional e empregam cerca de três em cada quatro trabalhadores formais. No entanto, a grande maioria não sobreviverá à aposentadoria do fundador. Esse dado estrutural configura um dos maiores riscos silenciosos da economia brasileira, e ao mesmo tempo um dos temas mais relevantes para pensar a continuidade empresarial nas próximas décadas." },
+      { type: "heading", content: "A crise de sucessão: dados e contexto estrutural" },
+      { type: "paragraph", content: "Fundadores que construíram negócios nos anos 1980 e 1990 estão hoje na faixa dos 60 a 70 anos. A taxa de fecundidade brasileira caiu de 2,32 em 2000 para 1,57 em 2023, enquanto a idade mediana da população subiu para 35,5 anos e deve alcançar 48,4 em 2070. A regra clássica das três gerações opera com intensidade particular no país: apenas cerca de 30% das empresas familiares chegam à segunda geração, e aproximadamente 5% à terceira." },
+      { type: "paragraph", content: "Muitos herdeiros optaram por carreiras profissionais em grandes centros urbanos, em vez de assumir operações no interior. O resultado é um volume crescente de empresas rentáveis, com ativos reais (terras, plantas industriais, estoques, contratos de exportação), sem plano sucessório formal e sem compradores naturais no mercado tradicional. A literatura reforça o problema: até 40% das empresas familiares enfrentam dificuldades por disputas na divisão de ativos entre herdeiros (Rebouças de Oliveira, 2010). No agronegócio, mais de 80% dos estabelecimentos rurais são familiares, e a consolidação já é visível: entre 2006 e 2017, o Brasil perdeu mais de 100 mil estabelecimentos agrícolas, enquanto a área plantada aumentou 17,6 milhões de hectares." },
+      { type: "heading", content: "Por que o mercado tradicional não resolve" },
+      { type: "paragraph", content: "Os canais tradicionais falham de forma sistemática. Os bancos, com a Selic elevada, preferem títulos públicos a financiar aquisições de mid-market. O private equity global foca em transações muito maiores. E há desafios internos: dependência do fundador, contabilidade informal, governança fraca e ausência de planos sucessórios (que apenas cerca de um terço das empresas possui)." },
+      { type: "heading", content: "Tokenização como abordagem tecnológica e financeira" },
+      { type: "paragraph", content: "A tokenização de ativos reais (RWA) sobre blockchain oferece um caminho para reestruturar essa realidade. Trata-se de tecnologia em evolução e sujeita a regulação (CVM), não de solução pronta ou garantida. O que a literatura e as primeiras experiências sugerem é um conjunto de possibilidades." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Fracionamento e liquidez parcial: o fundador pode vender gradualmente frações tokenizadas do negócio, mantendo controle via smart contracts com regras de votação, veto e drag/tag-along.",
+        "Sucessão programável: herdeiros recebem tokens que representam participação econômica (com distribuição de resultados automatizada), sem necessidade de gestão operacional diária.",
+        "Transição incentivada: earn-outs, vesting e mecanismos de alinhamento codificados em smart contracts.",
+        "Governança moderna: transparência imutável, redução de informalidade contábil e maior atratividade para capital externo."
+      ] } },
+      { type: "paragraph", content: "Estudos e casos práticos (como os discutidos na Journal of Family Business Management e em iniciativas brasileiras de tokenização de commodities) sugerem que o blockchain pode melhorar transparência, confiança e eficiência na gestão sucessória, com smart contracts automatizando a delegação gradual de autoridade e reduzindo conflitos patrimoniais." },
+      { type: "heading", content: "Desafios e caminho regulatório" },
+      { type: "paragraph", content: "O caminho não é trivial. Depende da evolução da regulação da CVM para security tokens, de definições tributárias, de aceitação cultural, e da combinação de due diligence tradicional com presença local. A tokenização não substitui confiança e relacionamento; ela os escala com tecnologia. Para fundadores que priorizam continuidade real, e para o ecossistema que estuda ativos reais no Brasil, essa convergência é um tema que merece acompanhamento atento." },
+      { type: "paragraph", content: "Fontes: literatura sobre governança familiar e sucessão no Brasil (incluindo Rebouças de Oliveira, 2010, e a Journal of Family Business Management); Censo Agropecuário 2017 (IBGE); e casos de tokenização no agronegócio brasileiro (Agrotoken, VERT)." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 9 (Gap de Financiamento) ── */
+  {
+    id: "gap-financiamento-credito-tokenizado",
+    date: "Mai 2026",
+    tag: "Finanças Digitais",
+    title: "Fechando o Gap de Financiamento de 27,2% do PIB: Crédito Tokenizado e RWA para o Mid-Market Brasileiro",
+    desc: "O Brasil tem um dos maiores gaps de financiamento do mundo emergente: 27,2% do PIB (IFC). Como o crédito tokenizado e os ativos reais on-chain podem ampliar o acesso a capital para o mid-market agro e industrial.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil enfrenta um dos maiores gaps de financiamento do mundo emergente: 27,2% do PIB, segundo a International Finance Corporation (IFC). Esse número representa o volume de crédito que empresas de pequeno e médio porte, especialmente no agronegócio e na indústria, precisam mas não conseguem acessar de forma eficiente. No coração desse gap estão as empresas familiares do mid-market, que formam a espinha dorsal da economia real brasileira." },
+      { type: "heading", content: "A origem estrutural do gap" },
+      { type: "paragraph", content: "As empresas do mid-market brasileiro são, em sua maioria, familiares, e operam em setores de base física: agricultura, processamento de alimentos, logística e manufatura industrial. Elas sobrevivem a choques inflacionários, desvalorizações cambiais e taxas de juros elevadas, mas encontram portas fechadas quando buscam capital para crescer. Os três canais tradicionais falham: os bancos preferem títulos públicos de baixo risco; o mercado de capitais ficou quase congelado por anos; e o private equity global busca transações muito maiores que o tamanho típico das empresas brasileiras do interior." },
+      { type: "heading", content: "Tokenização e RWA: uma ponte possível" },
+      { type: "paragraph", content: "A tokenização de crédito e ativos reais (RWA) surge como uma abordagem estrutural para esse problema. Trata-se de tecnologia em desenvolvimento e sujeita a regulação, cujo potencial se apresenta em três frentes." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Crédito tokenizado: instrumentos como CRA, CPR e LCA podem ser fracionados e negociados em blockchain, aumentando a liquidez e ampliando a base de investidores.",
+        "Tokenização de ativos: terras, safras, estoques e contratos de exportação representados por tokens lastreados, permitindo financiamento fracionado.",
+        "Estruturas híbridas reguladas: plataformas que combinam blockchain com estruturas dentro do arcabouço da CVM, reduzindo custos de intermediação."
+      ] } },
+      { type: "paragraph", content: "Exemplos em operação no Brasil incluem a Agrotoken (tokens lastreados em soja, milho e trigo) e iniciativas de tokenização de CRA que já atingem volumes expressivos." },
+      { type: "heading", content: "Integração com modelos quantitativos" },
+      { type: "paragraph", content: "A tokenização não substitui a análise quantitativa, ela a complementa: previsão de volatilidade (HAR-RV, GARCH) aplicada a fluxos de caixa tokenizados; gestão de risco (VaR/ES, GARCH-EVT) para modelagem de cauda em portfólios de RWAs; hedging de risco de base, câmbio e commodities via derivativos tokenizados; e otimização de portfólio (risk parity, CVaR) em carteiras de crédito tokenizado e hard assets." },
+      { type: "heading", content: "Conexão com temas maiores" },
+      { type: "paragraph", content: "Esse gap não é apenas um problema doméstico. No contexto multilateral e da tokenização de ativos reais, o Brasil pode se posicionar como um polo de RWA na América Latina, utilizando hard assets como lastro. Fechar o gap de 27,2% do PIB por meio de crédito tokenizado e RWA não seria uma melhoria incremental, e sim uma transformação estrutural, capaz de liberar o potencial do mid-market brasileiro, com efeitos sobre a economia real e o emprego. O caminho depende da evolução regulatória (CVM e Banco Central) e da adoção por produtores e empresas." },
+      { type: "paragraph", content: "Fontes: International Finance Corporation (IFC), dados sobre o gap de financiamento; e casos brasileiros de tokenização (Agrotoken) e de emissões de CRA tokenizados." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 10 (Tokenização de Terras) ── */
+  {
+    id: "demografia-tokenizacao-terras",
+    date: "Jun 2026",
+    tag: "Geopolítica de Commodities",
+    title: "Demografia, Consolidação Agrícola e Tokenização de Terras: o Caso Brasileiro",
+    desc: "A fecundidade caiu para 1,57 e quase metade dos operadores rurais tem 55+ anos. Uma onda de consolidação fundiária redesenha o campo brasileiro, e abre espaço para a tokenização de terras e ativos rurais.",
+    author: "AETERNUM OPERAÇÃO BRASIL",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil vive uma transição demográfica silenciosa, mas de consequências profundas para o setor agropecuário. A taxa de fecundidade caiu para 1,57 filho por mulher em 2023, e a população deve parar de crescer por volta de 2041. Ao mesmo tempo, quase metade dos operadores rurais já tem 55 anos ou mais. Essa combinação gera uma onda de consolidação fundiária que está redesenhando o mapa da produção agrícola brasileira." },
+      { type: "heading", content: "Os números da mudança demográfica no campo" },
+      { type: "paragraph", content: "De acordo com o Censo Agropecuário de 2017 (IBGE), somados os grupos de 55 a 64 e de 65 ou mais anos, quase 47% dos operadores rurais estavam nessa faixa etária. Entre os agricultores familiares, metade já passou dos 55 anos. Paralelamente, a população rural encolheu 33,8% entre 2000 e 2022. Entre 2006 e 2017, o Brasil perdeu mais de 102 mil estabelecimentos rurais, enquanto a área plantada total aumentou 17,6 milhões de hectares. A consolidação já está acontecendo, especialmente na região Sul." },
+      { type: "heading", content: "Consolidação como movimento estrutural" },
+      { type: "paragraph", content: "Essa dinâmica cria um fluxo previsível de terras disponíveis para venda ou arrendamento. Proprietários idosos sem herdeiros são vendedores naturais. Ao mesmo tempo, produtores maiores, cooperativas e investidores institucionais buscam escala. O processo tradicional, porém, enfrenta barreiras: liquidez baixa no mercado de terras, restrições legais à propriedade estrangeira (Lei 5.709/1971) e dificuldade de fracionamento e acesso para investidores menores." },
+      { type: "heading", content: "Tokenização de terras: a camada tecnológica" },
+      { type: "paragraph", content: "A tokenização de terras (RWA) é uma tecnologia em evolução, sujeita a regulação, que em tese permite endereçar essas limitações." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Fracionamento: uma propriedade pode ser dividida em milhares de tokens, cada um representando uma fração da terra e de sua produção.",
+        "Liquidez: tokens negociáveis em plataformas reguladas permitem entrada e saída gradual de capital, sem venda total da propriedade.",
+        "Governança programável: smart contracts definem regras de uso, arrendamento, distribuição de resultados e sucessão.",
+        "Transparência e rastreabilidade: o blockchain registra histórico de propriedade, produtividade, práticas ambientais e títulos, reduzindo assimetria de informação e risco jurídico."
+      ] } },
+      { type: "paragraph", content: "Iniciativas como a Agrotoken e outras plataformas de tokenização de commodities já indicam o caminho: tokens lastreados em safras, CPRs e, progressivamente, em direitos sobre a própria terra." },
+      { type: "heading", content: "Perspectivas e desafios" },
+      { type: "paragraph", content: "No contexto multilateral, terras tokenizadas podem posicionar o Brasil como um polo de ativos reais digitais, e incentivar práticas sustentáveis (tokens verdes com premiação por conservação e rastreabilidade). O caminho depende de adequação regulatória (CVM, INCRA, Lei 5.709), de soluções para governança e custódia de ativos físicos e de adoção por produtores. A demografia não espera: a consolidação vai acontecer com ou sem tokenização. A questão em aberto é se o Brasil aproveitará essa transição para modernizar a propriedade rural, aumentar a liquidez e atrair capital produtivo." },
+      { type: "paragraph", content: "Fontes: Censo Agropecuário 2017 (IBGE); dados demográficos do IBGE; e iniciativas brasileiras de tokenização no agronegócio (Agrotoken)." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 13 (Pagamentos/Ledgers) ── */
+  {
+    id: "pagamentos-transfronteiricos-ledgers",
+    date: "Jul 2026",
+    tag: "Finanças Digitais",
+    title: "Pagamentos Transfronteiriços, Ledgers Distribuídos e a Economia Brasileira no Contexto BRICS",
+    desc: "Pagamentos internacionais lentos e caros pesam sobre exportadores de commodities. Uma análise das tecnologias de ledger distribuído aplicadas a pagamentos transfronteiriços, e o debate no contexto BRICS.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Em um mundo de crescente multipolaridade e de esforços de desdolarização, os pagamentos transfronteiriços emergem como um dos campos mais estratégicos da geopolítica financeira. Tecnologias de registro distribuído (ledgers) têm sido discutidas por sua velocidade, baixo custo e capacidade de atuar como ponte entre diferentes moedas, características relevantes para o Brasil e o bloco BRICS." },
+      { type: "heading", content: "O problema dos pagamentos internacionais tradicionais" },
+      { type: "paragraph", content: "Pagamentos transfronteiriços via SWIFT e bancos correspondentes tendem a ser lentos, custosos e sujeitos a restrições geopolíticas. Para o Brasil, grande exportador de commodities, isso pode significar atrasos no recebimento de receitas de soja, minério de ferro, café e proteína animal, impactando o fluxo de caixa de produtores e tradings e o balanço de pagamentos. A literatura sobre finanças internacionais aponta que países emergentes perdem valores expressivos em ineficiências e spreads cambiais nesses fluxos." },
+      { type: "heading", content: "Tecnologias de ledger distribuído: características e debate" },
+      { type: "paragraph", content: "As tecnologias de ledger distribuído aplicadas a pagamentos são apresentadas, por seus proponentes, com atributos como liquidação rápida, custos reduzidos por transação, capacidade nativa de tokenização e a função de bridge asset (converter uma moeda em outra sem uma conta intermediária em dólar). Vale registrar que esses atributos são reivindicados pelos desenvolvedores dessas soluções e ainda estão sendo testados em escala; não constituem, aqui, recomendação de uso de qualquer ativo ou protocolo específico. No Brasil e na América Latina, alguns projetos já exploram ledgers distribuídos para a tokenização de recebíveis agrícolas (CRAs e CPRs)." },
+      { type: "heading", content: "Pontos de análise para a economia brasileira" },
+      { type: "paragraph", content: "Do ponto de vista analítico, a modernização dos pagamentos transfronteiriços pode ter implicações como: agilização do recebimento de divisas de parceiros comerciais; potencial redução de custos, especialmente para pequenas e médias empresas exportadoras; e maior integração entre o fluxo físico de commodities e a liquidação financeira. No contexto das discussões do BRICS sobre sistemas de pagamento alternativos, tecnologias de ledger neutras são um dos temas em debate, ao lado de CBDCs (moedas digitais de bancos centrais) em desenvolvimento." },
+      { type: "heading", content: "Considerações geopolíticas e regulatórias" },
+      { type: "paragraph", content: "A discussão envolve dimensões geopolíticas (redução da dependência exclusiva do dólar, autonomia financeira de blocos) e, sobretudo, regulatórias. No Brasil, o Banco Central e a CVM ainda estão desenvolvendo marcos para stablecoins e ativos digitais transfronteiriços. Qualquer infraestrutura financeira crítica exige robustez técnica, governança e marcos legais adequados, e a adoção de qualquer solução específica depende dessa maturação. O acompanhamento dessa área, de forma analítica e atenta à regulação, é relevante para quem estuda a interseção entre commodities, câmbio e infraestrutura financeira." },
+      { type: "paragraph", content: "Fontes: literatura sobre pagamentos transfronteiriços e finanças internacionais; e materiais públicos sobre tecnologias de ledger distribuído e sua aplicação em recebíveis agrícolas no Brasil." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
   }
 
 ];
