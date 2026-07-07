@@ -45,6 +45,7 @@ const PUBLIC_IDS = new Set([
   "previsao-volatilidade",
   "hedging-commodities-b3",
   "risco-sistemico-copulas",
+  "otimizacao-portfolios-estrategias",
 ]);
 
 /* Filtros disponíveis */

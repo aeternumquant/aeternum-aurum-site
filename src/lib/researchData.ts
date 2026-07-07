@@ -1190,6 +1190,59 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 7 ── */
+  {
+    id: "otimizacao-portfolios-estrategias",
+    date: "Dez 2025",
+    tag: "Risco e Hedge",
+    title: "Otimização de Portfólios e Estratégias Sistemáticas em Commodities: Além do Mean-Variance",
+    desc: "Por que Markowitz clássico é frágil, e o que o substitui: risk parity, otimização por CVaR, Black-Litterman. E os prêmios sistemáticos documentados em commodities: momentum, carry e estratégias de curva. A arquitetura quant completa.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "17 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "A otimização de portfólios e a busca por retornos sistemáticos representam o ápice da aplicação prática das finanças quantitativas. Após dominar medidas de risco, modelagem de caudas, previsão de volatilidade, hedging e dependência entre ativos, o próximo passo é construir alocações robustas e estratégias que gerem alpha de forma disciplinada em mercados de commodities." },
+      { type: "heading", content: "Limitações do modelo clássico mean-variance" },
+      { type: "paragraph", content: "Markowitz (1952) revolucionou a teoria moderna de portfólios, mas o framework clássico sofre de problemas práticos bem conhecidos: sensibilidade extrema a erros de estimativa de retornos esperados (Michaud, 1989, a chamada error maximization), instabilidade nos pesos alocados, e tratamento inadequado de risco de cauda, drawdowns e distribuições não-normais, características dominantes em commodities." },
+      { type: "heading", content: "Risk Parity / Equal Risk Contribution" },
+      { type: "paragraph", content: "Proposto por Maillard, Roncalli e Teiletche (2010), o Risk Parity aloca o capital de forma que cada ativo contribua igualmente para o risco total do portfólio. Não requer estimativa de retornos esperados, o que o torna particularmente robusto. Em commodities, trata melhor ativos com volatilidades e correlações heterogêneas (petróleo vs. ouro vs. soja) e posiciona-se naturalmente entre minimum-variance e equally-weighted. Foi popularizado comercialmente pelo Bridgewater All Weather; Roncalli (2013) consolidou o framework teórico e prático." },
+      { type: "heading", content: "Otimização via CVaR e CDaR" },
+      { type: "paragraph", content: "A otimização por CVaR (Rockafellar & Uryasev, 2000, 2002) reformula o problema como programação linear, escalando bem para grandes universos; é ideal quando o investidor prioriza o controle de perdas extremas. O Conditional Drawdown-at-Risk (Chekhlov, Uryasev & Zabarankin, 2003, 2005) foca em drawdowns sequenciais, especialmente relevante para estratégias trend-following e fundos de pensão. Pacotes como Riskfolio-Lib (Python) e PortfolioAnalytics (R) implementam essas otimizações." },
+      { type: "heading", content: "Otimização robusta e Black-Litterman" },
+      { type: "paragraph", content: "A otimização robusta (Goldfarb & Iyengar, 2003) considera conjuntos de incerteza para os parâmetros, mitigando o impacto de erros de estimação. O modelo Black-Litterman (1992) combina as views do investidor com um prior de equilíbrio de mercado via abordagem bayesiana, excelente para incorporar visões macro sobre commodities brasileiras (safra recorde, impacto do dólar)." },
+      { type: "heading", content: "Estratégias sistemáticas de retorno" },
+      { type: "paragraph", content: "Além da alocação otimizada, existem prêmios sistemáticos bem documentados. Time-Series Momentum: Moskowitz, Ooi e Pedersen (2012) analisaram 58 contratos de futuros e encontraram momentum positivo em 52, com alpha de aproximadamente 1,27% ao mês (1985 a 2009) e evidência robusta por mais de 100 anos (Hurst, Ooi & Pedersen, 2017). Carry: Koijen, Moskowitz, Pedersen e Vrugt (2018) mostram Sharpe médio de 0,8 por classe de ativo, chegando a 1,2 em portfólios diversificados; em commodities, o carry é extraído da estrutura a termo (contango/backwardation)." },
+      { type: "paragraph", content: "Estratégias de curva: Bianchi, Fan, Miffre e Zhang (2023) demonstraram que slope e butterfly em 21 commodities geram Sharpes out-of-sample de 1,41 e 1,27, robustos a custos de transação. Combinações multi-fator: Asness, Moskowitz e Pedersen (2013) mostraram que value e momentum funcionam consistentemente entre classes de ativos, incluindo commodities; portfólios que combinam momentum, carry e value tendem a apresentar Sharpe superior e drawdowns mais controlados." },
+      { type: "heading", content: "Aplicações e implementação no contexto brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Combinar commodities locais (soja, café, boi via B3) com internacionais (WTI, Brent, cobre, ouro).",
+        "Incorporar views locais via Black-Litterman (política agrícola, câmbio, clima).",
+        "Usar Risk Parity como base e CVaR/CDaR como overlay de controle de risco de cauda.",
+        "Aplicar TSMOM e Carry em contratos líquidos, com volatility scaling e atenção a custos de rolagem e liquidez.",
+        "Aplicar haircuts conservadores (30% a 50%) em Sharpes históricos, para levar em conta custos reais e overfitting."
+      ] } },
+      { type: "callout", content: "A jornada quantitativa em commodities culmina na integração de todas as peças: medidas coerentes de risco, modelagem de caudas, validação rigorosa, previsão de volatilidade, hedging eficaz, modelagem de dependências e, por fim, otimização robusta e estratégias sistemáticas." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "MARKOWITZ, H. Portfolio selection. The Journal of Finance, v. 7, n. 1, p. 77-91, 1952.",
+        "MICHAUD, R. O. The Markowitz optimization enigma: is optimized optimal? Financial Analysts Journal, v. 45, n. 1, p. 31-42, 1989.",
+        "MAILLARD, S.; RONCALLI, T.; TEILETCHE, J. The properties of equally weighted risk contribution portfolios. The Journal of Portfolio Management, v. 36, n. 4, p. 60-70, 2010.",
+        "RONCALLI, T. Introduction to Risk Parity and Budgeting. Chapman & Hall/CRC, 2013.",
+        "ROCKAFELLAR, R. T.; URYASEV, S. Optimization of conditional value-at-risk. Journal of Risk, v. 2, n. 3, p. 21-41, 2000.",
+        "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Drawdown measure in portfolio optimization. International Journal of Theoretical and Applied Finance, v. 8, n. 1, p. 13-58, 2005.",
+        "GOLDFARB, D.; IYENGAR, G. Robust portfolio selection problems. Mathematics of Operations Research, v. 28, n. 1, p. 1-38, 2003.",
+        "BLACK, F.; LITTERMAN, R. Global portfolio optimization. Financial Analysts Journal, v. 48, n. 5, p. 28-43, 1992.",
+        "MOSKOWITZ, T. J.; OOI, Y. H.; PEDERSEN, L. H. Time series momentum. Journal of Financial Economics, v. 104, n. 2, p. 228-250, 2012.",
+        "HURST, B.; OOI, Y. H.; PEDERSEN, L. H. A century of evidence on trend-following investing. The Journal of Portfolio Management, v. 44, n. 1, p. 15-29, 2017.",
+        "KOIJEN, R. S. J.; MOSKOWITZ, T. J.; PEDERSEN, L. H.; VRUGT, E. B. Carry. Journal of Financial Economics, v. 127, n. 2, p. 197-225, 2018.",
+        "BIANCHI, R. J.; FAN, J. H.; MIFFRE, J.; ZHANG, T. Exploiting the term structure of commodity futures. [verificar periodico/volume/paginas], 2023.",
+        "ASNESS, C. S.; MOSKOWITZ, T. J.; PEDERSEN, L. H. Value and momentum everywhere. The Journal of Finance, v. 68, n. 3, p. 929-985, 2013."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];
