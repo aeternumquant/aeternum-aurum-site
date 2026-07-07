@@ -1127,6 +1127,69 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 6 ── */
+  {
+    id: "risco-sistemico-copulas",
+    date: "Nov 2025",
+    tag: "Quantitativo",
+    title: "Risco Sistêmico, Copulas e Dependência entre Ativos em Mercados de Commodities",
+    desc: "Um choque no petróleo se propaga para soja, milho, frete e câmbio. Por que a correlação linear engana nas crises, como as copulas capturam a dependência de cauda, e o CoVaR como medida de risco sistêmico.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "14 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Em um mundo cada vez mais interconectado, o risco de um ativo raramente está isolado. Um choque no preço do petróleo pode rapidamente se propagar para soja, milho, frete e câmbio, ampliando perdas em portfólios aparentemente diversificados. A modelagem adequada dessa dependência, especialmente nas caudas da distribuição, é fundamental para quem atua com commodities, seja no agronegócio brasileiro ou em estratégias quantitativas globais." },
+      { type: "heading", content: "Limitações da correlação linear e a ascensão das copulas" },
+      { type: "paragraph", content: "A correlação de Pearson mede apenas dependência linear e assume normalidade, características que raramente se sustentam em mercados financeiros. Durante crises, a dependência tende a aumentar, especialmente na cauda inferior, fenômeno conhecido como tail dependence. As copulas resolvem esse problema separando a estrutura de dependência das distribuições marginais individuais. O teorema de Sklar garante que qualquer distribuição multivariada pode ser decomposta em suas margens e uma copula que descreve a dependência." },
+      { type: "heading", content: "Principais famílias de copulas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Gaussian Copula: dependência simétrica, sem tail dependence forte.",
+        "Student-t Copula: permite tail dependence simétrica.",
+        "Archimedean (Clayton, Gumbel, Frank): capturam dependência assimétrica (Clayton forte na cauda inferior, Gumbel na superior).",
+        "Vine Copulas (Aas et al., 2009; Brechmann & Czado, 2013): modelam dependências complexas em alta dimensão via árvores de pair-copulas; C-vine e R-vine são as estruturas mais comuns."
+      ] } },
+      { type: "heading", content: "Evidências empíricas em commodities" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Reboredo (2011, 2013): copulas tempo-variantes entre WTI, Brent e Maya identificam tail dependence positiva, especialmente em altas.",
+        "Aloui, Aïssa & Nguyen (2013): copulas dinâmicas entre petróleo e mercados BRICS mostram dependência forte de cauda inferior durante crises.",
+        "Rezitis, Kousoulis & Moffatt (2024): spillover assimétrico forte de petróleo para agrícolas (trigo, milho, soja) na COVID-19 e na guerra de 2022, com GJR-GARCH e GAS-copulas.",
+        "Ji et al. (2021): dependence-switching copulas com CoVaR confirmam risco sistêmico do petróleo para agrícolas em períodos de estresse.",
+        "Pramanik (2025): vine copulas em ouro-prata-WTI-gás natural destacam o papel de safe-haven do ouro."
+      ] } },
+      { type: "paragraph", content: "Em portfólios brasileiros, a dependência entre BRL/USD, Ibovespa, ICB (Índice de Commodities Brasileiras) e preços agrícolas exige atenção especial, conforme Pinheiro & Fernandes (2020)." },
+      { type: "heading", content: "Medidas de risco sistêmico" },
+      { type: "paragraph", content: "CoVaR e ΔCoVaR (Adrian & Brunnermeier, 2016) são as medidas canônicas de risco sistêmico. O CoVaR representa o VaR de um ativo condicional ao fato de outro ativo (ou o sistema) estar em distress. O ΔCoVaR quantifica a contribuição marginal de um ativo ao risco sistêmico. Combinadas com copulas tempo-variantes ou DCC, essas medidas permitem quantificar quanto o risco de uma posição em soja aumenta quando o petróleo entra em crise." },
+      { type: "heading", content: "Aplicações práticas para o quant brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Gestão de portfólio agro: modelar a dependência entre soja, milho, boi gordo e variáveis macro (dólar, energia), identificando períodos de contágio para ajustar hedges dinamicamente.",
+        "Risk management institucional: calcular VaR/ES de portfólio via Monte Carlo com copulas (margens via GARCH-EVT). Vine copulas são úteis para portfólios com mais de 4 ou 5 ativos.",
+        "Estratégias de trading: detectar regimes de dependência alta para reduzir exposição ou explorar assimetrias."
+      ] } },
+      { type: "heading", content: "Limitações e cuidados" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Copulas estáticas falham em capturar mudanças de regime; prefira versões tempo-variantes (DCC, GAS, regime-switching).",
+        "Estimação em alta dimensão é computacionalmente custosa (vine copulas ajudam, mas exigem cuidado).",
+        "Dependência extrema é rara por definição; backtesting em períodos de crise (2008, 2020, 2022) é obrigatório.",
+        "No Brasil, a disponibilidade de séries longas e limpas ainda é um desafio; dados CEPEA e B3 exigem tratamento rigoroso de quebras estruturais."
+      ] } },
+      { type: "paragraph", content: "A modelagem de dependência via copulas e a quantificação de risco sistêmico (CoVaR) representam o estado da arte para entender como choques se propagam entre energia, agrícolas, câmbio e mercados financeiros. Para o profissional brasileiro, dominar essas ferramentas é essencial para construir portfólios resilientes em um país onde as commodities respondem por parcela significativa da economia e das exportações." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "AAS, K.; CZADO, C.; FRIGESSI, A.; BAKKEN, H. Pair-copula constructions of multiple dependence. Insurance: Mathematics and Economics, v. 44, n. 2, p. 182-198, 2009.",
+        "BRECHMANN, E. C.; CZADO, C. Risk management with high-dimensional vine copulas. Statistics & Risk Modeling, v. 30, n. 4, p. 307-342, 2013.",
+        "REBOREDO, J. C. How do crude oil prices co-move? A copula approach. Energy Economics, v. 33, n. 5, p. 948-955, 2011.",
+        "ALOUI, R.; AÏSSA, M. S. B.; NGUYEN, D. K. Conditional dependence structure between oil prices and exchange rates: a copula-GARCH approach. Journal of International Money and Finance, v. 32, p. 719-738, 2013.",
+        "REZITIS, A. N.; KOUSOULIS, P.; MOFFATT, P. G. Spillovers between oil and agricultural commodities. [verificar periodico/volume/paginas], 2024.",
+        "JI, Q.; LIU, B.-Y.; ZHAO, W.-L.; FAN, Y. Modelling dynamic dependence and risk spillover between oil and agricultural markets. [verificar periodico/volume], 2021.",
+        "PRAMANIK, P. Vine copula dependence among gold, silver, crude oil and natural gas. [verificar periodico/volume/paginas], 2025.",
+        "ADRIAN, T.; BRUNNERMEIER, M. K. CoVaR. American Economic Review, v. 106, n. 7, p. 1705-1741, 2016.",
+        "PINHEIRO, [iniciais]; FERNANDES, [iniciais]. [titulo: comparacao de modelos de VaR para o mercado brasileiro]. [verificar periodico/volume/paginas], 2020."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];
