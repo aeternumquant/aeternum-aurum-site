@@ -1061,6 +1061,72 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 5 ── */
+  {
+    id: "hedging-commodities-b3",
+    date: "Jul 2026",
+    tag: "Risco e Hedge",
+    title: "Hedging de Commodities: Teoria Internacional e a Realidade Brasileira na B3",
+    desc: "Nem todo hedge é igualmente eficaz. A razão ótima de Ederington, o debate OLS vs dinâmico, e a verdade incômoda das commodities brasileiras: soja e café protegem bem na B3, boi e açúcar quase não. A fundamentação da mesa de risco.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "16 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "O hedging é uma das aplicações mais práticas das finanças quantitativas no agronegócio. Para produtores, tradings, indústrias processadoras e fundos, reduzir a exposição à volatilidade de preços de soja, café, boi gordo, milho, açúcar e etanol é essencial. No entanto, a literatura revela uma verdade desconfortável: nem todo hedge é igualmente eficaz, especialmente nos mercados brasileiros." },
+      { type: "heading", content: "Fundamentos teóricos do hedging" },
+      { type: "paragraph", content: "O marco clássico é o minimum-variance hedge ratio, proposto por Ederington (1979). A razão ótima de hedge (h*) minimiza a variância do portfólio protegido:" },
+      { type: "equation", content: "h^* = \\frac{\\text{Cov}(S, F)}{\\text{Var}(F)}" },
+      { type: "paragraph", content: "onde S é o preço spot e F o preço do futuro. Essa razão é facilmente estimada por regressão OLS. Embora intuitivo, o modelo estático OLS assume que a relação spot-futuro é constante ao longo do tempo, hipótese frequentemente violada em commodities. Surgiram então modelos dinâmicos baseados em GARCH multivariado (BEKK, DCC, GO-GARCH), que permitem razões de hedge tempo-variantes." },
+      { type: "heading", content: "Debate OLS vs. dinâmico" },
+      { type: "paragraph", content: "Lien (2005) demonstrou que a métrica de efetividade de Ederington (R²) é viesada a favor do OLS. Diversos estudos empíricos (Wang, Wu & Yang, 2015; Lee & Yoder, 2011; Su & Wu, 2014) confirmam que, na maioria dos casos, o OLS estático iguala ou supera modelos GARCH dinâmicos na redução de variância out-of-sample. O ganho marginal dos modelos dinâmicos costuma ficar entre 0% e 2%. Quando o objetivo muda para a minimização de risco de cauda (CVaR ou VaR), modelos como DCC-GARCH e copula-DCC ganham relevância (Wang, Wu & Yang, 2015; Cotter & Hanly, 2012)." },
+      { type: "heading", content: "A realidade brasileira: evidências da B3" },
+      { type: "table", content: "", data: {
+        headers: ["Commodity", "Modelo", "Razão ótima (h*)", "Efetividade (R²)", "Fonte"],
+        rows: [
+          ["Soja (PR)", "OLS", "—", "69,21%", "Jesus et al. (2021)"],
+          ["Soja (PR)", "BEKK-GARCH", "0,26", "22,80%", "Jesus et al. (2021)"],
+          ["Café Arábica", "OLS", "—", "45,85%", "Jesus et al. (2021)"],
+          ["Café Arábica", "BEKK-GARCH", "0,61", "47,80%", "Jesus et al. (2021)"],
+          ["Soja (MT)", "OLS", "0,499", "18,80%", "Souza et al. (2009)"],
+          ["Boi Gordo", "OLS", "—", "0,31%", "Jesus et al. (2021)"],
+          ["Boi Gordo", "BEKK-GARCH", "0,02", "0,06%", "Jesus et al. (2021)"],
+          ["Açúcar Cristal", "OLS", "—", "1,50%", "Jesus et al. (2021)"],
+          ["Etanol Hidratado", "OLS", "—", "14,54%", "Jesus et al. (2021)"],
+          ["Milho", "OLS", "—", "5,60%", "Jesus et al. (2021)"]
+        ]
+      } },
+      { type: "bullet-list", content: "", data: { items: [
+        "Soja (especialmente Paraná) e Café Arábica apresentam hedge interno útil na B3, com redução de variância entre 45% e 70%.",
+        "Boi Gordo, Açúcar, Etanol e Milho exibem risco de base elevado, com efetividade muito baixa (frequentemente abaixo de 10% a 15%): o futuro da B3 não acompanha bem o preço físico regional.",
+        "O own-hedge na B3 para o complexo soja geralmente supera o cross-hedge com a CBOT (Silva, Aguiar & Lima, 2003).",
+        "O tratamento de quebras estruturais (Zivot-Andrews, Bai-Perron) é crítico. Sem ele, a efetividade aparece artificialmente baixa."
+      ] } },
+      { type: "heading", content: "Recomendações práticas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Sempre comece com OLS estático: é simples, robusto e frequentemente competitivo.",
+        "Para tail-risk: use DCC-GARCH ou copula-DCC quando o foco for CVaR/ES.",
+        "Para commodities com baixa efetividade na B3: cross-hedge com contratos internacionais (Live Cattle, Sugar #11, Ethanol Platts), estratégias combinadas de basis trading e modelos com múltiplos instrumentos.",
+        "Incorpore variáveis locais: preços físicos CEPEA, logística (Paranaguá), câmbio (PTAX) e calendário agrícola.",
+        "Monitore a efetividade continuamente, usando janelas rolling, e reporte tanto a redução de variância quanto a redução de CVaR ao cliente."
+      ] } },
+      { type: "heading", content: "O diferencial brasileiro" },
+      { type: "paragraph", content: "A literatura internacional sugere que hedges dinâmicos sofisticados nem sempre justificam sua complexidade. No Brasil, o maior ganho não virá necessariamente de modelos mais elaborados, mas de: melhor compreensão e modelagem do risco de base, integração de dados locais de alta qualidade (CEPEA, B3, CONAB) e adaptação ao calendário agrícola e às políticas públicas. Dominar o hedging real das commodities locais representa não apenas uma ferramenta de gestão de risco, mas uma vantagem competitiva concreta no mercado." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "EDERINGTON, L. H. The hedging performance of the new futures markets. The Journal of Finance, v. 34, n. 1, p. 157-170, 1979.",
+        "LIEN, D. The use and abuse of the hedging effectiveness measure. International Review of Financial Analysis, v. 14, n. 2, p. 277-282, 2005.",
+        "WANG, Y.; WU, C.; YANG, L. Hedging with futures: does anything beat the naïve hedging strategy? Management Science, v. 61, n. 12, p. 2870-2889, 2015.",
+        "COTTER, J.; HANLY, J. Reevaluating hedging performance for asymmetry: the case of crude oil. [verificar periodico/volume], 2006.",
+        "JESUS, D. P. de; OLIVEIRA, A. F. de; MAIA, S. F. Hedge de commodities agropecuárias na B3. [verificar periodico/volume/paginas], 2021.",
+        "SOUZA, W. A. R. de et al. Efetividade de hedge da soja em Mato Grosso. [verificar periodico/volume/paginas], 2009.",
+        "SILVA, A. R. O. da; AGUIAR, D. R. D.; LIMA, J. E. de. Hedging com contratos futuros no complexo soja. [verificar periodico/volume/paginas], 2003.",
+        "LEE, H.-T.; YODER, J. A bivariate Markov regime switching GARCH approach to estimate time-varying minimum variance hedge ratios. Applied Economics, 2011. [verificar volume/paginas]"
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];

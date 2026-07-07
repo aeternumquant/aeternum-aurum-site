@@ -43,6 +43,7 @@ const PUBLIC_IDS = new Set([
   "garch-evt-commodities",
   "backtesting-var-es",
   "previsao-volatilidade",
+  "hedging-commodities-b3",
 ]);
 
 /* Filtros disponíveis */
