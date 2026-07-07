@@ -1,16 +1,16 @@
 /**
  * Research.tsx — Pesquisa Institucional Aeternum Aurum
  *
- * Layout: Hero → Termômetro → Armadilhas → Teses Brasil (Drew Crawford)
- *         → Filtros → Grid de Publicações (público vs. acesso restrito)
+ * Layout: Hero → label Publicações & Análises → Filtros (sticky)
+ *         → Grid de Publicações (público vs. acesso restrito) → CTA
  */
 import Footer from "../../components/common/Footer";
-import { FadeIn } from "../../components/common/FadeIn";
+import Reveal from "../../components/common/Reveal";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
 import { shortPapers } from "../../lib/researchData";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Lock, Search } from "lucide-react";
 
 const GOLD = "#C6A85A";
 
@@ -39,6 +39,20 @@ const PUBLIC_IDS = new Set([
   "cinco-vantagens-agro-brasil",
   "escassez-oferta-agricola-2026",
   "white-house-rare-earth-stocks",
+  "fundamentos-medidas-risco",
+  "garch-evt-commodities",
+  "backtesting-var-es",
+  "previsao-volatilidade",
+  "hedging-commodities-b3",
+  "risco-sistemico-copulas",
+  "otimizacao-portfolios-estrategias",
+  "geopolitica-brics-hard-assets",
+  "clima-resiliencia-commodities",
+  "hard-assets-hub-global",
+  "tokenizacao-empresas-familiares",
+  "gap-financiamento-credito-tokenizado",
+  "demografia-tokenizacao-terras",
+  "pagamentos-transfronteiricos-ledgers",
 ]);
 
 /* Filtros disponíveis */
@@ -84,97 +98,80 @@ function GoldLine() {
   );
 }
 
-function ContentBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="p-6 sm:p-8"
-      style={{
-        border: `1px solid ${GOLD}20`,
-        backgroundColor: "rgba(10,10,10,0.55)",
-      }}
-    >
-      {children}
-    </div>
-  );
+/* ── Busca: normalizacao (case + acento insensitive) ── */
+const norm = (s: string) =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/* ── Datas "MMM YYYY" (PT) -> valor ordenavel. Formato confirmado em todos os papers ── */
+const MESES: Record<string, number> = {
+  Jan: 1, Fev: 2, Mar: 3, Abr: 4, Mai: 5, Jun: 6,
+  Jul: 7, Ago: 8, Set: 9, Out: 10, Nov: 11, Dez: 12,
+};
+function dateValue(d: string): number {
+  const m = /^(\w{3})\s+(\d{4})$/.exec(d.trim());
+  if (!m) return -Infinity;
+  return parseInt(m[2], 10) * 12 + (MESES[m[1]] ?? 0);
 }
 
-function SubHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h3
-      className="font-display font-light uppercase tracking-wider mb-4 mt-6 first:mt-0"
-      style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.1rem)", color: GOLD }}
-    >
-      {children}
-    </h3>
-  );
-}
+/* Publicacoes mais recentes (apenas publicas) para o estado vazio */
+const recentPublicPapers = [...shortPapers]
+  .filter((p) => PUBLIC_IDS.has(p.id) || p.isPublic)
+  .sort((a, b) => dateValue(b.date) - dateValue(a.date))
+  .slice(0, 4);
 
-function BodyText({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+/* ── Card de publicacao (reusado na listagem e nas sugestoes do estado vazio) ── */
+function PaperCard({ p, index }: { p: (typeof shortPapers)[number]; index: number }) {
+  const navigate = useNavigate();
+  const isPublic = PUBLIC_IDS.has(p.id) || p.isPublic;
   return (
-    <p
-      className={`font-sans leading-relaxed ${className}`}
-      style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)", color: "rgba(255,255,255,0.58)" }}
-    >
-      {children}
-    </p>
-  );
-}
-
-function Callout({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="my-6 px-5 py-4 border-l-2 text-sm leading-relaxed"
-      style={{
-        borderColor: GOLD,
-        backgroundColor: `${GOLD}08`,
-        color: `${GOLD}cc`,
-        fontStyle: "italic",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function StatGrid({ items }: { items: { stat: string; label: string }[] }) {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 my-6">
-      {items.map((item, i) => (
-        <div
-          key={i}
-          className="p-4 text-center"
-          style={{ border: `1px solid ${GOLD}22`, backgroundColor: `${GOLD}07` }}
-        >
+    <Reveal delay={Math.min(index, 5) * 0.05}>
+      <div
+        className="group relative p-6 border border-white/5 cursor-pointer transition-all duration-200"
+        style={{ backgroundColor: "rgba(10,8,4,0.5)" }}
+        onClick={() => (isPublic ? navigate(`/research/${p.id}`) : navigate("/acesso"))}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${GOLD}28`)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)")}
+      >
+        {!isPublic && (
           <div
-            className="font-display font-light text-2xl mb-1"
-            style={{ color: GOLD }}
+            className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 border"
+            style={{ borderColor: "rgba(255,255,255,0.1)", backgroundColor: "rgba(0,0,0,0.4)" }}
           >
-            {item.stat}
+            <Lock className="w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.3)" }} />
+            <span className="font-sans text-[8px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
+              Acesso LP
+            </span>
           </div>
-          <p className="font-sans text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.42)" }}>
-            {item.label}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
+        )}
 
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <ul className="space-y-3 my-4">
-      {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-3">
-          <span
-            className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: GOLD }}
-          />
-          <span className="font-sans text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-            {item}
+        <div className="flex items-start gap-3 mb-3 flex-wrap pr-20">
+          <span className={`text-[9px] tracking-widest uppercase border px-2 py-0.5 font-sans ${tagColor[p.tag] ?? "text-primary/60 border-primary/20"}`}>
+            {p.tag}
           </span>
-        </li>
-      ))}
-    </ul>
+          <span className="text-[10px] font-sans tracking-widest" style={{ color: "rgba(255,255,255,0.28)" }}>
+            {p.date}
+          </span>
+          <span className="text-[9px] font-sans tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>
+            {p.readTime} Leitura
+          </span>
+        </div>
+
+        <h3 className="font-display text-base sm:text-lg tracking-wide mb-2" style={{ color: "rgba(255,255,255,0.85)" }}>
+          {p.title}
+        </h3>
+        <p className="text-sm font-light leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.38)" }}>
+          {p.desc}
+        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-[9px] uppercase tracking-[0.2em]" style={{ color: `${GOLD}50` }}>
+            {p.author}
+          </p>
+          <span className="text-xs" style={{ color: `${GOLD}55` }}>
+            {isPublic ? "→" : "Acesso →"}
+          </span>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
@@ -183,15 +180,27 @@ function BulletList({ items }: { items: string[] }) {
 ══════════════════════════════════════════════════════════ */
 export default function ResearchPage() {
   const [activeTag, setActiveTag] = useState("Todos");
-  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
 
-  const papers =
+  const byTag =
     activeTag === "Todos"
       ? shortPapers
-      : shortPapers.filter((p) => p.tag === activeTag || p.tag === activeTag);
+      : shortPapers.filter((p) => p.tag === activeTag);
+  const q = norm(query.trim());
+  const matched =
+    q === ""
+      ? byTag
+      : byTag.filter(
+          (p) =>
+            norm(p.title).includes(q) ||
+            norm(p.desc).includes(q) ||
+            norm(p.tag).includes(q)
+        );
+  /* Ordena por data, mais recente primeiro (reusa dateValue). Copia para nao mutar o array original. */
+  const results = [...matched].sort((a, b) => dateValue(b.date) - dateValue(a.date));
 
   return (
-    <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
+    <main className="pt-14 min-h-screen">
       <RouteSeo
         title="Pesquisa"
         description="Inteligência aplicada: análises técnicas sobre regimes de volatilidade, spillovers DCC-GARCH e inferência causal em cadeias de commodities. Conteúdo de caráter educacional."
@@ -205,7 +214,7 @@ export default function ResearchPage() {
           style={{ background: `radial-gradient(ellipse at top, ${GOLD}09 0%, transparent 60%)` }}
         />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
-          <FadeIn>
+          <Reveal>
             <p className="font-sans text-[9px] tracking-[0.35em] uppercase mb-4" style={{ color: `${GOLD}80` }}>
               Inteligência Estrutural
             </p>
@@ -219,21 +228,21 @@ export default function ResearchPage() {
               Publicações proprietárias de análise macroeconômica, quantitativa, geopolítica e estratégica.
               Conteúdo construído com o mesmo rigor metodológico aplicado em mesas proprietárias institucionais.
             </p>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
       {/* ══ BLOCO 3: PUBLICAÇÕES E FILTROS ══ */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
-          <FadeIn>
+          <Reveal>
             <SectionLabel>The MIT Intelligence Core</SectionLabel>
             <SectionTitle>
               Publicações &{" "}
               <span className="text-white">Análises</span>
             </SectionTitle>
             <GoldLine />
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 
@@ -242,93 +251,71 @@ export default function ResearchPage() {
         className="sticky top-14 z-30 py-4 px-4 sm:px-6 lg:px-8 border-b border-white/5 backdrop-blur-sm"
         style={{ backgroundColor: "rgba(10,10,10,0.93)" }}
       >
-        <div className="max-w-4xl mx-auto flex flex-wrap gap-2">
-          {FILTERS.map((tag) => (
-            <button
-              key={tag}
-              onClick={() => setActiveTag(tag)}
-              className="font-sans text-[9px] tracking-widest uppercase px-3 py-1.5 border transition-colors duration-200"
-              style={
-                activeTag === tag
-                  ? { borderColor: `${GOLD}60`, color: GOLD, backgroundColor: `${GOLD}0a` }
-                  : { borderColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)" }
-              }
-            >
-              {tag}
-            </button>
-          ))}
+        <div className="max-w-4xl mx-auto">
+          {/* Campo de busca */}
+          <div className="relative mb-3">
+            <Search
+              className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar publicações"
+              aria-label="Buscar publicações"
+              className="w-full pl-9 pr-3 py-2 text-xs font-sans text-white/80 placeholder:text-white/25 focus:outline-none transition-colors duration-200 ease-rapido"
+              style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = `${GOLD}55`)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+            />
+          </div>
+          {/* Filtros por area */}
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(tag)}
+                className="font-sans text-[9px] tracking-widest uppercase px-3 py-1.5 border transition-colors duration-200"
+                style={
+                  activeTag === tag
+                    ? { borderColor: `${GOLD}60`, color: GOLD, backgroundColor: `${GOLD}0a` }
+                    : { borderColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.35)" }
+                }
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ── Grid de artigos ── */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: "#0A0A0A" }}>
-        <div className="max-w-4xl mx-auto space-y-3">
-          {papers.map((p, i) => {
-            const isPublic = PUBLIC_IDS.has(p.id) || p.isPublic;
-            return (
-              <FadeIn key={p.id} delay={i * 0.04}>
-                <div
-                  className="group relative p-6 border border-white/5 cursor-pointer transition-all duration-200"
-                  style={{ backgroundColor: "rgba(10,8,4,0.5)" }}
-                  onClick={() => isPublic ? navigate(`/research/${p.id}`) : navigate("/acesso")}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${GOLD}28`)}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)")}
-                >
-                  {/* Badge de acesso restrito */}
-                  {!isPublic && (
-                    <div
-                      className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 border"
-                      style={{
-                        borderColor: "rgba(255,255,255,0.1)",
-                        backgroundColor: "rgba(0,0,0,0.4)",
-                      }}
-                    >
-                      <Lock className="w-2.5 h-2.5" style={{ color: "rgba(255,255,255,0.3)" }} />
-                      <span className="font-sans text-[8px] tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>
-                        Acesso LP
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex items-start gap-3 mb-3 flex-wrap pr-20">
-                    <span
-                      className={`text-[9px] tracking-widest uppercase border px-2 py-0.5 font-sans ${tagColor[p.tag] ?? "text-primary/60 border-primary/20"}`}
-                    >
-                      {p.tag}
-                    </span>
-                    <span className="text-[10px] font-sans tracking-widest" style={{ color: "rgba(255,255,255,0.28)" }}>
-                      {p.date}
-                    </span>
-                    <span className="text-[9px] font-sans tracking-widest uppercase" style={{ color: "rgba(255,255,255,0.28)" }}>
-                      {p.readTime} Leitura
-                    </span>
-                  </div>
-
-                  <h3
-                    className="font-display text-base sm:text-lg tracking-wide mb-2"
-                    style={{ color: "rgba(255,255,255,0.85)" }}
-                  >
-                    {p.title}
-                  </h3>
-                  <p className="text-sm font-light leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.38)" }}>
-                    {p.desc}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-[9px] uppercase tracking-[0.2em]" style={{ color: `${GOLD}50` }}>
-                      {p.author}
-                    </p>
-                    <span className="text-xs" style={{ color: `${GOLD}55` }}>
-                      {isPublic ? "→" : "Acesso →"}
-                    </span>
-                  </div>
-                </div>
-              </FadeIn>
-            );
-          })}
+      <section className="py-14 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          {results.length > 0 ? (
+            <div className="space-y-3">
+              {results.map((p, i) => (
+                <PaperCard key={p.id} p={p} index={i} />
+              ))}
+            </div>
+          ) : (
+            <div>
+              <p className="font-sans text-sm mb-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+                Nenhuma publicação encontrada para "{query}".
+              </p>
+              <SectionLabel>Publicações recentes</SectionLabel>
+              <div className="space-y-3">
+                {recentPublicPapers.map((p, i) => (
+                  <PaperCard key={p.id} p={p} index={i} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* CTA */}
-        <FadeIn delay={0.4} direction="none">
+        <Reveal delay={0.4} direction="none">
           <div className="max-w-4xl mx-auto mt-14 text-center border-t border-white/5 pt-10">
             <p
               className="text-[10px] tracking-wider mb-6 uppercase font-sans"
@@ -345,7 +332,7 @@ export default function ResearchPage() {
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </NavLink>
           </div>
-        </FadeIn>
+        </Reveal>
       </section>
 
       <Footer />

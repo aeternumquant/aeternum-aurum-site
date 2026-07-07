@@ -1,8 +1,22 @@
 export interface ResearchSection {
-  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list";
+  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list" | "equation";
   content: string;
   data?: any;
 }
+
+/*
+ * Equacoes LaTeX (KaTeX). Dois modos:
+ *
+ *   Bloco (destacada, centralizada) -> secao dedicada:
+ *     { type: "equation", content: "\\text{ES}_\\alpha(X) = \\frac{1}{1-\\alpha} \\int_\\alpha^1 \\text{VaR}_u(X) \\, du" }
+ *
+ *   Inline (no meio de um paragrafo) -> delimitador \( ... \) dentro do content:
+ *     { type: "paragraph", content: "O nivel de confianca \\(\\alpha\\) define o corte da cauda." }
+ *
+ * Observacao: NAO usamos $...$ para inline de proposito, para nao colidir
+ * com precos em reais (ex: "R$128") que aparecem nos textos. So \( ... \).
+ * Em string TS, cada "\" vira "\\".
+ */
 
 export interface ResearchPaper {
   id: string;
@@ -111,7 +125,7 @@ export const researchPapers: ResearchPaper[] = [
   {
     id: "tail-risk-hedging",
     date: "Dez 2025",
-    tag: "Risco",
+    tag: "Risco e Hedge",
     title: "Tail Risk Hedging Institucional em Carteiras Multi-Ativo",
     desc: "Estruturas de proteção eficientes para cenários de cauda: abordagens com opções fora do dinheiro, minerais escassos e tesouraria direta.",
     author: "Diretoria de Risco (CRO)",
@@ -751,6 +765,700 @@ export const researchPapers: ResearchPaper[] = [
         type: "callout" as const,
         content: "Posicionamento Aeternum: Estamos monitorando MP, USAR e Aclara como posições Event-Driven de alta convicção. A timeline de legislação é 6-12 meses. O mercado ainda não precificou a magnitude dos subsídios potenciais."
       }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 1 ── */
+  {
+    id: "fundamentos-medidas-risco",
+    date: "Jan 2025",
+    tag: "Quantitativo",
+    title: "Fundamentos de Medidas de Risco: Coerência, Expected Shortfall e Drawdown Measures",
+    desc: "Por que o VaR não basta em mercados de commodities e quais métricas capturam a severidade das perdas extremas. Coerência, Expected Shortfall e medidas de drawdown como base da gestão de risco quantitativa.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      {
+        type: "paragraph",
+        content: "Autoria: GJO"
+      },
+      {
+        type: "abstract",
+        content: "Em mercados de commodities, o risco não se manifesta apenas como oscilações moderadas de preço. Um único evento, seja o colapso do WTI para preços negativos em abril de 2020, um choque climático sobre a safra de soja ou uma interrupção logística no escoamento do boi gordo, pode gerar perdas extremas que modelos simplistas falham em capturar. Este artigo estabelece a base conceitual da gestão de risco quantitativa: por que o VaR falha, como o Expected Shortfall corrige suas limitações, e o papel das medidas de drawdown."
+      },
+      {
+        type: "paragraph",
+        content: "O Value at Risk (VaR) consolidou-se como a métrica mais popular das últimas décadas. Sua interpretação é direta: com X% de confiança, a perda máxima esperada no horizonte de um dia (ou dez dias) não excederá Y. No entanto, apesar da interpretação intuitiva e da aceitação regulatória histórica, o VaR carrega limitações teóricas e práticas graves, que se tornam especialmente evidentes em ativos com distribuições assimétricas e caudas pesadas, como é o caso da maioria das commodities."
+      },
+      {
+        type: "heading",
+        content: "As limitações conceituais do VaR"
+      },
+      {
+        type: "paragraph",
+        content: "Em 1999, Artzner, Delbaen, Eber e Heath publicaram o trabalho seminal que estabeleceu os axiomas que toda medida de risco coerente deve satisfazer: monotonicidade, subaditividade, homogeneidade positiva e invariância por translação (adição de caixa)."
+      },
+      {
+        type: "paragraph",
+        content: "O VaR falha na propriedade de subaditividade. Isso significa que, em certos cenários, o risco medido de um portfólio combinado pode ser maior do que a soma dos riscos individuais, violando o princípio básico da diversificação. Em commodities, onde choques de oferta, câmbio e clima geram dependências não-lineares, essa falha pode levar à subestimação sistemática do risco de portfólio. Além disso, o VaR informa apenas o limiar a partir do qual as perdas se tornam extremas, mas nada diz sobre o que acontece além desse limiar. Perder exatamente o valor do VaR ou perder dez vezes esse valor são situações tratadas de forma idêntica pelo modelo."
+      },
+      {
+        type: "heading",
+        content: "Expected Shortfall (ES): a métrica coerente"
+      },
+      {
+        type: "paragraph",
+        content: "O Expected Shortfall (ES), também conhecido como Conditional Value at Risk (CVaR), surge como a solução natural. Ele representa a média das perdas nos piores (1 menos alfa) por cento dos cenários. Matematicamente, para distribuições contínuas:"
+      },
+      {
+        type: "equation",
+        content: "\\text{ES}_\\alpha(X) = \\frac{1}{1-\\alpha} \\int_\\alpha^1 \\text{VaR}_u(X) \\, du"
+      },
+      {
+        type: "paragraph",
+        content: "Acerbi e Tasche (2002) demonstraram formalmente que o ES satisfaz todos os axiomas de coerência propostos por Artzner et al. (1999), resultado também estabelecido por Pflug (2000). Mais do que isso, Rockafellar e Uryasev (2000, 2002) mostraram que a otimização de portfólios sob CVaR pode ser reformulada como um problema de programação linear, tornando-a computacionalmente viável mesmo para portfólios de grande dimensão."
+      },
+      {
+        type: "callout",
+        content: "Enquanto o VaR pode indicar que uma posição em futuros de boi gordo está dentro do limite, o ES revela a magnitude esperada das perdas quando o mercado realmente se deteriora. Em mercados com elevado risco de base e quebras estruturais frequentes, essa é a informação que importa."
+      },
+      {
+        type: "heading",
+        content: "Quando o caminho das perdas importa: drawdown"
+      },
+      {
+        type: "paragraph",
+        content: "Muitos gestores, especialmente os que operam estratégias sistemáticas ou com horizonte de investimento mais longo, não se preocupam apenas com perdas diárias, mas com a trajetória de perdas acumuladas: os drawdowns. O Conditional Drawdown-at-Risk (CDaR), desenvolvido por Chekhlov, Uryasev e Zabarankin (2003, 2005), generaliza o conceito de CVaR para o domínio dos drawdowns. Em vez de olhar perdas isoladas, ele considera a média dos piores drawdowns observados na curva de capital. Essa métrica é particularmente relevante para investidores sensíveis a sequências de perdas, como fundos de pensão ou family offices que alocam em commodities. Extensões como o Conditional Expected Drawdown (CED), de Goldberg e Mahmoud (2017), reforçam o arcabouço teórico."
+      },
+      {
+        type: "heading",
+        content: "A evolução regulatória e a prática institucional"
+      },
+      {
+        type: "paragraph",
+        content: "A importância dessas discussões teóricas se materializou na regulação internacional. O Fundamental Review of the Trading Book (FRTB), do Comitê de Basileia, estabeleceu o Expected Shortfall a 97,5% como a métrica principal para a abordagem de modelos internos. No Brasil, embora a regulação local ainda utilize predominantemente o VaR, as instituições mais sofisticadas já incorporam o ES e testes de coerência em suas estruturas internas de risco."
+      },
+      {
+        type: "paragraph",
+        content: "Vale registrar que a adoção regulatória do ES reabriu um debate técnico relevante: Gneiting (2011) mostrou que o ES não é elicitável isoladamente, o que por anos alimentou dúvidas sobre sua backtestabilidade. Fissler e Ziegel (2016) resolveram a questão ao demonstrar que o ES é conjuntamente elicitável com o VaR. O tema da validação de modelos, incluindo esse debate, será tratado em profundidade no artigo dedicado ao backtesting desta série."
+      },
+      {
+        type: "heading",
+        content: "Considerações práticas para implementação"
+      },
+      {
+        type: "bullet-list",
+        content: "",
+        data: {
+          items: [
+            "Comece calculando VaR histórico e ES histórico em janelas rolantes de 252 dias, usando séries do CEPEA (soja, milho, café) ou da EIA (WTI).",
+            "Observe como o ES consistentemente revela perdas mais severas que o VaR durante períodos de estresse (a safra 2021/22 e a invasão da Ucrânia em 2022 são bons laboratórios).",
+            "Avance para a otimização de portfólios via CVaR e CDaR, utilizando bibliotecas como Riskfolio-Lib (Python) ou PortfolioAnalytics (R)."
+          ]
+        }
+      },
+      {
+        type: "paragraph",
+        content: "O domínio desses fundamentos não é apenas pré-requisito técnico. É o que permite ao quant brasileiro diferenciar-se ao construir modelos que sobrevivem à complexidade local: risco de base elevado, influência de políticas públicas (CONAB, câmbio) e choques climáticos recorrentes. Este artigo estabelece a base conceitual para os próximos temas da série: da modelagem condicional de caudas à validação rigorosa desses modelos, passando por hedging eficiente e pela construção de estratégias sistemáticas robustas."
+      },
+      {
+        type: "heading",
+        content: "Referências"
+      },
+      {
+        type: "bullet-list",
+        content: "",
+        data: {
+          items: [
+            "ARTZNER, P.; DELBAEN, F.; EBER, J.-M.; HEATH, D. Coherent measures of risk. Mathematical Finance, v. 9, n. 3, p. 203-228, 1999.",
+            "ACERBI, C.; TASCHE, D. On the coherence of expected shortfall. Journal of Banking & Finance, v. 26, n. 7, p. 1487-1503, 2002.",
+            "PFLUG, G. C. Some remarks on the value-at-risk and the conditional value-at-risk. In: Probabilistic Constrained Optimization. Springer, 2000. p. 272-281.",
+            "ROCKAFELLAR, R. T.; URYASEV, S. Optimization of conditional value-at-risk. Journal of Risk, v. 2, n. 3, p. 21-41, 2000.",
+            "ROCKAFELLAR, R. T.; URYASEV, S. Conditional value-at-risk for general loss distributions. Journal of Banking & Finance, v. 26, n. 7, p. 1443-1471, 2002.",
+            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Portfolio optimization with drawdown constraints. In: Asset and Liability Management Tools, 2003.",
+            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Drawdown measure in portfolio optimization. International Journal of Theoretical and Applied Finance, v. 8, n. 1, p. 13-58, 2005.",
+            "GOLDBERG, L. R.; MAHMOUD, O. Drawdown: from practice to theory and back again. Mathematics and Financial Economics, v. 11, p. 275-297, 2017.",
+            "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
+            "FISSLER, T.; ZIEGEL, J. F. Higher order elicitability and Osband's principle. The Annals of Statistics, v. 44, n. 4, p. 1680-1707, 2016."
+          ]
+        }
+      },
+      {
+        type: "paragraph",
+        content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C."
+      }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 2 ── */
+  {
+    id: "garch-evt-commodities",
+    date: "Mar 2025",
+    tag: "Quantitativo",
+    title: "Modelagem de Risco de Cauda em Commodities: GARCH-EVT e Alternativas Avançadas",
+    desc: "Por que a hipótese de normalidade falha em commodities e como o framework GARCH-EVT combina dinâmica de volatilidade com teoria dos valores extremos para estimar VaR e Expected Shortfall com robustez.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "13 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Em mercados de commodities, a volatilidade não é apenas alta: ela é agrupada, assimétrica e apresenta caudas extremamente pesadas. Um modelo que assume distribuição normal, ou que ignora a dinâmica temporal da volatilidade, inevitavelmente subestimará o risco de eventos extremos. Este artigo apresenta o framework GARCH-EVT, padrão de referência para a estimação de VaR e Expected Shortfall em petróleo, metais, grãos e demais commodities, e suas alternativas avançadas." },
+      { type: "heading", content: "A necessidade de modelos condicionais para caudas" },
+      { type: "paragraph", content: "Modelos puramente não-paramétricos, como a Historical Simulation simples, tratam todos os dias do passado como igualmente relevantes. Já os modelos paramétricos gaussianos subestimam sistematicamente as probabilidades de cauda. A literatura empírica sobre petróleo (WTI e Brent), em particular, mostra de forma consistente que a hipótese de normalidade falha de maneira dramática. Hung, Lee e Liu (2008) demonstraram que versões GARCH com inovações de cauda pesada (Student-t ou Generalized Error Distribution, GED) superam significativamente a versão gaussiana no mercado de petróleo. Ainda assim, mesmo esses modelos precisam de um tratamento específico para as caudas extremas." },
+      { type: "heading", content: "O framework seminal: GARCH-EVT (McNeil & Frey, 2000)" },
+      { type: "paragraph", content: "O artigo de McNeil e Frey (2000), publicado no Journal of Empirical Finance, propôs um procedimento em duas etapas que se tornou referência institucional. A primeira etapa, de filtragem, ajusta um modelo GARCH (ou suas variantes) aos retornos, para capturar a dinâmica de volatilidade e obter resíduos padronizados aproximadamente i.i.d. A segunda etapa, de cauda, aplica a Teoria dos Valores Extremos (EVT) sobre os resíduos, utilizando a Generalized Pareto Distribution (GPD) via método Peaks-Over-Threshold (POT), tipicamente acima do quantil 90 a 95%." },
+      { type: "callout", content: "O GARCH captura a heteroscedasticidade condicional e o clustering de volatilidade, enquanto a EVT fornece uma modelagem semi-paramétrica robusta para as caudas, sem assumir uma distribuição específica para todo o suporte." },
+      { type: "paragraph", content: "Os resultados do artigo original (aplicado ao S&P 500 e ao DAX em torno do crash de 1987) mostraram que o estimador condicional EVT respondia rapidamente ao aumento de volatilidade, ao contrário do EVT incondicional, que falhava em períodos de estresse." },
+      { type: "heading", content: "Extensões para commodities: assimetria, longa memória e macro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Echaust & Just (2020) e Aloui & Mabrouk (2010) encontraram superioridade do FIAPARCH-EVT (longa memória e assimetria) para WTI e gasolina.",
+        "O EGARCH-EVT frequentemente domina em Brent, pela capacidade de modelar o leverage effect (volatilidade maior em quedas).",
+        "Wei et al. (2024) propuseram o GARCH-MIDAS combinado com EVT, incorporando variáveis macroeconômicas de baixa frequência (oferta, demanda, estoques, geopolítica). Relevante para o Brasil, onde PTAX, preços em Paranaguá e indicadores da CONAB podem ser incorporados.",
+        "Karmakar & Shukla (2015) confirmaram robustez out-of-sample em seis países; Allen et al. (2013) obtiveram resultados semelhantes para FTSE 100 e S&P 500."
+      ] } },
+      { type: "heading", content: "Alternativa robusta: Filtered Historical Simulation (FHS)" },
+      { type: "paragraph", content: "Nem sempre é necessário assumir uma distribuição paramétrica para a cauda. O Filtered Historical Simulation (Barone-Adesi, Giannopoulos & Vosper, 1999) filtra os retornos com GARCH para remover a dinâmica de volatilidade, reamostra os resíduos padronizados (bootstrap) e reescala pela volatilidade condicional prevista, gerando distribuições empíricas condicionais realistas. É semi-paramétrico, coerente como medida espectral (Giannopoulos & Tunaru, 2005) e frequentemente competitivo com o GARCH-EVT puro." },
+      { type: "heading", content: "Evidência empírica em commodities" },
+      { type: "paragraph", content: "Estudos comparativos sistemáticos mostram a seguinte hierarquia aproximada para VaR one-day-ahead em petróleo e derivados: primeiro, FIAPARCH-EVT, EGARCH-EVT e GJR-GARCH-EVT com inovações Student-t ou GED; segundo, Filtered Historical Simulation; terceiro, GARCH com caudas pesadas sem EVT; e por último, Historical Simulation simples e Monte Carlo Gaussiano, com o pior desempenho. Em metais de transição energética (cobre, lítio, níquel), modelos GARCH-MIDAS com incerteza política global também se destacam (Salisu et al., 2023; Boer et al., 2025)." },
+      { type: "heading", content: "Implementação prática para o quant brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Obter a série de retornos diários (CEPEA para soja/milho/café/boi, B3 para futuros, EIA/FRED para WTI/Brent).",
+        "Ajustar GARCH(1,1), EGARCH(1,1) ou FIAPARCH com distribuição Student-t (rugarch no R ou arch no Python).",
+        "Extrair os resíduos padronizados e aplicar a GPD acima de um limiar (Mean Excess Function ou testes de Kolmogorov-Smirnov).",
+        "Gerar VaR/ES condicionais via simulação ou fórmula analítica da GPD.",
+        "Implementar janela rolling (por exemplo, 1000 dias) e reestimar periodicamente."
+      ] } },
+      { type: "paragraph", content: "Para o agronegócio brasileiro, recomenda-se testar em séries com forte sazonalidade e quebras estruturais. O tratamento prévio de quebras (Zivot-Andrews ou Bai-Perron) é essencial antes da modelagem. O GARCH-EVT não é apenas um modelo acadêmico: é uma ferramenta operacional que permite estimar com maior confiabilidade o capital em risco, os limites de posição e a efetividade de hedges em um ambiente de elevada incerteza local e global." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "McNEIL, A. J.; FREY, R. Estimation of tail-related risk measures for heteroscedastic financial time series: an extreme value approach. Journal of Empirical Finance, v. 7, n. 3-4, p. 271-300, 2000.",
+        "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
+        "ECHAUST, K.; JUST, M. Value at risk estimation using the GARCH-EVT approach with optimal tail selection. Mathematics, v. 8, n. 1, 2020.",
+        "ALOUI, C.; MABROUK, S. Value-at-risk estimations of energy commodities via long-memory, asymmetry and fat-tailed GARCH models. Energy Policy, v. 38, n. 5, p. 2326-2339, 2010.",
+        "WEI, Y. et al. Forecasting the VaR of crude oil market: GARCH-MIDAS with extreme value theory. 2024.",
+        "KARMAKAR, M.; SHUKLA, G. K. Managing extreme risk in some major stock markets: an extreme value approach. International Review of Economics & Finance, v. 35, p. 1-25, 2015.",
+        "ALLEN, D. E. et al. Estimating and simulating value at risk with the GARCH-EVT approach. 2013.",
+        "BARONE-ADESI, G.; GIANNOPOULOS, K.; VOSPER, L. VaR without correlations for portfolios of derivative securities. Journal of Futures Markets, v. 19, n. 5, p. 583-602, 1999.",
+        "GIANNOPOULOS, K.; TUNARU, R. Coherent risk measures under filtered historical simulation. Journal of Banking & Finance, v. 29, n. 4, p. 979-996, 2005.",
+        "SALISU, A. A. et al. Modelling commodity price volatility with global economic policy uncertainty. 2023."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 3 ── */
+  {
+    id: "backtesting-var-es",
+    date: "Mai 2025",
+    tag: "Quantitativo",
+    title: "Validação de Modelos: Backtesting de VaR, ES e Métricas de Risco",
+    desc: "Um modelo de risco só vale o que sobrevive ao confronto com dados novos. Os testes de Kupiec, Christoffersen e Acerbi-Szekely, e por que a validação contínua é o tribunal que separa modelos confiáveis de exercícios acadêmicos.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Um modelo de risco pode parecer excelente dentro da amostra, mas revelar-se inútil, ou até perigoso, quando confrontado com dados novos. No mercado de commodities, onde choques estruturais são frequentes, a validação rigorosa não é um detalhe técnico: é o que separa modelos confiáveis de meros exercícios acadêmicos. Este artigo apresenta os testes de backtesting de VaR e Expected Shortfall e o protocolo de validação contínua." },
+      { type: "heading", content: "Por que backtesting é essencial em commodities" },
+      { type: "paragraph", content: "Séries de preços de petróleo, soja, boi gordo ou café apresentam clustering de volatilidade, assimetria, saltos e quebras estruturais (a pandemia de 2020, a guerra na Ucrânia em 2022, crises cambiais brasileiras). Um modelo que não é validado adequadamente pode subestimar o risco de forma sistemática, levando a alavancagem excessiva ou a hedges insuficientes. Os testes de backtesting avaliam duas dimensões principais: cobertura (o modelo acerta a frequência das violações?) e independência (as violações ocorrem de forma aleatória ou em clusters?)." },
+      { type: "heading", content: "Backtesting do VaR: testes clássicos" },
+      { type: "paragraph", content: "O teste de Kupiec (1995), de cobertura incondicional (Proportion of Failures), é o mais básico: compara a frequência observada de violações com a probabilidade esperada. Sob a hipótese nula, o número de violações segue uma distribuição binomial. Vantagem: simples e intuitivo. Limitação: ignora a dependência temporal das violações. Um modelo que acerta a frequência média, mas falha em clusters durante crises, passa no teste de Kupiec e falha na prática." },
+      { type: "paragraph", content: "O teste de Christoffersen (1998) supera essa limitação ao modelar as violações como uma cadeia de Markov de primeira ordem, testando simultaneamente cobertura condicional (a probabilidade de violação deve ser igual a alfa, independentemente do dia anterior) e independência (as violações não devem se agrupar). É um dos padrões mínimos exigidos em ambientes regulatórios." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Berkowitz (2001): transforma as previsões de VaR via integral de probabilidade e testa se seguem distribuição uniforme; avalia a calibração completa.",
+        "Christoffersen & Pelletier (2004): teste baseado em duração (tempo entre violações); o clustering indica falha no modelo de volatilidade.",
+        "Ziggel et al. (2014): testes mais potentes para detectar clustering de violações, relevante em commodities onde crises geram alta volatilidade prolongada."
+      ] } },
+      { type: "heading", content: "Backtesting do Expected Shortfall (ES)" },
+      { type: "paragraph", content: "Durante anos, o ES enfrentou críticas relacionadas à elicitabilidade (Gneiting, 2011): argumentava-se que não seria possível construir scores adequados para o seu backtesting. Essa limitação foi superada por Fissler & Ziegel (2016), que demonstraram que o ES é conjuntamente elicitável com o VaR. Acerbi & Szekely (2014) propuseram três testes não-paramétricos (Z1, Z2 e Z3), amplamente utilizados na indústria. O Z2, em particular, é considerado robusto e avalia não apenas a frequência, mas a magnitude das perdas quando ocorrem violações, exatamente o que o VaR deixa de capturar." },
+      { type: "heading", content: "Protocolo de backtesting no contexto brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Janela rolling de 250 a 1000 dias úteis para estimação, com avaliação out-of-sample.",
+        "Múltiplos níveis de confiança: 95%, 97,5% e 99% (o FRTB recomenda 97,5% para o ES).",
+        "Testes obrigatórios: Kupiec (cobertura incondicional), Christoffersen (cobertura condicional e independência), Acerbi-Szekely Z2 (para o ES) e testes de clustering (Ziggel ou baseados em duração).",
+        "Regra de reespecificação: se o modelo falhar em dois ou mais trimestres consecutivos a 5% de significância, deve-se reespecificá-lo (mudar a ordem do GARCH, incorporar variáveis macro, tratar quebras estruturais)."
+      ] } },
+      { type: "paragraph", content: "Exemplos reais: em períodos de forte alta de volatilidade, como o início da guerra na Ucrânia, modelos GARCH simples frequentemente falham no teste de Christoffersen por clustering de violações. Para boi gordo e etanol na B3, a elevada volatilidade de base exige atenção especial nos testes de independência: as violações tendem a se concentrar em janelas de safra ou de mudanças climáticas." },
+      { type: "heading", content: "Backtesting como processo contínuo" },
+      { type: "paragraph", content: "O backtesting não é um evento único, realizado na implantação do modelo. É um processo contínuo de monitoramento, que deve fazer parte da governança de risco diária. Modelos que passam consistentemente nos testes de Kupiec, Christoffersen e Acerbi-Szekely oferecem maior confiabilidade para a definição de limites de posição, o cálculo de margens e a comunicação com clientes do agronegócio. Este artigo fecha a tríade fundamental: medidas de risco, modelagem de cauda e validação." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "KUPIEC, P. H. Techniques for verifying the accuracy of risk measurement models. The Journal of Derivatives, v. 3, n. 2, p. 73-84, 1995.",
+        "CHRISTOFFERSEN, P. F. Evaluating interval forecasts. International Economic Review, v. 39, n. 4, p. 841-862, 1998.",
+        "BERKOWITZ, J. Testing density forecasts, with applications to risk management. Journal of Business & Economic Statistics, v. 19, n. 4, p. 465-474, 2001.",
+        "CHRISTOFFERSEN, P.; PELLETIER, D. Backtesting value-at-risk: a duration-based approach. Journal of Financial Econometrics, v. 2, n. 1, p. 84-108, 2004.",
+        "ZIGGEL, D. et al. A new set of improved value-at-risk backtests. Journal of Banking & Finance, v. 48, p. 29-41, 2014.",
+        "ACERBI, C.; SZEKELY, B. Backtesting expected shortfall. Risk Magazine, 2014.",
+        "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
+        "FISSLER, T.; ZIEGEL, J. F. Higher order elicitability and Osband's principle. The Annals of Statistics, v. 44, n. 4, p. 1680-1707, 2016."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 4 ── */
+  {
+    id: "previsao-volatilidade",
+    date: "Jul 2025",
+    tag: "Quantitativo",
+    title: "Previsão de Volatilidade: Do GARCH ao HAR-RV, Modelos com Saltos e Machine Learning em Commodities",
+    desc: "A volatilidade direciona hedging, dimensionamento de posições e precificação de opções. Do GARCH clássico ao HAR-RV e ao machine learning, com o ceticismo necessário sobre os ganhos de IA e a integração de dados locais brasileiros.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "15 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "A previsão de volatilidade é uma das tarefas mais críticas, e desafiadoras, das finanças quantitativas. Em commodities, a volatilidade não é apenas um insumo para o cálculo de VaR e ES: ela direciona decisões de hedging, dimensionamento de posições, precificação de opções e construção de estratégias sistemáticas. Este artigo percorre a evolução dos modelos, do GARCH ao HAR-RV e ao machine learning, com o ceticismo necessário." },
+      { type: "heading", content: "Família GARCH: o padrão clássico" },
+      { type: "bullet-list", content: "", data: { items: [
+        "GARCH(1,1) com distribuição Student-t ou GED frequentemente supera a versão gaussiana (Hung, Lee & Liu, 2008).",
+        "EGARCH(1,1) destaca-se em horizontes médios pela capacidade de modelar o leverage effect, comum em petróleo e grãos (Lux, Segnon & Gupta, 2018).",
+        "FIAPARCH e FIGARCH são recomendados quando há longa memória na volatilidade.",
+        "GARCH-MIDAS (Engle et al.) incorpora variáveis macroeconômicas de baixa frequência, melhorando previsões em horizontes semanais ou mensais (Wei et al., 2024; Salisu et al., 2023)."
+      ] } },
+      { type: "paragraph", content: "Estudos comparativos em petróleo (Lux, Segnon & Gupta, 2018) mostram que RiskMetrics e GARCH(1,1) competem bem em horizontes curtos, enquanto o EGARCH domina no médio prazo. Modelos Markov-Switching GARCH apresentam bom ajuste in-sample, mas ganhos out-of-sample mais limitados (Wang, Wu & Yang, 2016)." },
+      { type: "heading", content: "HAR-RV: o benchmark moderno (Corsi, 2009)" },
+      { type: "paragraph", content: "O Heterogeneous AutoRegressive model of Realized Volatility (HAR-RV), proposto por Corsi (2009), revolucionou a previsão de volatilidade ao explorar dados intradiários. O modelo decompõe a volatilidade realizada em componentes de diferentes horizontes: diária (1 dia), semanal (5 dias) e mensal (22 dias). A equação básica é estimada por OLS:" },
+      { type: "equation", content: "RV_{t+1}^{(d)} = \\beta_0 + \\beta_1 RV_t^{(d)} + \\beta_2 RV_t^{(w)} + \\beta_3 RV_t^{(m)} + \\epsilon_{t+1}" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Haugom et al. e Ma et al. (2017): HAR-RV supera GARCH em WTI e Brent com dados de 5 minutos.",
+        "Wang & Lu (2024), em cobre COMEX: HAR-RV apresenta o menor erro QLIKE entre GARCH, RNN, LSTM e GRU em frequência diária.",
+        "Variantes como HAR-RV-J (saltos), HAR-CJ e HARQ (Bollerslev, Patton & Quaedvlieg, 2016) melhoram o desempenho.",
+        "REGARCH-Jump (Lu, Ma & Wang, 2025) mostra resultados promissores em futuros de Brent."
+      ] } },
+      { type: "heading", content: "Machine learning na previsão de volatilidade" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Sen & Choudhury (2023): PSO-GRU alcançou RMSE de 1,23 e R² de 99,39% em previsão de WTI out-of-sample.",
+        "Jabeur et al. (2024): LightGBM supera modelos recorrentes em sequências curtas; LSTM, BiLSTM e GRU em sequências longas.",
+        "Bouri et al. (2023): Reservoir Computing supera LSTM com menor custo computacional.",
+        "Estudo em energia (arXiv 2405.19849, 2024): o ML supera o GARCH univariado em MSE e MAE, mas com viés oposto, sugerindo abordagens híbridas."
+      ] } },
+      { type: "callout", content: "Goyal, Welch e Zafirov (2024) alertam que muitos ganhos de ML desaparecem após custos de transação realistas e são sensíveis à janela de estimação. O overfitting é um risco elevado em modelos com muitos parâmetros." },
+      { type: "heading", content: "Implicações práticas por frequência de dados" },
+      { type: "table", content: "", data: {
+        headers: ["Frequência", "Modelo recomendado", "Observações"],
+        rows: [
+          ["Diária", "HAR-RV ou EGARCH(1,1)-t", "HAR geralmente domina"],
+          ["Intradiária (5-15 min)", "HAR-RV-J, LSTM/GRU, Reservoir Computing", "Deep learning ganha força"],
+          ["Semanal/Mensal", "GARCH-MIDAS com variáveis macro", "Incorpora GEPU, clima, PTAX"],
+          ["Híbrido", "Ensemble HAR + LightGBM/LSTM", "Melhor tradeoff atual"]
+        ]
+      } },
+      { type: "heading", content: "Aplicações no contexto brasileiro" },
+      { type: "paragraph", content: "Para o agronegócio brasileiro, a previsão de volatilidade deve incorporar fatores locais: sazonalidade agrícola (safra e entressafra), variáveis macroeconômicas (PTAX, inflação, política monetária), indicadores da CEPEA e da CONAB, e o risco de base entre preços físicos e futuros da B3. Para boi gordo, etanol e açúcar, onde a efetividade de hedge direto é baixa, uma boa previsão de volatilidade é essencial para estratégias de basis trading e cross-hedge." },
+      { type: "paragraph", content: "Para o quant brasileiro, o diferencial não está necessariamente na maior sofisticação, mas na integração inteligente de dados locais e no rigor da validação out-of-sample. Uma previsão de volatilidade confiável serve de base para todos os pilares seguintes: hedging eficaz, otimização de portfólio e estratégias sistemáticas de retorno." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "CORSI, F. A simple approximate long-memory model of realized volatility. Journal of Financial Econometrics, v. 7, n. 2, p. 174-196, 2009.",
+        "LUX, T.; SEGNON, M.; GUPTA, R. Forecasting crude oil price volatility and value-at-risk: evidence from historical and recent data. Energy Economics, v. 56, p. 117-133, 2016.",
+        "BOLLERSLEV, T.; PATTON, A. J.; QUAEDVLIEG, R. Exploiting the errors: a simple approach for improved volatility forecasting. Journal of Econometrics, v. 192, n. 1, p. 1-18, 2016.",
+        "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
+        "SEN, J.; CHOUDHURY, S. PSO-GRU forecasting of crude oil. 2023.",
+        "JABEUR, S. B. et al. Forecasting commodity prices with machine learning. 2024.",
+        "GOYAL, A.; WELCH, I.; ZAFIROV, A. A comprehensive 2022 look at the empirical performance of equity premium prediction. The Review of Financial Studies, 2024.",
+        "WANG, Y.; WU, C.; YANG, L. Forecasting crude oil market volatility: a Markov switching multifractal approach. 2016."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 5 ── */
+  {
+    id: "hedging-commodities-b3",
+    date: "Set 2025",
+    tag: "Risco e Hedge",
+    title: "Hedging de Commodities: Teoria Internacional e a Realidade Brasileira na B3",
+    desc: "Nem todo hedge é igualmente eficaz. A razão ótima de Ederington, o debate OLS vs dinâmico, e a verdade incômoda das commodities brasileiras: soja e café protegem bem na B3, boi e açúcar quase não. A fundamentação da mesa de risco.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "16 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "O hedging é uma das aplicações mais práticas das finanças quantitativas no agronegócio. Para produtores, tradings, indústrias processadoras e fundos, reduzir a exposição à volatilidade de preços de soja, café, boi gordo, milho, açúcar e etanol é essencial. No entanto, a literatura revela uma verdade desconfortável: nem todo hedge é igualmente eficaz, especialmente nos mercados brasileiros." },
+      { type: "heading", content: "Fundamentos teóricos do hedging" },
+      { type: "paragraph", content: "O marco clássico é o minimum-variance hedge ratio, proposto por Ederington (1979). A razão ótima de hedge (h*) minimiza a variância do portfólio protegido:" },
+      { type: "equation", content: "h^* = \\frac{\\text{Cov}(S, F)}{\\text{Var}(F)}" },
+      { type: "paragraph", content: "onde S é o preço spot e F o preço do futuro. Essa razão é facilmente estimada por regressão OLS. Embora intuitivo, o modelo estático OLS assume que a relação spot-futuro é constante ao longo do tempo, hipótese frequentemente violada em commodities. Surgiram então modelos dinâmicos baseados em GARCH multivariado (BEKK, DCC, GO-GARCH), que permitem razões de hedge tempo-variantes." },
+      { type: "heading", content: "Debate OLS vs. dinâmico" },
+      { type: "paragraph", content: "Lien (2005) demonstrou que a métrica de efetividade de Ederington (R²) é viesada a favor do OLS. Diversos estudos empíricos (Wang, Wu & Yang, 2015; Lee & Yoder, 2011; Su & Wu, 2014) confirmam que, na maioria dos casos, o OLS estático iguala ou supera modelos GARCH dinâmicos na redução de variância out-of-sample. O ganho marginal dos modelos dinâmicos costuma ficar entre 0% e 2%. Quando o objetivo muda para a minimização de risco de cauda (CVaR ou VaR), modelos como DCC-GARCH e copula-DCC ganham relevância (Wang, Wu & Yang, 2015; Cotter & Hanly, 2012)." },
+      { type: "heading", content: "A realidade brasileira: evidências da B3" },
+      { type: "table", content: "", data: {
+        headers: ["Commodity", "Modelo", "Razão ótima (h*)", "Efetividade (R²)", "Fonte"],
+        rows: [
+          ["Soja (PR)", "OLS", "—", "69,21%", "Jesus et al. (2021)"],
+          ["Soja (PR)", "BEKK-GARCH", "0,26", "22,80%", "Jesus et al. (2021)"],
+          ["Café Arábica", "OLS", "—", "45,85%", "Jesus et al. (2021)"],
+          ["Café Arábica", "BEKK-GARCH", "0,61", "47,80%", "Jesus et al. (2021)"],
+          ["Soja (MT)", "OLS", "0,499", "18,80%", "Souza et al. (2009)"],
+          ["Boi Gordo", "OLS", "—", "0,31%", "Jesus et al. (2021)"],
+          ["Boi Gordo", "BEKK-GARCH", "0,02", "0,06%", "Jesus et al. (2021)"],
+          ["Açúcar Cristal", "OLS", "—", "1,50%", "Jesus et al. (2021)"],
+          ["Etanol Hidratado", "OLS", "—", "14,54%", "Jesus et al. (2021)"],
+          ["Milho", "OLS", "—", "5,60%", "Jesus et al. (2021)"]
+        ]
+      } },
+      { type: "bullet-list", content: "", data: { items: [
+        "Soja (especialmente Paraná) e Café Arábica apresentam hedge interno útil na B3, com redução de variância entre 45% e 70%.",
+        "Boi Gordo, Açúcar, Etanol e Milho exibem risco de base elevado, com efetividade muito baixa (frequentemente abaixo de 10% a 15%): o futuro da B3 não acompanha bem o preço físico regional.",
+        "O own-hedge na B3 para o complexo soja geralmente supera o cross-hedge com a CBOT (Silva, Aguiar & Lima, 2003).",
+        "O tratamento de quebras estruturais (Zivot-Andrews, Bai-Perron) é crítico. Sem ele, a efetividade aparece artificialmente baixa."
+      ] } },
+      { type: "heading", content: "Recomendações práticas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Sempre comece com OLS estático: é simples, robusto e frequentemente competitivo.",
+        "Para tail-risk: use DCC-GARCH ou copula-DCC quando o foco for CVaR/ES.",
+        "Para commodities com baixa efetividade na B3: cross-hedge com contratos internacionais (Live Cattle, Sugar #11, Ethanol Platts), estratégias combinadas de basis trading e modelos com múltiplos instrumentos.",
+        "Incorpore variáveis locais: preços físicos CEPEA, logística (Paranaguá), câmbio (PTAX) e calendário agrícola.",
+        "Monitore a efetividade continuamente, usando janelas rolling, e reporte tanto a redução de variância quanto a redução de CVaR ao cliente."
+      ] } },
+      { type: "heading", content: "O diferencial brasileiro" },
+      { type: "paragraph", content: "A literatura internacional sugere que hedges dinâmicos sofisticados nem sempre justificam sua complexidade. No Brasil, o maior ganho não virá necessariamente de modelos mais elaborados, mas de: melhor compreensão e modelagem do risco de base, integração de dados locais de alta qualidade (CEPEA, B3, CONAB) e adaptação ao calendário agrícola e às políticas públicas. Dominar o hedging real das commodities locais representa não apenas uma ferramenta de gestão de risco, mas uma vantagem competitiva concreta no mercado." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "EDERINGTON, L. H. The hedging performance of the new futures markets. The Journal of Finance, v. 34, n. 1, p. 157-170, 1979.",
+        "LIEN, D. The use and abuse of the hedging effectiveness measure. International Review of Financial Analysis, v. 14, n. 2, p. 277-282, 2005.",
+        "WANG, Y.; WU, C.; YANG, L. Hedging with futures: does anything beat the naïve hedging strategy? Management Science, v. 61, n. 12, p. 2870-2889, 2015.",
+        "COTTER, J.; HANLY, J. Reevaluating hedging performance for asymmetry: the case of crude oil. 2006.",
+        "JESUS, D. P. de; OLIVEIRA, A. F. de; MAIA, S. F. Hedge de commodities agropecuárias na B3. 2021.",
+        "SOUZA, W. A. R. de et al. Efetividade de hedge da soja em Mato Grosso. 2009.",
+        "SILVA, A. R. O. da; AGUIAR, D. R. D.; LIMA, J. E. de. Hedging com contratos futuros no complexo soja. 2003.",
+        "LEE, H.-T.; YODER, J. A bivariate Markov regime switching GARCH approach to estimate time-varying minimum variance hedge ratios. Applied Economics, 2011."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 6 ── */
+  {
+    id: "risco-sistemico-copulas",
+    date: "Nov 2025",
+    tag: "Quantitativo",
+    title: "Risco Sistêmico, Copulas e Dependência entre Ativos em Mercados de Commodities",
+    desc: "Um choque no petróleo se propaga para soja, milho, frete e câmbio. Por que a correlação linear engana nas crises, como as copulas capturam a dependência de cauda, e o CoVaR como medida de risco sistêmico.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "14 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Em um mundo cada vez mais interconectado, o risco de um ativo raramente está isolado. Um choque no preço do petróleo pode rapidamente se propagar para soja, milho, frete e câmbio, ampliando perdas em portfólios aparentemente diversificados. A modelagem adequada dessa dependência, especialmente nas caudas da distribuição, é fundamental para quem atua com commodities, seja no agronegócio brasileiro ou em estratégias quantitativas globais." },
+      { type: "heading", content: "Limitações da correlação linear e a ascensão das copulas" },
+      { type: "paragraph", content: "A correlação de Pearson mede apenas dependência linear e assume normalidade, características que raramente se sustentam em mercados financeiros. Durante crises, a dependência tende a aumentar, especialmente na cauda inferior, fenômeno conhecido como tail dependence. As copulas resolvem esse problema separando a estrutura de dependência das distribuições marginais individuais. O teorema de Sklar garante que qualquer distribuição multivariada pode ser decomposta em suas margens e uma copula que descreve a dependência." },
+      { type: "heading", content: "Principais famílias de copulas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Gaussian Copula: dependência simétrica, sem tail dependence forte.",
+        "Student-t Copula: permite tail dependence simétrica.",
+        "Archimedean (Clayton, Gumbel, Frank): capturam dependência assimétrica (Clayton forte na cauda inferior, Gumbel na superior).",
+        "Vine Copulas (Aas et al., 2009; Brechmann & Czado, 2013): modelam dependências complexas em alta dimensão via árvores de pair-copulas; C-vine e R-vine são as estruturas mais comuns."
+      ] } },
+      { type: "heading", content: "Evidências empíricas em commodities" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Reboredo (2011, 2013): copulas tempo-variantes entre WTI, Brent e Maya identificam tail dependence positiva, especialmente em altas.",
+        "Aloui, Aïssa & Nguyen (2013): copulas dinâmicas entre petróleo e mercados BRICS mostram dependência forte de cauda inferior durante crises.",
+        "Rezitis, Kousoulis & Moffatt (2024): spillover assimétrico forte de petróleo para agrícolas (trigo, milho, soja) na COVID-19 e na guerra de 2022, com GJR-GARCH e GAS-copulas.",
+        "Ji et al. (2021): dependence-switching copulas com CoVaR confirmam risco sistêmico do petróleo para agrícolas em períodos de estresse.",
+        "Pramanik (2025): vine copulas em ouro-prata-WTI-gás natural destacam o papel de safe-haven do ouro."
+      ] } },
+      { type: "paragraph", content: "Em portfólios brasileiros, a dependência entre BRL/USD, Ibovespa, ICB (Índice de Commodities Brasileiras) e preços agrícolas exige atenção especial, conforme Pinheiro & Fernandes (2020)." },
+      { type: "heading", content: "Medidas de risco sistêmico" },
+      { type: "paragraph", content: "CoVaR e ΔCoVaR (Adrian & Brunnermeier, 2016) são as medidas canônicas de risco sistêmico. O CoVaR representa o VaR de um ativo condicional ao fato de outro ativo (ou o sistema) estar em distress. O ΔCoVaR quantifica a contribuição marginal de um ativo ao risco sistêmico. Combinadas com copulas tempo-variantes ou DCC, essas medidas permitem quantificar quanto o risco de uma posição em soja aumenta quando o petróleo entra em crise." },
+      { type: "heading", content: "Aplicações práticas para o quant brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Gestão de portfólio agro: modelar a dependência entre soja, milho, boi gordo e variáveis macro (dólar, energia), identificando períodos de contágio para ajustar hedges dinamicamente.",
+        "Risk management institucional: calcular VaR/ES de portfólio via Monte Carlo com copulas (margens via GARCH-EVT). Vine copulas são úteis para portfólios com mais de 4 ou 5 ativos.",
+        "Estratégias de trading: detectar regimes de dependência alta para reduzir exposição ou explorar assimetrias."
+      ] } },
+      { type: "heading", content: "Limitações e cuidados" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Copulas estáticas falham em capturar mudanças de regime; prefira versões tempo-variantes (DCC, GAS, regime-switching).",
+        "Estimação em alta dimensão é computacionalmente custosa (vine copulas ajudam, mas exigem cuidado).",
+        "Dependência extrema é rara por definição; backtesting em períodos de crise (2008, 2020, 2022) é obrigatório.",
+        "No Brasil, a disponibilidade de séries longas e limpas ainda é um desafio; dados CEPEA e B3 exigem tratamento rigoroso de quebras estruturais."
+      ] } },
+      { type: "paragraph", content: "A modelagem de dependência via copulas e a quantificação de risco sistêmico (CoVaR) representam o estado da arte para entender como choques se propagam entre energia, agrícolas, câmbio e mercados financeiros. Para o profissional brasileiro, dominar essas ferramentas é essencial para construir portfólios resilientes em um país onde as commodities respondem por parcela significativa da economia e das exportações." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "AAS, K.; CZADO, C.; FRIGESSI, A.; BAKKEN, H. Pair-copula constructions of multiple dependence. Insurance: Mathematics and Economics, v. 44, n. 2, p. 182-198, 2009.",
+        "BRECHMANN, E. C.; CZADO, C. Risk management with high-dimensional vine copulas. Statistics & Risk Modeling, v. 30, n. 4, p. 307-342, 2013.",
+        "REBOREDO, J. C. How do crude oil prices co-move? A copula approach. Energy Economics, v. 33, n. 5, p. 948-955, 2011.",
+        "ALOUI, R.; AÏSSA, M. S. B.; NGUYEN, D. K. Conditional dependence structure between oil prices and exchange rates: a copula-GARCH approach. Journal of International Money and Finance, v. 32, p. 719-738, 2013.",
+        "REZITIS, A. N.; KOUSOULIS, P.; MOFFATT, P. G. Spillovers between oil and agricultural commodities. 2024.",
+        "JI, Q.; LIU, B.-Y.; ZHAO, W.-L.; FAN, Y. Modelling dynamic dependence and risk spillover between oil and agricultural markets. 2021.",
+        "PRAMANIK, P. Vine copula dependence among gold, silver, crude oil and natural gas. 2025.",
+        "ADRIAN, T.; BRUNNERMEIER, M. K. CoVaR. American Economic Review, v. 106, n. 7, p. 1705-1741, 2016.",
+        "PINHEIRO; FERNANDES. Comparação de modelos de VaR para o mercado brasileiro. 2020."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 7 ── */
+  {
+    id: "otimizacao-portfolios-estrategias",
+    date: "Dez 2025",
+    tag: "Risco e Hedge",
+    title: "Otimização de Portfólios e Estratégias Sistemáticas em Commodities: Além do Mean-Variance",
+    desc: "Por que Markowitz clássico é frágil, e o que o substitui: risk parity, otimização por CVaR, Black-Litterman. E os prêmios sistemáticos documentados em commodities: momentum, carry e estratégias de curva. A arquitetura quant completa.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "17 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "A otimização de portfólios e a busca por retornos sistemáticos representam o ápice da aplicação prática das finanças quantitativas. Após dominar medidas de risco, modelagem de caudas, previsão de volatilidade, hedging e dependência entre ativos, o próximo passo é construir alocações robustas e estratégias que gerem alpha de forma disciplinada em mercados de commodities." },
+      { type: "heading", content: "Limitações do modelo clássico mean-variance" },
+      { type: "paragraph", content: "Markowitz (1952) revolucionou a teoria moderna de portfólios, mas o framework clássico sofre de problemas práticos bem conhecidos: sensibilidade extrema a erros de estimativa de retornos esperados (Michaud, 1989, a chamada error maximization), instabilidade nos pesos alocados, e tratamento inadequado de risco de cauda, drawdowns e distribuições não-normais, características dominantes em commodities." },
+      { type: "heading", content: "Risk Parity / Equal Risk Contribution" },
+      { type: "paragraph", content: "Proposto por Maillard, Roncalli e Teiletche (2010), o Risk Parity aloca o capital de forma que cada ativo contribua igualmente para o risco total do portfólio. Não requer estimativa de retornos esperados, o que o torna particularmente robusto. Em commodities, trata melhor ativos com volatilidades e correlações heterogêneas (petróleo vs. ouro vs. soja) e posiciona-se naturalmente entre minimum-variance e equally-weighted. Foi popularizado comercialmente pelo Bridgewater All Weather; Roncalli (2013) consolidou o framework teórico e prático." },
+      { type: "heading", content: "Otimização via CVaR e CDaR" },
+      { type: "paragraph", content: "A otimização por CVaR (Rockafellar & Uryasev, 2000, 2002) reformula o problema como programação linear, escalando bem para grandes universos; é ideal quando o investidor prioriza o controle de perdas extremas. O Conditional Drawdown-at-Risk (Chekhlov, Uryasev & Zabarankin, 2003, 2005) foca em drawdowns sequenciais, especialmente relevante para estratégias trend-following e fundos de pensão. Pacotes como Riskfolio-Lib (Python) e PortfolioAnalytics (R) implementam essas otimizações." },
+      { type: "heading", content: "Otimização robusta e Black-Litterman" },
+      { type: "paragraph", content: "A otimização robusta (Goldfarb & Iyengar, 2003) considera conjuntos de incerteza para os parâmetros, mitigando o impacto de erros de estimação. O modelo Black-Litterman (1992) combina as views do investidor com um prior de equilíbrio de mercado via abordagem bayesiana, excelente para incorporar visões macro sobre commodities brasileiras (safra recorde, impacto do dólar)." },
+      { type: "heading", content: "Estratégias sistemáticas de retorno" },
+      { type: "paragraph", content: "Além da alocação otimizada, existem prêmios sistemáticos bem documentados. Time-Series Momentum: Moskowitz, Ooi e Pedersen (2012) analisaram 58 contratos de futuros e encontraram momentum positivo em 52, com alpha de aproximadamente 1,27% ao mês (1985 a 2009) e evidência robusta por mais de 100 anos (Hurst, Ooi & Pedersen, 2017). Carry: Koijen, Moskowitz, Pedersen e Vrugt (2018) mostram Sharpe médio de 0,8 por classe de ativo, chegando a 1,2 em portfólios diversificados; em commodities, o carry é extraído da estrutura a termo (contango/backwardation)." },
+      { type: "paragraph", content: "Estratégias de curva: Bianchi, Fan, Miffre e Zhang (2023) demonstraram que slope e butterfly em 21 commodities geram Sharpes out-of-sample de 1,41 e 1,27, robustos a custos de transação. Combinações multi-fator: Asness, Moskowitz e Pedersen (2013) mostraram que value e momentum funcionam consistentemente entre classes de ativos, incluindo commodities; portfólios que combinam momentum, carry e value tendem a apresentar Sharpe superior e drawdowns mais controlados." },
+      { type: "heading", content: "Aplicações e implementação no contexto brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Combinar commodities locais (soja, café, boi via B3) com internacionais (WTI, Brent, cobre, ouro).",
+        "Incorporar views locais via Black-Litterman (política agrícola, câmbio, clima).",
+        "Usar Risk Parity como base e CVaR/CDaR como overlay de controle de risco de cauda.",
+        "Aplicar TSMOM e Carry em contratos líquidos, com volatility scaling e atenção a custos de rolagem e liquidez.",
+        "Aplicar haircuts conservadores (30% a 50%) em Sharpes históricos, para levar em conta custos reais e overfitting."
+      ] } },
+      { type: "callout", content: "A jornada quantitativa em commodities culmina na integração de todas as peças: medidas coerentes de risco, modelagem de caudas, validação rigorosa, previsão de volatilidade, hedging eficaz, modelagem de dependências e, por fim, otimização robusta e estratégias sistemáticas." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "MARKOWITZ, H. Portfolio selection. The Journal of Finance, v. 7, n. 1, p. 77-91, 1952.",
+        "MICHAUD, R. O. The Markowitz optimization enigma: is optimized optimal? Financial Analysts Journal, v. 45, n. 1, p. 31-42, 1989.",
+        "MAILLARD, S.; RONCALLI, T.; TEILETCHE, J. The properties of equally weighted risk contribution portfolios. The Journal of Portfolio Management, v. 36, n. 4, p. 60-70, 2010.",
+        "RONCALLI, T. Introduction to Risk Parity and Budgeting. Chapman & Hall/CRC, 2013.",
+        "ROCKAFELLAR, R. T.; URYASEV, S. Optimization of conditional value-at-risk. Journal of Risk, v. 2, n. 3, p. 21-41, 2000.",
+        "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Drawdown measure in portfolio optimization. International Journal of Theoretical and Applied Finance, v. 8, n. 1, p. 13-58, 2005.",
+        "GOLDFARB, D.; IYENGAR, G. Robust portfolio selection problems. Mathematics of Operations Research, v. 28, n. 1, p. 1-38, 2003.",
+        "BLACK, F.; LITTERMAN, R. Global portfolio optimization. Financial Analysts Journal, v. 48, n. 5, p. 28-43, 1992.",
+        "MOSKOWITZ, T. J.; OOI, Y. H.; PEDERSEN, L. H. Time series momentum. Journal of Financial Economics, v. 104, n. 2, p. 228-250, 2012.",
+        "HURST, B.; OOI, Y. H.; PEDERSEN, L. H. A century of evidence on trend-following investing. The Journal of Portfolio Management, v. 44, n. 1, p. 15-29, 2017.",
+        "KOIJEN, R. S. J.; MOSKOWITZ, T. J.; PEDERSEN, L. H.; VRUGT, E. B. Carry. Journal of Financial Economics, v. 127, n. 2, p. 197-225, 2018.",
+        "BIANCHI, R. J.; FAN, J. H.; MIFFRE, J.; ZHANG, T. Exploiting the term structure of commodity futures. 2023.",
+        "ASNESS, C. S.; MOSKOWITZ, T. J.; PEDERSEN, L. H. Value and momentum everywhere. The Journal of Finance, v. 68, n. 3, p. 929-985, 2013."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 11 (Geopolítica/BRICS) ── */
+  {
+    id: "geopolitica-brics-hard-assets",
+    date: "Jan 2026",
+    tag: "Macro",
+    title: "Geopolítica, BRICS e o Futuro da Economia Baseada em Hard Assets no Brasil",
+    desc: "Em um mundo multipolar, os hard assets brasileiros (terras, commodities, minérios críticos, água e energia) ganham peso como âncora de estabilidade. Uma análise da posição estratégica do Brasil.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil ocupa uma posição estratégica singular na economia global: detentor de vastos recursos naturais, produção agrícola líder mundial e localização atlântica privilegiada. Em um mundo marcado por tensões geopolíticas, desdolarização gradual e busca por segurança em ativos reais, os hard assets brasileiros ganham relevância crescente como âncora de estabilidade e crescimento." },
+      { type: "heading", content: "O contexto geopolítico atual e a relevância dos hard assets" },
+      { type: "paragraph", content: "A multipolaridade tem acelerado a busca por alternativas ao sistema centrado no dólar. Países do BRICS ampliam o comércio em moedas locais, desenvolvem sistemas de pagamento alternativos e priorizam segurança alimentar e energética. Disrupções em rotas críticas (Ormuz, Suez, Mar Vermelho) reforçam uma vantagem logística brasileira: exportações pelo Atlântico, sem passagem por chokepoints." },
+      { type: "paragraph", content: "O Brasil se destaca por alguns atributos estruturais: cerca de 12% da água doce renovável mundial, com baixo uso atual para irrigação; produção agrícola que permite duas safras anuais em grande escala; reservas de minérios críticos (nióbio, ferro de alta qualidade, cobre, bauxita); e uma matriz elétrica majoritariamente renovável (em torno de 88%). Esses atributos não dependem de ciclos eleitorais ou reformas passageiras: são ativos físicos permanentes." },
+      { type: "heading", content: "BRICS e a multilateralidade dos recursos brasileiros" },
+      { type: "paragraph", content: "No âmbito do BRICS, o Brasil pode se consolidar como um polo de hard assets. A expansão do grupo tende a fortalecer a demanda por commodities brasileiras por parte de China, Índia e novos membros. Acordos comerciais (como o Mercosul-União Europeia) e projetos de infraestrutura ampliam a capacidade exportadora. Os minérios críticos ganham destaque na transição energética: o nióbio brasileiro é essencial para ligas de alta resistência, e o ferro de Carajás compete em qualidade mundial." },
+      { type: "heading", content: "Risco, volatilidade e modelos quantitativos" },
+      { type: "paragraph", content: "A geopolítica introduz novas camadas de risco que demandam ferramentas quantitativas. Para a volatilidade, modelos HAR-RV com dados intradiários capturam melhor os choques de oferta do que o GARCH tradicional. Para o risco de cauda, GARCH-EVT e extensões assimétricas melhoram a previsão de VaR e ES em períodos de tensão. Para o hedging, DCC-GARCH e copulas modelam a dependência entre commodities brasileiras, o dólar e variáveis globais. E na otimização de portfólio, risk parity e CVaR incorporam a exposição a hard assets como diversificador. A literatura (Lux, Segnon & Gupta, 2018; Wang & Lu, 2024) reforça a superioridade de abordagens híbridas sob estresse." },
+      { type: "heading", content: "Perspectivas para uma economia baseada em hard assets" },
+      { type: "paragraph", content: "Entre as prioridades que a análise sugere: consolidação produtiva via escala e tecnologia; infraestrutura logística (ferrovias Norte-Sul, Arco Norte); fortalecimento de cadeias de valor em minérios críticos e bioeconomia; e posicionamento como fornecedor confiável em um mundo fragmentado. Hard assets não são apenas commodities: são a base material de soberania e prosperidade em um cenário multipolar incerto. O Brasil reúne as condições físicas para ter papel de destaque nessa transição, desde que combine políticas de longo prazo, investimentos em infraestrutura e integração com parceiros globais." },
+      { type: "paragraph", content: "Fontes: dados sobre recursos hídricos, matriz elétrica e produção agrícola (fontes oficiais brasileiras); e literatura quantitativa sobre volatilidade de commodities." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 12 (Clima/Commodities) ── */
+  {
+    id: "clima-resiliencia-commodities",
+    date: "Fev 2026",
+    tag: "Geopolítica de Commodities",
+    title: "Mudanças Climáticas, Resiliência Agrícola e o Papel Estratégico das Commodities Brasileiras",
+    desc: "As mudanças climáticas são um fator geopolítico de primeira ordem. Secas e enchentes elevam o valor estratégico de países com água abundante e escala produtiva. A posição do Brasil na segurança alimentar global.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "As mudanças climáticas não são apenas um desafio ambiental: são um fator geopolítico de primeira ordem. Secas prolongadas, ondas de calor, enchentes extremas e alterações nos padrões de precipitação já impactam a produção agrícola mundial, elevando o valor estratégico de países com recursos hídricos abundantes, solos adaptáveis e escala produtiva, como o Brasil." },
+      { type: "heading", content: "Vulnerabilidades e vantagens climáticas do Brasil" },
+      { type: "paragraph", content: "O Brasil possui aproximadamente 12% da água doce renovável do planeta, mas utiliza menos de 2% para irrigação. Essa reserva representa uma vantagem competitiva crescente em um mundo onde a escassez hídrica afeta grandes produtores tradicionais (Califórnia, Índia, partes da China e da Europa). Estudos do IPCC e da EMBRAPA indicam que, com manejo adequado, o Cerrado e as regiões do MATOPIBA possuem potencial significativo de expansão sobre pastagens degradadas, sem necessidade de desmatamento primário." },
+      { type: "paragraph", content: "Por outro lado, eventos extremos já causam perdas expressivas: enchentes no Sul, secas no Centro-Oeste e impactos na Amazônia afetam safras, infraestrutura e cadeias logísticas. A resiliência não depende apenas de sorte geográfica, mas de investimento em adaptação: irrigação eficiente, genética tropical, sistemas de alerta e diversificação produtiva." },
+      { type: "heading", content: "Commodities brasileiras como ativo geopolítico" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Soja, milho e grãos: o Brasil é uma alternativa confiável à produção norte-americana e ucraniana, especialmente para China e Ásia.",
+        "Proteína animal (boi, frango, suíno): as exportações respondem por fatia relevante do suprimento global, com potencial de crescimento em mercados do BRICS e de países muçulmanos.",
+        "Minérios críticos: nióbio, ferro de alta qualidade, cobre e terras raras, essenciais para defesa, energia limpa e tecnologia.",
+        "Bioenergia: etanol e biodiesel posicionam o Brasil como protagonista na descarbonização."
+      ] } },
+      { type: "paragraph", content: "A dinâmica de friendshoring, a realocação de cadeias de suprimento para parceiros mais estáveis, tende a favorecer o Brasil, dada sua posição atlântica e sua estabilidade como fornecedor." },
+      { type: "heading", content: "Risco climático e dependência geopolítica" },
+      { type: "paragraph", content: "A interseção entre clima e geopolítica exige novas abordagens de análise. Secas na Argentina ou na Ucrânia elevam o prêmio da produção brasileira estável. Disrupções em outras regiões (Mar Negro, Oriente Médio) redirecionam a demanda para exportadores atlânticos. E a transição energética cria demanda de longo prazo por cobre, lítio e níquel. Países com resource power (poder baseado em recursos), como Brasil, Austrália e Canadá, tendem a ganhar influência relativa em um mundo fragmentado." },
+      { type: "heading", content: "Estratégias de resiliência e posicionamento" },
+      { type: "paragraph", content: "Para transformar a vulnerabilidade climática em vantagem estratégica, entre as prioridades: investimentos em irrigação e manejo de solo; diversificação de mercados exportadores; infraestrutura logística resiliente (ferrovias, portos do Arco Norte); parcerias multilaterais para pesquisa climática aplicada à agricultura tropical; e desenvolvimento de uma bioeconomia amazônica sustentável. O futuro das commodities brasileiras não será definido apenas pelo volume produzido, mas pela capacidade de oferecer fornecimento confiável em um mundo cada vez mais instável, climática e geopoliticamente." },
+      { type: "paragraph", content: "Fontes: relatórios do IPCC e da EMBRAPA sobre clima e agricultura tropical; e dados oficiais brasileiros sobre recursos hídricos e produção agrícola." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 14 (Hard Assets/Hub) ── */
+  {
+    id: "hard-assets-hub-global",
+    date: "Mar 2026",
+    tag: "Macro",
+    title: "Hard Assets na Economia do Futuro: Brasil como Hub Global de Recursos Reais",
+    desc: "Terras, commodities, minérios críticos, água e energia renovável reassumem papel central como base material de riqueza e influência. Por que o Brasil tem condições de ser um dos principais hubs mundiais de hard assets.",
+    author: "AETERNUM MACRO RESEARCH",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Em meio à fragmentação geopolítica, à instabilidade monetária e à transição climática, os hard assets (terras agrícolas, commodities, minérios críticos, água doce e energia renovável) reassumem um papel central como base material de riqueza, segurança e influência global. O Brasil, por sua dotação natural excepcional, tem condições de se consolidar como um dos principais hubs mundiais desses ativos." },
+      { type: "heading", content: "Por que os hard assets ganham relevância estratégica" },
+      { type: "paragraph", content: "A economia global enfrenta três grandes pressões simultâneas. A geopolítica, com tensões entre blocos, sanções e friendshoring, eleva o valor de fornecedores confiáveis e rotas seguras. A climática, com escassez hídrica e eventos extremos, reduz a confiabilidade da produção em várias regiões. E a monetária, com dívida pública elevada e questionamentos sobre reservas fiduciárias, aumenta a preferência por ativos tangíveis. Nesse cenário, países com abundância de recursos físicos ganham poder relativo. O Brasil combina escala, diversidade e posição geográfica privilegiada (costa atlântica sem chokepoints)." },
+      { type: "heading", content: "Vantagens competitivas brasileiras" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Agricultura: líder mundial em soja, café, açúcar, etanol, carne bovina e frango, com capacidade de dupla safra e potencial de expansão sobre pastagens degradadas.",
+        "Minérios críticos: maior produtor de nióbio, grande produtor de ferro de alta qualidade, cobre e bauxita, com potencial em lítio e terras raras.",
+        "Recursos naturais: cerca de 12% da água doce renovável mundial e uma matriz elétrica majoritariamente limpa.",
+        "Logística atlântica: acesso direto aos principais mercados sem depender de rotas contestadas."
+      ] } },
+      { type: "paragraph", content: "Estudos de instituições internacionais (Banco Mundial, FAO, IEA) reforçam que a demanda por alimentos, por metais para a transição energética e por recursos hídricos deve crescer de forma substancial nas próximas décadas." },
+      { type: "heading", content: "Brasil no contexto BRICS e multipolar" },
+      { type: "paragraph", content: "O bloco BRICS ampliado representa grande parte da população e da demanda futura por commodities. O Brasil pode atuar como fornecedor estável e diversificador para China, Índia, Rússia e novos membros. Acordos comerciais, investimentos em infraestrutura (ferrovias, portos do Arco Norte) e parcerias tecnológicas fortalecem essa posição. A integração Sul-Sul permite reduzir a dependência excessiva de mercados tradicionais e construir cadeias de valor mais resilientes." },
+      { type: "heading", content: "Riscos, desafios e visão de longo prazo" },
+      { type: "paragraph", content: "O caminho tem obstáculos reais: adaptação climática, gargalos de infraestrutura, exigências de governança e sustentabilidade (transparência, rastreabilidade, baixo carbono como pré-requisitos de mercados premium) e necessidade de capital e tecnologia de longo prazo. O futuro econômico brasileiro pode ser construído sobre a abundância de hard assets, convertida em desenvolvimento sustentável, emprego qualificado e influência internacional. O Brasil não precisa inventar uma vocação: ela já existe em sua geografia e em seus recursos. A questão é desenvolver a capacidade de extrair valor máximo, de forma sustentável e estratégica." },
+      { type: "paragraph", content: "Fontes: relatórios do Banco Mundial, da FAO e da IEA; e dados oficiais brasileiros sobre produção agrícola, mineral e matriz elétrica." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 8 (Tokenização Empresas Familiares) ── */
+  {
+    id: "tokenizacao-empresas-familiares",
+    date: "Abr 2026",
+    tag: "Finanças Digitais",
+    title: "Tokenização de Empresas Familiares Brasileiras: uma Ponte para a Sucessão e a Continuidade",
+    desc: "90% das empresas no Brasil são familiares, mas a maioria não sobrevive à aposentadoria do fundador. Como a tokenização de ativos reais pode oferecer um caminho para a sucessão e a continuidade empresarial.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Noventa por cento das empresas no Brasil são familiares. Elas respondem por mais da metade do PIB nacional e empregam cerca de três em cada quatro trabalhadores formais. No entanto, a grande maioria não sobreviverá à aposentadoria do fundador. Esse dado estrutural configura um dos maiores riscos silenciosos da economia brasileira, e ao mesmo tempo um dos temas mais relevantes para pensar a continuidade empresarial nas próximas décadas." },
+      { type: "heading", content: "A crise de sucessão: dados e contexto estrutural" },
+      { type: "paragraph", content: "Fundadores que construíram negócios nos anos 1980 e 1990 estão hoje na faixa dos 60 a 70 anos. A taxa de fecundidade brasileira caiu de 2,32 em 2000 para 1,57 em 2023, enquanto a idade mediana da população subiu para 35,5 anos e deve alcançar 48,4 em 2070. A regra clássica das três gerações opera com intensidade particular no país: apenas cerca de 30% das empresas familiares chegam à segunda geração, e aproximadamente 5% à terceira." },
+      { type: "paragraph", content: "Muitos herdeiros optaram por carreiras profissionais em grandes centros urbanos, em vez de assumir operações no interior. O resultado é um volume crescente de empresas rentáveis, com ativos reais (terras, plantas industriais, estoques, contratos de exportação), sem plano sucessório formal e sem compradores naturais no mercado tradicional. A literatura reforça o problema: até 40% das empresas familiares enfrentam dificuldades por disputas na divisão de ativos entre herdeiros (Rebouças de Oliveira, 2010). No agronegócio, mais de 80% dos estabelecimentos rurais são familiares, e a consolidação já é visível: entre 2006 e 2017, o Brasil perdeu mais de 100 mil estabelecimentos agrícolas, enquanto a área plantada aumentou 17,6 milhões de hectares." },
+      { type: "heading", content: "Por que o mercado tradicional não resolve" },
+      { type: "paragraph", content: "Os canais tradicionais falham de forma sistemática. Os bancos, com a Selic elevada, preferem títulos públicos a financiar aquisições de mid-market. O private equity global foca em transações muito maiores. E há desafios internos: dependência do fundador, contabilidade informal, governança fraca e ausência de planos sucessórios (que apenas cerca de um terço das empresas possui)." },
+      { type: "heading", content: "Tokenização como abordagem tecnológica e financeira" },
+      { type: "paragraph", content: "A tokenização de ativos reais (RWA) sobre blockchain oferece um caminho para reestruturar essa realidade. Trata-se de tecnologia em evolução e sujeita a regulação (CVM), não de solução pronta ou garantida. O que a literatura e as primeiras experiências sugerem é um conjunto de possibilidades." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Fracionamento e liquidez parcial: o fundador pode vender gradualmente frações tokenizadas do negócio, mantendo controle via smart contracts com regras de votação, veto e drag/tag-along.",
+        "Sucessão programável: herdeiros recebem tokens que representam participação econômica (com distribuição de resultados automatizada), sem necessidade de gestão operacional diária.",
+        "Transição incentivada: earn-outs, vesting e mecanismos de alinhamento codificados em smart contracts.",
+        "Governança moderna: transparência imutável, redução de informalidade contábil e maior atratividade para capital externo."
+      ] } },
+      { type: "paragraph", content: "Estudos e casos práticos (como os discutidos na Journal of Family Business Management e em iniciativas brasileiras de tokenização de commodities) sugerem que o blockchain pode melhorar transparência, confiança e eficiência na gestão sucessória, com smart contracts automatizando a delegação gradual de autoridade e reduzindo conflitos patrimoniais." },
+      { type: "heading", content: "Desafios e caminho regulatório" },
+      { type: "paragraph", content: "O caminho não é trivial. Depende da evolução da regulação da CVM para security tokens, de definições tributárias, de aceitação cultural, e da combinação de due diligence tradicional com presença local. A tokenização não substitui confiança e relacionamento; ela os escala com tecnologia. Para fundadores que priorizam continuidade real, e para o ecossistema que estuda ativos reais no Brasil, essa convergência é um tema que merece acompanhamento atento." },
+      { type: "paragraph", content: "Fontes: literatura sobre governança familiar e sucessão no Brasil (incluindo Rebouças de Oliveira, 2010, e a Journal of Family Business Management); Censo Agropecuário 2017 (IBGE); e casos de tokenização no agronegócio brasileiro (Agrotoken, VERT)." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 9 (Gap de Financiamento) ── */
+  {
+    id: "gap-financiamento-credito-tokenizado",
+    date: "Mai 2026",
+    tag: "Finanças Digitais",
+    title: "Fechando o Gap de Financiamento de 27,2% do PIB: Crédito Tokenizado e RWA para o Mid-Market Brasileiro",
+    desc: "O Brasil tem um dos maiores gaps de financiamento do mundo emergente: 27,2% do PIB (IFC). Como o crédito tokenizado e os ativos reais on-chain podem ampliar o acesso a capital para o mid-market agro e industrial.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil enfrenta um dos maiores gaps de financiamento do mundo emergente: 27,2% do PIB, segundo a International Finance Corporation (IFC). Esse número representa o volume de crédito que empresas de pequeno e médio porte, especialmente no agronegócio e na indústria, precisam mas não conseguem acessar de forma eficiente. No coração desse gap estão as empresas familiares do mid-market, que formam a espinha dorsal da economia real brasileira." },
+      { type: "heading", content: "A origem estrutural do gap" },
+      { type: "paragraph", content: "As empresas do mid-market brasileiro são, em sua maioria, familiares, e operam em setores de base física: agricultura, processamento de alimentos, logística e manufatura industrial. Elas sobrevivem a choques inflacionários, desvalorizações cambiais e taxas de juros elevadas, mas encontram portas fechadas quando buscam capital para crescer. Os três canais tradicionais falham: os bancos preferem títulos públicos de baixo risco; o mercado de capitais ficou quase congelado por anos; e o private equity global busca transações muito maiores que o tamanho típico das empresas brasileiras do interior." },
+      { type: "heading", content: "Tokenização e RWA: uma ponte possível" },
+      { type: "paragraph", content: "A tokenização de crédito e ativos reais (RWA) surge como uma abordagem estrutural para esse problema. Trata-se de tecnologia em desenvolvimento e sujeita a regulação, cujo potencial se apresenta em três frentes." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Crédito tokenizado: instrumentos como CRA, CPR e LCA podem ser fracionados e negociados em blockchain, aumentando a liquidez e ampliando a base de investidores.",
+        "Tokenização de ativos: terras, safras, estoques e contratos de exportação representados por tokens lastreados, permitindo financiamento fracionado.",
+        "Estruturas híbridas reguladas: plataformas que combinam blockchain com estruturas dentro do arcabouço da CVM, reduzindo custos de intermediação."
+      ] } },
+      { type: "paragraph", content: "Exemplos em operação no Brasil incluem a Agrotoken (tokens lastreados em soja, milho e trigo) e iniciativas de tokenização de CRA que já atingem volumes expressivos." },
+      { type: "heading", content: "Integração com modelos quantitativos" },
+      { type: "paragraph", content: "A tokenização não substitui a análise quantitativa, ela a complementa: previsão de volatilidade (HAR-RV, GARCH) aplicada a fluxos de caixa tokenizados; gestão de risco (VaR/ES, GARCH-EVT) para modelagem de cauda em portfólios de RWAs; hedging de risco de base, câmbio e commodities via derivativos tokenizados; e otimização de portfólio (risk parity, CVaR) em carteiras de crédito tokenizado e hard assets." },
+      { type: "heading", content: "Conexão com temas maiores" },
+      { type: "paragraph", content: "Esse gap não é apenas um problema doméstico. No contexto multilateral e da tokenização de ativos reais, o Brasil pode se posicionar como um polo de RWA na América Latina, utilizando hard assets como lastro. Fechar o gap de 27,2% do PIB por meio de crédito tokenizado e RWA não seria uma melhoria incremental, e sim uma transformação estrutural, capaz de liberar o potencial do mid-market brasileiro, com efeitos sobre a economia real e o emprego. O caminho depende da evolução regulatória (CVM e Banco Central) e da adoção por produtores e empresas." },
+      { type: "paragraph", content: "Fontes: International Finance Corporation (IFC), dados sobre o gap de financiamento; e casos brasileiros de tokenização (Agrotoken) e de emissões de CRA tokenizados." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 10 (Tokenização de Terras) ── */
+  {
+    id: "demografia-tokenizacao-terras",
+    date: "Jun 2026",
+    tag: "Geopolítica de Commodities",
+    title: "Demografia, Consolidação Agrícola e Tokenização de Terras: o Caso Brasileiro",
+    desc: "A fecundidade caiu para 1,57 e quase metade dos operadores rurais tem 55+ anos. Uma onda de consolidação fundiária redesenha o campo brasileiro, e abre espaço para a tokenização de terras e ativos rurais.",
+    author: "AETERNUM OPERAÇÃO BRASIL",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "O Brasil vive uma transição demográfica silenciosa, mas de consequências profundas para o setor agropecuário. A taxa de fecundidade caiu para 1,57 filho por mulher em 2023, e a população deve parar de crescer por volta de 2041. Ao mesmo tempo, quase metade dos operadores rurais já tem 55 anos ou mais. Essa combinação gera uma onda de consolidação fundiária que está redesenhando o mapa da produção agrícola brasileira." },
+      { type: "heading", content: "Os números da mudança demográfica no campo" },
+      { type: "paragraph", content: "De acordo com o Censo Agropecuário de 2017 (IBGE), somados os grupos de 55 a 64 e de 65 ou mais anos, quase 47% dos operadores rurais estavam nessa faixa etária. Entre os agricultores familiares, metade já passou dos 55 anos. Paralelamente, a população rural encolheu 33,8% entre 2000 e 2022. Entre 2006 e 2017, o Brasil perdeu mais de 102 mil estabelecimentos rurais, enquanto a área plantada total aumentou 17,6 milhões de hectares. A consolidação já está acontecendo, especialmente na região Sul." },
+      { type: "heading", content: "Consolidação como movimento estrutural" },
+      { type: "paragraph", content: "Essa dinâmica cria um fluxo previsível de terras disponíveis para venda ou arrendamento. Proprietários idosos sem herdeiros são vendedores naturais. Ao mesmo tempo, produtores maiores, cooperativas e investidores institucionais buscam escala. O processo tradicional, porém, enfrenta barreiras: liquidez baixa no mercado de terras, restrições legais à propriedade estrangeira (Lei 5.709/1971) e dificuldade de fracionamento e acesso para investidores menores." },
+      { type: "heading", content: "Tokenização de terras: a camada tecnológica" },
+      { type: "paragraph", content: "A tokenização de terras (RWA) é uma tecnologia em evolução, sujeita a regulação, que em tese permite endereçar essas limitações." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Fracionamento: uma propriedade pode ser dividida em milhares de tokens, cada um representando uma fração da terra e de sua produção.",
+        "Liquidez: tokens negociáveis em plataformas reguladas permitem entrada e saída gradual de capital, sem venda total da propriedade.",
+        "Governança programável: smart contracts definem regras de uso, arrendamento, distribuição de resultados e sucessão.",
+        "Transparência e rastreabilidade: o blockchain registra histórico de propriedade, produtividade, práticas ambientais e títulos, reduzindo assimetria de informação e risco jurídico."
+      ] } },
+      { type: "paragraph", content: "Iniciativas como a Agrotoken e outras plataformas de tokenização de commodities já indicam o caminho: tokens lastreados em safras, CPRs e, progressivamente, em direitos sobre a própria terra." },
+      { type: "heading", content: "Perspectivas e desafios" },
+      { type: "paragraph", content: "No contexto multilateral, terras tokenizadas podem posicionar o Brasil como um polo de ativos reais digitais, e incentivar práticas sustentáveis (tokens verdes com premiação por conservação e rastreabilidade). O caminho depende de adequação regulatória (CVM, INCRA, Lei 5.709), de soluções para governança e custódia de ativos físicos e de adoção por produtores. A demografia não espera: a consolidação vai acontecer com ou sem tokenização. A questão em aberto é se o Brasil aproveitará essa transição para modernizar a propriedade rural, aumentar a liquidez e atrair capital produtivo." },
+      { type: "paragraph", content: "Fontes: Censo Agropecuário 2017 (IBGE); dados demográficos do IBGE; e iniciativas brasileiras de tokenização no agronegócio (Agrotoken)." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  /* ── SÉRIE GCF — ARTIGO 13 (Pagamentos/Ledgers) ── */
+  {
+    id: "pagamentos-transfronteiricos-ledgers",
+    date: "Jul 2026",
+    tag: "Finanças Digitais",
+    title: "Pagamentos Transfronteiriços, Ledgers Distribuídos e a Economia Brasileira no Contexto BRICS",
+    desc: "Pagamentos internacionais lentos e caros pesam sobre exportadores de commodities. Uma análise das tecnologias de ledger distribuído aplicadas a pagamentos transfronteiriços, e o debate no contexto BRICS.",
+    author: "AETERNUM TECH & OPS",
+    readTime: "10 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GCF" },
+      { type: "abstract", content: "Em um mundo de crescente multipolaridade e de esforços de desdolarização, os pagamentos transfronteiriços emergem como um dos campos mais estratégicos da geopolítica financeira. Tecnologias de registro distribuído (ledgers) têm sido discutidas por sua velocidade, baixo custo e capacidade de atuar como ponte entre diferentes moedas, características relevantes para o Brasil e o bloco BRICS." },
+      { type: "heading", content: "O problema dos pagamentos internacionais tradicionais" },
+      { type: "paragraph", content: "Pagamentos transfronteiriços via SWIFT e bancos correspondentes tendem a ser lentos, custosos e sujeitos a restrições geopolíticas. Para o Brasil, grande exportador de commodities, isso pode significar atrasos no recebimento de receitas de soja, minério de ferro, café e proteína animal, impactando o fluxo de caixa de produtores e tradings e o balanço de pagamentos. A literatura sobre finanças internacionais aponta que países emergentes perdem valores expressivos em ineficiências e spreads cambiais nesses fluxos." },
+      { type: "heading", content: "Tecnologias de ledger distribuído: características e debate" },
+      { type: "paragraph", content: "As tecnologias de ledger distribuído aplicadas a pagamentos são apresentadas, por seus proponentes, com atributos como liquidação rápida, custos reduzidos por transação, capacidade nativa de tokenização e a função de bridge asset (converter uma moeda em outra sem uma conta intermediária em dólar). Vale registrar que esses atributos são reivindicados pelos desenvolvedores dessas soluções e ainda estão sendo testados em escala; não constituem, aqui, recomendação de uso de qualquer ativo ou protocolo específico. No Brasil e na América Latina, alguns projetos já exploram ledgers distribuídos para a tokenização de recebíveis agrícolas (CRAs e CPRs)." },
+      { type: "heading", content: "Pontos de análise para a economia brasileira" },
+      { type: "paragraph", content: "Do ponto de vista analítico, a modernização dos pagamentos transfronteiriços pode ter implicações como: agilização do recebimento de divisas de parceiros comerciais; potencial redução de custos, especialmente para pequenas e médias empresas exportadoras; e maior integração entre o fluxo físico de commodities e a liquidação financeira. No contexto das discussões do BRICS sobre sistemas de pagamento alternativos, tecnologias de ledger neutras são um dos temas em debate, ao lado de CBDCs (moedas digitais de bancos centrais) em desenvolvimento." },
+      { type: "heading", content: "Considerações geopolíticas e regulatórias" },
+      { type: "paragraph", content: "A discussão envolve dimensões geopolíticas (redução da dependência exclusiva do dólar, autonomia financeira de blocos) e, sobretudo, regulatórias. No Brasil, o Banco Central e a CVM ainda estão desenvolvendo marcos para stablecoins e ativos digitais transfronteiriços. Qualquer infraestrutura financeira crítica exige robustez técnica, governança e marcos legais adequados, e a adoção de qualquer solução específica depende dessa maturação. O acompanhamento dessa área, de forma analítica e atenta à regulação, é relevante para quem estuda a interseção entre commodities, câmbio e infraestrutura financeira." },
+      { type: "paragraph", content: "Fontes: literatura sobre pagamentos transfronteiriços e finanças internacionais; e materiais públicos sobre tecnologias de ledger distribuído e sua aplicação em recebíveis agrícolas no Brasil." },
+      { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
     ]
   }
 
