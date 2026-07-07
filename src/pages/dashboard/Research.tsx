@@ -41,6 +41,7 @@ const PUBLIC_IDS = new Set([
   "white-house-rare-earth-stocks",
   "fundamentos-medidas-risco",
   "garch-evt-commodities",
+  "backtesting-var-es",
 ]);
 
 /* Filtros disponíveis */

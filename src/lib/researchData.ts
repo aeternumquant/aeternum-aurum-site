@@ -945,6 +945,56 @@ export const researchPapers: ResearchPaper[] = [
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 3 ── */
+  {
+    id: "backtesting-var-es",
+    date: "Mai 2026",
+    tag: "Quantitativo",
+    title: "Validação de Modelos: Backtesting de VaR, ES e Métricas de Risco",
+    desc: "Um modelo de risco só vale o que sobrevive ao confronto com dados novos. Os testes de Kupiec, Christoffersen e Acerbi-Szekely, e por que a validação contínua é o tribunal que separa modelos confiáveis de exercícios acadêmicos.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "12 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Um modelo de risco pode parecer excelente dentro da amostra, mas revelar-se inútil, ou até perigoso, quando confrontado com dados novos. No mercado de commodities, onde choques estruturais são frequentes, a validação rigorosa não é um detalhe técnico: é o que separa modelos confiáveis de meros exercícios acadêmicos. Este artigo apresenta os testes de backtesting de VaR e Expected Shortfall e o protocolo de validação contínua." },
+      { type: "heading", content: "Por que backtesting é essencial em commodities" },
+      { type: "paragraph", content: "Séries de preços de petróleo, soja, boi gordo ou café apresentam clustering de volatilidade, assimetria, saltos e quebras estruturais (a pandemia de 2020, a guerra na Ucrânia em 2022, crises cambiais brasileiras). Um modelo que não é validado adequadamente pode subestimar o risco de forma sistemática, levando a alavancagem excessiva ou a hedges insuficientes. Os testes de backtesting avaliam duas dimensões principais: cobertura (o modelo acerta a frequência das violações?) e independência (as violações ocorrem de forma aleatória ou em clusters?)." },
+      { type: "heading", content: "Backtesting do VaR: testes clássicos" },
+      { type: "paragraph", content: "O teste de Kupiec (1995), de cobertura incondicional (Proportion of Failures), é o mais básico: compara a frequência observada de violações com a probabilidade esperada. Sob a hipótese nula, o número de violações segue uma distribuição binomial. Vantagem: simples e intuitivo. Limitação: ignora a dependência temporal das violações. Um modelo que acerta a frequência média, mas falha em clusters durante crises, passa no teste de Kupiec e falha na prática." },
+      { type: "paragraph", content: "O teste de Christoffersen (1998) supera essa limitação ao modelar as violações como uma cadeia de Markov de primeira ordem, testando simultaneamente cobertura condicional (a probabilidade de violação deve ser igual a alfa, independentemente do dia anterior) e independência (as violações não devem se agrupar). É um dos padrões mínimos exigidos em ambientes regulatórios." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Berkowitz (2001): transforma as previsões de VaR via integral de probabilidade e testa se seguem distribuição uniforme; avalia a calibração completa.",
+        "Christoffersen & Pelletier (2004): teste baseado em duração (tempo entre violações); o clustering indica falha no modelo de volatilidade.",
+        "Ziggel et al. (2014): testes mais potentes para detectar clustering de violações, relevante em commodities onde crises geram alta volatilidade prolongada."
+      ] } },
+      { type: "heading", content: "Backtesting do Expected Shortfall (ES)" },
+      { type: "paragraph", content: "Durante anos, o ES enfrentou críticas relacionadas à elicitabilidade (Gneiting, 2011): argumentava-se que não seria possível construir scores adequados para o seu backtesting. Essa limitação foi superada por Fissler & Ziegel (2016), que demonstraram que o ES é conjuntamente elicitável com o VaR. Acerbi & Szekely (2014) propuseram três testes não-paramétricos (Z1, Z2 e Z3), amplamente utilizados na indústria. O Z2, em particular, é considerado robusto e avalia não apenas a frequência, mas a magnitude das perdas quando ocorrem violações, exatamente o que o VaR deixa de capturar." },
+      { type: "heading", content: "Protocolo de backtesting no contexto brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Janela rolling de 250 a 1000 dias úteis para estimação, com avaliação out-of-sample.",
+        "Múltiplos níveis de confiança: 95%, 97,5% e 99% (o FRTB recomenda 97,5% para o ES).",
+        "Testes obrigatórios: Kupiec (cobertura incondicional), Christoffersen (cobertura condicional e independência), Acerbi-Szekely Z2 (para o ES) e testes de clustering (Ziggel ou baseados em duração).",
+        "Regra de reespecificação: se o modelo falhar em dois ou mais trimestres consecutivos a 5% de significância, deve-se reespecificá-lo (mudar a ordem do GARCH, incorporar variáveis macro, tratar quebras estruturais)."
+      ] } },
+      { type: "paragraph", content: "Exemplos reais: em períodos de forte alta de volatilidade, como o início da guerra na Ucrânia, modelos GARCH simples frequentemente falham no teste de Christoffersen por clustering de violações. Para boi gordo e etanol na B3, a elevada volatilidade de base exige atenção especial nos testes de independência: as violações tendem a se concentrar em janelas de safra ou de mudanças climáticas." },
+      { type: "heading", content: "Backtesting como processo contínuo" },
+      { type: "paragraph", content: "O backtesting não é um evento único, realizado na implantação do modelo. É um processo contínuo de monitoramento, que deve fazer parte da governança de risco diária. Modelos que passam consistentemente nos testes de Kupiec, Christoffersen e Acerbi-Szekely oferecem maior confiabilidade para a definição de limites de posição, o cálculo de margens e a comunicação com clientes do agronegócio. Este artigo fecha a tríade fundamental: medidas de risco, modelagem de cauda e validação." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "KUPIEC, P. H. Techniques for verifying the accuracy of risk measurement models. The Journal of Derivatives, v. 3, n. 2, p. 73-84, 1995.",
+        "CHRISTOFFERSEN, P. F. Evaluating interval forecasts. International Economic Review, v. 39, n. 4, p. 841-862, 1998.",
+        "BERKOWITZ, J. Testing density forecasts, with applications to risk management. Journal of Business & Economic Statistics, v. 19, n. 4, p. 465-474, 2001.",
+        "CHRISTOFFERSEN, P.; PELLETIER, D. Backtesting value-at-risk: a duration-based approach. Journal of Financial Econometrics, v. 2, n. 1, p. 84-108, 2004.",
+        "ZIGGEL, D. et al. A new set of improved value-at-risk backtests. Journal of Banking & Finance, v. 48, p. 29-41, 2014.",
+        "ACERBI, C.; SZEKELY, B. Backtesting expected shortfall. Risk Magazine, 2014. [verificar paginacao]",
+        "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
+        "FISSLER, T.; ZIEGEL, J. F. Higher order elicitability and Osband's principle. The Annals of Statistics, v. 44, n. 4, p. 1680-1707, 2016."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];
