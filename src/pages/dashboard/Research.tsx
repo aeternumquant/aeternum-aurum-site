@@ -187,7 +187,7 @@ export default function ResearchPage() {
       ? shortPapers
       : shortPapers.filter((p) => p.tag === activeTag);
   const q = norm(query.trim());
-  const results =
+  const matched =
     q === ""
       ? byTag
       : byTag.filter(
@@ -196,6 +196,8 @@ export default function ResearchPage() {
             norm(p.desc).includes(q) ||
             norm(p.tag).includes(q)
         );
+  /* Ordena por data, mais recente primeiro (reusa dateValue). Copia para nao mutar o array original. */
+  const results = [...matched].sort((a, b) => dateValue(b.date) - dateValue(a.date));
 
   return (
     <main className="pt-14 min-h-screen">
