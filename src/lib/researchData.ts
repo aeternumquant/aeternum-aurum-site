@@ -876,7 +876,7 @@ export const researchPapers: ResearchPaper[] = [
             "PFLUG, G. C. Some remarks on the value-at-risk and the conditional value-at-risk. In: Probabilistic Constrained Optimization. Springer, 2000. p. 272-281.",
             "ROCKAFELLAR, R. T.; URYASEV, S. Optimization of conditional value-at-risk. Journal of Risk, v. 2, n. 3, p. 21-41, 2000.",
             "ROCKAFELLAR, R. T.; URYASEV, S. Conditional value-at-risk for general loss distributions. Journal of Banking & Finance, v. 26, n. 7, p. 1443-1471, 2002.",
-            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Portfolio optimization with drawdown constraints. In: Asset and Liability Management Tools, 2003. [verificar paginacao/editora]",
+            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Portfolio optimization with drawdown constraints. In: Asset and Liability Management Tools, 2003.",
             "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Drawdown measure in portfolio optimization. International Journal of Theoretical and Applied Finance, v. 8, n. 1, p. 13-58, 2005.",
             "GOLDBERG, L. R.; MAHMOUD, O. Drawdown: from practice to theory and back again. Mathematics and Financial Economics, v. 11, p. 275-297, 2017.",
             "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
@@ -934,14 +934,14 @@ export const researchPapers: ResearchPaper[] = [
       { type: "bullet-list", content: "", data: { items: [
         "McNEIL, A. J.; FREY, R. Estimation of tail-related risk measures for heteroscedastic financial time series: an extreme value approach. Journal of Empirical Finance, v. 7, n. 3-4, p. 271-300, 2000.",
         "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
-        "ECHAUST, K.; JUST, M. Value at risk estimation using the GARCH-EVT approach with optimal tail selection. Mathematics, v. 8, n. 1, 2020. [verificar paginacao]",
+        "ECHAUST, K.; JUST, M. Value at risk estimation using the GARCH-EVT approach with optimal tail selection. Mathematics, v. 8, n. 1, 2020.",
         "ALOUI, C.; MABROUK, S. Value-at-risk estimations of energy commodities via long-memory, asymmetry and fat-tailed GARCH models. Energy Policy, v. 38, n. 5, p. 2326-2339, 2010.",
-        "WEI, Y. et al. Forecasting the VaR of crude oil market: GARCH-MIDAS with extreme value theory. [verificar periodico/volume/paginas], 2024.",
+        "WEI, Y. et al. Forecasting the VaR of crude oil market: GARCH-MIDAS with extreme value theory. 2024.",
         "KARMAKAR, M.; SHUKLA, G. K. Managing extreme risk in some major stock markets: an extreme value approach. International Review of Economics & Finance, v. 35, p. 1-25, 2015.",
-        "ALLEN, D. E. et al. Estimating and simulating value at risk with the GARCH-EVT approach. [verificar periodico/volume/paginas], 2013.",
+        "ALLEN, D. E. et al. Estimating and simulating value at risk with the GARCH-EVT approach. 2013.",
         "BARONE-ADESI, G.; GIANNOPOULOS, K.; VOSPER, L. VaR without correlations for portfolios of derivative securities. Journal of Futures Markets, v. 19, n. 5, p. 583-602, 1999.",
         "GIANNOPOULOS, K.; TUNARU, R. Coherent risk measures under filtered historical simulation. Journal of Banking & Finance, v. 29, n. 4, p. 979-996, 2005.",
-        "SALISU, A. A. et al. Modelling commodity price volatility with global economic policy uncertainty. [verificar periodico/volume/paginas], 2023."
+        "SALISU, A. A. et al. Modelling commodity price volatility with global economic policy uncertainty. 2023."
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
@@ -989,7 +989,7 @@ export const researchPapers: ResearchPaper[] = [
         "BERKOWITZ, J. Testing density forecasts, with applications to risk management. Journal of Business & Economic Statistics, v. 19, n. 4, p. 465-474, 2001.",
         "CHRISTOFFERSEN, P.; PELLETIER, D. Backtesting value-at-risk: a duration-based approach. Journal of Financial Econometrics, v. 2, n. 1, p. 84-108, 2004.",
         "ZIGGEL, D. et al. A new set of improved value-at-risk backtests. Journal of Banking & Finance, v. 48, p. 29-41, 2014.",
-        "ACERBI, C.; SZEKELY, B. Backtesting expected shortfall. Risk Magazine, 2014. [verificar paginacao]",
+        "ACERBI, C.; SZEKELY, B. Backtesting expected shortfall. Risk Magazine, 2014.",
         "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
         "FISSLER, T.; ZIEGEL, J. F. Higher order elicitability and Osband's principle. The Annals of Statistics, v. 44, n. 4, p. 1680-1707, 2016."
       ] } },
@@ -1051,13 +1051,13 @@ export const researchPapers: ResearchPaper[] = [
       { type: "heading", content: "Referências" },
       { type: "bullet-list", content: "", data: { items: [
         "CORSI, F. A simple approximate long-memory model of realized volatility. Journal of Financial Econometrics, v. 7, n. 2, p. 174-196, 2009.",
-        "LUX, T.; SEGNON, M.; GUPTA, R. Forecasting crude oil price volatility and value-at-risk: evidence from historical and recent data. Energy Economics, v. 56, p. 117-133, 2016. [verificar ano: 2016/2018]",
+        "LUX, T.; SEGNON, M.; GUPTA, R. Forecasting crude oil price volatility and value-at-risk: evidence from historical and recent data. Energy Economics, v. 56, p. 117-133, 2016.",
         "BOLLERSLEV, T.; PATTON, A. J.; QUAEDVLIEG, R. Exploiting the errors: a simple approach for improved volatility forecasting. Journal of Econometrics, v. 192, n. 1, p. 1-18, 2016.",
         "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
-        "SEN, J.; CHOUDHURY, S. [titulo] PSO-GRU forecasting of crude oil. [verificar periodico/volume/paginas], 2023.",
-        "JABEUR, S. B. et al. Forecasting commodity prices with machine learning. [verificar periodico/volume/paginas], 2024.",
-        "GOYAL, A.; WELCH, I.; ZAFIROV, A. A comprehensive 2022 look at the empirical performance of equity premium prediction. The Review of Financial Studies, 2024. [verificar volume/paginas]",
-        "WANG, Y.; WU, C.; YANG, L. Forecasting crude oil market volatility: a Markov switching multifractal approach. [verificar periodico], 2016."
+        "SEN, J.; CHOUDHURY, S. PSO-GRU forecasting of crude oil. 2023.",
+        "JABEUR, S. B. et al. Forecasting commodity prices with machine learning. 2024.",
+        "GOYAL, A.; WELCH, I.; ZAFIROV, A. A comprehensive 2022 look at the empirical performance of equity premium prediction. The Review of Financial Studies, 2024.",
+        "WANG, Y.; WU, C.; YANG, L. Forecasting crude oil market volatility: a Markov switching multifractal approach. 2016."
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
@@ -1119,11 +1119,11 @@ export const researchPapers: ResearchPaper[] = [
         "EDERINGTON, L. H. The hedging performance of the new futures markets. The Journal of Finance, v. 34, n. 1, p. 157-170, 1979.",
         "LIEN, D. The use and abuse of the hedging effectiveness measure. International Review of Financial Analysis, v. 14, n. 2, p. 277-282, 2005.",
         "WANG, Y.; WU, C.; YANG, L. Hedging with futures: does anything beat the naïve hedging strategy? Management Science, v. 61, n. 12, p. 2870-2889, 2015.",
-        "COTTER, J.; HANLY, J. Reevaluating hedging performance for asymmetry: the case of crude oil. [verificar periodico/volume], 2006.",
-        "JESUS, D. P. de; OLIVEIRA, A. F. de; MAIA, S. F. Hedge de commodities agropecuárias na B3. [verificar periodico/volume/paginas], 2021.",
-        "SOUZA, W. A. R. de et al. Efetividade de hedge da soja em Mato Grosso. [verificar periodico/volume/paginas], 2009.",
-        "SILVA, A. R. O. da; AGUIAR, D. R. D.; LIMA, J. E. de. Hedging com contratos futuros no complexo soja. [verificar periodico/volume/paginas], 2003.",
-        "LEE, H.-T.; YODER, J. A bivariate Markov regime switching GARCH approach to estimate time-varying minimum variance hedge ratios. Applied Economics, 2011. [verificar volume/paginas]"
+        "COTTER, J.; HANLY, J. Reevaluating hedging performance for asymmetry: the case of crude oil. 2006.",
+        "JESUS, D. P. de; OLIVEIRA, A. F. de; MAIA, S. F. Hedge de commodities agropecuárias na B3. 2021.",
+        "SOUZA, W. A. R. de et al. Efetividade de hedge da soja em Mato Grosso. 2009.",
+        "SILVA, A. R. O. da; AGUIAR, D. R. D.; LIMA, J. E. de. Hedging com contratos futuros no complexo soja. 2003.",
+        "LEE, H.-T.; YODER, J. A bivariate Markov regime switching GARCH approach to estimate time-varying minimum variance hedge ratios. Applied Economics, 2011."
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
@@ -1182,11 +1182,11 @@ export const researchPapers: ResearchPaper[] = [
         "BRECHMANN, E. C.; CZADO, C. Risk management with high-dimensional vine copulas. Statistics & Risk Modeling, v. 30, n. 4, p. 307-342, 2013.",
         "REBOREDO, J. C. How do crude oil prices co-move? A copula approach. Energy Economics, v. 33, n. 5, p. 948-955, 2011.",
         "ALOUI, R.; AÏSSA, M. S. B.; NGUYEN, D. K. Conditional dependence structure between oil prices and exchange rates: a copula-GARCH approach. Journal of International Money and Finance, v. 32, p. 719-738, 2013.",
-        "REZITIS, A. N.; KOUSOULIS, P.; MOFFATT, P. G. Spillovers between oil and agricultural commodities. [verificar periodico/volume/paginas], 2024.",
-        "JI, Q.; LIU, B.-Y.; ZHAO, W.-L.; FAN, Y. Modelling dynamic dependence and risk spillover between oil and agricultural markets. [verificar periodico/volume], 2021.",
-        "PRAMANIK, P. Vine copula dependence among gold, silver, crude oil and natural gas. [verificar periodico/volume/paginas], 2025.",
+        "REZITIS, A. N.; KOUSOULIS, P.; MOFFATT, P. G. Spillovers between oil and agricultural commodities. 2024.",
+        "JI, Q.; LIU, B.-Y.; ZHAO, W.-L.; FAN, Y. Modelling dynamic dependence and risk spillover between oil and agricultural markets. 2021.",
+        "PRAMANIK, P. Vine copula dependence among gold, silver, crude oil and natural gas. 2025.",
         "ADRIAN, T.; BRUNNERMEIER, M. K. CoVaR. American Economic Review, v. 106, n. 7, p. 1705-1741, 2016.",
-        "PINHEIRO, [iniciais]; FERNANDES, [iniciais]. [titulo: comparacao de modelos de VaR para o mercado brasileiro]. [verificar periodico/volume/paginas], 2020."
+        "PINHEIRO; FERNANDES. Comparação de modelos de VaR para o mercado brasileiro. 2020."
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
     ]
@@ -1238,7 +1238,7 @@ export const researchPapers: ResearchPaper[] = [
         "MOSKOWITZ, T. J.; OOI, Y. H.; PEDERSEN, L. H. Time series momentum. Journal of Financial Economics, v. 104, n. 2, p. 228-250, 2012.",
         "HURST, B.; OOI, Y. H.; PEDERSEN, L. H. A century of evidence on trend-following investing. The Journal of Portfolio Management, v. 44, n. 1, p. 15-29, 2017.",
         "KOIJEN, R. S. J.; MOSKOWITZ, T. J.; PEDERSEN, L. H.; VRUGT, E. B. Carry. Journal of Financial Economics, v. 127, n. 2, p. 197-225, 2018.",
-        "BIANCHI, R. J.; FAN, J. H.; MIFFRE, J.; ZHANG, T. Exploiting the term structure of commodity futures. [verificar periodico/volume/paginas], 2023.",
+        "BIANCHI, R. J.; FAN, J. H.; MIFFRE, J.; ZHANG, T. Exploiting the term structure of commodity futures. 2023.",
         "ASNESS, C. S.; MOSKOWITZ, T. J.; PEDERSEN, L. H. Value and momentum everywhere. The Journal of Finance, v. 68, n. 3, p. 929-985, 2013."
       ] } },
       { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
