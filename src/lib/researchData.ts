@@ -771,7 +771,7 @@ export const researchPapers: ResearchPaper[] = [
   /* ── SÉRIE GJO — ARTIGO 1 ── */
   {
     id: "fundamentos-medidas-risco",
-    date: "Mar 2026",
+    date: "Jan 2025",
     tag: "Quantitativo",
     title: "Fundamentos de Medidas de Risco: Coerência, Expected Shortfall e Drawdown Measures",
     desc: "Por que o VaR não basta em mercados de commodities e quais métricas capturam a severidade das perdas extremas. Coerência, Expected Shortfall e medidas de drawdown como base da gestão de risco quantitativa.",
@@ -894,7 +894,7 @@ export const researchPapers: ResearchPaper[] = [
   /* ── SÉRIE GJO — ARTIGO 2 ── */
   {
     id: "garch-evt-commodities",
-    date: "Abr 2026",
+    date: "Mar 2025",
     tag: "Quantitativo",
     title: "Modelagem de Risco de Cauda em Commodities: GARCH-EVT e Alternativas Avançadas",
     desc: "Por que a hipótese de normalidade falha em commodities e como o framework GARCH-EVT combina dinâmica de volatilidade com teoria dos valores extremos para estimar VaR e Expected Shortfall com robustez.",
@@ -950,7 +950,7 @@ export const researchPapers: ResearchPaper[] = [
   /* ── SÉRIE GJO — ARTIGO 3 ── */
   {
     id: "backtesting-var-es",
-    date: "Mai 2026",
+    date: "Mai 2025",
     tag: "Quantitativo",
     title: "Validação de Modelos: Backtesting de VaR, ES e Métricas de Risco",
     desc: "Um modelo de risco só vale o que sobrevive ao confronto com dados novos. Os testes de Kupiec, Christoffersen e Acerbi-Szekely, e por que a validação contínua é o tribunal que separa modelos confiáveis de exercícios acadêmicos.",
@@ -1000,7 +1000,7 @@ export const researchPapers: ResearchPaper[] = [
   /* ── SÉRIE GJO — ARTIGO 4 ── */
   {
     id: "previsao-volatilidade",
-    date: "Jun 2026",
+    date: "Jul 2025",
     tag: "Quantitativo",
     title: "Previsão de Volatilidade: Do GARCH ao HAR-RV, Modelos com Saltos e Machine Learning em Commodities",
     desc: "A volatilidade direciona hedging, dimensionamento de posições e precificação de opções. Do GARCH clássico ao HAR-RV e ao machine learning, com o ceticismo necessário sobre os ganhos de IA e a integração de dados locais brasileiros.",
@@ -1066,7 +1066,7 @@ export const researchPapers: ResearchPaper[] = [
   /* ── SÉRIE GJO — ARTIGO 5 ── */
   {
     id: "hedging-commodities-b3",
-    date: "Jul 2026",
+    date: "Set 2025",
     tag: "Risco e Hedge",
     title: "Hedging de Commodities: Teoria Internacional e a Realidade Brasileira na B3",
     desc: "Nem todo hedge é igualmente eficaz. A razão ótima de Ederington, o debate OLS vs dinâmico, e a verdade incômoda das commodities brasileiras: soja e café protegem bem na B3, boi e açúcar quase não. A fundamentação da mesa de risco.",
