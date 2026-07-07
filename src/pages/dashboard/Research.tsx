@@ -40,6 +40,7 @@ const PUBLIC_IDS = new Set([
   "escassez-oferta-agricola-2026",
   "white-house-rare-earth-stocks",
   "fundamentos-medidas-risco",
+  "garch-evt-commodities",
 ]);
 
 /* Filtros disponíveis */

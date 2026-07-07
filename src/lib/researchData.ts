@@ -889,6 +889,62 @@ export const researchPapers: ResearchPaper[] = [
         content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C."
       }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 2 ── */
+  {
+    id: "garch-evt-commodities",
+    date: "Abr 2026",
+    tag: "Quantitativo",
+    title: "Modelagem de Risco de Cauda em Commodities: GARCH-EVT e Alternativas Avançadas",
+    desc: "Por que a hipótese de normalidade falha em commodities e como o framework GARCH-EVT combina dinâmica de volatilidade com teoria dos valores extremos para estimar VaR e Expected Shortfall com robustez.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "13 min",
+    isPublic: true,
+    sections: [
+      { type: "paragraph", content: "Autoria: GJO" },
+      { type: "abstract", content: "Em mercados de commodities, a volatilidade não é apenas alta: ela é agrupada, assimétrica e apresenta caudas extremamente pesadas. Um modelo que assume distribuição normal, ou que ignora a dinâmica temporal da volatilidade, inevitavelmente subestimará o risco de eventos extremos. Este artigo apresenta o framework GARCH-EVT, padrão de referência para a estimação de VaR e Expected Shortfall em petróleo, metais, grãos e demais commodities, e suas alternativas avançadas." },
+      { type: "heading", content: "A necessidade de modelos condicionais para caudas" },
+      { type: "paragraph", content: "Modelos puramente não-paramétricos, como a Historical Simulation simples, tratam todos os dias do passado como igualmente relevantes. Já os modelos paramétricos gaussianos subestimam sistematicamente as probabilidades de cauda. A literatura empírica sobre petróleo (WTI e Brent), em particular, mostra de forma consistente que a hipótese de normalidade falha de maneira dramática. Hung, Lee e Liu (2008) demonstraram que versões GARCH com inovações de cauda pesada (Student-t ou Generalized Error Distribution, GED) superam significativamente a versão gaussiana no mercado de petróleo. Ainda assim, mesmo esses modelos precisam de um tratamento específico para as caudas extremas." },
+      { type: "heading", content: "O framework seminal: GARCH-EVT (McNeil & Frey, 2000)" },
+      { type: "paragraph", content: "O artigo de McNeil e Frey (2000), publicado no Journal of Empirical Finance, propôs um procedimento em duas etapas que se tornou referência institucional. A primeira etapa, de filtragem, ajusta um modelo GARCH (ou suas variantes) aos retornos, para capturar a dinâmica de volatilidade e obter resíduos padronizados aproximadamente i.i.d. A segunda etapa, de cauda, aplica a Teoria dos Valores Extremos (EVT) sobre os resíduos, utilizando a Generalized Pareto Distribution (GPD) via método Peaks-Over-Threshold (POT), tipicamente acima do quantil 90 a 95%." },
+      { type: "callout", content: "O GARCH captura a heteroscedasticidade condicional e o clustering de volatilidade, enquanto a EVT fornece uma modelagem semi-paramétrica robusta para as caudas, sem assumir uma distribuição específica para todo o suporte." },
+      { type: "paragraph", content: "Os resultados do artigo original (aplicado ao S&P 500 e ao DAX em torno do crash de 1987) mostraram que o estimador condicional EVT respondia rapidamente ao aumento de volatilidade, ao contrário do EVT incondicional, que falhava em períodos de estresse." },
+      { type: "heading", content: "Extensões para commodities: assimetria, longa memória e macro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Echaust & Just (2020) e Aloui & Mabrouk (2010) encontraram superioridade do FIAPARCH-EVT (longa memória e assimetria) para WTI e gasolina.",
+        "O EGARCH-EVT frequentemente domina em Brent, pela capacidade de modelar o leverage effect (volatilidade maior em quedas).",
+        "Wei et al. (2024) propuseram o GARCH-MIDAS combinado com EVT, incorporando variáveis macroeconômicas de baixa frequência (oferta, demanda, estoques, geopolítica). Relevante para o Brasil, onde PTAX, preços em Paranaguá e indicadores da CONAB podem ser incorporados.",
+        "Karmakar & Shukla (2015) confirmaram robustez out-of-sample em seis países; Allen et al. (2013) obtiveram resultados semelhantes para FTSE 100 e S&P 500."
+      ] } },
+      { type: "heading", content: "Alternativa robusta: Filtered Historical Simulation (FHS)" },
+      { type: "paragraph", content: "Nem sempre é necessário assumir uma distribuição paramétrica para a cauda. O Filtered Historical Simulation (Barone-Adesi, Giannopoulos & Vosper, 1999) filtra os retornos com GARCH para remover a dinâmica de volatilidade, reamostra os resíduos padronizados (bootstrap) e reescala pela volatilidade condicional prevista, gerando distribuições empíricas condicionais realistas. É semi-paramétrico, coerente como medida espectral (Giannopoulos & Tunaru, 2005) e frequentemente competitivo com o GARCH-EVT puro." },
+      { type: "heading", content: "Evidência empírica em commodities" },
+      { type: "paragraph", content: "Estudos comparativos sistemáticos mostram a seguinte hierarquia aproximada para VaR one-day-ahead em petróleo e derivados: primeiro, FIAPARCH-EVT, EGARCH-EVT e GJR-GARCH-EVT com inovações Student-t ou GED; segundo, Filtered Historical Simulation; terceiro, GARCH com caudas pesadas sem EVT; e por último, Historical Simulation simples e Monte Carlo Gaussiano, com o pior desempenho. Em metais de transição energética (cobre, lítio, níquel), modelos GARCH-MIDAS com incerteza política global também se destacam (Salisu et al., 2023; Boer et al., 2025)." },
+      { type: "heading", content: "Implementação prática para o quant brasileiro" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Obter a série de retornos diários (CEPEA para soja/milho/café/boi, B3 para futuros, EIA/FRED para WTI/Brent).",
+        "Ajustar GARCH(1,1), EGARCH(1,1) ou FIAPARCH com distribuição Student-t (rugarch no R ou arch no Python).",
+        "Extrair os resíduos padronizados e aplicar a GPD acima de um limiar (Mean Excess Function ou testes de Kolmogorov-Smirnov).",
+        "Gerar VaR/ES condicionais via simulação ou fórmula analítica da GPD.",
+        "Implementar janela rolling (por exemplo, 1000 dias) e reestimar periodicamente."
+      ] } },
+      { type: "paragraph", content: "Para o agronegócio brasileiro, recomenda-se testar em séries com forte sazonalidade e quebras estruturais. O tratamento prévio de quebras (Zivot-Andrews ou Bai-Perron) é essencial antes da modelagem. O GARCH-EVT não é apenas um modelo acadêmico: é uma ferramenta operacional que permite estimar com maior confiabilidade o capital em risco, os limites de posição e a efetividade de hedges em um ambiente de elevada incerteza local e global." },
+      { type: "heading", content: "Referências" },
+      { type: "bullet-list", content: "", data: { items: [
+        "McNEIL, A. J.; FREY, R. Estimation of tail-related risk measures for heteroscedastic financial time series: an extreme value approach. Journal of Empirical Finance, v. 7, n. 3-4, p. 271-300, 2000.",
+        "HUNG, J.-C.; LEE, M.-C.; LIU, H.-C. Estimation of value-at-risk for energy commodities via fat-tailed GARCH models. Energy Economics, v. 30, n. 3, p. 1173-1191, 2008.",
+        "ECHAUST, K.; JUST, M. Value at risk estimation using the GARCH-EVT approach with optimal tail selection. Mathematics, v. 8, n. 1, 2020. [verificar paginacao]",
+        "ALOUI, C.; MABROUK, S. Value-at-risk estimations of energy commodities via long-memory, asymmetry and fat-tailed GARCH models. Energy Policy, v. 38, n. 5, p. 2326-2339, 2010.",
+        "WEI, Y. et al. Forecasting the VaR of crude oil market: GARCH-MIDAS with extreme value theory. [verificar periodico/volume/paginas], 2024.",
+        "KARMAKAR, M.; SHUKLA, G. K. Managing extreme risk in some major stock markets: an extreme value approach. International Review of Economics & Finance, v. 35, p. 1-25, 2015.",
+        "ALLEN, D. E. et al. Estimating and simulating value at risk with the GARCH-EVT approach. [verificar periodico/volume/paginas], 2013.",
+        "BARONE-ADESI, G.; GIANNOPOULOS, K.; VOSPER, L. VaR without correlations for portfolios of derivative securities. Journal of Futures Markets, v. 19, n. 5, p. 583-602, 1999.",
+        "GIANNOPOULOS, K.; TUNARU, R. Coherent risk measures under filtered historical simulation. Journal of Banking & Finance, v. 29, n. 4, p. 979-996, 2005.",
+        "SALISU, A. A. et al. Modelling commodity price volatility with global economic policy uncertainty. [verificar periodico/volume/paginas], 2023."
+      ] } },
+      { type: "paragraph", content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C." }
+    ]
   }
 
 ];
