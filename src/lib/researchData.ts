@@ -766,6 +766,129 @@ export const researchPapers: ResearchPaper[] = [
         content: "Posicionamento Aeternum: Estamos monitorando MP, USAR e Aclara como posições Event-Driven de alta convicção. A timeline de legislação é 6-12 meses. O mercado ainda não precificou a magnitude dos subsídios potenciais."
       }
     ]
+  },
+
+  /* ── SÉRIE GJO — ARTIGO 1 ── */
+  {
+    id: "fundamentos-medidas-risco",
+    date: "Mar 2026",
+    tag: "Quantitativo",
+    title: "Fundamentos de Medidas de Risco: Coerência, Expected Shortfall e Drawdown Measures",
+    desc: "Por que o VaR não basta em mercados de commodities e quais métricas capturam a severidade das perdas extremas. Coerência, Expected Shortfall e medidas de drawdown como base da gestão de risco quantitativa.",
+    author: "AETERNUM QUANTITATIVE RISK TEAM",
+    readTime: "11 min",
+    isPublic: true,
+    sections: [
+      {
+        type: "paragraph",
+        content: "Autoria: GJO"
+      },
+      {
+        type: "abstract",
+        content: "Em mercados de commodities, o risco não se manifesta apenas como oscilações moderadas de preço. Um único evento, seja o colapso do WTI para preços negativos em abril de 2020, um choque climático sobre a safra de soja ou uma interrupção logística no escoamento do boi gordo, pode gerar perdas extremas que modelos simplistas falham em capturar. Este artigo estabelece a base conceitual da gestão de risco quantitativa: por que o VaR falha, como o Expected Shortfall corrige suas limitações, e o papel das medidas de drawdown."
+      },
+      {
+        type: "paragraph",
+        content: "O Value at Risk (VaR) consolidou-se como a métrica mais popular das últimas décadas. Sua interpretação é direta: com X% de confiança, a perda máxima esperada no horizonte de um dia (ou dez dias) não excederá Y. No entanto, apesar da interpretação intuitiva e da aceitação regulatória histórica, o VaR carrega limitações teóricas e práticas graves, que se tornam especialmente evidentes em ativos com distribuições assimétricas e caudas pesadas, como é o caso da maioria das commodities."
+      },
+      {
+        type: "heading",
+        content: "As limitações conceituais do VaR"
+      },
+      {
+        type: "paragraph",
+        content: "Em 1999, Artzner, Delbaen, Eber e Heath publicaram o trabalho seminal que estabeleceu os axiomas que toda medida de risco coerente deve satisfazer: monotonicidade, subaditividade, homogeneidade positiva e invariância por translação (adição de caixa)."
+      },
+      {
+        type: "paragraph",
+        content: "O VaR falha na propriedade de subaditividade. Isso significa que, em certos cenários, o risco medido de um portfólio combinado pode ser maior do que a soma dos riscos individuais, violando o princípio básico da diversificação. Em commodities, onde choques de oferta, câmbio e clima geram dependências não-lineares, essa falha pode levar à subestimação sistemática do risco de portfólio. Além disso, o VaR informa apenas o limiar a partir do qual as perdas se tornam extremas, mas nada diz sobre o que acontece além desse limiar. Perder exatamente o valor do VaR ou perder dez vezes esse valor são situações tratadas de forma idêntica pelo modelo."
+      },
+      {
+        type: "heading",
+        content: "Expected Shortfall (ES): a métrica coerente"
+      },
+      {
+        type: "paragraph",
+        content: "O Expected Shortfall (ES), também conhecido como Conditional Value at Risk (CVaR), surge como a solução natural. Ele representa a média das perdas nos piores (1 menos alfa) por cento dos cenários. Matematicamente, para distribuições contínuas:"
+      },
+      {
+        type: "equation",
+        content: "\\text{ES}_\\alpha(X) = \\frac{1}{1-\\alpha} \\int_\\alpha^1 \\text{VaR}_u(X) \\, du"
+      },
+      {
+        type: "paragraph",
+        content: "Acerbi e Tasche (2002) demonstraram formalmente que o ES satisfaz todos os axiomas de coerência propostos por Artzner et al. (1999), resultado também estabelecido por Pflug (2000). Mais do que isso, Rockafellar e Uryasev (2000, 2002) mostraram que a otimização de portfólios sob CVaR pode ser reformulada como um problema de programação linear, tornando-a computacionalmente viável mesmo para portfólios de grande dimensão."
+      },
+      {
+        type: "callout",
+        content: "Enquanto o VaR pode indicar que uma posição em futuros de boi gordo está dentro do limite, o ES revela a magnitude esperada das perdas quando o mercado realmente se deteriora. Em mercados com elevado risco de base e quebras estruturais frequentes, essa é a informação que importa."
+      },
+      {
+        type: "heading",
+        content: "Quando o caminho das perdas importa: drawdown"
+      },
+      {
+        type: "paragraph",
+        content: "Muitos gestores, especialmente os que operam estratégias sistemáticas ou com horizonte de investimento mais longo, não se preocupam apenas com perdas diárias, mas com a trajetória de perdas acumuladas: os drawdowns. O Conditional Drawdown-at-Risk (CDaR), desenvolvido por Chekhlov, Uryasev e Zabarankin (2003, 2005), generaliza o conceito de CVaR para o domínio dos drawdowns. Em vez de olhar perdas isoladas, ele considera a média dos piores drawdowns observados na curva de capital. Essa métrica é particularmente relevante para investidores sensíveis a sequências de perdas, como fundos de pensão ou family offices que alocam em commodities. Extensões como o Conditional Expected Drawdown (CED), de Goldberg e Mahmoud (2017), reforçam o arcabouço teórico."
+      },
+      {
+        type: "heading",
+        content: "A evolução regulatória e a prática institucional"
+      },
+      {
+        type: "paragraph",
+        content: "A importância dessas discussões teóricas se materializou na regulação internacional. O Fundamental Review of the Trading Book (FRTB), do Comitê de Basileia, estabeleceu o Expected Shortfall a 97,5% como a métrica principal para a abordagem de modelos internos. No Brasil, embora a regulação local ainda utilize predominantemente o VaR, as instituições mais sofisticadas já incorporam o ES e testes de coerência em suas estruturas internas de risco."
+      },
+      {
+        type: "paragraph",
+        content: "Vale registrar que a adoção regulatória do ES reabriu um debate técnico relevante: Gneiting (2011) mostrou que o ES não é elicitável isoladamente, o que por anos alimentou dúvidas sobre sua backtestabilidade. Fissler e Ziegel (2016) resolveram a questão ao demonstrar que o ES é conjuntamente elicitável com o VaR. O tema da validação de modelos, incluindo esse debate, será tratado em profundidade no artigo dedicado ao backtesting desta série."
+      },
+      {
+        type: "heading",
+        content: "Considerações práticas para implementação"
+      },
+      {
+        type: "bullet-list",
+        content: "",
+        data: {
+          items: [
+            "Comece calculando VaR histórico e ES histórico em janelas rolantes de 252 dias, usando séries do CEPEA (soja, milho, café) ou da EIA (WTI).",
+            "Observe como o ES consistentemente revela perdas mais severas que o VaR durante períodos de estresse (a safra 2021/22 e a invasão da Ucrânia em 2022 são bons laboratórios).",
+            "Avance para a otimização de portfólios via CVaR e CDaR, utilizando bibliotecas como Riskfolio-Lib (Python) ou PortfolioAnalytics (R)."
+          ]
+        }
+      },
+      {
+        type: "paragraph",
+        content: "O domínio desses fundamentos não é apenas pré-requisito técnico. É o que permite ao quant brasileiro diferenciar-se ao construir modelos que sobrevivem à complexidade local: risco de base elevado, influência de políticas públicas (CONAB, câmbio) e choques climáticos recorrentes. Este artigo estabelece a base conceitual para os próximos temas da série: da modelagem condicional de caudas à validação rigorosa desses modelos, passando por hedging eficiente e pela construção de estratégias sistemáticas robustas."
+      },
+      {
+        type: "heading",
+        content: "Referências"
+      },
+      {
+        type: "bullet-list",
+        content: "",
+        data: {
+          items: [
+            "ARTZNER, P.; DELBAEN, F.; EBER, J.-M.; HEATH, D. Coherent measures of risk. Mathematical Finance, v. 9, n. 3, p. 203-228, 1999.",
+            "ACERBI, C.; TASCHE, D. On the coherence of expected shortfall. Journal of Banking & Finance, v. 26, n. 7, p. 1487-1503, 2002.",
+            "PFLUG, G. C. Some remarks on the value-at-risk and the conditional value-at-risk. In: Probabilistic Constrained Optimization. Springer, 2000. p. 272-281.",
+            "ROCKAFELLAR, R. T.; URYASEV, S. Optimization of conditional value-at-risk. Journal of Risk, v. 2, n. 3, p. 21-41, 2000.",
+            "ROCKAFELLAR, R. T.; URYASEV, S. Conditional value-at-risk for general loss distributions. Journal of Banking & Finance, v. 26, n. 7, p. 1443-1471, 2002.",
+            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Portfolio optimization with drawdown constraints. In: Asset and Liability Management Tools, 2003. [verificar paginacao/editora]",
+            "CHEKHLOV, A.; URYASEV, S.; ZABARANKIN, M. Drawdown measure in portfolio optimization. International Journal of Theoretical and Applied Finance, v. 8, n. 1, p. 13-58, 2005.",
+            "GOLDBERG, L. R.; MAHMOUD, O. Drawdown: from practice to theory and back again. Mathematics and Financial Economics, v. 11, p. 275-297, 2017.",
+            "GNEITING, T. Making and evaluating point forecasts. Journal of the American Statistical Association, v. 106, n. 494, p. 746-762, 2011.",
+            "FISSLER, T.; ZIEGEL, J. F. Higher order elicitability and Osband's principle. The Annals of Statistics, v. 44, n. 4, p. 1680-1707, 2016."
+          ]
+        }
+      },
+      {
+        type: "paragraph",
+        content: "Autoria: Olivieri, G. J. | Revisão: Furtado, G. C."
+      }
+    ]
   }
 
 ];

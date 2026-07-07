@@ -39,6 +39,7 @@ const PUBLIC_IDS = new Set([
   "cinco-vantagens-agro-brasil",
   "escassez-oferta-agricola-2026",
   "white-house-rare-earth-stocks",
+  "fundamentos-medidas-risco",
 ]);
 
 /* Filtros disponíveis */
