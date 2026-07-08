@@ -632,7 +632,7 @@ export default function PagamentosGlobais() {
               {
                 perfil: "Tesouraria",
                 beneficio: "Gestão de caixa on-chain e tokenização doméstica",
-                apoio: "Padrão Franklin Templeton (BENJI) e o marco CVM 88. A Aeternum estrutura e analisa.",
+                apoio: "Padrão Franklin Templeton (BENJI) e o arcabouço regulatório da CVM. A Aeternum estrutura e analisa.",
               },
             ].map((b, i) => (
               <Reveal key={b.perfil} delay={i * 0.05}>
