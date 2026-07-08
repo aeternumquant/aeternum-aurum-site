@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/common/Footer";
 import Reveal from "../components/common/Reveal";
+import GoiasFlowMap from "../components/maps/GoiasFlowMap";
+import { useLanguage } from "../context/LanguageContext";
 import { useTravelingHighlight } from "../hooks/useTravelingHighlight";
 import { RouteSeo } from "../lib/seo/RouteSeo";
 
@@ -217,6 +219,7 @@ export default function FrameworkPage() {
   const [ctaEmail, setCtaEmail] = useState("");
   const [ctaSent, setCtaSent] = useState(false);
   const [ctaError, setCtaError] = useState(false);
+  const { t } = useLanguage();
 
   const handleCtaSubmit = () => {
     const valido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ctaEmail.trim());
@@ -399,6 +402,56 @@ export default function FrameworkPage() {
             </p>
           </Reveal>
           <EtapasList />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════
+          BLOCO: Zona Piloto Goiás (movido de Execução)
+          GoiasFlowMap importado (componente compartilhado, não duplicado).
+      ══════════════════════════════════════════════════════ */}
+      <section className="py-14 md:py-24 px-6 md:px-10 border-b border-white/5" style={{ backgroundColor: "#0a0a0a" }}>
+        <div className="max-w-5xl mx-auto">
+          <Reveal>
+            <SectionHeader
+              eyebrow="Infraestrutura Regional"
+              title={
+                <>
+                  {t("exec.zona.title", "Zona Piloto")}{" "}
+                  <span style={{ color: "rgba(198,168,90,0.90)" }}>{t("exec.zona.goias", "• Goiás")}</span>
+                </>
+              }
+            />
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl mt-6 mb-12">
+              {t("exec.zona.subtitle", "Infraestrutura Logística e Financeira Regional. Fluxo Global de Clima para Agro.")}
+            </p>
+          </Reveal>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <Reveal className="lg:col-span-8">
+              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm h-[400px]">
+                <GoiasFlowMap standalone={true} />
+              </div>
+            </Reveal>
+
+            <div className="lg:col-span-4 flex flex-col gap-3">
+              {[
+                { name: "Goiânia", role: "Hub Financeiro", desc: "Capital e polo de regulação e estruturação de operações financeiras (R$ 12B PIB)." },
+                { name: "Brasília", role: "Capital Federal", desc: "Governança estratégica, compliance e regulação macro." },
+                { name: "Rio Verde", role: "Soja & Milho", desc: "Principal nó de escoamento. Exportação direta de US$ 4.2B anuais." },
+                { name: "Jataí", role: "Grãos & Proteína", desc: "Top 10 Nacional em volume agropecuário estruturado." },
+                { name: "Catalão", role: "Nióbio & Mineração", desc: "Base de depósitos minerais estratégicos e base CMOC/Niobras." },
+                { name: "Campos Verdes", role: "Esmeraldas", desc: "Polo mundial de extração de gemas com lastro tangível." },
+              ].map((city, idx) => (
+                <div key={idx} className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 p-3 rounded-sm hover:border-primary/20 transition-colors">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-[#F5F5F5] font-display text-sm tracking-wider">{city.name}</span>
+                    <span className="text-[9px] text-[#C6A85A] tracking-widest uppercase font-mono">{city.role}</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">{city.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
