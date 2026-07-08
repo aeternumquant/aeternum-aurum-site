@@ -1,504 +1,745 @@
+/**
+ * PagamentosGlobais.tsx - rota /pagamentos-globais (rótulo de menu: "Liquidação")
+ *
+ * Estilo visual da Pesquisa (Research.tsx): Sistema A (fundos transparentes
+ * + glow), cards escaneáveis, muito respiro. Cada card tem superfície mínima
+ * (título + número-âncora + uma linha); a densidade fica recolhida no
+ * Disclosure (2 a 3 pontos) ou migra para os artigos da Pesquisa.
+ */
 import { NavLink } from "react-router-dom";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Footer from "../../components/common/Footer";
-import { FadeIn } from "../../components/common/FadeIn";
+import Reveal from "../../components/common/Reveal";
 import Disclosure from "../../components/common/Disclosure";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
+import { YieldCurveChart, NodeGraphChart } from "../../components/liquidacao/CostVisuals";
 
-/* ────────────────────────────────────────────────────────────
-   Metadado de fonte, sobrio, ao pe de cada conteudo denso.
-──────────────────────────────────────────────────────────── */
-function SourceMeta({ referencia, confianca }: { referencia: string; confianca: string }) {
+const GOLD = "#C6A85A";
+
+/* ── Helpers de layout (padrão Research/Sistema A) ── */
+function SectionLabel({ children }: { children: string }) {
   return (
-    <div className="mt-5 pt-3 border-t border-white/5 flex flex-wrap gap-x-6 gap-y-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/45">
-      <span>
-        Referência: <span className="text-muted-foreground/70">{referencia}</span>
-      </span>
-      <span>
-        Confiança: <span className="text-primary/60">{confianca}</span>
-      </span>
-    </div>
+    <p className="font-sans text-[9px] uppercase tracking-[0.32em] mb-3" style={{ color: `${GOLD}85` }}>
+      {children}
+    </p>
   );
 }
 
-/* Rotulo + titulo de secao, padrao da casa. */
-function SectionHead({
-  eyebrow,
-  title,
-  children,
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      className="font-display font-light uppercase tracking-widest leading-tight mb-4"
+      style={{ fontSize: "clamp(1.3rem, 2.8vw, 1.9rem)", color: GOLD }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+function GoldLine() {
+  return <div className="h-px max-w-[80px] mb-8 shimmer-line" />;
+}
+
+/* Número-âncora, destaque discreto na superfície do card. */
+function Anchor({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="font-sans text-[11px] tracking-wide font-normal normal-case" style={{ color: `${GOLD}b0` }}>
+      {children}
+    </span>
+  );
+}
+
+/* Selo de encaixe (não de investimento): chip em destaque no topo do card. */
+function Selo({ children }: { children: string }) {
+  return (
+    <span className="inline-block mb-2 font-sans text-[8.5px] tracking-[0.2em] uppercase border border-primary/25 text-primary/80 px-2 py-0.5">
+      {children}
+    </span>
+  );
+}
+
+/* Ponto curto dentro do Disclosure. */
+function Ponto({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex gap-2.5">
+      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary/50" aria-hidden="true" />
+      <span>{children}</span>
+    </li>
+  );
+}
+
+function Fonte({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-4 text-[10px] uppercase tracking-[0.15em] text-muted-foreground/45">{children}</p>
+  );
+}
+
+function PesquisaLink({
+  to = "/research",
+  children = "Fundamentação na Pesquisa",
 }: {
-  eyebrow: string;
-  title: React.ReactNode;
-  children?: React.ReactNode;
+  to?: string;
+  children?: string;
 }) {
   return (
-    <FadeIn>
-      <p className="text-[10px] text-primary/70 tracking-[0.3em] uppercase mb-3">{eyebrow}</p>
-      <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl text-foreground tracking-wide uppercase mb-5 leading-tight">
-        {title}
-      </h2>
+    <NavLink
+      to={to}
+      className="inline-flex items-center gap-1 mt-4 text-[10px] uppercase tracking-[0.2em] text-primary/70 hover:text-primary transition-colors"
+    >
       {children}
-    </FadeIn>
+      <ArrowUpRight className="w-3 h-3" />
+    </NavLink>
+  );
+}
+
+/* Rodapé de compliance reutilizável. */
+function ComplianceNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] text-muted-foreground/45 font-light leading-relaxed">{children}</p>
   );
 }
 
 /* ────────────────────────────────────────────────────────────
-   DADOS (pesquisa verificada, com data de referencia)
-──────────────────────────────────────────────────────────── */
-
-const CAMADAS = [
-  {
-    rotulo: "Mensageria",
-    titulo: "ISO 20022",
-    frase: "A linguagem dos pagamentos. O Brasil já fala.",
-  },
-  {
-    rotulo: "Liquidação",
-    titulo: "Onde o valor se move",
-    frase: "Quatro trilhos em disputa pela camada de liquidação.",
-  },
-  {
-    rotulo: "Ativo",
-    titulo: "Tokenização de RWA",
-    frase: "Do bond soberano à CPR do produtor.",
-  },
-];
-
-const TRILHOS = [
-  {
-    nome: "Stablecoins",
-    volume: "~US$ 10,8 tri ajustados/ano",
-    linha: "Onde o volume realmente está: ~US$ 400 bi cross-border/ano (BIS).",
-    referencia: "Brutos 2025; ajuste pela metodologia Visa",
-    confianca: "Alta",
-    detalhe: (
-      <p>
-        USDC movimentou US$ 18,3 tri e USDT US$ 13,3 tri em volume bruto (2025). Ajustado pela
-        metodologia da Visa, que remove bots e transferências internas, o total do ano fica em
-        cerca de US$ 10,8 tri. Em junho de 2026, recorde de US$ 1,79 tri ajustado em um único mês.
-        Leitura operacional: o USDT move mais transações (varejo, mercados emergentes), o USDC move
-        mais dinheiro por transação (fluxo institucional).
-      </p>
-    ),
-  },
-  {
-    nome: "Depósitos tokenizados",
-    volume: "Kinexys (JPMorgan) ~US$ 3 bi/dia",
-    linha: "O trilho que os bancos construíram para si.",
-    referencia: "2025 / 2026 (JPMorgan)",
-    confianca: "Alta",
-    detalhe: (
-      <p>
-        A Kinexys (JPMorgan) liquida mais de US$ 3 bi por dia e acumula mais de US$ 3 tri desde o
-        lançamento; o token JPMD foi levado à Base, uma blockchain pública. São três os pilares do
-        dólar on-chain, com naturezas jurídicas distintas: o depósito tokenizado (claim contra o
-        banco), a stablecoin (claim contra reservas segregadas) e o money market fund tokenizado
-        (BUIDL, da BlackRock, cerca de US$ 3 bi, que é valor mobiliário). É o trilho que os grandes
-        bancos ergueram para operar entre si.
-      </p>
-    ),
-  },
-  {
-    nome: "CBDCs de atacado",
-    volume: "mBridge ~US$ 55,5 bi vs Agorá",
-    linha: "A bifurcação geopolítica: substituir o correspondente ou preservá-lo.",
-    referencia: "out 2024 (BIS); Agorá no 1º sem 2026",
-    confianca: "Média-alta (número do mBridge merece dupla checagem)",
-    detalhe: (
-      <p>
-        O BIS graduou-se para fora do mBridge em outubro de 2024, em meio a preocupação com evasão
-        de sanções. O mBridge virou trilho de liquidação em renminbi entre a China e o Golfo (cerca
-        de US$ 55,5 bi movimentados, aproximadamente 95% em yuan digital, sem bancos centrais
-        ocidentais). O Project Agorá segue o caminho oposto: preserva o correspondent banking
-        tokenizando depósitos de bancos comerciais (G7 ampliado e SWIFT), com resultados esperados
-        para o 1º semestre de 2026. A distinção estrutural é nítida: o mBridge substitui o
-        correspondente, o Agorá o preserva. Pano de fundo: os fluxos cross-border somaram cerca de
-        US$ 195 tri em 2024.
-      </p>
-    ),
-  },
-  {
-    nome: "Interligação de instantâneos",
-    volume: "Project Nexus, liquidação em ~60s",
-    linha: "O Pix internacional. O único trilho em que o Brasil tem assento natural.",
-    referencia: "Desenho consolidado; cronograma em aberto",
-    confianca: "Alta no desenho, baixa em cronograma",
-    detalhe: (
-      <p>
-        O Project Nexus conecta sistemas de pagamento instantâneo domésticos (Malásia, Singapura e a
-        Zona do Euro via Itália; Brasil como observador), com liquidação em cerca de 60 segundos. É
-        nativamente ISO 20022, o que dá ao Pix um encaixe direto. É o terceiro modelo arquitetural
-        da liquidação cross-border, ao lado de mBridge e Agorá, e o único em que o Brasil tem
-        assento natural. Ainda sem data oficial de lançamento.
-      </p>
-    ),
-  },
-];
-
-const MARCOS = [
-  {
-    data: "10 nov 2025",
-    titulo: "BCB publica as Resoluções 519, 520 e 521",
-    detalhe:
-      "Regulamentam a Lei 14.478/2022. A 519 trata da autorização das prestadoras de serviços de ativos virtuais. A 520 cuida da constituição e do funcionamento (intermediárias, custodiantes, corretoras). A 521 inclui os ativos virtuais nas normas do mercado de câmbio.",
-  },
-  {
-    data: "2 fev 2026",
-    titulo: "As regras entram em vigor",
-    detalhe:
-      "Passa a valer o arcabouço das três resoluções para as prestadoras que buscam autorização de funcionamento.",
-  },
-  {
-    data: "4 mai 2026",
-    titulo: "Normas de câmbio passam a valer",
-    detalhe:
-      "Entra o reporte mensal detalhado ao BCB, com travel rule e identificação dos titulares de carteiras.",
-  },
-  {
-    data: "jul 2026",
-    titulo: "DeCripto (IN RFB 2.291)",
-    detalhe:
-      "A Instrução Normativa da Receita Federal alinha o Brasil ao CARF/OCDE de troca de informações sobre ativos virtuais.",
-  },
-  {
-    data: "30 out 2026",
-    titulo: "Trava de contrapartes",
-    detalhe:
-      "Instituições autorizadas ficam proibidas de operar ativos virtuais com contrapartes não autorizadas no Brasil.",
-  },
-];
-
-/* ────────────────────────────────────────────────────────────
-   PAGINA
+   PÁGINA
 ──────────────────────────────────────────────────────────── */
 export default function PagamentosGlobais() {
   return (
-    <main className="pt-14 min-h-screen bg-[#0A0A0A]">
+    <main className="pt-14 min-h-screen">
       <RouteSeo
-        title="Pagamentos Globais"
-        fullTitle="Pagamentos Globais · Aeternum Aurum Partners"
-        description="A reconfiguração da infraestrutura de pagamentos em três camadas: mensageria (ISO 20022), liquidação (stablecoins, depósitos tokenizados, CBDCs, Nexus) e ativo (tokenização de RWA), com a janela regulatória brasileira de 2026."
+        title="Liquidação"
+        fullTitle="Liquidação · Pagamentos Globais · Aeternum Aurum Partners"
+        description="Liquidação e pagamentos globais em três camadas: mensageria (ISO 20022), liquidação (stablecoins, depósitos tokenizados, CBDCs, Nexus) e ativo (tokenização de RWA), com redes, casos e a janela regulatória brasileira de 2026."
         path="/pagamentos-globais"
       />
 
       {/* ═══════════════ HERO (PASSO 3) ═══════════════ */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background z-0" />
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">
-              Infraestrutura de liquidação global
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative">
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: `radial-gradient(ellipse at top, ${GOLD}09 0%, transparent 60%)` }}
+        />
+        <div className="relative z-10 max-w-3xl mx-auto text-center">
+          <Reveal>
+            <p className="font-sans text-[9px] tracking-[0.35em] uppercase mb-4" style={{ color: `${GOLD}80` }}>
+              Infraestrutura de pagamentos globais
             </p>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-foreground uppercase tracking-widest mb-5 leading-tight">
-              Pagamentos <span className="text-primary">Globais</span>
+            <h1
+              className="font-display font-light uppercase tracking-widest mb-6"
+              style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", color: GOLD }}
+            >
+              Liquidação
             </h1>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light max-w-2xl">
-              A maior reconfiguração da infraestrutura de pagamentos em décadas, organizada em três
-              camadas.
+            <p className="text-sm leading-relaxed font-light max-w-xl mx-auto" style={{ color: "rgba(255,255,255,0.4)" }}>
+              A maior reconfiguração da infraestrutura de pagamentos em décadas, em três camadas.
             </p>
-          </FadeIn>
+          </Reveal>
 
-          {/* Três camadas */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
-            {CAMADAS.map((c, i) => (
-              <FadeIn key={c.rotulo} delay={0.1 + i * 0.08}>
-                <div className="h-full bg-[#1C1C1C]/40 border border-[#C6A85A]/10 rounded-sm p-5 hover:border-[#C6A85A]/30 transition-colors">
-                  <p className="text-[9px] text-primary/60 tracking-[0.3em] uppercase mb-3">
-                    {c.rotulo}
+          {/* Três camadas: três palavras-chave */}
+          <Reveal delay={0.1}>
+            <div className="mt-10 flex flex-col sm:flex-row items-stretch justify-center gap-3 sm:gap-0 sm:divide-x divide-white/10">
+              {[
+                { k: "Mensageria", v: "ISO 20022" },
+                { k: "Liquidação", v: "Quatro trilhos" },
+                { k: "Ativo", v: "Tokenização de RWA" },
+              ].map((c) => (
+                <div key={c.k} className="px-6">
+                  <p className="font-sans text-[9px] tracking-[0.3em] uppercase mb-1.5" style={{ color: `${GOLD}80` }}>
+                    {c.k}
                   </p>
-                  <h3 className="font-display text-lg sm:text-xl text-foreground tracking-wide mb-2 leading-snug">
-                    {c.titulo}
-                  </h3>
-                  <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                    {c.frase}
-                  </p>
+                  <p className="font-display text-base text-foreground/85 tracking-wide">{c.v}</p>
                 </div>
-              </FadeIn>
-            ))}
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════ PONTO DE PARTIDA (PASSOS 4 e 5) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>Ponto de partida</SectionLabel>
+            <SectionTitle>O padrão e o vácuo</SectionTitle>
+            <GoldLine />
+          </Reveal>
+
+          <div className="space-y-3">
+            {/* Card: Brasil já é ISO 20022 */}
+            <Reveal>
+              <Disclosure
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>O Brasil já é ISO 20022</span>
+                    <Anchor>Pix nativo desde 2016</Anchor>
+                  </span>
+                }
+                subtitle="O Pix nasceu nativo no padrão (BCB, 2016). O mundo chegou em novembro de 2025."
+              >
+                <ul className="space-y-2">
+                  <Ponto>O estudo BCB SG-ISO20022-TF (2016) embasou o ISO 20022 no Pix.</Ponto>
+                  <Ponto>A SWIFT encerrou a coexistência MT/MX cross-border em novembro de 2025.</Ponto>
+                  <Ponto>Escala do padrão: de cerca de 100 para cerca de 9.000 caracteres por mensagem.</Ponto>
+                </ul>
+                <PesquisaLink />
+              </Disclosure>
+            </Reveal>
+
+            {/* Card: A causa raiz */}
+            <Reveal delay={0.05}>
+              <Disclosure
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>O vácuo que tudo preenche</span>
+                    <Anchor>-20% a -30%</Anchor>
+                  </span>
+                }
+                subtitle="O correspondent banking encolheu desde 2011. A América Latina foi a mais afetada."
+              >
+                <ul className="space-y-2">
+                  <Ponto>CPMI/BIS: cerca de 22% de queda já em 2020; a BAFT estima cerca de 29% em 2025.</Ponto>
+                  <Ponto>Causa: custo de compliance AML/CFT.</Ponto>
+                  <Ponto>
+                    Só 35% dos pagamentos cross-border cumpriam a meta do G20 em 2025 (FSB). Stablecoins,
+                    Nexus, mBridge e Agorá respondem ao mesmo vácuo.
+                  </Ponto>
+                </ul>
+              </Disclosure>
+            </Reveal>
           </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ O BRASIL JÁ FALA ISO 20022 (PASSO 4) ═══════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <SectionHead eyebrow="Camada de mensageria" title="O Brasil já fala ISO 20022">
-            <p className="text-foreground/90 text-base sm:text-lg leading-relaxed font-light mb-3">
-              A empresa brasileira não precisa se preparar para o ISO 20022. Ela já opera sobre ele
-              via Pix.
-            </p>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light">
-              O Pix é nativamente ISO 20022 desde o desenho (BCB, 2016). O mundo chegou lá em
-              novembro de 2025, quando a SWIFT encerrou a coexistência MT/MX para pagamentos
-              cross-border.
-            </p>
-          </SectionHead>
-
-          <FadeIn delay={0.1}>
-            <div className="mt-8">
-              <Disclosure
-                title="Por que o padrão é camada de dados, não só de transporte"
-                subtitle="O estudo do BCB de 2016, a arquitetura dividida do sistema brasileiro e a escala da mensagem."
-              >
-                <ul className="space-y-3 list-none">
-                  <li>
-                    O estudo do BCB de junho de 2016 (grupo SG-ISO20022-TF) embasou o uso de ISO
-                    20022 no SPI, o sistema que viria a operar o Pix.
-                  </li>
-                  <li>
-                    A arquitetura é curiosa: o varejo instantâneo (Pix) nasce nativo em ISO 20022,
-                    convivendo com o atacado (STR) ainda em formato proprietário.
-                  </li>
-                  <li>
-                    A escala do padrão salta de cerca de 100 para cerca de 9.000 caracteres por
-                    mensagem, com mais de 750 componentes de negócio e mais de 1.900 definições de
-                    mensagem. É camada de dados, não só de transporte.
-                  </li>
-                </ul>
-                <SourceMeta
-                  referencia="2016 (estudo BCB) / nov 2025 (SWIFT)"
-                  confianca="Alta (documentos primários BCB e SWIFT)"
-                />
-              </Disclosure>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════ CAUSA RAIZ (PASSO 5) ═══════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <SectionHead eyebrow="A causa raiz" title="Um vácuo a preencher">
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light">
-              Tudo isto existe para preencher um vácuo: o correspondent banking encolheu cerca de 20
-              a 30% desde 2011, e a América Latina foi a região mais afetada.
-            </p>
-          </SectionHead>
-
-          <FadeIn delay={0.1}>
-            <div className="mt-8">
-              <Disclosure
-                title="O tamanho do encolhimento e suas consequências"
-                subtitle="Números do BIS/CPMI e do FSB, e por que as respostas convergem para o mesmo ponto."
-              >
-                <ul className="space-y-3 list-none">
-                  <li>
-                    Queda de cerca de 22% já em 2020 (CPMI/BIS); a BAFT estima cerca de 29%
-                    acumulados em 2025. O motor é o custo de compliance AML/CFT.
-                  </li>
-                  <li>
-                    Consequência direta: apenas 35% dos pagamentos cross-border de varejo cumpriam a
-                    meta do G20 (crédito em uma hora) em 2025, contra a meta de 75% até 2027 (FSB).
-                  </li>
-                  <li>
-                    Em paralelo, o CIPS chinês já conectava instituições em 119 países (março de
-                    2025).
-                  </li>
-                  <li className="text-foreground/80">
-                    Stablecoins, Nexus, mBridge, Agorá e depósitos tokenizados são todos respostas ao
-                    mesmo vácuo.
-                  </li>
-                </ul>
-                <SourceMeta
-                  referencia="2020/2025 (BIS, CPMI, FSB); BAFT como secundária"
-                  confianca="Alta (BIS/CPMI/FSB primários); BAFT secundário"
-                />
-              </Disclosure>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
       {/* ═══════════════ OS QUATRO TRILHOS (PASSO 6) ═══════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <SectionHead
-            eyebrow="Camada de liquidação"
-            title="Os quatro trilhos da liquidação"
-          >
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light">
-              Quatro trilhos disputam hoje a camada onde o valor efetivamente se move. Cada card
-              abre para o detalhe verificado.
-            </p>
-          </SectionHead>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-            {TRILHOS.map((t, i) => (
-              <FadeIn key={t.nome} delay={0.05 + i * 0.06}>
-                <Disclosure
-                  className="h-full"
-                  title={
-                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span>{t.nome}</span>
-                      <span className="font-sans text-[11px] tracking-wide text-primary/70 font-normal normal-case">
-                        {t.volume}
-                      </span>
-                    </span>
-                  }
-                  subtitle={t.linha}
-                >
-                  {t.detalhe}
-                  <SourceMeta referencia={t.referencia} confianca={t.confianca} />
-                </Disclosure>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ JANELA REGULATÓRIA 2026 (PASSO 7) ═══════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
         <div className="max-w-4xl mx-auto">
-          <SectionHead
-            eyebrow="Marco regulatório brasileiro"
-            title="A janela de adequação de 2026"
-          >
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light">
-              Entre fevereiro e outubro de 2026 há uma corrida de adequação. É o vão entre a
-              regulação e a implementação que uma casa de software e ciência de dados preenche.
-            </p>
-          </SectionHead>
+          <Reveal>
+            <SectionLabel>Camada de liquidação</SectionLabel>
+            <SectionTitle>Os quatro trilhos</SectionTitle>
+            <GoldLine />
+          </Reveal>
 
-          {/* Timeline: cada marco expansivel */}
-          <div className="mt-8 space-y-3">
-            {MARCOS.map((m, i) => (
-              <FadeIn key={m.data} delay={0.04 * i}>
-                <Disclosure
-                  title={
-                    <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span className="font-sans text-[11px] tracking-[0.2em] uppercase text-primary/70 font-normal">
-                        {m.data}
-                      </span>
-                      <span>{m.titulo}</span>
-                    </span>
-                  }
-                >
-                  <p>{m.detalhe}</p>
-                </Disclosure>
-              </FadeIn>
-            ))}
-          </div>
-
-          {/* O que muda para o cliente */}
-          <FadeIn delay={0.1}>
-            <div className="mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Reveal>
               <Disclosure
-                defaultOpen
-                title="O que muda para o cliente"
-                subtitle="Operações que passam a ser câmbio, a nuance que a versão idealizada omite, a prova nos dados da Receita e o reposicionamento do Drex."
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>Stablecoins</span>
+                    <Anchor>~US$ 10,8 tri/ano</Anchor>
+                  </span>
+                }
+                subtitle="Onde o volume está."
               >
-                <div className="space-y-5">
-                  <div>
-                    <p className="text-foreground/85 mb-1">Passam a ser câmbio</p>
-                    <p>
-                      Pagamentos e transferências internacionais com ativos virtuais, quitar despesa
-                      no exterior com cripto, e compra, venda ou troca de stablecoins. Limites de US$
-                      100 mil (US$ 500 mil para corretoras e DTVMs). Capital mínimo das prestadoras:
-                      de R$ 10,8 mi a R$ 37,2 mi.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-primary/80 mb-1">A nuance que a versão idealizada omite</p>
-                    <p>
-                      Usar stablecoin não elimina a obrigação cambial na conversão para reais (Lei
-                      14.286). A operação de câmbio ainda passa por instituição autorizada.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-foreground/85 mb-1">A prova doméstica (Receita Federal, jun/jul 2026)</p>
-                    <p>
-                      Cerca de R$ 1,58 tri declarados em cripto (agosto de 2019 a dezembro de 2025),
-                      dos quais R$ 1,13 tri (71,7%) em stablecoins; o USDT responde por 88,7% do
-                      volume em stablecoin. A dolarização digital via stablecoin não é tendência
-                      futura no Brasil, é fato consumado nos dados da Receita.
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-foreground/85 mb-1">Drex reposicionado (nov 2025)</p>
-                    <p>
-                      A plataforma Besu foi desativada, o foco mudou para reconciliação de gravames e
-                      garantias, os pagamentos deixaram de ser prioridade e a integração
-                      internacional foi adiada. A narrativa de Drex como trilho de exportação em
-                      breve está morta no curto prazo.
-                    </p>
-                  </div>
-                </div>
-                <SourceMeta
-                  referencia="Normas publicadas (BCB) e dado oficial da Receita Federal, 2025/2026"
-                  confianca="Alta (normas publicadas, dado oficial da Receita)"
-                />
+                <ul className="space-y-2">
+                  <Ponto>USDC move mais dinheiro (institucional); USDT move mais transações (varejo).</Ponto>
+                  <Ponto>Cerca de US$ 400 bi cross-border por ano (BIS).</Ponto>
+                </ul>
+                <Fonte>Ref.: brutos 2025, ajuste pela metodologia Visa · Confiança: alta</Fonte>
               </Disclosure>
-            </div>
-          </FadeIn>
+            </Reveal>
+
+            <Reveal delay={0.05}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>Depósitos tokenizados</span>
+                    <Anchor>~US$ 3 bi/dia</Anchor>
+                  </span>
+                }
+                subtitle="O trilho dos bancos (Kinexys/JPMorgan)."
+              >
+                <ul className="space-y-2">
+                  <Ponto>Claim contra o banco, dentro do perímetro regulatório.</Ponto>
+                  <Ponto>O token JPMD foi levado à Base, uma blockchain pública.</Ponto>
+                </ul>
+                <Fonte>Ref.: 2025/2026 (JPMorgan) · Confiança: alta</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>CBDCs de atacado</span>
+                    <Anchor>mBridge vs Agorá</Anchor>
+                  </span>
+                }
+                subtitle="A bifurcação geopolítica."
+              >
+                <ul className="space-y-2">
+                  <Ponto>
+                    mBridge (~US$ 55,5 bi, ~95% yuan, sem bancos centrais ocidentais) substitui o
+                    correspondente.
+                  </Ponto>
+                  <Ponto>Agorá (G7 ampliado e SWIFT) preserva o correspondente.</Ponto>
+                </ul>
+                <Fonte>Ref.: out 2024 (BIS) · Confiança: média-alta (número do mBridge merece dupla checagem)</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            <Reveal delay={0.15}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>Nexus</span>
+                    <Anchor>liquidação em ~60s</Anchor>
+                  </span>
+                }
+                subtitle="O Pix internacional."
+              >
+                <ul className="space-y-2">
+                  <Ponto>Conecta sistemas de pagamento instantâneo domésticos; nativo ISO 20022.</Ponto>
+                  <Ponto>Brasil como observador; sem data oficial de lançamento.</Ponto>
+                </ul>
+                <Fonte>Ref.: desenho consolidado · Confiança: alta no desenho, baixa em cronograma</Fonte>
+              </Disclosure>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* ═══════════════ FECHO + CTA + COMPLIANCE (PASSO 8) ═══════════════ */}
+      {/* ═══════════════ NARRATIVA vs REALIDADE (PASSO 7) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>O método Aeternum</SectionLabel>
+            <SectionTitle>O teste que separa narrativa de realidade</SectionTitle>
+            <GoldLine />
+          </Reveal>
+
+          <Reveal>
+            <Disclosure
+              title="Três redes, o mesmo vocabulário, os mesmos logos"
+              subtitle="O que as separa é o volume real."
+            >
+              <ul className="space-y-2">
+                <Ponto>RWA mais ISO 20022 virou o script de marketing padrão do setor.</Ponto>
+                <Ponto>
+                  O diferenciador não é a narrativa (idêntica), é o volume liquidado e a existência de caso
+                  concreto no mercado-alvo.
+                </Ponto>
+              </ul>
+
+              {/* Micro-tabela de escala honesta */}
+              <div className="mt-4 border border-white/5" style={{ backgroundColor: "rgba(10,8,4,0.4)" }}>
+                <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
+                  <span className="text-xs text-foreground/80">Stablecoins</span>
+                  <span className="text-xs" style={{ color: `${GOLD}b0` }}>~US$ 10,8 tri/ano</span>
+                </div>
+                <div className="flex items-center justify-between px-3 py-2">
+                  <span className="text-xs text-muted-foreground/70">XRP · XLM · XDC · HBAR</span>
+                  <span className="text-xs text-muted-foreground/60">volumes documentados menores, nem sempre auditáveis</span>
+                </div>
+              </div>
+              <p className="mt-3 text-foreground/70">É este teste que a Aeternum aplica como método.</p>
+            </Disclosure>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════ AS REDES E SEUS ENCAIXES (PASSO 8) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>Redes e encaixes</SectionLabel>
+            <SectionTitle>Onde cada rede encaixa</SectionTitle>
+            <GoldLine />
+          </Reveal>
+
+          <div className="space-y-3">
+            {/* Algorand */}
+            <Reveal>
+              <Disclosure
+                title={
+                  <span className="block">
+                    <Selo>Operação agrícola brasileira documentada</Selo>
+                    <span className="block">Algorand</span>
+                  </span>
+                }
+                subtitle="Agrotoken tokeniza soja, milho e trigo com lastro 1:1 em armazém."
+              >
+                <ul className="space-y-2">
+                  <Ponto>
+                    Visa cocriou o cartão (pagar com grãos tokenizados) e investiu ~US$ 2 mi; a Bunge liderou
+                    a pré-série A (US$ 4 mi). Parceiros: Raízen, Santander.
+                  </Ponto>
+                  <Ponto>
+                    Operação BR: a AgroGalaxy tokenizou 2.000 t de soja; o Brasil é o 2º país com o cartão
+                    Agrotoken Visa.
+                  </Ponto>
+                  <Ponto>
+                    Ressalva: a 1ª operação BR rodou em Polygon; a Algorand é parte da infra multichain e
+                    parceira do cartão. Não afirmamos que o agro brasileiro roda em ALGO.
+                  </Ponto>
+                </ul>
+                <Fonte>Fontes: The AgriBiz (jan 2024), Visa Brasil, InfoMoney (2022)</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            {/* XDC */}
+            <Reveal delay={0.05}>
+              <Disclosure
+                title={
+                  <span className="block">
+                    <Selo>Financiamento de comércio exterior (trade finance)</Selo>
+                    <span className="block">XDC</span>
+                  </span>
+                }
+                subtitle="TradeFinex tokeniza warehouse receipts e cartas de crédito."
+              >
+                <ul className="space-y-2">
+                  <Ponto>
+                    Integra a Contour Network (MUFG, ICBC, Bank of China, DBS); primeiro L1 no Trade Finance
+                    Distribution Initiative da ITFA.
+                  </Ponto>
+                  <Ponto>Circle com USDC nativo; ETP da 21Shares na bolsa suíça.</Ponto>
+                  <Ponto>
+                    Ressalva de escala: cerca de US$ 64,2 mi em RWA on-chain (modesto). Sem caso agro
+                    brasileiro verificado.
+                  </Ponto>
+                  <Ponto>
+                    Encaixe: warehouse receipt e carta de crédito financiam a exportação de grão brasileiro.
+                  </Ponto>
+                </ul>
+                <Fonte>Ref.: ITFA, Contour, 21Shares (2024/2025)</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            {/* Hedera */}
+            <Reveal delay={0.1}>
+              <Disclosure
+                title={
+                  <span className="block">
+                    <Selo>Tokenização de RWA de alto valor</Selo>
+                    <span className="block">Hedera</span>
+                  </span>
+                }
+                subtitle="Governança por conselho corporativo; RWA físico de alto valor unitário."
+              >
+                <ul className="space-y-2">
+                  <Ponto>
+                    Conselho: Google, Dell, IBM, LG, EDF; entradas recentes de Accenture, FedEx, McLaren.
+                    Código sob a Linux Foundation.
+                  </Ponto>
+                  <Ponto>
+                    Caso sólido: Diamond Standard (diamante fungível certificado IGI), ~US$ 50 mi em ativos,
+                    ~US$ 2,5 mi de volume. Lloyds usou ativos tokenizados como colateral de FX.
+                  </Ponto>
+                  <Ponto>
+                    Ressalva: gema não é commodity agrícola; o caso diamante não transfere para soja. A
+                    iniciativa WGI/Vaultik de US$ 3 bi é meta anunciada, não valor liquidado.
+                  </Ponto>
+                </ul>
+                <Fonte>Ref.: Hedera Council, Diamond Standard, Lloyds (2024/2025)</Fonte>
+              </Disclosure>
+            </Reveal>
+          </div>
+
+          {/* Rodapé dos cards de rede (obrigatório) */}
+          <Reveal delay={0.1}>
+            <div className="mt-5 pt-4 border-t border-white/5">
+              <ComplianceNote>
+                Os cards apresentam tecnologia, infraestrutura e casos de uso, não recomendação de
+                investimento. O benefício é operacional (pagar, liquidar, colateralizar, tokenizar). Cada
+                afirmação tem fonte e data de referência.
+              </ComplianceNote>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════ CASOS-ÂNCORA (PASSO 9) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>Casos concretos</SectionLabel>
+            <SectionTitle>Casos-âncora</SectionTitle>
+            <GoldLine />
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Reveal>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>Franklin Templeton / BENJI</span>
+                    <Anchor>US$ 1,98 bi AUM</Anchor>
+                  </span>
+                }
+                subtitle="Fundo mútuo dos EUA com blockchain pública como registro oficial (Stellar)."
+              >
+                <ul className="space-y-2">
+                  <Ponto>Primeiro fundo do tipo (abril de 2021); mais de US$ 211 mi em transferências P2P.</Ponto>
+                  <Ponto>Versão UCITS europeia (gBENJI).</Ponto>
+                </ul>
+                <Fonte>Fonte: SEC, site da gestora</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            <Reveal delay={0.05}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>Santander bond 2019</span>
+                    <Anchor>US$ 20 mi on-chain</Anchor>
+                  </span>
+                }
+                subtitle="Bond emitido ponta a ponta na Ethereum pública (DvP on-chain)."
+              >
+                <ul className="space-y-2">
+                  <Ponto>Caixa tokenizado, cupom 1,98%, resgatado on-chain em dezembro de 2019.</Ponto>
+                  <Ponto>
+                    Ressalva: emitido para si mesmo, sem mercado secundário. É o antecessor da CPR tokenizada
+                    e do BUIDL.
+                  </Ponto>
+                </ul>
+                <Fonte>Ref.: Santander (2019)</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            <Reveal delay={0.1}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>CPR tokenizada no Brasil</span>
+                    <Anchor>R$ 1,15 bi</Anchor>
+                  </span>
+                }
+                subtitle="O ativo mais tokenizado do país em 2025."
+              >
+                <ul className="space-y-2">
+                  <Ponto>Precedente CVM (Vert/Vórtx, processo de 2024).</Ponto>
+                  <Ponto>
+                    Mercado BR de tokenização em cerca de R$ 4 bi em 2025 (RWA Monitor); a B3 planeja
+                    tokenizadora em 2026.
+                  </Ponto>
+                  <Ponto>O caso mais original para o público da Aeternum.</Ponto>
+                </ul>
+                <Fonte>Ref.: CVM, RWA Monitor (2024/2025)</Fonte>
+              </Disclosure>
+            </Reveal>
+
+            <Reveal delay={0.15}>
+              <Disclosure
+                className="h-full"
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span>mBridge vs Agorá</span>
+                    <Anchor>rota de colisão</Anchor>
+                  </span>
+                }
+                subtitle="Duas visões de CBDC de atacado, em colisão geopolítica."
+              >
+                <ul className="space-y-2">
+                  <Ponto>mBridge (~US$ 55,5 bi, 95% yuan, sem bancos centrais ocidentais) substitui o correspondente.</Ponto>
+                  <Ponto>Agorá (Fed NY, BCE, BoE, Japão, Suíça, Coreia, México e SWIFT) o preserva.</Ponto>
+                </ul>
+                <Fonte>Ref.: BIS (2024) · número do mBridge merece dupla checagem</Fonte>
+              </Disclosure>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ JANELA REGULATÓRIA 2026 (PASSO 10) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>Marco regulatório brasileiro</SectionLabel>
+            <SectionTitle>A janela de 2026</SectionTitle>
+            <GoldLine />
+            <p className="text-sm font-light leading-relaxed max-w-2xl mb-8" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Entre fevereiro e outubro de 2026, stablecoin virou câmbio no Brasil. É o vão entre a regra e a
+              implementação.
+            </p>
+          </Reveal>
+
+          {/* Timeline sóbria */}
+          <Reveal>
+            <div className="relative grid grid-cols-2 sm:grid-cols-5 gap-y-6 gap-x-3 mb-8">
+              <div className="hidden sm:block absolute top-[5px] left-0 right-0 h-px bg-white/10" aria-hidden="true" />
+              {[
+                { d: "10 nov 2025", l: "Resoluções 519/520/521" },
+                { d: "2 fev 2026", l: "Entra em vigor" },
+                { d: "4 mai 2026", l: "Regras de câmbio" },
+                { d: "jul 2026", l: "DeCripto (RFB)" },
+                { d: "30 out 2026", l: "Fim de operar com não autorizadas" },
+              ].map((m) => (
+                <div key={m.d} className="relative">
+                  <span className="block h-2.5 w-2.5 rounded-full bg-primary/70 mb-3 shadow-[0_0_10px_rgba(198,167,92,0.4)]" aria-hidden="true" />
+                  <p className="font-sans text-[10px] tracking-[0.15em] uppercase mb-1" style={{ color: `${GOLD}b0` }}>
+                    {m.d}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground font-light leading-snug">{m.l}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <Disclosure
+              title="O que muda para o cliente"
+              subtitle="Stablecoin passa a ser câmbio, com uma nuance que a versão idealizada omite."
+            >
+              <ul className="space-y-2">
+                <Ponto>
+                  Passam a ser câmbio: pagamentos internacionais com ativos virtuais e compra/venda de
+                  stablecoins. Limites de US$ 100 mil (US$ 500 mil para corretoras).
+                </Ponto>
+                <Ponto>
+                  Nuance: usar stablecoin não elimina a obrigação cambial na conversão para reais (Lei
+                  14.286).
+                </Ponto>
+                <Ponto>
+                  Prova doméstica (Receita, 2026): R$ 1,13 tri em stablecoins declarados (71,7% do total
+                  cripto); USDT igual a 88,7%. Fato consumado, não tendência.
+                </Ponto>
+                <Ponto>Drex reposicionado (nov 2025): pagamentos deixaram de ser prioridade.</Ponto>
+              </ul>
+              <Fonte>Ref.: BCB e Receita Federal (2025/2026) · Confiança: alta</Fonte>
+            </Disclosure>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════ BENEFÍCIOS POR PERFIL (PASSO 11.1) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>Encaixe operacional</SectionLabel>
+            <SectionTitle>Benefícios por perfil</SectionTitle>
+            <GoldLine />
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              {
+                perfil: "Produtor rural",
+                beneficio: "Safra armazenada como meio de pagamento e colateral",
+                apoio: "Caso Agrotoken com Visa e Santander. A Aeternum integra e estrutura a operação.",
+              },
+              {
+                perfil: "Exportador",
+                beneficio: "Liquidação internacional dentro do marco 519/520/521",
+                apoio: "A Aeternum desenha a operação cambial no novo arcabouço do BCB.",
+              },
+              {
+                perfil: "Tesouraria",
+                beneficio: "Gestão de caixa on-chain e tokenização doméstica",
+                apoio: "Padrão Franklin Templeton (BENJI) e o marco CVM 88. A Aeternum estrutura e analisa.",
+              },
+            ].map((b, i) => (
+              <Reveal key={b.perfil} delay={i * 0.05}>
+                <div
+                  className="h-full border border-white/5 p-6 transition-colors duration-200 hover:border-primary/20"
+                  style={{ backgroundColor: "rgba(10,8,4,0.5)" }}
+                >
+                  <p className="font-sans text-[9px] tracking-[0.25em] uppercase mb-3" style={{ color: `${GOLD}b0` }}>
+                    {b.perfil}
+                  </p>
+                  <p className="font-display text-base text-foreground/90 leading-snug mb-3">{b.beneficio}</p>
+                  <p className="text-xs text-muted-foreground font-light leading-relaxed">{b.apoio}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════ CUSTO REAL (PASSO 11.2) ═══════════════ */}
+      <section className="py-14 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <SectionLabel>O custo real</SectionLabel>
+            <SectionTitle>O custo está nas pontas</SectionTitle>
+            <GoldLine />
+            <p className="text-sm font-light leading-relaxed max-w-2xl mb-6" style={{ color: "rgba(255,255,255,0.4)" }}>
+              O on-chain custa centavos. O custo real vive no on-ramp, no off-ramp e no spread FX.
+            </p>
+          </Reveal>
+
+          <Reveal>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <NodeGraphChart />
+              <YieldCurveChart />
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <Disclosure
+              title="Onde o custo realmente vive"
+              subtitle="A comparação justa não é contra o pior banco."
+            >
+              <ul className="space-y-2">
+                <Ponto>Média global de 6,36% por remessa (referência de custo).</Ponto>
+                <Ponto>On-chain custa centavos; o custo vive no on-ramp, no off-ramp e no spread FX.</Ponto>
+                <Ponto>Comparação justa é contra a Wise (~0,5 a 1%), não contra o pior banco (8,8%).</Ponto>
+              </ul>
+            </Disclosure>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══════════════ FECHO + CTA + COMPLIANCE (PASSO 11.3 e 11.4) ═══════════════ */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-px shimmer-line" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(198,167,92,0.04)_0%,transparent_60%)] pointer-events-none" />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
+          style={{ background: `radial-gradient(circle, ${GOLD}0a 0%, transparent 60%)` }}
+        />
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <FadeIn direction="none">
-            <p className="text-[10px] text-primary/70 tracking-[0.3em] uppercase mb-3 text-center">
-              Posição estratégica
-            </p>
-            <h2 className="font-display text-3xl sm:text-4xl text-foreground tracking-wide uppercase mb-6 text-center leading-tight">
+        <div className="relative z-10 max-w-2xl mx-auto text-center">
+          <Reveal>
+            <SectionLabel>Posição estratégica</SectionLabel>
+            <h2
+              className="font-display font-light uppercase tracking-widest leading-tight mb-6"
+              style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.4rem)", color: GOLD }}
+            >
               Quem se alinha agora, lidera
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light mb-6">
-              As três camadas (mensageria, liquidação e ativo) e a janela de adequação de 2026
-              desenham um mesmo trabalho: transformar norma publicada em operação rodando. A Aeternum
-              atua como integradora e viabilizadora técnica em três frentes operacionais.
-            </p>
-
-            <ul className="space-y-3 mb-8">
-              {[
-                "Leitura e estruturação de dados ISO 20022, o padrão que o Pix já fala e que o mundo adotou.",
-                "Desenho de operação de liquidação dentro do marco das Resoluções 519, 520 e 521.",
-                "Estruturação e análise quantitativa de ativos tokenizados, em diálogo com a série de artigos de risco da Pesquisa.",
-              ].map((item) => (
-                <li key={item} className="flex gap-3 text-sm text-muted-foreground font-light leading-relaxed">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-primary/60" aria-hidden="true" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="text-foreground/80 text-sm sm:text-base leading-relaxed font-light mb-10">
-              O benefício é sempre operacional: pagar, liquidar, colateralizar e tokenizar com menos
-              atrito e mais rastreabilidade.
+            <p className="text-sm leading-relaxed font-light mb-8" style={{ color: "rgba(255,255,255,0.45)" }}>
+              As três camadas e a janela de 2026 desenham um mesmo trabalho: transformar norma publicada em
+              operação rodando. A Aeternum atua como integradora e viabilizadora técnica: leitura de dados
+              ISO 20022, desenho da operação dentro do marco 519/520/521 e análise quantitativa de ativos
+              tokenizados. O benefício é sempre operacional: pagar, liquidar, colateralizar, tokenizar.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <NavLink
                 to="/acesso"
-                className="px-8 py-3 border border-primary text-primary text-[10px] tracking-[0.25em] uppercase font-sans hover:bg-primary hover:text-background transition-all duration-300 btn-glow relative overflow-hidden flex items-center gap-2 group"
+                className="inline-flex items-center gap-2 px-8 py-3 border font-sans text-[10px] tracking-[0.25em] uppercase transition-all duration-200 group"
+                style={{ borderColor: `${GOLD}40`, color: GOLD }}
               >
-                <span className="relative z-10">Solicitar acesso</span>
-                <ArrowRight className="w-3 h-3 relative z-10 group-hover:translate-x-0.5 transition-transform" />
+                Solicitar acesso
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </NavLink>
               <NavLink
                 to="/research/pagamentos-transfronteiricos-ledgers"
-                className="px-8 py-3 border border-white/10 text-muted-foreground text-[10px] tracking-[0.25em] uppercase font-sans hover:border-white/25 hover:text-foreground transition-all duration-300 flex items-center gap-2 group"
+                className="inline-flex items-center gap-2 px-8 py-3 border border-white/10 text-muted-foreground font-sans text-[10px] tracking-[0.25em] uppercase hover:border-white/25 hover:text-foreground transition-all duration-200 group"
               >
-                <span>Fundamentação completa na Pesquisa</span>
-                <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                Fundamentação na Pesquisa
+                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </NavLink>
             </div>
-          </FadeIn>
+          </Reveal>
 
-          {/* Rodapé de compliance (obrigatório) */}
-          <FadeIn delay={0.15}>
+          {/* Rodapé de compliance (fixo) */}
+          <Reveal delay={0.1}>
             <div className="mt-16 pt-6 border-t border-white/5">
-              <p className="text-[11px] text-muted-foreground/50 font-light leading-relaxed text-center max-w-2xl mx-auto">
-                Esta página apresenta tecnologia, infraestrutura e casos de uso. Não constitui
-                recomendação de investimento. Os benefícios descritos são operacionais (pagar,
-                liquidar, colateralizar, tokenizar), não financeiro-especulativos. Dados com data de
-                referência indicada; fontes primárias quando disponíveis.
-              </p>
+              <ComplianceNote>
+                Esta página apresenta tecnologia, infraestrutura e casos de uso. Não constitui recomendação de
+                investimento. Os benefícios descritos são operacionais (pagar, liquidar, colateralizar,
+                tokenizar), não financeiro-especulativos. Dados com data de referência indicada; fontes
+                primárias quando disponíveis.
+              </ComplianceNote>
             </div>
-          </FadeIn>
+          </Reveal>
         </div>
       </section>
 

@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Alocações", to: "/alocacoes" },
   { label: "Pesquisa", to: "/research" },
   { label: "Commodities", to: "/commodities" },
-  { label: "Pagamentos Globais", to: "/pagamentos-globais" },
+  { label: "Liquidação", to: "/pagamentos-globais" },
   { label: "Tecnologia", to: "/tecnologia" },
   { label: "Execução", to: "/execucao" },
   { label: "Relatórios", to: "/reports" },
