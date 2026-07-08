@@ -19,6 +19,7 @@ const LoginPage = lazy(() => import("./pages/auth/Login"));
 const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
 const ArticleReader = lazy(() => import("./pages/ArticleReader"));
 const ExecucaoPage = lazy(() => import("./pages/dashboard/Execucao"));
+const PagamentosGlobaisPage = lazy(() => import("./pages/dashboard/PagamentosGlobais"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 import PrivateRoute from "./routes/PrivateRoute";
@@ -69,6 +70,7 @@ function AnimatedRoutes() {
           <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
           <Route path="/alocacoes" element={<PageWrapper><AlocacoesPage /></PageWrapper>} />
           <Route path="/execucao" element={<PageWrapper><ExecucaoPage /></PageWrapper>} />
+          <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Authentication */}
           <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
@@ -96,7 +98,7 @@ function AnimatedRoutes() {
 
 // Rotas onde o CursorGlow monta. Nas demais ele nao renderiza (nem no DOM).
 // /research e /pesquisa sao a mesma pagina (Pesquisa) via alias semantico.
-const GLOW_ROUTES = ["/", "/research", "/pesquisa", "/reports", "/commodities"];
+const GLOW_ROUTES = ["/", "/research", "/pesquisa", "/reports", "/commodities", "/pagamentos-globais"];
 
 function AppInner() {
   const { pathname } = useLocation();
