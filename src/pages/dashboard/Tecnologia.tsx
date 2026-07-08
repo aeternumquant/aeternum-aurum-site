@@ -377,6 +377,72 @@ export default function TecnologiaPage() {
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════════
+          BLOCO: Inteligência Macro (movido de Execução)
+          Hero de Execução reaproveitado como SEÇÃO (não 2º hero da página).
+      ══════════════════════════════════════════════ */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/10">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3" style={{ color: "rgba(198,168,90,0.6)" }}>{t("exec.macro.subtitle", "Inevitabilidade Matemática e Proteção Quantitativa")}</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-primary uppercase tracking-widest mb-5">
+              {t("exec.macro.title", "INTELIGÊNCIA MACRO")} <span className="text-primary/70">{t("exec.macro.aeternum", "• AETERNUM")}</span>
+            </h2>
+            <div className="h-px w-24 bg-gradient-to-r from-primary to-primary/10 mb-8" />
+            <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-12">
+              Análise institucional de volatilidade, proteção quantitativa e ciência de ponta aplicada à gestão de risco em commodities e ativos reais.
+            </p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+            {/* Termômetro Real-Time */}
+            <FadeIn>
+              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
+                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Atualizado a cada 15 min</p>
+                <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.realtime.title", "Termômetro de Volatilidade em Tempo Real")}</h4>
+                <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
+                  {t("exec.science.realtime.text", 'Entregamos um termômetro de volatilidade em tempo real atualizado a cada 15 minutos. Quando o termômetro sobe acima de certo nível, o sistema automaticamente sugere (ou executa, se o cliente autorizar) aumento de hedge ou redução de exposição. É como ter um "alerta de tempestade" 24 horas por dia.')}
+                </p>
+              </div>
+            </FadeIn>
+
+            {/* Hedging Inteligente */}
+            <FadeIn delay={0.1}>
+              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
+                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Hanetho, 2023 • arXiv:2309.00630</p>
+                <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.hedging.title", "Hedging Inteligente")}</h4>
+                <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
+                  {t("exec.science.hedging.text", "Desenvolvemos algoritmos de hedging automático usando Deep Policy Gradient e Reinforcement Learning. Em vez de proteção estática, o sistema aprende e se adapta em tempo real, reduzindo custos de hedging em 23% a 42% comparado a métodos tradicionais.")}
+                </p>
+              </div>
+            </FadeIn>
+
+            {/* Backtests Reais */}
+            <FadeIn delay={0.2}>
+              <div className="bg-gradient-to-br from-[#0a0a0a] to-[#C6A85A]/5 border border-[#C6A85A]/30 rounded-sm p-6 h-full flex flex-col justify-center">
+                <h4 className="text-[#F5F5F5] font-display text-lg tracking-widest mb-6 uppercase text-center">{t("exec.backtests.title", "Backtests Reais")}</h4>
+                <div className="space-y-4">
+                  <div className="border-b border-[#C6A85A]/10 pb-3">
+                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.soy", "Soja (ZS) - Índice Sharpe")}</p>
+                    <p className="text-3xl text-[#C6A85A] font-display">1.42</p>
+                  </div>
+                  <div className="border-b border-[#C6A85A]/10 pb-3">
+                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.mae", "Otimização de Erro (MAE)")}</p>
+                    <p className="text-3xl text-[#C6A85A] font-display">+48%</p>
+                    <p className="text-xs text-[#F5F5F5]/60 mt-1">{t("exec.backtests.maeNote", "Improvement sobre benchmark")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.costReduction", "Redução de Custos")}</p>
+                    <p className="text-2xl text-[#F5F5F5] font-display">23% a 42%</p>
+                    <p className="text-xs text-[#F5F5F5]/60 mt-1">{t("exec.backtests.costNote", "Hedging via opções dinâmicas")}</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </main>
   );
