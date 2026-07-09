@@ -25,6 +25,7 @@ const RevealSection = ({ children, delay = 0, className = "" }: any) => {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
   return (
     <main className="relative" style={{ backgroundColor: "#0a0a0a", minHeight: "100vh" }}>
       <RouteSeo
@@ -144,8 +145,8 @@ export default function Home() {
           </div>
           
           <RevealSection delay={0.8} className="mt-16 text-center">
-             <button 
-                onClick={() => window.location.href = '/execucao'} 
+             <button
+                onClick={() => navigate('/tecnologia')}
                 className="px-8 py-3 bg-transparent border border-white/10 hover:border-[#C6A85A] hover:bg-[#C6A85A]/5 text-white text-[10px] tracking-[0.2em] uppercase transition-all duration-300 rounded-sm hover:shadow-[0_0_15px_rgba(198,168,90,0.12)]"
             >
                 Ver Plataforma Completa

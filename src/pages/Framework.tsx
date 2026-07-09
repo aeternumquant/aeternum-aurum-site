@@ -343,7 +343,7 @@ export default function FrameworkPage() {
             ].map((item, i) => (
               <Reveal key={i} delay={i * 0.1} direction="up">
                 <Link
-                  to="/execucao"
+                  to="/tecnologia"
                   className="group block border border-white/8 bg-card/40 p-6 hover:border-primary/20 transition-colors duration-200 ease-rapido"
                 >
                   <div className="flex items-start gap-3 mb-3">

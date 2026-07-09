@@ -36,7 +36,7 @@ const CARDS: Card[] = [
     label: "Execução",
     title: "Padrão ISO 20022",
     desc: "Infraestrutura compatível com o novo padrão global de mensageria financeira.",
-    route: "/execucao",
+    route: "/pagamentos-globais",
     side: "left",
   },
   {
