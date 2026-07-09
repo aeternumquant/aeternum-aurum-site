@@ -14,7 +14,6 @@ const NAV_LINKS = [
   { label: "Commodities", to: "/commodities" },
   { label: "Liquidação", to: "/pagamentos-globais" },
   { label: "Tecnologia", to: "/tecnologia" },
-  { label: "Execução", to: "/tecnologia" },
   { label: "Relatórios", to: "/reports" },
 ];
 
