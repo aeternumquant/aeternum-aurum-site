@@ -28,7 +28,7 @@ const CARDS: Card[] = [
   {
     label: "Tecnologia",
     title: "Modelos Quantitativos",
-    desc: "Machine learning, análise de opções e estrutura de mercado, Sharpe 0.94+.",
+    desc: "Machine learning, análise de opções e estrutura de mercado, Sharpe 0,94+.",
     route: "/tecnologia",
     side: "right",
   },

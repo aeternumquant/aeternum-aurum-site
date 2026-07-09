@@ -152,7 +152,7 @@ export default function TecnologiaPage() {
                 num: "02",
                 title: "Sizing Baseado em Volatilidade",
                 items: [
-                  "Risco por operação nunca excede 1.5% do capital total",
+                  "Risco por operação nunca excede 1,5% do capital total",
                   "Tamanho da posição é função inversa da volatilidade atual",
                   "ATR e VRP calibram o stop loss dinamicamente",
                   "Correlação entre posições monitorada em tempo real",
@@ -195,7 +195,7 @@ export default function TecnologiaPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { value: "73%", label: "Taxa de Acerto vs Narrativa" },
-                { value: "1.5%", label: "Risco Máximo por Trade" },
+                { value: "1,5%", label: "Risco Máximo por Trade" },
                 { value: "23 anos", label: "Histórico de Backtests" },
                 { value: "65%", label: "Redução de Drawdown em Crise" },
               ].map((stat, i) => (
@@ -424,7 +424,7 @@ export default function TecnologiaPage() {
                 <div className="space-y-4">
                   <div className="border-b border-[#C6A85A]/10 pb-3">
                     <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.soy", "Soja (ZS) - Índice Sharpe")}</p>
-                    <p className="text-3xl text-[#C6A85A] font-display">1.42</p>
+                    <p className="text-3xl text-[#C6A85A] font-display">1,42</p>
                   </div>
                   <div className="border-b border-[#C6A85A]/10 pb-3">
                     <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.mae", "Otimização de Erro (MAE)")}</p>

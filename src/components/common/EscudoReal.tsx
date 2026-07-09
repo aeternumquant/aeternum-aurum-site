@@ -26,7 +26,7 @@ const triade = [
     icone: "◈",
     pontos: [
       "Inflação real sistematicamente subestimada pelos índices oficiais — Hard Assets são o único hedge matemático comprovado.",
-      "Correlação inversa ouro/BRL histórica de −0.78 em ciclos de crise: cada 10% de desvalorização do real = +8% de retorno em ouro físico.",
+      "Correlação inversa ouro/BRL histórica de −0,78 em ciclos de crise: cada 10% de desvalorização do real = +8% de retorno em ouro físico.",
       "Commodities em USD criam um \"dólar sintético\" protegendo poder de compra sem exposição ao sistema bancário.",
       "Backwardation estrutural em metais preciosos sinaliza compressão de oferta — o mercado de futuros te paga para segurar o ativo.",
       "Derivativos lastreados em volumes físicos reais eliminam o risco de contraparte bancária em crises de liquidez.",
@@ -42,7 +42,7 @@ const triade = [
       "Net Gamma Exposure negativo em commodities agro cria zonas de preço onde os Market Makers são forçados a amplificar movimentos.",
       "Basis Risk entre mercado físico e contratos futuros segue padrões sazonais recorrentes — arbitrável com sizing baseado em volatilidade histórica.",
       "Selling estruturado de volatilidade nas janelas de entressafra gera yield de 12% a 18% a.a. em condições de mercado normais.",
-      "Cross-hedge grãos/proteína captura o crushing spread com Sharpe histórico de 1.4+ em backtests de 23 anos.",
+      "Cross-hedge grãos/proteína captura o crushing spread com Sharpe histórico de 1,4+ em backtests de 23 anos.",
       "Modelos climáticos satelitais privados chegam com 5 a 7 dias de antecedência vs. relatórios CONAB/USDA — edge informacional puro.",
       "Exposição delta-zero em opções de commodities agrícolas transforma a volatilidade em fonte de retorno em qualquer direção.",
     ],
@@ -52,7 +52,7 @@ const triade = [
     titulo: "Risco Sistêmico",
     icone: "◈",
     pontos: [
-      "Correlação de commodities físicas com S&P500 colapsa de +0.6 para −0.3 em situações de crise bancária — descorrelação automática.",
+      "Correlação de commodities físicas com S&P500 colapsa de +0,6 para −0,3 em situações de crise bancária — descorrelação automática.",
       "Metais estratégicos (ouro, prata, nióbio) mantiveram valor real durante 100% das crises bancárias sistêmicas dos últimos 50 anos.",
       "Modelo CDS soberano + fluxo de capitais globais sinaliza vulnerabilidade sistêmica 6 a 8 semanas antes do evento de risco.",
       "Posições em commodities físicas fora do sistema financeiro tradicional são inalcançáveis por bail-in bancário ou bloqueio regulatório.",

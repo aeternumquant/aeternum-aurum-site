@@ -376,11 +376,11 @@ export default function ResearchPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-baseline border-b border-[#C6A85A]/10 pb-2">
                     <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Melhoria USDA (Trigo)</span>
-                    <span className="text-xl text-[#C6A85A] font-display">+54.9%</span>
+                    <span className="text-xl text-[#C6A85A] font-display">+54,9%</span>
                   </div>
                   <div className="flex justify-between items-baseline border-b border-[#C6A85A]/10 pb-2">
                     <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Melhoria USDA (Milho)</span>
-                    <span className="text-xl text-[#C6A85A] font-display">+18.5%</span>
+                    <span className="text-xl text-[#C6A85A] font-display">+18,5%</span>
                   </div>
                   <div className="flex justify-between items-baseline">
                     <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Redução Custo Hedge</span>

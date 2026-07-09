@@ -329,9 +329,10 @@ export default function FrameworkPage() {
               {
                 icone: "◆",
                 titulo: "O que significa 'quantitativo' na prática?",
-                corpo: `Significa que todas as nossas decisões têm número. Em vez de dizer "achamos que soja vai
-                  subir", dizemos "há 68% de probabilidade de soja entre R$128 e R$148 nos próximos 30 dias,
-                  baseado em dados de opções, estoques e sazonalidade". Isso permite medir o risco corretamente.`,
+                corpo: `Significa que toda decisão tem número. Em vez de dizer "achamos que o mercado vai virar",
+                  o nosso Q-Score condensa opções, volatilidade e momentum num único índice, e o mapa de Gamma
+                  Exposure (GEX) aponta os níveis de preço onde o mercado tende a reagir. Medimos o risco em vez
+                  de opinar sobre ele.`,
               },
               {
                 icone: "◆",
