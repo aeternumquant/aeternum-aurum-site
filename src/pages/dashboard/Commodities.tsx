@@ -33,6 +33,23 @@ export default function CommoditiesPage() {
           </FadeIn>
         </div>
       </section>
+
+      {/* Tabela de commodities (CommodityTerminal) movida para logo apos o hero (Etapa 6b.1) */}
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-card/10 border-b border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <FadeIn>
+            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Intervenção Quantitativa</p>
+            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4">Hedge Estrutural & Assimetrias por Commodity</h2>
+            <p className="text-muted-foreground text-sm leading-relaxed font-light max-w-2xl mb-12">
+              Transformamos riscos em teses de proteção. Selecione o segmento abaixo para entender como a plataforma isola e protege o capital em cenários não-lineares.
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.2}>
+            <CommodityTerminal />
+          </FadeIn>
+        </div>
+      </section>
       <section className="py-16 border-b border-white/5 bg-card/10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-white/5">
@@ -49,21 +66,6 @@ export default function CommoditiesPage() {
       </section>
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-white/5">
         <div className="max-w-5xl mx-auto"><EscudoReal /></div>
-      </section>
-      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-card/10 border-b border-white/5">
-        <div className="max-w-5xl mx-auto">
-          <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Intervenção Quantitativa</p>
-            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4">Hedge Estrutural & Assimetrias por Commodity</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed font-light max-w-2xl mb-12">
-              Transformamos riscos em teses de proteção. Selecione o segmento abaixo para entender como a plataforma isola e protege o capital em cenários não-lineares.
-            </p>
-          </FadeIn>
-          
-          <FadeIn delay={0.2}>
-            <CommodityTerminal />
-          </FadeIn>
-        </div>
       </section>
 
       {/* ══════════════════════════════════════════════
