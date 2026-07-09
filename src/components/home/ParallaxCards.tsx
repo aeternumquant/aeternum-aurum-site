@@ -43,7 +43,7 @@ const CARDS: Card[] = [
     label: "Alocações",
     title: "Proteção Assimétrica",
     desc: "Estratégias que protegem capital produtivo de choques macro e de commodity.",
-    route: "/alocacoes",
+    route: "/commodities",
     side: "right",
   },
 ];

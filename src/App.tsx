@@ -10,7 +10,6 @@ import Home from "./pages/Home";
 
 // Lazy Loading para Rotas Secundárias (Carregam sob demanda)
 const FrameworkPage = lazy(() => import("./pages/Framework"));
-const AlocacoesPage = lazy(() => import("./pages/Alocacoes"));
 const ResearchPage = lazy(() => import("./pages/dashboard/Research"));
 const CommoditiesPage = lazy(() => import("./pages/dashboard/Commodities"));
 const AcessoPage = lazy(() => import("./pages/auth/Acesso"));
@@ -67,7 +66,8 @@ function AnimatedRoutes() {
           <Route path="/framework" element={<PageWrapper><FrameworkPage /></PageWrapper>} />
           <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
           <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
-          <Route path="/alocacoes" element={<PageWrapper><AlocacoesPage /></PageWrapper>} />
+          {/* /alocacoes aposentada (Etapa 4): conteudo de valor migrou para a Liquidacao */}
+          <Route path="/alocacoes" element={<Navigate to="/pagamentos-globais" replace />} />
           {/* /execucao dissolvida (Etapa 3): redirect permanente para o nucleo tecnico */}
           <Route path="/execucao" element={<Navigate to="/tecnologia" replace />} />
           <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
