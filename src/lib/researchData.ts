@@ -36,7 +36,7 @@ export const researchPapers: ResearchPaper[] = [
     date: "Mar 2026",
     tag: "Macro",
     title: "Ciclos de Liquidez Global e Implicações para Mercados Emergentes",
-    desc: "Análise dos principais determinantes de liquidez global e seu impacto nos fluxos de capital para economias emergentes em 2024–2025.",
+    desc: "Análise dos principais determinantes de liquidez global e seu impacto nos fluxos de capital para economias emergentes em 2024 a 2025.",
     author: "Aeternum Macro Research",
     readTime: "12 min",
     isPublic: true,
@@ -596,7 +596,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "paragraph",
-        content: "México: Encontrando seu papel natural e histórico como quintal de exportação. Produzindo organicamente entre 3,5–4 milhões de veículos por ano (fechando no top 10 global). Sendo inundado por capital de nearshoring de quem foge da regulação chinesa, ao qual 80% das suas exportações globais vão direto e perfeitamente pelos trilhos americanos logísticos. Adicionalmente domina a extração de prata número 1 no planeta."
+        content: "México: Encontrando seu papel natural e histórico como quintal de exportação. Produzindo organicamente entre 3,5 a 4 milhões de veículos por ano (fechando no top 10 global). Sendo inundado por capital de nearshoring de quem foge da regulação chinesa, ao qual 80% das suas exportações globais vão direto e perfeitamente pelos trilhos americanos logísticos. Adicionalmente domina a extração de prata número 1 no planeta."
       },
       {
         type: "callout",

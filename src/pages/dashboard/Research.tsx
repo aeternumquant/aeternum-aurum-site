@@ -353,7 +353,7 @@ export default function ResearchPage() {
                 <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">EGARCH • TGARCH</p>
                 <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.stochVol.title", "Volatilidade Estocástica")}</h4>
                 <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.stochVol.text", 'Vários papers de 2022–2025 confirmam que EGARCH e TGARCH capturam melhor o "efeito alavancagem" em soja, milho e boi gordo no Brasil. Combinamos esses modelos para oferecer um mapa de volatilidade institucional mais preciso que abordagens tradicionais.')}
+                  {t("exec.science.stochVol.text", 'Vários papers de 2022 a 2025 confirmam que EGARCH e TGARCH capturam melhor o "efeito alavancagem" em soja, milho e boi gordo no Brasil. Combinamos esses modelos para oferecer um mapa de volatilidade institucional mais preciso que abordagens tradicionais.')}
                 </p>
               </div>
             </Reveal>
@@ -364,7 +364,7 @@ export default function ResearchPage() {
                 <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Wang et al. 2026 • arXiv:2601.06371</p>
                 <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.tsfm.title", "Time Series Foundation Models")}</h4>
                 <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.tsfm.text", "Combinamos métodos clássicos (ARIMA) com os novíssimos Time Series Foundation Models (2024–2026). Os modelos Time-MoE, Chronos e Moirai superaram as previsões oficiais do USDA em 45% a 55% de precisão para milho, soja e trigo. O Time-MoE melhorou 54,9% no trigo e 18,5% no milho em relação aos modelos tradicionais.")}
+                  {t("exec.science.tsfm.text", "Combinamos métodos clássicos (ARIMA) com os novíssimos Time Series Foundation Models (2024 a 2026). Os modelos Time-MoE, Chronos e Moirai superaram as previsões oficiais do USDA em 45% a 55% de precisão para milho, soja e trigo. O Time-MoE melhorou 54,9% no trigo e 18,5% no milho em relação aos modelos tradicionais.")}
                 </p>
               </div>
             </Reveal>
@@ -384,7 +384,7 @@ export default function ResearchPage() {
                   </div>
                   <div className="flex justify-between items-baseline">
                     <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Redução Custo Hedge</span>
-                    <span className="text-xl text-[#C6A85A] font-display">23–42%</span>
+                    <span className="text-xl text-[#C6A85A] font-display">23% a 42%</span>
                   </div>
                 </div>
               </div>
