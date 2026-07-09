@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
 import Header from "./components/common/Header";
@@ -18,7 +18,6 @@ const ReportsPage = lazy(() => import("./pages/dashboard/Reports"));
 const LoginPage = lazy(() => import("./pages/auth/Login"));
 const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
 const ArticleReader = lazy(() => import("./pages/ArticleReader"));
-const ExecucaoPage = lazy(() => import("./pages/dashboard/Execucao"));
 const PagamentosGlobaisPage = lazy(() => import("./pages/dashboard/PagamentosGlobais"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
@@ -69,7 +68,8 @@ function AnimatedRoutes() {
           <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
           <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
           <Route path="/alocacoes" element={<PageWrapper><AlocacoesPage /></PageWrapper>} />
-          <Route path="/execucao" element={<PageWrapper><ExecucaoPage /></PageWrapper>} />
+          {/* /execucao dissolvida (Etapa 3): redirect permanente para o nucleo tecnico */}
+          <Route path="/execucao" element={<Navigate to="/tecnologia" replace />} />
           <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Authentication */}
