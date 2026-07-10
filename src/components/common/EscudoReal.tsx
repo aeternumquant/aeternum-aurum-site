@@ -5,8 +5,8 @@
  * 2. 3 cards expandidos com 5-7 pontos institucionais cada
  *    Estilo Jim Simons: matemática pura, inevitabilidade, edge institucional
  */
-import { motion } from "framer-motion";
 import { FadeIn } from "./FadeIn";
+import Disclosure from "./Disclosure";
 
 const GOLD = "#C6A85A";
 
@@ -23,6 +23,7 @@ const triade = [
   {
     num: "01",
     titulo: "Desvalorização Monetária",
+    ancora: "Hard Assets como hedge matemático contra a inflação real.",
     icone: "◈",
     pontos: [
       "Inflação real sistematicamente subestimada pelos índices oficiais — Hard Assets são o único hedge matemático comprovado.",
@@ -36,6 +37,7 @@ const triade = [
   {
     num: "02",
     titulo: "Volatilidade Física",
+    ancora: "A volatilidade do físico vira fonte de retorno, não só risco.",
     icone: "◈",
     pontos: [
       "Modelos de VIX agrícola proprietários detectam compressão de volatilidade implícita em janelas de 48h antes do movimento.",
@@ -50,6 +52,7 @@ const triade = [
   {
     num: "03",
     titulo: "Risco Sistêmico",
+    ancora: "Ativos reais fora do sistema bancário, robustos a choques sistêmicos.",
     icone: "◈",
     pontos: [
       "Correlação de commodities físicas com S&P500 colapsa de +0,6 para −0,3 em situações de crise bancária — descorrelação automática.",
@@ -147,52 +150,31 @@ export default function EscudoReal() {
         </FadeIn>
       </div>
 
-      {/* ── Grid dos 3 cards expandidos ── */}
+      {/* ── Tríade de risco em progressive disclosure (padrão Liquidação) ── */}
       <div className="relative z-10 px-8 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="space-y-3">
           {triade.map((item, i) => (
             <FadeIn key={i} delay={0.18 + i * 0.1}>
-              <motion.div
-                whileHover={{ borderColor: "rgba(198,168,90,0.28)" }}
-                className="group relative p-6 border border-white/5 bg-card/40 hover:bg-card/70 transition-all duration-500 cursor-default flex flex-col"
+              <Disclosure
+                title={
+                  <span className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="font-sans text-[11px] tracking-widest font-normal" style={{ color: `${GOLD}70` }}>{item.num}</span>
+                    <span style={{ color: GOLD }}>{item.titulo}</span>
+                  </span>
+                }
+                subtitle={item.ancora}
               >
-                {/* Cantos dourados no hover */}
-                <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-primary/0 group-hover:border-primary/25 transition-colors duration-500" />
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-primary/0 group-hover:border-primary/25 transition-colors duration-500" />
-
-                {/* Número + linha */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="font-display text-xs tracking-widest" style={{ color: `${GOLD}40` }}>{item.num}</span>
-                  <div className="h-px flex-1 bg-white/5" />
-                  <span style={{ color: `${GOLD}35`, fontSize: "0.7rem" }}>{item.icone}</span>
-                </div>
-
-                {/* Título */}
-                <p className="font-display text-base tracking-wide leading-snug mb-4" style={{ color: GOLD }}>
-                  {item.titulo}
-                </p>
-
-                {/* Pontos institucionais */}
-                <ul className="space-y-2.5 flex-1">
+                <ul className="space-y-2.5">
                   {item.pontos.map((p, j) => (
                     <li key={j} className="flex gap-2.5">
                       <span className="text-[8px] mt-1.5 flex-shrink-0" style={{ color: `${GOLD}50` }}>▪</span>
-                      <span className="text-[11px] leading-relaxed font-light" style={{ color: "rgba(255,255,255,0.52)" }}>
+                      <span className="text-[11px] leading-relaxed font-light" style={{ color: "rgba(255,255,255,0.6)" }}>
                         {p}
                       </span>
                     </li>
                   ))}
                 </ul>
-
-                {/* Linha dourada inferior no hover */}
-                <motion.div
-                  className="absolute inset-x-0 bottom-0 h-px"
-                  style={{ background: `linear-gradient(to right, transparent, ${GOLD}35, transparent)` }}
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  whileHover={{ opacity: 1, scaleX: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.div>
+              </Disclosure>
             </FadeIn>
           ))}
         </div>
