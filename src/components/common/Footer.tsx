@@ -2,14 +2,10 @@ import { NavLink } from "react-router-dom";
 import { WireframeCube } from "./WireframeCube";
 import { DisclaimerLegal } from "./DisclaimerLegal";
 import { motion } from "framer-motion";
+import { FOOTER_ITEMS } from "../../config/navigation";
 
-const links = [
-  { label: "Soluções", to: "/framework" },
-  { label: "Pesquisa", to: "/research" },
-  { label: "Commodities", to: "/commodities" },
-  { label: "Acesso", to: "/acesso" },
-  { label: "Reports", to: "/reports" },
-];
+// Navegação do rodapé derivada da fonte única (src/config/navigation.ts).
+const links = FOOTER_ITEMS.map((i) => ({ label: i.label, to: i.path }));
 
 export default function Footer() {
   return (

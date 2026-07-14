@@ -5,16 +5,10 @@ import { WireframeCube } from "./WireframeCube";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useAuth } from "../../context/AuthContext";
+import { MENU_ITEMS } from "../../config/navigation";
 
-const NAV_LINKS = [
-  { label: "Início", to: "/" },
-  { label: "Soluções", to: "/framework" },
-  { label: "Pesquisa", to: "/research" },
-  { label: "Commodities", to: "/commodities" },
-  { label: "Liquidação", to: "/pagamentos-globais" },
-  { label: "Tecnologia", to: "/tecnologia" },
-  { label: "Relatórios", to: "/reports" },
-];
+// Menu principal derivado da fonte única (src/config/navigation.ts).
+const NAV_LINKS = MENU_ITEMS.map((i) => ({ label: i.label, to: i.path }));
 
 export default function Header() {
   const [menuAberto, setMenuAberto] = useState(false);
