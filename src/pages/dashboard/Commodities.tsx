@@ -17,7 +17,7 @@ export default function CommoditiesPage() {
         description="Visualização de fluxos macro de commodities globais. Infraestrutura analítica para identificação de gargalos geopolíticos e regimes de risco."
         path="/commodities"
       />
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-b border-white/5 relative overflow-hidden">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background z-0" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[620px] pointer-events-none z-0" style={{ background: "radial-gradient(circle, rgba(198,168,90,0.06) 0%, transparent 60%)" }} />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
@@ -27,21 +27,13 @@ export default function CommoditiesPage() {
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed font-light max-w-xl mx-auto">Exposição estratégica a mercados de matérias-primas com vantagem informacional.</p>
           </FadeIn>
 
-          {/* Número-âncora: 12+ mercados (stats fundidos no hero, Direcao 2) */}
+          {/* Linha de stats enxuta (12+ mercados como stat normal, Direcao 3) */}
           <FadeIn delay={0.1}>
-            <div className="mt-12 flex flex-col items-center">
-              <div className="font-display text-primary leading-none" style={{ fontSize: "clamp(3.5rem, 11vw, 6rem)" }}>12+</div>
-              <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mt-3">Mercados monitorados</p>
-            </div>
-          </FadeIn>
-
-          {/* Stats secundários */}
-          <FadeIn delay={0.15}>
             <div className="mt-10 grid grid-cols-3 gap-6 max-w-md mx-auto border-t border-white/5 pt-8">
               {[
-                { value: "20%", label: "Alocação em commodities" },
+                { value: "12+", label: "Mercados monitorados" },
                 { value: "4", label: "Categorias cobertas" },
-                { value: "Diária", label: "Rebalanceamento" },
+                { value: "Diária", label: "Atualização" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
                   <div className="font-display text-xl sm:text-2xl text-primary mb-1">{s.value}</div>
@@ -54,7 +46,7 @@ export default function CommoditiesPage() {
       </section>
 
       {/* Tabela de commodities (CommodityTerminal) movida para logo apos o hero (Etapa 6b.1) */}
-      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-card/10 border-b border-white/5">
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Intervenção Quantitativa</p>
@@ -69,14 +61,14 @@ export default function CommoditiesPage() {
           </FadeIn>
         </div>
       </section>
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-white/5">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto"><EscudoReal /></div>
       </section>
 
       {/* ══════════════════════════════════════════════
           BLOCO: Termômetro do Medo e Previsões (movido de Execução)
       ══════════════════════════════════════════════ */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/10 border-b border-white/5">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Leitura de Fluxo</p>
@@ -142,7 +134,7 @@ export default function CommoditiesPage() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-background border-b border-white/5">
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto"><GovernancaEstrategica /></div>
       </section>
       <Agro />
