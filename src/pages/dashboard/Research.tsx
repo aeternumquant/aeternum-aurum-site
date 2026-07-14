@@ -10,7 +10,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
 import { shortPapers } from "../../lib/researchData";
-import { useLanguage } from "../../context/LanguageContext";
 import { ArrowRight, Lock, Search } from "lucide-react";
 
 const GOLD = "#C6A85A";
@@ -182,7 +181,6 @@ function PaperCard({ p, index }: { p: (typeof shortPapers)[number]; index: numbe
 export default function ResearchPage() {
   const [activeTag, setActiveTag] = useState("Todos");
   const [query, setQuery] = useState("");
-  const { t } = useLanguage();
 
   const byTag =
     activeTag === "Todos"
@@ -335,62 +333,6 @@ export default function ResearchPage() {
             </NavLink>
           </div>
         </Reveal>
-      </section>
-
-      {/* ══ BLOCO: Ciência de Ponta Aplicada (movido de Execução) ══ */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8 border-t border-white/5">
-        <div className="max-w-4xl mx-auto">
-          <Reveal>
-            <SectionLabel>{t("exec.science.subtitle", "Pesquisa Peer-Reviewed Validada em Operações Reais")}</SectionLabel>
-            <SectionTitle>{t("exec.science.title", "Ciência de Ponta Aplicada")}</SectionTitle>
-            <GoldLine />
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Volatilidade Estocástica */}
-            <Reveal>
-              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
-                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">EGARCH • TGARCH</p>
-                <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.stochVol.title", "Volatilidade Estocástica")}</h4>
-                <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.stochVol.text", 'Vários papers de 2022 a 2025 confirmam que EGARCH e TGARCH capturam melhor o "efeito alavancagem" em soja, milho e boi gordo no Brasil. Combinamos esses modelos para oferecer um mapa de volatilidade institucional mais preciso que abordagens tradicionais.')}
-                </p>
-              </div>
-            </Reveal>
-
-            {/* Time Series Foundation Models */}
-            <Reveal delay={0.1}>
-              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
-                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Wang et al. 2026 • arXiv:2601.06371</p>
-                <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.tsfm.title", "Time Series Foundation Models")}</h4>
-                <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.tsfm.text", "Combinamos métodos clássicos (ARIMA) com os novíssimos Time Series Foundation Models (2024 a 2026). Os modelos Time-MoE, Chronos e Moirai superaram as previsões oficiais do USDA em 45% a 55% de precisão para milho, soja e trigo. O Time-MoE melhorou 54,9% no trigo e 18,5% no milho em relação aos modelos tradicionais.")}
-                </p>
-              </div>
-            </Reveal>
-
-            {/* Resumo de Performance (Resultados Validados) */}
-            <Reveal delay={0.2}>
-              <div className="bg-gradient-to-br from-[#0a0a0a] to-[#C6A85A]/5 border border-[#C6A85A]/30 rounded-sm p-6 h-full flex flex-col justify-center">
-                <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-4 uppercase text-center">Resultados Validados</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-baseline border-b border-[#C6A85A]/10 pb-2">
-                    <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Melhoria USDA (Trigo)</span>
-                    <span className="text-xl text-[#C6A85A] font-display">+54,9%</span>
-                  </div>
-                  <div className="flex justify-between items-baseline border-b border-[#C6A85A]/10 pb-2">
-                    <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Melhoria USDA (Milho)</span>
-                    <span className="text-xl text-[#C6A85A] font-display">+18,5%</span>
-                  </div>
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-[10px] text-[#F5F5F5]/50 uppercase tracking-widest">Redução Custo Hedge</span>
-                    <span className="text-xl text-[#C6A85A] font-display">23% a 42%</span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
       </section>
 
       <Footer />
