@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Coins, Landmark } from 'lucide-react';
 import type {
@@ -9,7 +9,6 @@ import type {
 } from '../../types/tokenization';
 import {
   COMMODITY_LABELS,
-  COMMODITY_PRICES_BRL,
   DESTINATION_DEFAULT_CURRENCY,
   DESTINATION_LABELS,
   PRICE_BOUNDS,
@@ -17,6 +16,14 @@ import {
 } from '../../data/commodityPrices';
 import { getExchangeRate } from '../../services/currencyService';
 import { useExportCalculation } from '../../hooks/useExportCalculation';
+import { useMarketData, type MarketPoint } from '../../hooks/useMarketData';
+import {
+  PTAX_CODE,
+  brlReference,
+  formatBRLRef,
+  formatDayMonthUTC,
+  formatValueUnit,
+} from '../../lib/marketFormat';
 import { ScenarioCard } from './ScenarioCard';
 import { EconomyBar } from './EconomyBar';
 import { formatBRL } from './format';
@@ -54,6 +61,35 @@ const priceUnitLabel: Record<Commodity, string> = {
   'boi-gordo': 'R$ / arroba (15 kg)',
 };
 
+// Mapeamento commodity -> serie do cache (as 3 que temos) e o ticker B3
+// para a linha de referencia. Uma fonte de verdade com o CommodityTerminal.
+const SERIES_BY_COMMODITY: Record<Commodity, string> = {
+  soja: 'SOJA_FUT',
+  milho: 'MILHO_FUT',
+  'boi-gordo': 'BOI_FUT',
+};
+
+const TICKER_BY_COMMODITY: Record<Commodity, string> = {
+  soja: 'SJC',
+  milho: 'CCM',
+  'boi-gordo': 'BGI',
+};
+
+// Estado do preco de referencia da commodity ativa. So 'ok' produz um default
+// honesto; os demais deixam o campo vazio para o usuario informar o preco.
+type PriceInfo =
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'missing' }
+  | { status: 'stale'; point: MarketPoint }
+  | { status: 'blocked'; point: MarketPoint }
+  | {
+      status: 'ok';
+      point: MarketPoint;
+      defaultBRL: number;
+      conversion: { brl: number; ptaxDate: string } | null;
+    };
+
 export default function ExportCalculator() {
   const [commodity, setCommodity] = useState<Commodity>('soja');
   const [destination, setDestination] = useState<Destination>('china');
@@ -62,24 +98,58 @@ export default function ExportCalculator() {
   const [volumeRaw, setVolumeRaw] = useState<string>('1000');
   const [volumeDebounced, setVolumeDebounced] = useState<number>(1000);
 
-  const [priceRaw, setPriceRaw] = useState<string>(
-    priceToInputString(COMMODITY_PRICES_BRL.soja),
-  );
-  const [priceDebounced, setPriceDebounced] = useState<number>(
-    COMMODITY_PRICES_BRL.soja,
-  );
+  // Sem mock: o preco comeca vazio e e preenchido pelo default REAL do cache
+  // quando ele chega (ou pelo usuario). Ver o effect e priceInfo abaixo.
+  const [priceRaw, setPriceRaw] = useState<string>('');
+  const [priceDebounced, setPriceDebounced] = useState<number>(0);
 
   const [exchangeRate, setExchangeRate] = useState<number>(0);
   const [rateSource, setRateSource] = useState<ExchangeRateSource>('cache');
   const [rateReady, setRateReady] = useState<boolean>(false);
 
-  // Reset preço para o default de mercado quando a commodity muda.
-  // Usuário ainda pode editar livremente depois.
+  // Preco de referencia REAL do cache (mesmo hook do CommodityTerminal).
+  const { data: marketData, loading: marketLoading, error: marketError } = useMarketData();
+  const bySeries = useMemo(() => {
+    const map = new Map<string, MarketPoint>();
+    for (const p of marketData ?? []) map.set(p.code, p);
+    return map;
+  }, [marketData]);
+  const commodityPoint = bySeries.get(SERIES_BY_COMMODITY[commodity]) ?? null;
+  const ptaxPoint = bySeries.get(PTAX_CODE) ?? null;
+
+  // Armadilha de unidade: SOJA_FUT vem em USD/saca; MILHO_FUT/BOI_FUT em BRL.
+  // Soja converte pela PTAX (travas de data/stale no brlReference compartilhado);
+  // milho/boi usam o valor nativo. Sem conversao honesta -> sem default.
+  const priceInfo = useMemo<PriceInfo>(() => {
+    if (marketLoading) return { status: 'loading' };
+    if (marketError) return { status: 'error' };
+    if (!commodityPoint) return { status: 'missing' };
+    if (commodityPoint.isStale) return { status: 'stale', point: commodityPoint };
+    const isUsd = !!commodityPoint.unit && commodityPoint.unit.toUpperCase().startsWith('USD');
+    if (isUsd) {
+      const conv = brlReference(commodityPoint, ptaxPoint);
+      if (!conv) return { status: 'blocked', point: commodityPoint };
+      return { status: 'ok', point: commodityPoint, defaultBRL: conv.brl, conversion: conv };
+    }
+    return { status: 'ok', point: commodityPoint, defaultBRL: commodityPoint.value, conversion: null };
+  }, [marketLoading, marketError, commodityPoint, ptaxPoint]);
+
+  const defaultBRL = priceInfo.status === 'ok' ? priceInfo.defaultBRL : null;
+
+  // Preenche o preco com o default REAL (do cache) quando ele chega ou quando a
+  // commodity muda. Sem default honesto (loading/erro/ausente/stale/conversao
+  // bloqueada) o campo fica vazio para o usuario informar o preco. O campo e
+  // editavel; como defaultBRL nao muda a cada tecla, a edicao nao e sobrescrita.
   useEffect(() => {
-    const defaultPrice = COMMODITY_PRICES_BRL[commodity];
-    setPriceRaw(priceToInputString(defaultPrice));
-    setPriceDebounced(defaultPrice);
-  }, [commodity]);
+    if (defaultBRL != null) {
+      const rounded = Math.round(defaultBRL * 100) / 100;
+      setPriceRaw(priceToInputString(rounded));
+      setPriceDebounced(rounded);
+    } else {
+      setPriceRaw('');
+      setPriceDebounced(0);
+    }
+  }, [commodity, defaultBRL]);
 
   // Moeda padrão derivada do destino — usuário pode trocar manualmente
   // via os chips abaixo.
@@ -130,6 +200,44 @@ export default function ExportCalculator() {
     rateSource,
   );
 
+  // Linha de referencia sob o input de preco: fonte + data + unidade + estado.
+  // Em 'ok' e informativa (muted); nos demais chama atencao (dourado) porque o
+  // usuario precisa informar o preco.
+  const ticker = TICKER_BY_COMMODITY[commodity];
+  const refAttention = priceInfo.status !== 'ok';
+  let referenceNode: React.ReactNode;
+  switch (priceInfo.status) {
+    case 'loading':
+      referenceNode = (
+        <span
+          className="inline-block h-2.5 w-56 max-w-full bg-card/80 animate-pulse rounded-sm align-middle"
+          aria-label="Carregando preço de referência"
+        />
+      );
+      break;
+    case 'error':
+      referenceNode = 'Não foi possível carregar o preço de referência do cache. Informe o preço.';
+      break;
+    case 'missing':
+      referenceNode = `Série ${ticker} indisponível no cache agora. Informe o preço.`;
+      break;
+    case 'stale':
+      referenceNode = `Ref. B3 (${ticker}) ${formatDayMonthUTC(priceInfo.point.ts)}: dado defasado. Informe o preço.`;
+      break;
+    case 'blocked':
+      referenceNode = 'Sem PTAX do dia para converter a soja. Informe o preço em R$.';
+      break;
+    case 'ok':
+      referenceNode = priceInfo.conversion
+        ? `Ref. B3 (${ticker}) ${formatDayMonthUTC(priceInfo.point.ts)}: ${formatValueUnit(
+            priceInfo.point,
+          )} ≈ ${formatBRLRef(priceInfo.conversion.brl)} · PTAX ${priceInfo.conversion.ptaxDate}`
+        : `Ref. B3 (${ticker}) ${formatDayMonthUTC(priceInfo.point.ts)}: ${formatValueUnit(
+            priceInfo.point,
+          )}`;
+      break;
+  }
+
   return (
     <section
       id="export-calculator"
@@ -156,6 +264,12 @@ export default function ExportCalculator() {
           </header>
 
           <div className="bg-card/40 border border-white/5 rounded-sm p-6 sm:p-10">
+            {marketError ? (
+              <div className="mb-6 text-xs text-[#C6A85A]/90 border border-[#C6A85A]/25 bg-[#C6A85A]/[0.03] px-3 py-2 rounded-sm font-sans font-light">
+                Não foi possível carregar os preços de referência do cache agora. Você ainda pode
+                informar os preços manualmente.
+              </div>
+            ) : null}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
               <div>
                 <label htmlFor="ec-commodity" className={labelBase}>
@@ -220,6 +334,14 @@ export default function ExportCalculator() {
                 >
                   {priceUnitLabel[commodity]}
                 </span>
+                <span
+                  className={`block text-[10px] mt-1 font-sans leading-relaxed normal-case tracking-normal ${
+                    refAttention ? 'text-[#C6A85A]/90' : 'text-muted-foreground/55'
+                  }`}
+                  aria-live="polite"
+                >
+                  {referenceNode}
+                </span>
               </div>
 
               <div>
@@ -281,9 +403,20 @@ export default function ExportCalculator() {
                 <p className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground mb-2 font-sans">
                   Valor total da operação
                 </p>
-                <p className="font-display text-3xl sm:text-4xl font-light text-foreground leading-none tabular-nums">
-                  {formatBRL(result.valorTotalBRL)}
-                </p>
+                {marketLoading ? (
+                  <span
+                    className="inline-block w-48 h-9 bg-card/80 animate-pulse rounded-sm align-middle"
+                    aria-label="Carregando valor da operação"
+                  />
+                ) : priceDebounced > 0 ? (
+                  <p className="font-display text-3xl sm:text-4xl font-light text-foreground leading-none tabular-nums">
+                    {formatBRL(result.valorTotalBRL)}
+                  </p>
+                ) : (
+                  <p className="font-display text-2xl sm:text-3xl font-light text-muted-foreground/60 leading-none">
+                    informe o preço
+                  </p>
+                )}
               </div>
               <div className="text-sm font-sans text-muted-foreground font-light">
                 {rateReady && exchangeRate > 0 ? (
@@ -329,9 +462,12 @@ export default function ExportCalculator() {
             />
           </div>
 
-          <footer className="text-center mt-10">
+          <footer className="text-center mt-10 space-y-1">
             <p className="text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-muted-foreground/45 font-sans">
-              Fontes: CEPEA/ESALQ · BCB PTAX · pesquisa Aeternum 2025
+              Fontes: B3 (via brapi.dev) · BCB PTAX
+            </p>
+            <p className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-muted-foreground/35 font-sans">
+              Modelo de custo (spreads e taxas): pesquisa Aeternum 2025
             </p>
           </footer>
         </motion.div>

@@ -23,6 +23,13 @@ import {
   Activity, Mountain, Gem,
 } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
+import {
+  PTAX_CODE,
+  brlReference,
+  formatBRLRef,
+  formatDayMonthUTC,
+  formatValueUnit,
+} from "../lib/marketFormat";
 
 /* Tipos */
 type CommodityId =
@@ -270,59 +277,8 @@ const commodities: CommodityMeta[] = [
   },
 ];
 
-/* ── Formatacao (pt-BR: virgula, unidade colada) ── */
-const valueFmt = new Intl.NumberFormat("pt-BR", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-function formatValueUnit(point: MarketPoint): string {
-  const v = valueFmt.format(point.value);
-  return point.unit ? `${v} ${point.unit}` : v;
-}
-
-/** "em 15/07" usando a data UTC do pregao (evita virar 14/07 num fuso UTC-3). */
-function formatDayMonthUTC(ts: string): string {
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) return "";
-  const dd = String(d.getUTCDate()).padStart(2, "0");
-  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-  return `${dd}/${mm}`;
-}
-
-/** Chave de data em UTC (YYYY-MM-DD) para casar dias ignorando a hora. */
-function utcDateKey(ts: string): string {
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(
-    d.getUTCDate(),
-  ).padStart(2, "0")}`;
-}
-
-const brlFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-
-const PTAX_CODE = "PTAX_USD_VENDA";
-
-/**
- * Conversao de REFERENCIA USD -> BRL pela PTAX, com as travas de honestidade:
- *  - so converte serie cotada em USD (nao faz o inverso em milho/boi);
- *  - exige PTAX presente, positiva e NAO defasada (isStale=false): cambio velho
- *    convertendo preco novo e pior que nao converter;
- *  - exige MESMO DIA (data UTC): a PTAX tem hora e o settlement e meia-noite,
- *    entao comparamos a data, nao o timestamp. Converter preco de 15/07 com
- *    cambio de 16/07 produz um numero que nunca existiu.
- * Devolve null quando qualquer trava falha; nesse caso mostramos so o USD.
- */
-function brlReference(
-  point: MarketPoint,
-  ptax: MarketPoint | null,
-): { brl: number; ptaxDate: string } | null {
-  if (!point.unit || !point.unit.toUpperCase().startsWith("USD")) return null;
-  if (!ptax || ptax.isStale) return null;
-  if (!Number.isFinite(ptax.value) || ptax.value <= 0) return null;
-  if (utcDateKey(point.ts) !== utcDateKey(ptax.ts)) return null;
-  return { brl: point.value * ptax.value, ptaxDate: formatDayMonthUTC(ptax.ts) };
-}
+/* Formatacao e conversao PTAX vivem em ../lib/marketFormat (fonte unica,
+   compartilhada com a ExportCalculator). Ver o import no topo do arquivo. */
 
 /* ── Pecas visuais pequenas ── */
 function ValueSkeleton() {
@@ -490,7 +446,7 @@ export default function CommodityTerminal() {
                         </div>
                         {activeBrlRef && (
                           <div className="text-[11px] font-mono text-muted-foreground/45 mt-1">
-                            ≈ {brlFmt.format(activeBrlRef.brl)} · conversão PTAX de {activeBrlRef.ptaxDate}
+                            ≈ {formatBRLRef(activeBrlRef.brl)} · conversão PTAX de {activeBrlRef.ptaxDate}
                           </div>
                         )}
                       </>
