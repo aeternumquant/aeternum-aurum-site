@@ -290,6 +290,40 @@ function formatDayMonthUTC(ts: string): string {
   return `${dd}/${mm}`;
 }
 
+/** Chave de data em UTC (YYYY-MM-DD) para casar dias ignorando a hora. */
+function utcDateKey(ts: string): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(
+    d.getUTCDate(),
+  ).padStart(2, "0")}`;
+}
+
+const brlFmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+const PTAX_CODE = "PTAX_USD_VENDA";
+
+/**
+ * Conversao de REFERENCIA USD -> BRL pela PTAX, com as travas de honestidade:
+ *  - so converte serie cotada em USD (nao faz o inverso em milho/boi);
+ *  - exige PTAX presente, positiva e NAO defasada (isStale=false): cambio velho
+ *    convertendo preco novo e pior que nao converter;
+ *  - exige MESMO DIA (data UTC): a PTAX tem hora e o settlement e meia-noite,
+ *    entao comparamos a data, nao o timestamp. Converter preco de 15/07 com
+ *    cambio de 16/07 produz um numero que nunca existiu.
+ * Devolve null quando qualquer trava falha; nesse caso mostramos so o USD.
+ */
+function brlReference(
+  point: MarketPoint,
+  ptax: MarketPoint | null,
+): { brl: number; ptaxDate: string } | null {
+  if (!point.unit || !point.unit.toUpperCase().startsWith("USD")) return null;
+  if (!ptax || ptax.isStale) return null;
+  if (!Number.isFinite(ptax.value) || ptax.value <= 0) return null;
+  if (utcDateKey(point.ts) !== utcDateKey(ptax.ts)) return null;
+  return { brl: point.value * ptax.value, ptaxDate: formatDayMonthUTC(ptax.ts) };
+}
+
 /* ── Pecas visuais pequenas ── */
 function ValueSkeleton() {
   return <div className="h-7 w-32 rounded-sm bg-white/5 animate-pulse ml-auto" />;
@@ -322,6 +356,10 @@ export default function CommodityTerminal() {
   }, [data]);
 
   const activePoint = active.seriesCode ? bySeries.get(active.seriesCode) ?? null : null;
+
+  // PTAX (uma das 7 series publicas) para a conversao de referencia USD -> BRL.
+  const ptaxPoint = bySeries.get(PTAX_CODE) ?? null;
+  const activeBrlRef = activePoint ? brlReference(activePoint, ptaxPoint) : null;
 
   // Atribuicoes unicas das series reais exibidas (string exata do banco).
   const attributions = useMemo(() => {
@@ -450,6 +488,11 @@ export default function CommodityTerminal() {
                           em {formatDayMonthUTC(activePoint.ts)}
                           {activePoint.isStale && <StaleTag ageInDays={activePoint.ageInDays} />}
                         </div>
+                        {activeBrlRef && (
+                          <div className="text-[11px] font-mono text-muted-foreground/45 mt-1">
+                            ≈ {brlFmt.format(activeBrlRef.brl)} · conversão PTAX de {activeBrlRef.ptaxDate}
+                          </div>
+                        )}
                       </>
                     ) : (
                       <div className="font-mono text-sm text-muted-foreground/70">
