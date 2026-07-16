@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import type { Commodity, Destination } from '../../types/tokenization';
+import type { Commodity } from '../../types/tokenization';
 import {
   COMMODITY_LABELS,
-  DESTINATION_LABELS,
   PRICE_BOUNDS,
   VOLUME_BOUNDS,
 } from '../../data/commodityPrices';
@@ -20,7 +19,6 @@ import {
 import { formatBRL } from './format';
 
 const COMMODITIES: readonly Commodity[] = ['soja', 'milho', 'boi-gordo'];
-const DESTINATIONS: readonly Destination[] = ['china', 'eua', 'ue'];
 
 const DEBOUNCE_MS = 300;
 
@@ -84,9 +82,6 @@ type PriceInfo =
 
 export default function ExportCalculator() {
   const [commodity, setCommodity] = useState<Commodity>('soja');
-  // Destino: mantido como contexto de rota. Nao afeta o calculo (commodity
-  // liquida em USD independentemente do destino).
-  const [destination, setDestination] = useState<Destination>('china');
 
   const [volumeRaw, setVolumeRaw] = useState<string>('1000');
   const [volumeDebounced, setVolumeDebounced] = useState<number>(1000);
@@ -241,7 +236,7 @@ export default function ExportCalculator() {
                 informar os preços manualmente.
               </div>
             ) : null}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
               <div>
                 <label htmlFor="ec-commodity" className={labelBase}>
                   Commodity
@@ -313,26 +308,6 @@ export default function ExportCalculator() {
                 >
                   {referenceNode}
                 </span>
-              </div>
-
-              <div>
-                <label htmlFor="ec-destination" className={labelBase}>
-                  Destino (rota)
-                </label>
-                <select
-                  id="ec-destination"
-                  value={destination}
-                  onChange={(event) =>
-                    setDestination(event.target.value as Destination)
-                  }
-                  className={inputBase}
-                >
-                  {DESTINATIONS.map((d) => (
-                    <option key={d} value={d}>
-                      {DESTINATION_LABELS[d]}
-                    </option>
-                  ))}
-                </select>
               </div>
             </div>
 
