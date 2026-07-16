@@ -1,5 +1,5 @@
 import type { Config } from "@netlify/functions";
-import { createClient } from "@supabase/supabase-js";
+import { PostgrestClient } from "@supabase/postgrest-js";
 
 /**
  * Worker de dados de mercado (Etapa 2).
@@ -18,11 +18,20 @@ import { createClient } from "@supabase/supabase-js";
  * fonte falhar; 500 so se TODAS falharem.
  */
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } },
-);
+// Cliente REST puro (postgrest-js), NAO o supabase-js. O supabase-js instancia
+// o Realtime (WebSocket) no construtor do createClient, e o runtime de Functions
+// do Netlify (Node 20 por padrao) nao tem WebSocket nativo, entao crashava antes
+// de qualquer fetch. Este worker so faz REST (from/select/upsert), entao o
+// postgrest-js resolve e nunca carrega WebSocket. O front (src/lib/supabase.ts)
+// segue no supabase-js: roda no browser, que tem WebSocket.
+//
+// A service_role vai como apikey E como Bearer (ignora RLS por design).
+const db = new PostgrestClient(`${process.env.VITE_SUPABASE_URL!}/rest/v1`, {
+  headers: {
+    apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+  },
+});
 
 // ---------------------------------------------------------------------------
 // Utilitarios
@@ -83,7 +92,7 @@ type SeriesOpts = {
  * upsert em series com onConflict 'source_id,code' e retorna o id.
  */
 async function ensureSeries(opts: SeriesOpts): Promise<number> {
-  const { data: source, error: sourceErr } = await supabase
+  const { data: source, error: sourceErr } = await db
     .from("sources")
     .select("id")
     .eq("slug", opts.sourceSlug)
@@ -95,7 +104,7 @@ async function ensureSeries(opts: SeriesOpts): Promise<number> {
     );
   }
 
-  const { data: series, error: seriesErr } = await supabase
+  const { data: series, error: seriesErr } = await db
     .from("series")
     .upsert(
       {
@@ -139,7 +148,7 @@ async function saveObservations(seriesId: number, points: Point[]): Promise<numb
 
   // ignoreDuplicates: false => ON CONFLICT (series_id, ts) DO UPDATE. Como
   // passamos ingested_at no payload, ele tambem e atualizado no re-run.
-  const { error } = await supabase
+  const { error } = await db
     .from("observations")
     .upsert(rows, { onConflict: "series_id,ts", ignoreDuplicates: false });
 

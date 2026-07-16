@@ -3,7 +3,9 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # Node 22: supabase-js deprecou Node <=20, e o Node 20 nao tem WebSocket
+  # nativo (o supabase-js instancia o Realtime no construtor e crashava).
+  NODE_VERSION = "22"
 
 [[redirects]]
   from = "/*"
