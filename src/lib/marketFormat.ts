@@ -66,3 +66,22 @@ export function brlReference(
   if (utcDateKey(point.ts) !== utcDateKey(ptax.ts)) return null;
   return { brl: point.value * ptax.value, ptaxDate: formatDayMonthUTC(ptax.ts) };
 }
+
+/**
+ * Conversao de REFERENCIA BRL -> USD pela PTAX. Direcao INVERSA do brlReference:
+ * DIVIDE pelo valor de venda (a PTAX venda e BRL por USD), nao multiplica.
+ * Mesmas travas: PTAX presente, positiva e NAO defasada. Se `referenceTs` vier
+ * (a data do dado que originou o valor em BRL), exige MESMO DIA (UTC) entre ele
+ * e a PTAX. Devolve null quando qualquer trava falha.
+ */
+export function brlToUsdReference(
+  brlAmount: number,
+  ptax: Pick<MarketPoint, "isStale" | "value" | "ts"> | null,
+  referenceTs?: string,
+): { usd: number; ptaxDate: string } | null {
+  if (!Number.isFinite(brlAmount) || brlAmount < 0) return null;
+  if (!ptax || ptax.isStale) return null;
+  if (!Number.isFinite(ptax.value) || ptax.value <= 0) return null;
+  if (referenceTs && utcDateKey(referenceTs) !== utcDateKey(ptax.ts)) return null;
+  return { usd: brlAmount / ptax.value, ptaxDate: formatDayMonthUTC(ptax.ts) };
+}

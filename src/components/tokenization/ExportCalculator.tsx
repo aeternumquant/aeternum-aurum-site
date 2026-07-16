@@ -1,19 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import type { Commodity, Currency, Destination } from '../../types/tokenization';
+import type { Commodity, Destination } from '../../types/tokenization';
 import {
   COMMODITY_LABELS,
-  DESTINATION_DEFAULT_CURRENCY,
   DESTINATION_LABELS,
   PRICE_BOUNDS,
   VOLUME_BOUNDS,
 } from '../../data/commodityPrices';
-import { getExchangeRate } from '../../services/currencyService';
 import { useExportCalculation } from '../../hooks/useExportCalculation';
 import { useMarketData, type MarketPoint } from '../../hooks/useMarketData';
 import {
   PTAX_CODE,
   brlReference,
+  brlToUsdReference,
   formatBRLRef,
   formatDayMonthUTC,
   formatValueUnit,
@@ -22,11 +21,12 @@ import { formatBRL } from './format';
 
 const COMMODITIES: readonly Commodity[] = ['soja', 'milho', 'boi-gordo'];
 const DESTINATIONS: readonly Destination[] = ['china', 'eua', 'ue'];
-const CURRENCIES: readonly Currency[] = ['CNY', 'USD', 'EUR'];
 
 const DEBOUNCE_MS = 300;
 
-const destinoNumberFormatter = new Intl.NumberFormat('pt-BR', {
+// Commodity de exportacao brasileira liquida em dolar, entao o equivalente e
+// sempre em USD (0 casas; agrupamento pt-BR).
+const usdFormatter = new Intl.NumberFormat('pt-BR', {
   maximumFractionDigits: 0,
 });
 
@@ -82,16 +82,11 @@ type PriceInfo =
       conversion: { brl: number; ptaxDate: string } | null;
     };
 
-// Cotacao de referencia para o equivalente na moeda do destino.
-type FxInfo =
-  | { status: 'loading' }
-  | { status: 'unavailable' }
-  | { status: 'ok'; rate: number; date: string };
-
 export default function ExportCalculator() {
   const [commodity, setCommodity] = useState<Commodity>('soja');
+  // Destino: mantido como contexto de rota. Nao afeta o calculo (commodity
+  // liquida em USD independentemente do destino).
   const [destination, setDestination] = useState<Destination>('china');
-  const [currency, setCurrency] = useState<Currency>('CNY');
 
   const [volumeRaw, setVolumeRaw] = useState<string>('1000');
   const [volumeDebounced, setVolumeDebounced] = useState<number>(1000);
@@ -145,11 +140,6 @@ export default function ExportCalculator() {
     }
   }, [commodity, defaultBRL]);
 
-  // Moeda padrão derivada do destino — usuário pode trocar manualmente.
-  useEffect(() => {
-    setCurrency(DESTINATION_DEFAULT_CURRENCY[destination]);
-  }, [destination]);
-
   // Debounce do volume — 300ms a partir da última tecla.
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -166,44 +156,19 @@ export default function ExportCalculator() {
     return () => window.clearTimeout(handle);
   }, [priceRaw]);
 
-  // Cotacao para EUR/CNY vem do BCB via currencyService (sem fallback: null se
-  // indisponivel). USD nao passa por aqui: usa a PTAX do cache (abaixo).
-  const [remoteFx, setRemoteFx] = useState<FxInfo>({ status: 'loading' });
-  useEffect(() => {
-    if (currency === 'USD') return;
-    let cancelled = false;
-    setRemoteFx({ status: 'loading' });
-    getExchangeRate(currency).then((res) => {
-      if (cancelled) return;
-      setRemoteFx(res ? { status: 'ok', rate: res.rate, date: res.date } : { status: 'unavailable' });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [currency]);
+  const result = useExportCalculation({
+    commodity,
+    volumeToneladas: volumeDebounced,
+    precoUnitarioBRL: priceDebounced,
+  });
 
-  // USD: preferir o cache (PTAX_USD_VENDA, com data e trava de defasagem). Sem
-  // PTAX fresca -> indisponivel (nunca converter com cambio velho ou inventado).
-  const fx = useMemo<FxInfo>(() => {
-    if (currency === 'USD') {
-      if (marketLoading) return { status: 'loading' };
-      if (!ptaxPoint || ptaxPoint.isStale) return { status: 'unavailable' };
-      return { status: 'ok', rate: ptaxPoint.value, date: formatDayMonthUTC(ptaxPoint.ts) };
-    }
-    return remoteFx;
-  }, [currency, marketLoading, ptaxPoint, remoteFx]);
-
-  const exchangeRate = fx.status === 'ok' ? fx.rate : 0;
-
-  const result = useExportCalculation(
-    {
-      commodity,
-      volumeToneladas: volumeDebounced,
-      precoUnitarioBRL: priceDebounced,
-      destination,
-      currency,
-    },
-    exchangeRate,
+  // Equivalente em USD: BRL -> USD pela PTAX do cache (DIVIDE pela venda). Mesmas
+  // travas do terminal: PTAX fresca e mesma data (UTC) do dado de origem. Se o
+  // preco veio do cache, referenceTs = data da serie; se o usuario digitou, so a
+  // trava de PTAX fresca se aplica.
+  const usdRef = useMemo(
+    () => brlToUsdReference(result.valorTotalBRL, ptaxPoint, commodityPoint?.ts),
+    [result.valorTotalBRL, ptaxPoint, commodityPoint],
   );
 
   // Linha de referencia sob o input de preco: fonte + data + unidade + estado.
@@ -249,7 +214,7 @@ export default function ExportCalculator() {
       id="export-calculator"
       className="relative z-10 py-24 md:py-32 px-4 sm:px-6"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -265,7 +230,7 @@ export default function ExportCalculator() {
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed">
               Calcule o valor total de uma operação a partir do volume e do preço unitário, com o
-              equivalente na moeda do destino pela taxa de referência (PTAX).
+              equivalente em dólar pela taxa de referência (PTAX).
             </p>
           </header>
 
@@ -276,7 +241,7 @@ export default function ExportCalculator() {
                 informar os preços manualmente.
               </div>
             ) : null}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
               <div>
                 <label htmlFor="ec-commodity" className={labelBase}>
                   Commodity
@@ -352,7 +317,7 @@ export default function ExportCalculator() {
 
               <div>
                 <label htmlFor="ec-destination" className={labelBase}>
-                  Destino
+                  Destino (rota)
                 </label>
                 <select
                   id="ec-destination"
@@ -368,36 +333,6 @@ export default function ExportCalculator() {
                     </option>
                   ))}
                 </select>
-              </div>
-            </div>
-
-            <div
-              className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3"
-              role="group"
-              aria-label="Moeda do destino"
-            >
-              <span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-sans">
-                Moeda do destino
-              </span>
-              <div className="flex gap-2 flex-wrap">
-                {CURRENCIES.map((c) => {
-                  const active = currency === c;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCurrency(c)}
-                      aria-pressed={active}
-                      className={`px-3 py-1.5 text-xs font-sans tracking-[0.15em] uppercase rounded-sm border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50 ${
-                        active
-                          ? 'border-primary text-primary bg-primary/10'
-                          : 'border-white/10 text-foreground/65 hover:border-primary/40 hover:text-primary'
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  );
-                })}
               </div>
             </div>
 
@@ -425,18 +360,18 @@ export default function ExportCalculator() {
                 )}
               </div>
               <div className="text-sm font-sans text-muted-foreground font-light">
-                {fx.status === 'loading' ? (
+                {marketLoading ? (
                   <span
                     className="inline-block w-40 h-3 bg-card/80 animate-pulse rounded-sm align-middle"
                     aria-label="Carregando cotação"
                   />
-                ) : fx.status === 'unavailable' ? (
-                  <span className="text-muted-foreground/60">Cotação {currency} indisponível</span>
-                ) : priceDebounced > 0 ? (
+                ) : priceDebounced > 0 && usdRef ? (
                   <>
-                    ≈ {destinoNumberFormatter.format(result.valorTotalDestino)} {currency}
-                    <span className="text-muted-foreground/55"> · PTAX {fx.date}</span>
+                    ≈ {usdFormatter.format(usdRef.usd)} USD
+                    <span className="text-muted-foreground/55"> · PTAX {usdRef.ptaxDate}</span>
                   </>
+                ) : priceDebounced > 0 ? (
+                  <span className="text-muted-foreground/60">Equivalente em USD indisponível</span>
                 ) : null}
               </div>
             </div>

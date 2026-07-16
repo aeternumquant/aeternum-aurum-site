@@ -16,14 +16,10 @@ const KG_POR_UNIDADE: Record<Commodity, number> = {
   'boi-gordo': 15,
 };
 
-// Calculadora de VALOR de exportação: volume x preço = valor total, e o
-// equivalente na moeda do destino pela taxa de referência (PTAX). Nao ha
-// comparacao de custo de trilho, spread ou economia: essas afirmacoes foram
-// removidas por nao terem fonte defensavel.
-export function useExportCalculation(
-  inputs: CalculationInputs,
-  exchangeRate: number,
-): CalculationResult {
+// Calculadora de VALOR de exportação: volume x preço = valor total em BRL.
+// O equivalente em USD (commodity de exportacao liquida em dolar) e calculado
+// no componente pela PTAX do cache, via marketFormat.brlToUsdReference.
+export function useExportCalculation(inputs: CalculationInputs): CalculationResult {
   const { commodity, volumeToneladas, precoUnitarioBRL } = inputs;
 
   return useMemo(() => {
@@ -34,10 +30,6 @@ export function useExportCalculation(
     const unidades = (volume * 1000) / kgPorUnidade;
     const valorTotalBRL = Math.round(unidades * price);
 
-    // exchangeRate = BRL por unidade da moeda do destino (PTAX venda). Sem taxa
-    // valida (0), nao ha equivalente no destino.
-    const valorTotalDestino = exchangeRate > 0 ? Math.round(valorTotalBRL / exchangeRate) : 0;
-
-    return { valorTotalBRL, valorTotalDestino };
-  }, [commodity, volumeToneladas, precoUnitarioBRL, exchangeRate]);
+    return { valorTotalBRL };
+  }, [commodity, volumeToneladas, precoUnitarioBRL]);
 }

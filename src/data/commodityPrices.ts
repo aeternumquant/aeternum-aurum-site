@@ -1,13 +1,4 @@
-// Última atualização: 13/05/2026 (mock — atualizar manualmente).
-// Fonte de referência pública: CEPEA/ESALQ (cepea.org.br).
-
-import type { Commodity, Destination, Currency } from '../types/tokenization';
-
-export const COMMODITY_PRICES_BRL: Record<Commodity, number> = {
-  soja: 122.81,        // R$/saca 60kg, Paranaguá
-  milho: 65.51,        // R$/saca 60kg, Campinas
-  'boi-gordo': 348.80, // R$/arroba, ESALQ/B3
-};
+import type { Commodity, Destination } from '../types/tokenization';
 
 export const COMMODITY_LABELS: Record<Commodity, string> = {
   soja: 'Soja (R$/saca 60kg)',
@@ -25,18 +16,6 @@ export const DESTINATION_LABELS: Record<Destination, string> = {
   china: 'China',
   eua: 'Estados Unidos',
   ue: 'União Europeia',
-};
-
-export const DESTINATION_DEFAULT_CURRENCY: Record<Destination, Currency> = {
-  china: 'CNY',
-  eua: 'USD',
-  ue: 'EUR',
-};
-
-export const CURRENCY_LABELS: Record<Currency, string> = {
-  USD: 'USD',
-  EUR: 'EUR',
-  CNY: 'CNY',
 };
 
 export const VOLUME_BOUNDS = {
