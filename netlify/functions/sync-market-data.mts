@@ -123,19 +123,25 @@ async function ensureSeries(opts: SeriesOpts): Promise<number> {
 type Point = { ts: string; value: number };
 
 /**
- * Grava observacoes com upsert idempotente (onConflict 'series_id,ts').
- * Ignora pontos com value null/NaN/infinito ou sem ts. Devolve quantos gravou.
+ * Grava observacoes com upsert idempotente por chave (series_id, ts).
+ * Em conflito faz DO UPDATE: atualiza value e ingested_at (nao ignora). Motivo:
+ * fontes revisam valores (a EIA revisa; o BCB corrige a PTAX), entao re-rodar
+ * precisa consertar dado errado, nao mante-lo. A chave nao muda, entao nao
+ * duplica. Ignora pontos com value null/NaN/infinito ou sem ts.
  */
 async function saveObservations(seriesId: number, points: Point[]): Promise<number> {
+  const ingestedAt = new Date().toISOString();
   const rows = points
     .filter((p) => p && p.ts && p.value != null && Number.isFinite(p.value))
-    .map((p) => ({ series_id: seriesId, ts: p.ts, value: p.value }));
+    .map((p) => ({ series_id: seriesId, ts: p.ts, value: p.value, ingested_at: ingestedAt }));
 
   if (rows.length === 0) return 0;
 
+  // ignoreDuplicates: false => ON CONFLICT (series_id, ts) DO UPDATE. Como
+  // passamos ingested_at no payload, ele tambem e atualizado no re-run.
   const { error } = await supabase
     .from("observations")
-    .upsert(rows, { onConflict: "series_id,ts" });
+    .upsert(rows, { onConflict: "series_id,ts", ignoreDuplicates: false });
 
   if (error) {
     throw new Error(`falha ao gravar observacoes da serie ${seriesId}: ${error.message}`);
@@ -184,7 +190,7 @@ async function syncBcb(): Promise<Record<string, unknown>> {
   const seriesId = await ensureSeries({
     sourceSlug: "bcb",
     code: "PTAX_USD_VENDA",
-    labelPt: "Dolar PTAX (venda)",
+    labelPt: "Dólar PTAX (venda)",
     labelEn: "USD/BRL PTAX (ask)",
     unit: "BRL/USD",
     category: "cambio",
@@ -203,13 +209,13 @@ const EIA_SERIES = [
   {
     eiaId: "RWTC",
     code: "WTI_SPOT",
-    labelPt: "Petroleo WTI (spot Cushing)",
+    labelPt: "Petróleo WTI (spot Cushing)",
     labelEn: "Crude Oil WTI (Cushing spot)",
   },
   {
     eiaId: "RBRTE",
     code: "BRENT_SPOT",
-    labelPt: "Petroleo Brent (spot Europa)",
+    labelPt: "Petróleo Brent (spot Europa)",
     labelEn: "Crude Oil Brent (Europe spot)",
   },
 ];
@@ -268,34 +274,49 @@ async function syncEia(): Promise<Record<string, unknown>> {
 // longo do ano, por isso os rotulos deixam explicito "1o vencimento" e o codigo
 // do contrato escolhido vai para o log (passo 3.5.d).
 //
-// A unidade de cotacao por quantidade (BRL/saca, BRL/@) NAO e um campo da API
-// (ela expoe tradingCurrency = BRL e contractMultiplier, mas nao a denominacao).
-// Por isso unit fica null, conforme instruido: nao inventar.
+// A API nao expoe a denominacao por quantidade (saca, @) como campo. Mas ela
+// devolve tradingCurrency (USD/BRL) e contractMultiplier, e o multiplicador
+// identifica a denominacao das specs da B3 (soja/milho = 450 => saca, cafe =
+// 100 => saca, boi = 330 => @). Entao a unit e INFERIDA de moeda + multiplicador
+// e a inferencia e verificavel: se o multiplicador vier diferente do esperado,
+// o worker loga um aviso em vez de gravar uma unidade errada em silencio.
 
 const BRAPI_AGRO = [
   {
     asset: "SJC",
     code: "SOJA_FUT",
-    labelPt: "Soja (futuro B3, 1o vencimento)",
+    labelPt: "Soja (futuro B3, 1º vencimento)",
     labelEn: "Soybean (B3 futures, front month)",
+    expectedMultiplier: 450,
+    expectedCurrency: "USD",
+    denomination: "saca",
   },
   {
     asset: "CCM",
     code: "MILHO_FUT",
-    labelPt: "Milho (futuro B3, 1o vencimento)",
+    labelPt: "Milho (futuro B3, 1º vencimento)",
     labelEn: "Corn (B3 futures, front month)",
+    expectedMultiplier: 450,
+    expectedCurrency: "BRL",
+    denomination: "saca",
   },
   {
     asset: "BGI",
     code: "BOI_FUT",
-    labelPt: "Boi gordo (futuro B3, 1o vencimento)",
+    labelPt: "Boi gordo (futuro B3, 1º vencimento)",
     labelEn: "Live cattle (B3 futures, front month)",
+    expectedMultiplier: 330,
+    expectedCurrency: "BRL",
+    denomination: "@",
   },
   {
     asset: "ICF",
     code: "CAFE_FUT",
-    labelPt: "Cafe arabica (futuro B3, 1o vencimento)",
+    labelPt: "Café arábica (futuro B3, 1º vencimento)",
     labelEn: "Arabica coffee (B3 futures, front month)",
+    expectedMultiplier: 100,
+    expectedCurrency: "USD",
+    denomination: "saca",
   },
 ];
 
@@ -341,12 +362,25 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
         ? new Date(front.date * 1000).toISOString()
         : `${todayUtc}T00:00:00Z`;
 
+      // Unidade inferida da moeda (API) + denominacao (multiplicador das specs
+      // B3). Se o multiplicador vier diferente do esperado, avisa: a inferencia
+      // deixa de ser confiavel e nao queremos gravar unidade errada calada.
+      const multiplier = front.contractMultiplier;
+      if (multiplier != null && multiplier !== a.expectedMultiplier) {
+        log(
+          `[brapi] AVISO ${a.code}/${front.symbol}: multiplicador ${multiplier} ` +
+            `difere do esperado ${a.expectedMultiplier}; unidade inferida (${a.denomination}) pode estar errada.`,
+        );
+      }
+      const currency = front.tradingCurrency ?? a.expectedCurrency;
+      const unit = `${currency}/${a.denomination}`;
+
       const seriesId = await ensureSeries({
         sourceSlug: "brapi",
         code: a.code,
         labelPt: a.labelPt,
         labelEn: a.labelEn,
-        unit: null,
+        unit,
         category: "grao",
         visibility: "public",
       });
@@ -363,10 +397,11 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
         close: front.close,
         contractMultiplier: front.contractMultiplier,
         tradingCurrency: front.tradingCurrency,
+        unit,
       };
       log(
         `[brapi] ${a.code}: contrato ${front.symbol} (venc ${front.expirationDate}), ` +
-          `settlement=${price}, mult=${front.contractMultiplier}, moeda=${front.tradingCurrency}`,
+          `settlement=${price}, mult=${front.contractMultiplier}, moeda=${front.tradingCurrency}, unit=${unit}`,
       );
     } catch (e: any) {
       errors.push(`${a.asset}: ${e?.message ?? String(e)}`);
