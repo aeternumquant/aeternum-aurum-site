@@ -1,71 +1,61 @@
 /**
  * CommodityTerminal.tsx
  *
- * Sidebar esquerda com 10 commodities individuais clicáveis.
- * Painel direito dinâmico com: preço + variação, indicadores rápidos,
- * duas colunas Fear (vermelho #ef4444) / Greed (dourado #C6A85A).
+ * Terminal de commodities: sidebar de 10 commodities clicaveis + painel de
+ * detalhe dinamico.
  *
- * Estado inicial: "Soja" selecionada por padrão.
+ * Etapa 3a (dado real): as 4 commodities com serie no Supabase (soja, milho,
+ * cafe, boi) mostram DADO REAL vindo do cache (valor + unidade + data + estado
+ * de defasagem + atribuicao). As 6 sem fonte (trigo, algodao, acucar, cacau,
+ * minerio, niobio) aparecem como "Sob consulta": sem numero e sem mock.
+ *
+ * Regras de honestidade aplicadas:
+ *  - rotulo completo (label_pt do banco), nao encurtado para "Soja";
+ *  - unidade sempre colada ao valor (soja em USD/saca, milho em BRL/saca);
+ *  - data do dado visivel ("em 15/07") e badge sobrio quando defasado;
+ *  - atribuicao das fontes no rodape, com a string exata do banco;
+ *  - decimais em virgula (pt-BR); loading vira skeleton, erro vira mensagem.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sprout, Wheat, Combine, Coffee, Droplets, TrendingUp,
-  Activity, Coins, Mountain, Gem,
+  Activity, Mountain, Gem,
 } from "lucide-react";
+import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
 
-/* ── Tipos ── */
+/* Tipos */
 type CommodityId =
   | "soja" | "milho" | "trigo" | "boi_gordo" | "cafe"
   | "algodao" | "acucar" | "cacau" | "minerio" | "niobio";
 
-interface IndicatorSet {
-  label: string;
-  val: string;
-  color: string;
-}
-
-interface Commodity {
+interface CommodityMeta {
   id: CommodityId;
   name: string;
-  subtitle: string;
-  price: string;
-  variation: string;
-  trendDown: boolean;
+  /** Metadado curto e factual. null nas linhas "sob consulta" (sem fonte). */
+  subtitle: string | null;
   icon: React.ElementType;
-  indicators: {
-    a: IndicatorSet;
-    b: IndicatorSet;
-    c: IndicatorSet;
-    d: IndicatorSet;
-  };
+  /** Code da serie no banco. null quando nao ha fonte (linha "sob consulta"). */
+  seriesCode: string | null;
   fearTitle: string;
   fear: string[];
   greedTitle: string;
   greed: string[];
-  /** Frase institucional curta (Drew Crawford insight) */
   insight?: string;
 }
 
 /* ══════════════════════════════════════════════════════
-   DADOS DAS 10 COMMODITIES
+   AS 10 COMMODITIES (narrativa editorial preservada;
+   numero e fonte agora vem do hook, nao daqui)
 ══════════════════════════════════════════════════════ */
-const commodities: Commodity[] = [
-  /* ─── 1. SOJA ─── */
+const commodities: CommodityMeta[] = [
+  /* 1. SOJA (real) */
   {
     id: "soja",
     name: "Soja",
-    subtitle: "CBOT · Saca 60kg",
-    price: "R$ 133,40",
-    variation: "-1.2%",
-    trendDown: true,
+    subtitle: "B3 · futuro SJC",
     icon: Sprout,
-    indicators: {
-      a: { label: "VIX Agrícola", val: "24.8", color: "text-orange-400" },
-      b: { label: "NetGEX", val: "-$420M", color: "text-red-500" },
-      c: { label: "Q-Score (CTA)", val: "-1.8 SD", color: "text-orange-400" },
-      d: { label: "Baseline Vol", val: "14.2%", color: "text-primary" },
-    },
+    seriesCode: "SOJA_FUT",
     fearTitle: "Riscos invisíveis",
     fear: [
       "Tensões no Mar Negro + retenção de exportação russa afetam 30% do trigo global — soja sofre contágio direto.",
@@ -81,21 +71,13 @@ const commodities: Commodity[] = [
     insight: "Brasil produz 6 em cada 10 toneladas de soja exportadas no mundo. A rota Mato Grosso–Hong Kong é a nova artéria da proteína global.",
   },
 
-  /* ─── 2. MILHO ─── */
+  /* 2. MILHO (real) */
   {
     id: "milho",
     name: "Milho",
-    subtitle: "CBOT · Saca 60kg",
-    price: "R$ 54,20",
-    variation: "+0.8%",
-    trendDown: false,
+    subtitle: "B3 · futuro CCM",
     icon: Combine,
-    indicators: {
-      a: { label: "VIX Agrícola", val: "22.1", color: "text-primary" },
-      b: { label: "NetGEX", val: "+$150M", color: "text-[#C6A85A]" },
-      c: { label: "CTA Exposure", val: "Neutral", color: "text-muted-foreground" },
-      d: { label: "Baseline Vol", val: "18.5%", color: "text-primary" },
-    },
+    seriesCode: "MILHO_FUT",
     fearTitle: "Riscos invisíveis",
     fear: [
       "Descolamento do Basis B3–CBOT impede hedges tradicionais de funcionar nas janelas de rolagem.",
@@ -111,21 +93,13 @@ const commodities: Commodity[] = [
     insight: "Brasil é o 2º exportador mundial de milho — safra 23/24 recorde de 135 M ton. CBOT ainda subestima a oferta brasileira.",
   },
 
-  /* ─── 3. TRIGO ─── */
+  /* 3. TRIGO (sob consulta) */
   {
     id: "trigo",
     name: "Trigo",
-    subtitle: "CBOT · Saca 60kg",
-    price: "R$ 76,50",
-    variation: "+2.1%",
-    trendDown: false,
+    subtitle: null,
     icon: Wheat,
-    indicators: {
-      a: { label: "VIX Hedger", val: "31.5", color: "text-red-500" },
-      b: { label: "Gamma Profile", val: "Short", color: "text-red-500" },
-      c: { label: "Q-Score", val: "+2.1 SD", color: "text-[#C6A85A]" },
-      d: { label: "Baseline Vol", val: "24.1%", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "Rússia controla 22% das exportações globais via Mar Negro — qualquer escalada trava o fluxo e explode o preço.",
@@ -141,21 +115,13 @@ const commodities: Commodity[] = [
     insight: "Egito é o 2º maior importador de trigo do mundo — e o Brasil tem posição privilegiada para fornecimento via parceiros do Mediterrâneo.",
   },
 
-  /* ─── 4. BOI GORDO ─── */
+  /* 4. BOI GORDO (real) */
   {
     id: "boi_gordo",
     name: "Boi Gordo",
-    subtitle: "B3 · @15kg",
-    price: "R$ 321,80",
-    variation: "-0.5%",
-    trendDown: true,
+    subtitle: "B3 · futuro BGI",
     icon: TrendingUp,
-    indicators: {
-      a: { label: "VIX Pecuário", val: "19.8", color: "text-primary" },
-      b: { label: "NetGEX B3", val: "Neutro", color: "text-muted-foreground" },
-      c: { label: "Q-Score", val: "-0.5 SD", color: "text-primary" },
-      d: { label: "Baseline Vol", val: "12.3%", color: "text-primary" },
-    },
+    seriesCode: "BOI_FUT",
     fearTitle: "Riscos invisíveis",
     fear: [
       "Banimentos sanitários por febre aftosa ou BSE travam exportação da noite para o dia sem aviso.",
@@ -171,21 +137,13 @@ const commodities: Commodity[] = [
     insight: "Brasil é o maior exportador de carne bovina global (27%) — China concentra 50% do volume. Rota Goiás–Xangai é estratégica.",
   },
 
-  /* ─── 5. CAFÉ ─── */
+  /* 5. CAFÉ (real) */
   {
     id: "cafe",
     name: "Café",
-    subtitle: "ICE NY · US¢/lb",
-    price: "USD 4.82/lb",
-    variation: "+4.2%",
-    trendDown: false,
+    subtitle: "B3 · futuro ICF",
     icon: Coffee,
-    indicators: {
-      a: { label: "VIX Proxy", val: "42.0", color: "text-red-500" },
-      b: { label: "ICE Gamma", val: "+$850M", color: "text-[#C6A85A]" },
-      c: { label: "CTA Position", val: "Max Long", color: "text-red-500" },
-      d: { label: "Baseline Vol", val: "38.2%", color: "text-primary" },
-    },
+    seriesCode: "CAFE_FUT",
     fearTitle: "Riscos invisíveis",
     fear: [
       "Short Squeeze estrutural forçado por fundos na ICE NY — exportadores com posição short são dizimados.",
@@ -201,21 +159,13 @@ const commodities: Commodity[] = [
     insight: "Brasil produz 1 em cada 3 xícaras de café consumidas no planeta — 38% da oferta global. O mercado ainda subestima o poder de pricing.",
   },
 
-  /* ─── 6. ALGODÃO ─── */
+  /* 6. ALGODÃO (sob consulta) */
   {
     id: "algodao",
     name: "Algodão",
-    subtitle: "ICE NY · US¢/lb",
-    price: "USD 0.68/lb",
-    variation: "-0.2%",
-    trendDown: true,
+    subtitle: null,
     icon: Droplets,
-    indicators: {
-      a: { label: "Macro Risk", val: "20.1", color: "text-primary" },
-      b: { label: "GEX ICE", val: "-$120M", color: "text-red-500" },
-      c: { label: "Trend Algo", val: "Short", color: "text-red-500" },
-      d: { label: "Implied Vol", val: "19.8%", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "Dependência aguda do ciclo macro chinês — desaceleração da indústria têxtil destrói demanda instantaneamente.",
@@ -231,21 +181,13 @@ const commodities: Commodity[] = [
     insight: "Brasil é o 2º maior exportador global de algodão — Centro-Oeste concentra 70% da produção. Viet Nam e Paquistão absorvem a demanda têxtil.",
   },
 
-  /* ─── 7. AÇÚCAR ─── */
+  /* 7. AÇÚCAR (sob consulta) */
   {
     id: "acucar",
     name: "Açúcar",
-    subtitle: "ICE NY · US¢/100lb",
-    price: "USD 18.4/lb",
-    variation: "+1.5%",
-    trendDown: false,
+    subtitle: null,
     icon: Activity,
-    indicators: {
-      a: { label: "Policy Risk", val: "25.2", color: "text-orange-400" },
-      b: { label: "Gamma Bias", val: "Call Heavy", color: "text-[#C6A85A]" },
-      c: { label: "CTA Exposure", val: "+2.8 SD", color: "text-red-500" },
-      d: { label: "Baseline Vol", val: "22.4%", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "Políticas de retenção da Índia e Tailândia travam o escoamento global e colapsam preços sem aviso.",
@@ -261,21 +203,13 @@ const commodities: Commodity[] = [
     insight: "Mais da metade do açúcar comercializado no mundo é brasileiro — ~40% do mercado global. Maior mispricing de poder de precificação do agro.",
   },
 
-  /* ─── 8. CACAU ─── */
+  /* 8. CACAU (sob consulta) */
   {
     id: "cacau",
     name: "Cacau",
-    subtitle: "ICE London · USD/ton",
-    price: "USD 8.240/ton",
-    variation: "+12.4%",
-    trendDown: false,
+    subtitle: null,
     icon: Sprout,
-    indicators: {
-      a: { label: "ICE Vol", val: "58.1", color: "text-red-500" },
-      b: { label: "Gamma Profile", val: "Explosive", color: "text-red-500" },
-      c: { label: "Short Squeeze", val: "Extremo", color: "text-red-500" },
-      d: { label: "Baseline Vol", val: "45.2%", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "Pragas biológicas na Costa do Marfim + Ghana destruíram 374 K ton em 23/24 — déficit histórico.",
@@ -291,21 +225,13 @@ const commodities: Commodity[] = [
     insight: "Bahia representa 60% da produção brasileira de cacau. O déficit global criou o maior short squeeze da commoditie desde 1977.",
   },
 
-  /* ─── 9. MINÉRIO DE FERRO ─── */
+  /* 9. MINÉRIO DE FERRO (sob consulta) */
   {
     id: "minerio",
     name: "Minério de Ferro",
-    subtitle: "SGX · USD/ton 62% Fe",
-    price: "USD 105.40/ton",
-    variation: "-1.8%",
-    trendDown: true,
+    subtitle: null,
     icon: Mountain,
-    indicators: {
-      a: { label: "China PMI", val: "49.1", color: "text-red-500" },
-      b: { label: "Portfólio Vale", val: "Long", color: "text-[#C6A85A]" },
-      c: { label: "CTA Signal", val: "-1.4 SD", color: "text-orange-400" },
-      d: { label: "Iron Vol 30d", val: "28.7%", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "PMI industrial chinês abaixo de 50 = demanda de aço cai e o preço do minério derruba em cascata.",
@@ -321,21 +247,13 @@ const commodities: Commodity[] = [
     insight: "Brasil lidera exportações de minério de ferro para China e Ásia. Vale sozinha responde por 20% do supply global — poder de pricing enorme.",
   },
 
-  /* ─── 10. NIÓBIO ─── */
+  /* 10. NIÓBIO (sob consulta) */
   {
     id: "niobio",
     name: "Nióbio",
-    subtitle: "OTC · USD/kg FeNb",
-    price: "USD 42,00/kg",
-    variation: "+0.0%",
-    trendDown: false,
+    subtitle: null,
     icon: Gem,
-    indicators: {
-      a: { label: "Supply Conc.", val: "94% BR", color: "text-[#C6A85A]" },
-      b: { label: "EV Demand", val: "Acelerado", color: "text-[#C6A85A]" },
-      c: { label: "Liquidity", val: "OTC Only", color: "text-orange-400" },
-      d: { label: "Price Vol", val: "Baixa", color: "text-primary" },
-    },
+    seriesCode: null,
     fearTitle: "Riscos invisíveis",
     fear: [
       "Mercado 100% OTC e opaco — não há bolsa de referência, formação de preço controlada por CBMM.",
@@ -352,22 +270,88 @@ const commodities: Commodity[] = [
   },
 ];
 
+/* ── Formatacao (pt-BR: virgula, unidade colada) ── */
+const valueFmt = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function formatValueUnit(point: MarketPoint): string {
+  const v = valueFmt.format(point.value);
+  return point.unit ? `${v} ${point.unit}` : v;
+}
+
+/** "em 15/07" usando a data UTC do pregao (evita virar 14/07 num fuso UTC-3). */
+function formatDayMonthUTC(ts: string): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return "";
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `${dd}/${mm}`;
+}
+
+/* ── Pecas visuais pequenas ── */
+function ValueSkeleton() {
+  return <div className="h-7 w-32 rounded-sm bg-white/5 animate-pulse ml-auto" />;
+}
+
+function StaleTag({ ageInDays }: { ageInDays: number }) {
+  const days = Math.floor(ageInDays);
+  return (
+    <span
+      title={`Ultima atualizacao ha ${days} dia(s). O worker roda 2x/dia; a fonte pode ter falhado.`}
+      className="ml-2 inline-block align-middle text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border border-[#C6A85A]/40 text-[#C6A85A]/90"
+    >
+      defasado
+    </span>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════════════════════════════ */
 export default function CommodityTerminal() {
+  const { data, loading, error } = useMarketData();
   const [activeId, setActiveId] = useState<CommodityId>("soja");
   const active = commodities.find((c) => c.id === activeId)!;
+
+  const bySeries = useMemo(() => {
+    const map = new Map<string, MarketPoint>();
+    for (const p of data ?? []) map.set(p.code, p);
+    return map;
+  }, [data]);
+
+  const activePoint = active.seriesCode ? bySeries.get(active.seriesCode) ?? null : null;
+
+  // Atribuicoes unicas das series reais exibidas (string exata do banco).
+  const attributions = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of commodities) {
+      if (!c.seriesCode) continue;
+      const p = bySeries.get(c.seriesCode);
+      if (p?.attribution) set.add(p.attribution);
+    }
+    return [...set];
+  }, [bySeries]);
 
   return (
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-6xl">
+
+        {/* Banner honesto quando a leitura falha (nao silencia, nao zera) */}
+        {error && (
+          <div className="mb-3 text-xs text-[#C6A85A]/90 border border-[#C6A85A]/25 bg-[#C6A85A]/[0.03] px-3 py-2 rounded-sm">
+            Não foi possível carregar os dados de mercado agora. A estrutura segue visível; os valores voltam quando a fonte responder.
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row border border-white/10 bg-[#08090c] rounded-sm overflow-hidden shadow-2xl shadow-black/60">
 
-          {/* ── Sidebar esquerda (lista de commodities) ── */}
+          {/* ── Sidebar esquerda ── */}
           <div className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-white/5 bg-black/30 flex md:flex-col overflow-x-auto md:overflow-y-auto custom-scrollbar-hide">
             {commodities.map((c) => {
               const isActive = c.id === activeId;
+              const point = c.seriesCode ? bySeries.get(c.seriesCode) ?? null : null;
               return (
                 <button
                   key={c.id}
@@ -376,14 +360,12 @@ export default function CommodityTerminal() {
                     isActive ? "bg-primary/5" : "hover:bg-white/4"
                   }`}
                 >
-                  {/* Indicador esquerdo ativo */}
                   {isActive && (
                     <motion.div
                       layoutId="sidebarIndicator"
                       className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary hidden md:block"
                     />
                   )}
-                  {/* Indicador inferior ativo (mobile) */}
                   {isActive && (
                     <motion.div
                       layoutId="sidebarIndicatorMobile"
@@ -404,16 +386,26 @@ export default function CommodityTerminal() {
                     </span>
                   </div>
 
-                  {/* Variação % visível na sidebar */}
-                  <div className={`text-[9px] font-mono mt-1 ml-6 ${c.trendDown ? "text-red-500/70" : "text-green-400/70"}`}>
-                    {c.variation} &nbsp;·&nbsp; {c.subtitle.split("·")[0].trim()}
+                  {/* Linha de status: valor real, "Sob consulta", skeleton ou indisponivel */}
+                  <div className="text-[9px] font-mono mt-1 ml-6 min-h-[12px]">
+                    {!c.seriesCode ? (
+                      <span className="text-muted-foreground/40 uppercase tracking-wider">Sob consulta</span>
+                    ) : loading ? (
+                      <span className="inline-block h-2 w-16 rounded-sm bg-white/5 animate-pulse align-middle" />
+                    ) : point ? (
+                      <span className={point.isStale ? "text-[#C6A85A]/70" : "text-muted-foreground/70"}>
+                        {formatValueUnit(point)}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground/40">indisponível</span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* ── Painel direito dinâmico ── */}
+          {/* ── Painel direito dinamico ── */}
           <div className="flex-1 p-6 sm:p-8 overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
@@ -423,41 +415,51 @@ export default function CommodityTerminal() {
                 exit={{ opacity: 0, x: -12 }}
                 transition={{ duration: 0.22 }}
               >
-                {/* ── Header: nome + preço ── */}
+                {/* Header: rotulo completo + valor/unidade/data ou "Sob consulta" */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 pb-5 border-b border-white/5">
-                  <div>
-                    <p className="text-[9px] text-muted-foreground/50 uppercase tracking-[0.25em] mb-1">
-                      {active.subtitle}
-                    </p>
+                  <div className="min-w-0">
+                    {active.subtitle && (
+                      <p className="text-[9px] text-muted-foreground/50 uppercase tracking-[0.25em] mb-1">
+                        {active.subtitle}
+                      </p>
+                    )}
                     <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest">
                       {active.name}
                     </h3>
+                    {/* Rotulo completo do banco (nao encurtado), so nas linhas reais */}
+                    {active.seriesCode && activePoint && (
+                      <p className="text-xs text-muted-foreground/70 mt-1.5 font-light">
+                        {activePoint.labelPt}
+                      </p>
+                    )}
                   </div>
-                  <div className="text-left sm:text-right">
-                    <div className="font-mono text-2xl text-foreground leading-tight">
-                      {active.price}
-                    </div>
-                    <div className={`text-sm font-mono tracking-wider mt-1 ${active.trendDown ? "text-red-500" : "text-green-400"}`}>
-                      {active.variation}
-                    </div>
+
+                  <div className="text-left sm:text-right shrink-0">
+                    {!active.seriesCode ? (
+                      <div className="font-mono text-lg text-muted-foreground/60 uppercase tracking-wider">
+                        Sob consulta
+                      </div>
+                    ) : loading ? (
+                      <ValueSkeleton />
+                    ) : activePoint ? (
+                      <>
+                        <div className="font-mono text-2xl text-foreground leading-tight">
+                          {formatValueUnit(activePoint)}
+                        </div>
+                        <div className="text-xs font-mono text-muted-foreground/60 mt-1">
+                          em {formatDayMonthUTC(activePoint.ts)}
+                          {activePoint.isStale && <StaleTag ageInDays={activePoint.ageInDays} />}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="font-mono text-sm text-muted-foreground/70">
+                        dado indisponível
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* ── Indicadores rápidos (4 colunas) ── */}
-                <div className="grid grid-cols-4 gap-0 border border-white/5 bg-black/20 mb-7 divide-x divide-white/5">
-                  {Object.values(active.indicators).map((ind, i) => (
-                    <div key={i} className="flex flex-col items-center justify-center text-center py-3 px-2">
-                      <span className="text-[8px] text-muted-foreground/50 uppercase tracking-widest mb-1.5">
-                        {ind.label}
-                      </span>
-                      <span className={`text-xs font-mono font-semibold ${ind.color}`}>
-                        {ind.val}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* ── Insight institucional (Drew Crawford) ── */}
+                {/* Insight institucional */}
                 {active.insight && (
                   <div
                     className="mb-6 px-4 py-3 border-l-2 text-xs leading-relaxed italic"
@@ -471,10 +473,8 @@ export default function CommodityTerminal() {
                   </div>
                 )}
 
-                {/* ── Two-column Fear / Greed ── */}
+                {/* Two-column Fear / Greed (teses editoriais, nao dados) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                  {/* Fear — card esquerdo vermelho "Riscos Invisíveis" */}
                   <div className="border border-[#ef4444]/15 bg-[#ef4444]/[0.025] p-5 rounded-sm hover:border-[#ef4444]/30 transition-colors flex flex-col">
                     <h4 className="text-[10px] uppercase tracking-widest mb-4 pb-2 border-b border-[#ef4444]/15" style={{ color: "#ef4444" }}>
                       {active.fearTitle}
@@ -483,15 +483,12 @@ export default function CommodityTerminal() {
                       {active.fear.map((f, i) => (
                         <li key={i} className="flex gap-2.5">
                           <span className="text-[#ef4444]/50 text-xs shrink-0 mt-0.5">▪</span>
-                          <p className="text-muted-foreground/80 text-xs leading-relaxed font-light">
-                            {f}
-                          </p>
+                          <p className="text-muted-foreground/80 text-xs leading-relaxed font-light">{f}</p>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Greed — card direito verde #10b981 "Proteção Aeternum" */}
                   <div className="border border-[#10b981]/15 bg-[#10b981]/[0.025] p-5 rounded-sm hover:border-[#10b981]/30 transition-colors flex flex-col">
                     <h4 className="text-[10px] uppercase tracking-widest mb-4 pb-2 border-b border-[#10b981]/15" style={{ color: "#10b981" }}>
                       {active.greedTitle}
@@ -500,15 +497,22 @@ export default function CommodityTerminal() {
                       {active.greed.map((g, i) => (
                         <li key={i} className="flex gap-2.5">
                           <span className="text-[#10b981]/50 text-xs shrink-0 mt-0.5">▪</span>
-                          <p className="text-white/80 text-xs leading-relaxed font-light">
-                            {g}
-                          </p>
+                          <p className="text-white/80 text-xs leading-relaxed font-light">{g}</p>
                         </li>
                       ))}
                     </ul>
                   </div>
-
                 </div>
+
+                {/* Rodape: atribuicao das fontes (string exata do banco) */}
+                {attributions.length > 0 && (
+                  <div className="mt-7 pt-4 border-t border-white/5 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    {attributions.map((a) => (
+                      <span key={a} className="text-[10px] text-muted-foreground/50">{a}</span>
+                    ))}
+                    <span className="text-[10px] text-muted-foreground/35">Cache Aeternum, atualizado 2x/dia.</span>
+                  </div>
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
