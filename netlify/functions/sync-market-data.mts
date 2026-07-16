@@ -77,6 +77,8 @@ async function fetchJson(
 // Helpers de banco
 // ---------------------------------------------------------------------------
 
+type Frequency = "continua" | "diaria" | "mensal";
+
 type SeriesOpts = {
   sourceSlug: string;
   code: string;
@@ -85,6 +87,9 @@ type SeriesOpts = {
   unit: string | null;
   category: string;
   visibility: string;
+  frequency: Frequency;
+  /** Onde o preco se FORMA (B3, BCB). Distinto da source, que ENTREGA. null se nao se aplica. */
+  market: string | null;
 };
 
 /**
@@ -115,6 +120,8 @@ async function ensureSeries(opts: SeriesOpts): Promise<number> {
         unit: opts.unit,
         category: opts.category,
         visibility: opts.visibility,
+        frequency: opts.frequency,
+        market: opts.market,
         active: true,
       },
       { onConflict: "source_id,code" },
@@ -204,6 +211,8 @@ async function syncBcb(): Promise<Record<string, unknown>> {
     unit: "BRL/USD",
     category: "cambio",
     visibility: "public",
+    frequency: "diaria",
+    market: "BCB",
   });
 
   const saved = await saveObservations(seriesId, points);
@@ -263,6 +272,8 @@ async function syncEia(): Promise<Record<string, unknown>> {
       unit: "USD/bbl",
       category: "energia",
       visibility: "public",
+      frequency: "diaria",
+      market: null,
     });
 
     saved += await saveObservations(seriesId, points);
@@ -392,6 +403,8 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
         unit,
         category: "grao",
         visibility: "public",
+        frequency: "diaria",
+        market: "B3",
       });
 
       const n = await saveObservations(seriesId, [{ ts, value: Number(price) }]);
@@ -455,6 +468,8 @@ async function syncDefillama(): Promise<Record<string, unknown>> {
     unit: "USD",
     category: "rwa",
     visibility: "internal",
+    frequency: "continua",
+    market: null,
   });
 
   const saved = await saveObservations(seriesId, [{ ts, value: total }]);

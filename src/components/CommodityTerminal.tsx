@@ -39,8 +39,10 @@ type CommodityId =
 interface CommodityMeta {
   id: CommodityId;
   name: string;
-  /** Metadado curto e factual. null nas linhas "sob consulta" (sem fonte). */
-  subtitle: string | null;
+  /** Ticker B3 do contrato (SJC/CCM/BGI/ICF). Hardcoded: nao esta no banco (sao
+   *  4). O subtitle e montado com market (do banco) + ticker. null nas "sob
+   *  consulta". */
+  ticker: string | null;
   icon: React.ElementType;
   /** Code da serie no banco. null quando nao ha fonte (linha "sob consulta"). */
   seriesCode: string | null;
@@ -60,7 +62,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "soja",
     name: "Soja",
-    subtitle: "B3 · futuro SJC",
+    ticker: "SJC",
     icon: Sprout,
     seriesCode: "SOJA_FUT",
     fearTitle: "Riscos invisíveis",
@@ -82,7 +84,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "milho",
     name: "Milho",
-    subtitle: "B3 · futuro CCM",
+    ticker: "CCM",
     icon: Combine,
     seriesCode: "MILHO_FUT",
     fearTitle: "Riscos invisíveis",
@@ -104,7 +106,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "trigo",
     name: "Trigo",
-    subtitle: null,
+    ticker: null,
     icon: Wheat,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -126,7 +128,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "boi_gordo",
     name: "Boi Gordo",
-    subtitle: "B3 · futuro BGI",
+    ticker: "BGI",
     icon: TrendingUp,
     seriesCode: "BOI_FUT",
     fearTitle: "Riscos invisíveis",
@@ -148,7 +150,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "cafe",
     name: "Café",
-    subtitle: "B3 · futuro ICF",
+    ticker: "ICF",
     icon: Coffee,
     seriesCode: "CAFE_FUT",
     fearTitle: "Riscos invisíveis",
@@ -170,7 +172,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "algodao",
     name: "Algodão",
-    subtitle: null,
+    ticker: null,
     icon: Droplets,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -192,7 +194,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "acucar",
     name: "Açúcar",
-    subtitle: null,
+    ticker: null,
     icon: Activity,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -214,7 +216,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "cacau",
     name: "Cacau",
-    subtitle: null,
+    ticker: null,
     icon: Sprout,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -236,7 +238,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "minerio",
     name: "Minério de Ferro",
-    subtitle: null,
+    ticker: null,
     icon: Mountain,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -258,7 +260,7 @@ const commodities: CommodityMeta[] = [
   {
     id: "niobio",
     name: "Nióbio",
-    subtitle: null,
+    ticker: null,
     icon: Gem,
     seriesCode: null,
     fearTitle: "Riscos invisíveis",
@@ -297,6 +299,37 @@ function StaleTag({ ageInDays }: { ageInDays: number }) {
   );
 }
 
+/** Subtitle montado a partir do market (banco) + ticker (hardcoded). */
+function buildSubtitle(market: string | null, ticker: string | null): string | null {
+  if (!ticker) return null;
+  return market ? `${market} · futuro ${ticker}` : `futuro ${ticker}`;
+}
+
+const changeFmt = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * Variacao com direcao (verde positivo / vermelho negativo, sobrio) e o rotulo
+ * SEMPRE junto ("vs. pregao anterior" etc.). Sem prev (changePercent null): nao
+ * renderiza nada. Ausencia de ponto anterior nao e variacao zero.
+ */
+function ChangeLine({ point }: { point: MarketPoint }) {
+  const pct = point.changePercent;
+  if (pct == null) return null;
+  const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "▪";
+  const color = pct > 0 ? "#10b981" : pct < 0 ? "#ef4444" : "rgba(255,255,255,0.45)";
+  return (
+    <div className="text-[11px] font-mono mt-1 leading-tight">
+      <span style={{ color }}>
+        {arrow} {changeFmt.format(Math.abs(pct))}%
+      </span>{" "}
+      <span className="text-muted-foreground/45">{point.changeLabel}</span>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════════════════════════════ */
@@ -316,6 +349,9 @@ export default function CommodityTerminal() {
   // PTAX (uma das 7 series publicas) para a conversao de referencia USD -> BRL.
   const ptaxPoint = bySeries.get(PTAX_CODE) ?? null;
   const activeBrlRef = activePoint ? brlReference(activePoint, ptaxPoint) : null;
+
+  // Subtitle gerado do market (banco) + ticker (hardcoded). So quando ha ponto.
+  const activeSubtitle = activePoint ? buildSubtitle(activePoint.market, active.ticker) : null;
 
   // Atribuicoes unicas das series reais exibidas (string exata do banco).
   const attributions = useMemo(() => {
@@ -412,9 +448,9 @@ export default function CommodityTerminal() {
                 {/* Header: rotulo completo + valor/unidade/data ou "Sob consulta" */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 pb-5 border-b border-white/5">
                   <div className="min-w-0">
-                    {active.subtitle && (
+                    {activeSubtitle && (
                       <p className="text-[9px] text-muted-foreground/50 uppercase tracking-[0.25em] mb-1">
-                        {active.subtitle}
+                        {activeSubtitle}
                       </p>
                     )}
                     <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest">
@@ -440,6 +476,7 @@ export default function CommodityTerminal() {
                         <div className="font-mono text-2xl text-foreground leading-tight">
                           {formatValueUnit(activePoint)}
                         </div>
+                        <ChangeLine point={activePoint} />
                         <div className="text-xs font-mono text-muted-foreground/60 mt-1">
                           em {formatDayMonthUTC(activePoint.ts)}
                           {activePoint.isStale && <StaleTag ageInDays={activePoint.ageInDays} />}
