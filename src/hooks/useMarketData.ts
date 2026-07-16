@@ -20,10 +20,19 @@ export type MarketPoint = {
   value: number;
   prevValue: number | null;
   prevTs: string | null;
-  /** (value - prev) / prev * 100. null quando nao ha ponto anterior valido. */
+  /** Simbolo do contrato de futuro (SJCQ26). null para nao-futuros. */
+  contract: string | null;
+  prevContract: string | null;
+  /**
+   * (value - prev) / prev * 100. null quando nao ha ponto anterior valido OU
+   * quando houve ROLAMENTO de contrato (o "anterior" e outro contrato, entao a
+   * variacao seria o gap do roll, nao movimento de preco).
+   */
   changePercent: number | null;
   /** "vs. pregao anterior" etc., derivado de frequency. null se nao ha variacao. */
   changeLabel: string | null;
+  /** true quando o contrato do ponto atual difere do anterior (dia da virada). */
+  isRoll: boolean;
   isStale: boolean;
   ageInDays: number;
 };
@@ -79,6 +88,19 @@ function changeFrom(value: number, prevValue: number | null): number | null {
 }
 
 /**
+ * Rolamento de contrato de futuro. NAO e comparacao simples: sao 4 casos.
+ *  - ambos null (nao-futuro: WTI/Brent/PTAX/RWA/ouro) -> NAO e roll (variacao valida)
+ *  - ambos iguais                                     -> NAO e roll (variacao valida)
+ *  - ambos presentes e DIFERENTES                     -> ROLL (suprimir a variacao:
+ *      seria o gap entre dois contratos, nao movimento de preco)
+ *  - um null, outro presente                          -> transicao, NAO e roll
+ *      (suprimir aqui seria falso negativo)
+ */
+function isRollBetween(contract: string | null, prevContract: string | null): boolean {
+  return contract != null && prevContract != null && contract !== prevContract;
+}
+
+/**
  * Le o ultimo ponto de cada serie da view public.series_latest, ja com o ponto
  * anterior (prev_value / prev_ts), a frequency e o market.
  *
@@ -108,7 +130,7 @@ export function useMarketData(): MarketDataState {
       const { data, error } = await supabase
         .from("series_latest")
         .select(
-          "code,label_pt,label_en,unit,category,frequency,market,source_slug,attribution,ts,value,prev_value,prev_ts",
+          "code,label_pt,label_en,unit,category,frequency,market,source_slug,attribution,ts,value,prev_value,prev_ts,contract,prev_contract",
         );
 
       if (cancelled) return;
@@ -124,7 +146,11 @@ export function useMarketData(): MarketDataState {
         const frequency = r.frequency as Frequency;
         const value = Number(r.value);
         const prevValue = r.prev_value != null ? Number(r.prev_value) : null;
-        const changePercent = changeFrom(value, prevValue);
+        const contract = r.contract ?? null;
+        const prevContract = r.prev_contract ?? null;
+        const isRoll = isRollBetween(contract, prevContract);
+        // No roll o "anterior" e outro contrato: a variacao seria o gap, nao preco.
+        const changePercent = isRoll ? null : changeFrom(value, prevValue);
         const ageInDays = ageInDaysFrom(r.ts, now);
         const limit = STALE_LIMITS_DAYS[frequency] ?? STALE_LIMITS_DAYS.diaria;
         return {
@@ -141,9 +167,12 @@ export function useMarketData(): MarketDataState {
           value,
           prevValue,
           prevTs: r.prev_ts ?? null,
+          contract,
+          prevContract,
           changePercent,
           // Nunca um rotulo sem percentual: os dois existem juntos ou nenhum.
           changeLabel: changePercent != null ? CHANGE_LABEL[frequency] ?? null : null,
+          isRoll,
           ageInDays,
           isStale: ageInDays > limit,
         };

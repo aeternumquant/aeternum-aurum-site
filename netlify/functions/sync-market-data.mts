@@ -136,20 +136,27 @@ async function ensureSeries(opts: SeriesOpts): Promise<number> {
   return series.id;
 }
 
-type Point = { ts: string; value: number };
+/** contract: simbolo do contrato de futuro (ex.: SJCQ26). null para nao-futuros. */
+type Point = { ts: string; value: number; contract?: string | null };
 
 /**
  * Grava observacoes com upsert idempotente por chave (series_id, ts).
- * Em conflito faz DO UPDATE: atualiza value e ingested_at (nao ignora). Motivo:
- * fontes revisam valores (a EIA revisa; o BCB corrige a PTAX), entao re-rodar
- * precisa consertar dado errado, nao mante-lo. A chave nao muda, entao nao
- * duplica. Ignora pontos com value null/NaN/infinito ou sem ts.
+ * Em conflito faz DO UPDATE: atualiza value, ingested_at e contract (nao ignora).
+ * Motivo: fontes revisam valores (a EIA revisa; o BCB corrige a PTAX), entao
+ * re-rodar precisa consertar dado errado, nao mante-lo. A chave nao muda, entao
+ * nao duplica. Ignora pontos com value null/NaN/infinito ou sem ts.
  */
 async function saveObservations(seriesId: number, points: Point[]): Promise<number> {
   const ingestedAt = new Date().toISOString();
   const rows = points
     .filter((p) => p && p.ts && p.value != null && Number.isFinite(p.value))
-    .map((p) => ({ series_id: seriesId, ts: p.ts, value: p.value, ingested_at: ingestedAt }));
+    .map((p) => ({
+      series_id: seriesId,
+      ts: p.ts,
+      value: p.value,
+      ingested_at: ingestedAt,
+      contract: p.contract ?? null,
+    }));
 
   if (rows.length === 0) return 0;
 
@@ -220,8 +227,12 @@ async function syncBcb(): Promise<Record<string, unknown>> {
 }
 
 // ---------------------------------------------------------------------------
-// Fonte: EIA (petroleo WTI e Brent) - com chave
+// Fonte: EIA (petroleo WTI e Brent, gas natural Henry Hub) - com chave
 // ---------------------------------------------------------------------------
+//
+// route: cada serie vive numa rota da API v2. WTI/Brent em petroleum/pri/spt; o
+// gas natural NAO esta em petroleum (retorna vazio ali), esta em
+// natural-gas/pri/fut. Descoberto ao vivo na etapa 2d.
 
 const EIA_SERIES = [
   {
@@ -229,12 +240,24 @@ const EIA_SERIES = [
     code: "WTI_SPOT",
     labelPt: "Petróleo WTI (spot Cushing)",
     labelEn: "Crude Oil WTI (Cushing spot)",
+    route: "petroleum/pri/spt",
+    unit: "USD/bbl",
   },
   {
     eiaId: "RBRTE",
     code: "BRENT_SPOT",
     labelPt: "Petróleo Brent (spot Europa)",
     labelEn: "Crude Oil Brent (Europe spot)",
+    route: "petroleum/pri/spt",
+    unit: "USD/bbl",
+  },
+  {
+    eiaId: "RNGWHHD",
+    code: "GAS_NATURAL_HH",
+    labelPt: "Gás natural (spot Henry Hub)",
+    labelEn: "Natural Gas (Henry Hub spot)",
+    route: "natural-gas/pri/fut",
+    unit: "USD/MMBtu",
   },
 ];
 
@@ -247,7 +270,7 @@ async function syncEia(): Promise<Record<string, unknown>> {
 
   for (const s of EIA_SERIES) {
     const url =
-      "https://api.eia.gov/v2/petroleum/pri/spt/data/" +
+      `https://api.eia.gov/v2/${s.route}/data/` +
       `?api_key=${encodeURIComponent(key)}` +
       "&frequency=daily&data[0]=value" +
       `&facets[series][]=${s.eiaId}` +
@@ -269,7 +292,7 @@ async function syncEia(): Promise<Record<string, unknown>> {
       code: s.code,
       labelPt: s.labelPt,
       labelEn: s.labelEn,
-      unit: "USD/bbl",
+      unit: s.unit,
       category: "energia",
       visibility: "public",
       frequency: "diaria",
@@ -294,19 +317,23 @@ async function syncEia(): Promise<Record<string, unknown>> {
 // longo do ano, por isso os rotulos deixam explicito "1o vencimento" e o codigo
 // do contrato escolhido vai para o log (passo 3.5.d).
 //
-// A API nao expoe a denominacao por quantidade (saca, @) como campo. Mas ela
+// A API nao expoe a denominacao por quantidade (saca, @, m3) como campo. Mas ela
 // devolve tradingCurrency (USD/BRL) e contractMultiplier, e o multiplicador
 // identifica a denominacao das specs da B3 (soja/milho = 450 => saca, cafe =
-// 100 => saca, boi = 330 => @). Entao a unit e INFERIDA de moeda + multiplicador
-// e a inferencia e verificavel: se o multiplicador vier diferente do esperado,
-// o worker loga um aviso em vez de gravar uma unidade errada em silencio.
+// 100 => saca, boi = 330 => @, etanol = 30 => m3). Entao a unit e INFERIDA de
+// moeda + multiplicador e a inferencia e verificavel: se o multiplicador vier
+// diferente do esperado, o worker loga um aviso em vez de gravar unidade errada.
+//
+// Etanol (ETH, "Etanol Hidratado"): descoberto na 2d. O ET1 e "Rolagem de
+// Etanol Hidratado" (spread), nao o contrato; usar ETH. category 'energia'.
 
-const BRAPI_AGRO = [
+const BRAPI_FUTURES = [
   {
     asset: "SJC",
     code: "SOJA_FUT",
     labelPt: "Soja (futuro B3, 1º vencimento)",
     labelEn: "Soybean (B3 futures, front month)",
+    category: "grao",
     expectedMultiplier: 450,
     expectedCurrency: "USD",
     denomination: "saca",
@@ -316,6 +343,7 @@ const BRAPI_AGRO = [
     code: "MILHO_FUT",
     labelPt: "Milho (futuro B3, 1º vencimento)",
     labelEn: "Corn (B3 futures, front month)",
+    category: "grao",
     expectedMultiplier: 450,
     expectedCurrency: "BRL",
     denomination: "saca",
@@ -325,6 +353,7 @@ const BRAPI_AGRO = [
     code: "BOI_FUT",
     labelPt: "Boi gordo (futuro B3, 1º vencimento)",
     labelEn: "Live cattle (B3 futures, front month)",
+    category: "grao",
     expectedMultiplier: 330,
     expectedCurrency: "BRL",
     denomination: "@",
@@ -334,9 +363,20 @@ const BRAPI_AGRO = [
     code: "CAFE_FUT",
     labelPt: "Café arábica (futuro B3, 1º vencimento)",
     labelEn: "Arabica coffee (B3 futures, front month)",
+    category: "grao",
     expectedMultiplier: 100,
     expectedCurrency: "USD",
     denomination: "saca",
+  },
+  {
+    asset: "ETH",
+    code: "ETANOL_FUT",
+    labelPt: "Etanol (futuro B3, 1º vencimento)",
+    labelEn: "Ethanol (B3 futures, front month)",
+    category: "energia",
+    expectedMultiplier: 30,
+    expectedCurrency: "BRL",
+    denomination: "m³",
   },
 ];
 
@@ -351,7 +391,7 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
   const chosen: Record<string, unknown> = {};
   const errors: string[] = [];
 
-  for (const a of BRAPI_AGRO) {
+  for (const a of BRAPI_FUTURES) {
     try {
       const url = `https://brapi.dev/api/v2/futures/term-structure?asset=${a.asset}`;
       const json = await fetchJson(url, { headers });
@@ -401,13 +441,15 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
         labelPt: a.labelPt,
         labelEn: a.labelEn,
         unit,
-        category: "grao",
+        category: a.category,
         visibility: "public",
         frequency: "diaria",
         market: "B3",
       });
 
-      const n = await saveObservations(seriesId, [{ ts, value: Number(price) }]);
+      const n = await saveObservations(seriesId, [
+        { ts, value: Number(price), contract: front.symbol },
+      ]);
       fetched += 1;
       saved += n;
 
@@ -431,7 +473,7 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
   }
 
   if (fetched === 0) {
-    throw new Error(`nenhuma serie agricola gravada. Erros: ${errors.join(" | ")}`);
+    throw new Error(`nenhuma serie de futuro gravada. Erros: ${errors.join(" | ")}`);
   }
 
   const out: Record<string, unknown> = { fetched, saved, chosen };
@@ -477,6 +519,54 @@ async function syncDefillama(): Promise<Record<string, unknown>> {
 }
 
 // ---------------------------------------------------------------------------
+// Fonte: brapi crypto (ouro via PAXG) - com token
+// ---------------------------------------------------------------------------
+//
+// PAXG e um token 1:1 com 1 onca troy de ouro fisico. A brapi agrega o preco de
+// exchanges (declara Binance, OKX, Hyperliquid) e bate 0,05% com a DefiLlama
+// (on-chain), o que valida o numero. Gravamos SEMPRE em USD/oz: o currency=BRL
+// da brapi usa cambio proprio (~5,136 vs PTAX 5,0975), entao o front converte
+// com a NOSSA PTAX. source 'brapi_crypto' (atribuicao distinta da B3). O
+// historico (366 pontos) vem no backfill; o worker so grava o ponto do dia.
+
+async function syncBrapiGold(): Promise<Record<string, unknown>> {
+  const token = process.env.BRAPI_TOKEN;
+  if (!token) throw new Error("BRAPI_TOKEN ausente no ambiente");
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const json = await fetchJson("https://brapi.dev/api/v2/crypto?coin=PAXG&currency=USD", {
+    headers,
+  });
+  const coin = Array.isArray(json?.coins) ? json.coins[0] : null;
+  if (!coin) throw new Error("brapi crypto: coin PAXG ausente na resposta");
+
+  const value = Number(coin.regularMarketPrice);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`brapi crypto PAXG: preco invalido (${coin.regularMarketPrice})`);
+  }
+
+  // Serie diaria: um ponto por dia. ts = hoje a meia-noite UTC, para que as duas
+  // execucoes diarias dedupem no mesmo dia (mesma chave series_id,ts).
+  const ts = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
+
+  const seriesId = await ensureSeries({
+    sourceSlug: "brapi_crypto",
+    code: "OURO_PAXG",
+    labelPt: "Ouro (via PAXG, token lastreado em ouro físico)",
+    labelEn: "Gold (via PAXG, physical-backed token)",
+    unit: "USD/oz",
+    category: "metal",
+    visibility: "public",
+    frequency: "diaria",
+    market: null,
+  });
+
+  const saved = await saveObservations(seriesId, [{ ts, value }]);
+  log(`[brapi_crypto] OURO_PAXG: USD/oz ${value} em ${ts.slice(0, 10)}`);
+  return { fetched: 1, saved, priceUsdOz: value };
+}
+
+// ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
 
@@ -484,6 +574,7 @@ const SOURCES: Array<{ name: string; run: () => Promise<Record<string, unknown>>
   { name: "bcb", run: syncBcb },
   { name: "eia", run: syncEia },
   { name: "brapi", run: syncBrapi },
+  { name: "brapi_crypto", run: syncBrapiGold },
   { name: "defillama", run: syncDefillama },
 ];
 
