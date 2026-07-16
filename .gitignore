@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Env / segredos. As chaves reais (service_role, EIA, brapi) vivem no painel do
+# Netlify (escopo Functions), nunca no repo. .env.example fica versionado como
+# modelo, sem valores.
+.env
+.env.*
+!.env.example
+
+# Estado local do Netlify CLI
+.netlify/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

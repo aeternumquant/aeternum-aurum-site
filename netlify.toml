@@ -9,3 +9,15 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Worker de dados de mercado (Etapa 2). As funcoes vivem em netlify/functions/
+# e sao empacotadas pelo esbuild. Segredos (service_role, EIA, brapi) sao
+# injetados pelo Netlify no escopo Functions, nunca no bundle do cliente.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Agenda: 11h e 23h UTC = 8h e 20h em Brasilia. A PTAX de fechamento sai no
+# fim da tarde; a EIA atualiza o bulk as 5h e 15h horario do leste.
+[functions."sync-market-data"]
+  schedule = "0 11,23 * * *"
