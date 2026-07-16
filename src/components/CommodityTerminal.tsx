@@ -316,6 +316,15 @@ const changeFmt = new Intl.NumberFormat("pt-BR", {
  * renderiza nada. Ausencia de ponto anterior nao e variacao zero.
  */
 function ChangeLine({ point }: { point: MarketPoint }) {
+  // No dia da virada de contrato, a variacao e suprimida (seria o gap do roll).
+  // Sinalizamos por que, em vez de sumir calado (ilegivel).
+  if (point.isRoll) {
+    return (
+      <div className="text-[11px] font-mono mt-1 leading-tight text-[#C6A85A]/80">
+        · contrato rolou (novo vencimento)
+      </div>
+    );
+  }
   const pct = point.changePercent;
   if (pct == null) return null;
   const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "▪";

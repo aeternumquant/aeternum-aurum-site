@@ -56,14 +56,17 @@ export const STALE_LIMITS_DAYS: Record<Frequency, number> = {
 };
 
 /**
- * Rotulo do "anterior", derivado da frequency. Ponto de honestidade: um "▲ 1,2%"
- * sozinho, ao lado de outro que compara meses, mente por omissao.
+ * Rotulo do "anterior", derivado de frequency E market. Ponto de honestidade: um
+ * "▲ 1,2%" sozinho, ao lado de outro que compara meses, mente por omissao. E
+ * "pregao anterior" so vale para quem TEM pregao: quem forma preco num mercado
+ * (market != null: B3, BCB). Spot/cripto (market null: WTI, Brent, gas, ouro) e
+ * 24/7 ou continuo, sem pregao -> "dia anterior".
  */
-const CHANGE_LABEL: Record<Frequency, string> = {
-  diaria: "vs. pregão anterior",
-  mensal: "vs. mês anterior",
-  continua: "vs. leitura anterior",
-};
+function changeLabelFor(frequency: Frequency, market: string | null): string {
+  if (frequency === "mensal") return "vs. mês anterior";
+  if (frequency === "continua") return "vs. leitura anterior";
+  return market != null ? "vs. pregão anterior" : "vs. dia anterior";
+}
 
 type MarketDataState = {
   data: MarketPoint[] | null;
@@ -171,7 +174,7 @@ export function useMarketData(): MarketDataState {
           prevContract,
           changePercent,
           // Nunca um rotulo sem percentual: os dois existem juntos ou nenhum.
-          changeLabel: changePercent != null ? CHANGE_LABEL[frequency] ?? null : null,
+          changeLabel: changePercent != null ? changeLabelFor(frequency, r.market ?? null) : null,
           isRoll,
           ageInDays,
           isStale: ageInDays > limit,
