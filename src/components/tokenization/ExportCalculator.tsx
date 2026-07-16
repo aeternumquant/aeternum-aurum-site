@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Coins, Landmark } from 'lucide-react';
-import type {
-  Commodity,
-  Currency,
-  Destination,
-  ExchangeRateSource,
-} from '../../types/tokenization';
+import type { Commodity, Currency, Destination } from '../../types/tokenization';
 import {
   COMMODITY_LABELS,
   DESTINATION_DEFAULT_CURRENCY,
@@ -24,8 +18,6 @@ import {
   formatDayMonthUTC,
   formatValueUnit,
 } from '../../lib/marketFormat';
-import { ScenarioCard } from './ScenarioCard';
-import { EconomyBar } from './EconomyBar';
 import { formatBRL } from './format';
 
 const COMMODITIES: readonly Commodity[] = ['soja', 'milho', 'boi-gordo'];
@@ -90,6 +82,12 @@ type PriceInfo =
       conversion: { brl: number; ptaxDate: string } | null;
     };
 
+// Cotacao de referencia para o equivalente na moeda do destino.
+type FxInfo =
+  | { status: 'loading' }
+  | { status: 'unavailable' }
+  | { status: 'ok'; rate: number; date: string };
+
 export default function ExportCalculator() {
   const [commodity, setCommodity] = useState<Commodity>('soja');
   const [destination, setDestination] = useState<Destination>('china');
@@ -102,10 +100,6 @@ export default function ExportCalculator() {
   // quando ele chega (ou pelo usuario). Ver o effect e priceInfo abaixo.
   const [priceRaw, setPriceRaw] = useState<string>('');
   const [priceDebounced, setPriceDebounced] = useState<number>(0);
-
-  const [exchangeRate, setExchangeRate] = useState<number>(0);
-  const [rateSource, setRateSource] = useState<ExchangeRateSource>('cache');
-  const [rateReady, setRateReady] = useState<boolean>(false);
 
   // Preco de referencia REAL do cache (mesmo hook do CommodityTerminal).
   const { data: marketData, loading: marketLoading, error: marketError } = useMarketData();
@@ -151,8 +145,7 @@ export default function ExportCalculator() {
     }
   }, [commodity, defaultBRL]);
 
-  // Moeda padrão derivada do destino — usuário pode trocar manualmente
-  // via os chips abaixo.
+  // Moeda padrão derivada do destino — usuário pode trocar manualmente.
   useEffect(() => {
     setCurrency(DESTINATION_DEFAULT_CURRENCY[destination]);
   }, [destination]);
@@ -173,20 +166,34 @@ export default function ExportCalculator() {
     return () => window.clearTimeout(handle);
   }, [priceRaw]);
 
-  // Fetch PTAX quando a moeda muda. Skeleton apenas no primeiro fetch;
-  // trocas subsequentes de moeda atualizam silenciosamente.
+  // Cotacao para EUR/CNY vem do BCB via currencyService (sem fallback: null se
+  // indisponivel). USD nao passa por aqui: usa a PTAX do cache (abaixo).
+  const [remoteFx, setRemoteFx] = useState<FxInfo>({ status: 'loading' });
   useEffect(() => {
+    if (currency === 'USD') return;
     let cancelled = false;
-    getExchangeRate(currency).then(({ rate, source }) => {
+    setRemoteFx({ status: 'loading' });
+    getExchangeRate(currency).then((res) => {
       if (cancelled) return;
-      setExchangeRate(rate);
-      setRateSource(source);
-      setRateReady(true);
+      setRemoteFx(res ? { status: 'ok', rate: res.rate, date: res.date } : { status: 'unavailable' });
     });
     return () => {
       cancelled = true;
     };
   }, [currency]);
+
+  // USD: preferir o cache (PTAX_USD_VENDA, com data e trava de defasagem). Sem
+  // PTAX fresca -> indisponivel (nunca converter com cambio velho ou inventado).
+  const fx = useMemo<FxInfo>(() => {
+    if (currency === 'USD') {
+      if (marketLoading) return { status: 'loading' };
+      if (!ptaxPoint || ptaxPoint.isStale) return { status: 'unavailable' };
+      return { status: 'ok', rate: ptaxPoint.value, date: formatDayMonthUTC(ptaxPoint.ts) };
+    }
+    return remoteFx;
+  }, [currency, marketLoading, ptaxPoint, remoteFx]);
+
+  const exchangeRate = fx.status === 'ok' ? fx.rate : 0;
 
   const result = useExportCalculation(
     {
@@ -197,7 +204,6 @@ export default function ExportCalculator() {
       currency,
     },
     exchangeRate,
-    rateSource,
   );
 
   // Linha de referencia sob o input de preco: fonte + data + unidade + estado.
@@ -255,11 +261,11 @@ export default function ExportCalculator() {
               Aeternum Aurum Partners · Export Calculator
             </p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-light text-foreground mb-4 leading-snug">
-              Liquidação cross-border de commodities
+              Valor de exportação de commodities
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground font-light leading-relaxed">
-              Simule o custo real de exportar via SWIFT tradicional comparado ao
-              trilho Aeternum (XDC + HBAR + ouro auditável em Dubai).
+              Calcule o valor total de uma operação a partir do volume e do preço unitário, com o
+              equivalente na moeda do destino pela taxa de referência (PTAX).
             </p>
           </header>
 
@@ -368,10 +374,10 @@ export default function ExportCalculator() {
             <div
               className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3"
               role="group"
-              aria-label="Moeda de liquidação"
+              aria-label="Moeda do destino"
             >
               <span className="text-[10px] tracking-[0.25em] uppercase text-muted-foreground font-sans">
-                Moeda de liquidação
+                Moeda do destino
               </span>
               <div className="flex gap-2 flex-wrap">
                 {CURRENCIES.map((c) => {
@@ -396,7 +402,7 @@ export default function ExportCalculator() {
             </div>
 
             <div
-              className="mb-10 pb-10 border-b border-white/5 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3"
+              className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3"
               aria-live="polite"
             >
               <div>
@@ -419,55 +425,26 @@ export default function ExportCalculator() {
                 )}
               </div>
               <div className="text-sm font-sans text-muted-foreground font-light">
-                {rateReady && exchangeRate > 0 ? (
-                  <>
-                    ≈ {destinoNumberFormatter.format(result.valorTotalDestino)}{' '}
-                    {currency}
-                    {rateSource === 'cache' ? (
-                      <span className="text-muted-foreground/55">
-                        {' '}
-                        · cotação em cache
-                      </span>
-                    ) : null}
-                  </>
-                ) : (
+                {fx.status === 'loading' ? (
                   <span
                     className="inline-block w-40 h-3 bg-card/80 animate-pulse rounded-sm align-middle"
                     aria-label="Carregando cotação"
                   />
-                )}
+                ) : fx.status === 'unavailable' ? (
+                  <span className="text-muted-foreground/60">Cotação {currency} indisponível</span>
+                ) : priceDebounced > 0 ? (
+                  <>
+                    ≈ {destinoNumberFormatter.format(result.valorTotalDestino)} {currency}
+                    <span className="text-muted-foreground/55"> · PTAX {fx.date}</span>
+                  </>
+                ) : null}
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-              <ScenarioCard
-                variant="swift"
-                title="Via SWIFT tradicional"
-                Icon={Landmark}
-                breakdown={result.swift}
-                totalLabel="Custo total SWIFT"
-              />
-              <ScenarioCard
-                variant="aeternum"
-                title="Via Aeternum Aurum"
-                Icon={Coins}
-                breakdown={result.aeternum}
-                totalLabel="Custo total Aeternum"
-              />
-            </div>
-
-            <EconomyBar
-              economyBRL={result.economyBRL}
-              economyPercent={result.economyPercent}
-            />
           </div>
 
-          <footer className="text-center mt-10 space-y-1">
+          <footer className="text-center mt-10">
             <p className="text-[9px] sm:text-[10px] tracking-[0.25em] uppercase text-muted-foreground/45 font-sans">
               Fontes: B3 (via brapi.dev) · BCB PTAX
-            </p>
-            <p className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-muted-foreground/35 font-sans">
-              Modelo de custo (spreads e taxas): pesquisa Aeternum 2025
             </p>
           </footer>
         </motion.div>

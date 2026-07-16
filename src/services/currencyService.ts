@@ -1,4 +1,17 @@
-import type { Currency, ExchangeRateSource } from '../types/tokenization';
+import type { Currency } from '../types/tokenization';
+
+// Cotacao de referencia para o equivalente na moeda do destino.
+//
+// NOTA (15/07/2026): o fallback fixo (USD 4,89 / EUR 5,31 / CNY 0,68) foi
+// REMOVIDO. Ele exibia um cambio inventado ao usuario, sem aviso, como se fosse
+// real. Regra: nunca inventar taxa. Sem cotacao real, esta funcao retorna null
+// e o consumidor mostra "cotacao indisponivel".
+//
+// Alem disso, o nome de funcao 'CotacaoMoedaPeriodoFechamento' NAO e reconhecido
+// pela API do BCB (HTTP 400): a busca live sempre falhava. A correcao limpa
+// (usar a PTAX do cache Supabase para USD e EUR via worker; a PTAX do BCB NAO
+// cobre CNY) esta pendente de decisao. Ate la, EUR/CNY caem em null aqui. Para
+// USD, o ExportCalculator ja le a PTAX do cache e nem chama esta funcao.
 
 const BCB_CODES: Record<Currency, string> = {
   USD: '220',
@@ -6,20 +19,6 @@ const BCB_CODES: Record<Currency, string> = {
   CNY: '720',
 };
 
-const FALLBACK_RATES: Record<Currency, number> = {
-  USD: 4.89,
-  EUR: 5.31,
-  CNY: 0.68,
-};
-
-interface CacheEntry {
-  rate: number;
-  timestamp: number;
-  source: ExchangeRateSource;
-}
-
-const cache = new Map<Currency, CacheEntry>();
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hora
 const FETCH_TIMEOUT_MS = 5000;
 const LOOKBACK_WINDOW_DAYS = 7;
 
@@ -30,21 +29,26 @@ function formatDateBR(date: Date): string {
   return `${mm}-${dd}-${yyyy}`;
 }
 
+/** "2026-07-15 13:05:35.123" -> "15/07" (data da cotacao, para o rotulo). */
+function toDayMonth(dataHoraCotacao: string): string {
+  const [yyyyMmDd] = String(dataHoraCotacao).split(' ');
+  const [, mm, dd] = (yyyyMmDd ?? '').split('-');
+  return dd && mm ? `${dd}/${mm}` : '';
+}
+
 interface PtaxResponse {
-  value?: Array<{ cotacaoVenda?: number }>;
+  value?: Array<{ cotacaoVenda?: number; dataHoraCotacao?: string }>;
 }
 
 export interface ExchangeRateResult {
+  /** BRL por unidade da moeda (PTAX venda). */
   rate: number;
-  source: ExchangeRateSource;
+  /** "DD/MM" da cotacao usada. */
+  date: string;
 }
 
-export async function getExchangeRate(currency: Currency): Promise<ExchangeRateResult> {
-  const cached = cache.get(currency);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return { rate: cached.rate, source: cached.source };
-  }
-
+/** Retorna a cotacao de referencia ou null (sem inventar taxa). */
+export async function getExchangeRate(currency: Currency): Promise<ExchangeRateResult | null> {
   try {
     const today = new Date();
     const lookbackStart = new Date(today.getTime() - LOOKBACK_WINDOW_DAYS * 24 * 60 * 60 * 1000);
@@ -62,23 +66,15 @@ export async function getExchangeRate(currency: Currency): Promise<ExchangeRateR
     const response = await fetch(url, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
-
-    if (!response.ok) {
-      throw new Error('PTAX response not ok');
-    }
+    if (!response.ok) return null;
 
     const data = (await response.json()) as PtaxResponse;
-    const rate = data?.value?.[0]?.cotacaoVenda;
+    const row = data?.value?.[0];
+    const rate = row?.cotacaoVenda;
+    if (typeof rate !== 'number' || !isFinite(rate) || rate <= 0) return null;
 
-    if (typeof rate !== 'number' || !isFinite(rate) || rate <= 0) {
-      throw new Error('Invalid PTAX rate');
-    }
-
-    cache.set(currency, { rate, timestamp: Date.now(), source: 'live' });
-    return { rate, source: 'live' };
+    return { rate, date: row?.dataHoraCotacao ? toDayMonth(row.dataHoraCotacao) : '' };
   } catch {
-    const fallbackRate = FALLBACK_RATES[currency];
-    cache.set(currency, { rate: fallbackRate, timestamp: Date.now(), source: 'cache' });
-    return { rate: fallbackRate, source: 'cache' };
+    return null;
   }
 }
