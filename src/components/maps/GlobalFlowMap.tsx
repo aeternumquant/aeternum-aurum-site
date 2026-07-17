@@ -10,7 +10,7 @@
  *   - Painel de países estratégicos abaixo do mapa com detalhes por clique
  *   - Dados mock nível Bloomberg: preço, variação, volume, pontos-chave
  */
-import { useState, useId } from "react";
+import { useState, useId, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ComposableMap,
@@ -28,6 +28,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { useMarketData, type MarketPoint } from "../../hooks/useMarketData";
+import { formatValueUnit, formatDayMonthUTC } from "../../lib/marketFormat";
 
 const geoUrl = "/data/countries-110m.json";
 
@@ -217,9 +219,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
   flowData: string;
   percentage: string;
   volume?: string;
-  price: string;
-  change: number;
-  unit: string;
 }> = {
   Soja: {
     label: "Soja", category: "Agro",
@@ -232,7 +231,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil exporta 45% da soja global (≈55M toneladas). China responde por 58% do destino. Referência CME/CBOT. Safra BR 23/24: recorde de 158M ton.",
     percentage: "45% global", volume: "55M ton/ano",
-    price: "R$ 136,20/sc", change: +0.82, unit: "/saca 60kg",
   },
   Milho: {
     label: "Milho", category: "Agro",
@@ -246,7 +244,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil 2º exportador mundial. Safra 23/24 recorde de 135M ton. China absorveu 11M ton. Referência CBOT Chicago.",
     percentage: "28% global", volume: "135M ton/ano",
-    price: "R$ 52,40/sc", change: -0.34, unit: "/saca 60kg",
   },
   Cafe: {
     label: "Café", category: "Agro",
@@ -260,7 +257,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: maior produtor mundial (38% da oferta). Café arábica referenciado na ICE NY (KC). Presença em 80+ países exportadores.",
     percentage: "38% global", volume: "68M sacas/ano",
-    price: "USD 4.82/lb", change: +2.14, unit: "/libra (ICE NY)",
   },
   BoiGordo: {
     label: "Boi Gordo", category: "Agro",
@@ -274,7 +270,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: maior exportador de carne bovina global (27%). China concentra 50% do volume. Contrato futuro negociado na B3/BM&F.",
     percentage: "27% global", volume: "2.8M ton/ano",
-    price: "R$ 320,40/@", change: +0.45, unit: "/@15kg",
   },
   Algodao: {
     label: "Algodão", category: "Agro",
@@ -288,7 +283,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: 2º maior exportador global. Centro-Oeste concentra 70% da produção. Referência ICE NY (CT).",
     percentage: "22% global", volume: "3.4M ton/ano",
-    price: "USD 0.68/lb", change: -0.92, unit: "/libra (ICE NY)",
   },
   Acucar: {
     label: "Açúcar", category: "Agro",
@@ -302,7 +296,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: maior produtor e exportador mundial, ≈40% do mercado. Safra Centro-Sul 24/25 estimada em 680M ton de cana. ICE NY (SB).",
     percentage: "40% global", volume: "36M ton/ano",
-    price: "USD 18.4/lb", change: +1.67, unit: "/100 libras",
   },
   Cacau: {
     label: "Cacau", category: "Agro",
@@ -315,7 +308,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: 6º produtor mundial, Bahia com 60% da produção. Déficit global de 374K ton em 23/24 impulsionou preços +70%.",
     percentage: "6% global", volume: "300K ton/ano",
-    price: "USD 8.240/ton", change: +3.22, unit: "/tonelada",
   },
   Arroz: {
     label: "Arroz", category: "Agro",
@@ -328,7 +320,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: maior produtor fora da Ásia. RS responde por 70% da produção nacional. Foco no mercado interno e Mercosul.",
     percentage: "2% global", volume: "12M ton/ano",
-    price: "R$ 85,20/sc", change: +0.12, unit: "/saca 50kg",
   },
   Frango: {
     label: "Frango", category: "Agro",
@@ -342,7 +333,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: maior exportador global de frango (37%). Golfo Pérsico e Japão são destinos históricos. JBS, BRF e Marfrig lideram.",
     percentage: "37% global", volume: "5.1M ton/ano",
-    price: "R$ 8,90/kg", change: -0.55, unit: "/kg vivo",
   },
   Laranja: {
     label: "Suco de Laranja", category: "Agro",
@@ -355,7 +345,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: monopolista global com 75% das exportações de FCOJ. São Paulo + Triângulo Mineiro. ICE NY (OJ).",
     percentage: "75% global", volume: "1.7M ton FCOJ",
-    price: "USD 4.10/lb", change: +4.88, unit: "/libra FCOJ",
   },
   Etanol: {
     label: "Etanol", category: "Agro",
@@ -368,7 +357,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: 2º maior produtor global de etanol (cana). Capacidade de 35B litros/ano. Paridade com gasolina é principal driver interno.",
     percentage: "25% global", volume: "35B litros/ano",
-    price: "R$ 3.82/L", change: +0.78, unit: "/litro usina",
   },
   Amendoim: {
     label: "Amendoim", category: "Agro",
@@ -381,7 +369,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil: 2º exportador de amendoim in natura. SP concentra 80% da produção. Crescimento por pet food e indústria alimentícia.",
     percentage: "18% global", volume: "600K ton/ano",
-    price: "R$ 4.200/ton", change: +0.22, unit: "/tonelada",
   },
   Trigo: {
     label: "Trigo", category: "Agro",
@@ -395,7 +382,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Rússia controla 22% das exportações via Mar Negro. Brasil importa ≈7M ton/ano do Mercosul e Mar Negro.",
     percentage: "22% global (RU)", volume: "800M ton/ano",
-    price: "R$ 74,80/sc", change: -0.78, unit: "/saca 60kg",
   },
   // ── Metais ──
   Ouro: {
@@ -410,7 +396,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Precificado na CME/COMEX e armazenado em cofres via LBMA. Bancos Centrais adicionaram 1.037 ton em 2023 — maior compra desde 1967.",
     percentage: "Reserva global", volume: "3.644 ton/ano",
-    price: "USD 2.342/oz", change: +0.44, unit: "/troy oz",
   },
   Prata: {
     label: "Prata", category: "Metais",
@@ -422,7 +407,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Metal dual: industrial (solar consome 14%/ano) e reserva de valor. COMEX define spot global. Déficit estrutural pelo boom solar.",
     percentage: "Ref. COMEX", volume: "25.000+ ton/ano",
-    price: "USD 29.80/oz", change: +1.23, unit: "/troy oz",
   },
   Cobre: {
     label: "Cobre", category: "Metais",
@@ -435,7 +419,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Metal da transição energética. China consome 55% da demanda. Chile é maior produtor. LME London define preço spot global.",
     percentage: "Ref. LME", volume: "24M ton/ano",
-    price: "USD 9.840/ton", change: +0.67, unit: "/tonelada LME",
   },
   Aluminio: {
     label: "Alumínio", category: "Metais",
@@ -447,7 +430,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "China domina 60% da produção global. Custo energético define competitividade. LME London é bolsa de referência.",
     percentage: "Ref. LME", volume: "69M ton/ano",
-    price: "USD 2.440/ton", change: -0.31, unit: "/tonelada LME",
   },
   Paladio: {
     label: "Paládio", category: "Metais",
@@ -460,7 +442,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "PGM raro para catalisadores automotivos. Rússia + África do Sul = 80% oferta. Substitui platina como tendência de risco.",
     percentage: "Ref. NYMEX", volume: "220+ ton/ano",
-    price: "USD 1.020/oz", change: -1.44, unit: "/troy oz",
   },
   // ── Energia ──
   Brent: {
@@ -475,7 +456,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Fluxo via Estreito de Ormuz (20% do petróleo global). Arabia Saudita e OPEC+ controlam produção. ICE London é bolsa de referência.",
     percentage: "21M bbl/dia", volume: "Hormuz chokepoint",
-    price: "USD 88.40/bbl", change: +0.92, unit: "/barril",
   },
   GasNatural: {
     label: "Gás Natural", category: "Energia",
@@ -488,7 +468,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Mercados regionais segmentados. EUA (Henry Hub), Europa (TTF Amsterdam), Golfo (GNL). Brasil: gás boliviano + GNL.",
     percentage: "Ref. Henry Hub", volume: "4.000+ bcm/ano",
-    price: "USD 2.18/MMBtu", change: -2.34, unit: "/MMBtu",
   },
   // ── Minério de Ferro ──
   MinerioFerro: {
@@ -503,7 +482,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil é o 2º maior exportador mundial de minério (Vale + CSN). China absorve 70% do volume. Preço referenciado na SGX Singapore e Dalian Commodity Exchange (DCE). Vale sozinha = 20% do supply global.",
     percentage: "20% global (Vale)", volume: "400M ton/ano",
-    price: "USD 105.40/ton", change: -1.82, unit: "/tonelada 62% Fe",
   },
   // ── Nióbio ──
   Niobio: {
@@ -518,7 +496,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     ],
     flowData: "Brasil controla 94% da produção mundial de nióbio via CBMM (Araxá-MG). Metal estratégico para aço de alta resistência, carros elétricos, aviões e ressonâncias magnéticas. Mercado OTC: sem bolsa de referência pública.",
     percentage: "94% global", volume: "90K ton FeNb/ano",
-    price: "USD 42.00/kg", change: 0, unit: "/kg FeNb (OTC)",
   },
 };
 
@@ -528,25 +505,91 @@ const categories: { key: "Agro" | "Metais" | "Energia" }[] = [
   { key: "Energia" },
 ];
 
+/* ── Variação em vírgula decimal (pt-BR), 2 casas — ex.: "1,82" ── */
+const pctFmt = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * Liga cada commodity do mapa a UMA série do cache (series_latest). O mapa é
+ * MUNDIAL: nas commodities com dois mercados a escolha é a REFERÊNCIA GLOBAL
+ * (Pink Sheet mensal), não a B3 diária — esta fica no terminal, que é
+ * brasileiro. O rótulo de cada série carrega a diferença (ex.: "Soja (FOB US
+ * Gulf)" vs. a soja B3), então preços diferentes não viram contradição.
+ *
+ * `code: null` = sem cotação no cache; o card mostra `noQuote`, nunca um número
+ * (regra 4.5: zero mock ao lado de dado real). Três casos, por motivos
+ * DIFERENTES — nenhum inventa preço:
+ *  - Nióbio: não tem preço público em bolsa nenhuma (OTC). É a própria história.
+ *  - Paládio: tem preço (NYMEX), mas não é ingerido no cache hoje.
+ *  - Suco de Laranja: LARANJA_WB é laranja FRUTA (navel, importação UE), produto
+ *    DIFERENTE de FCOJ (suco concentrado). Casar seria a mesma troca de produto
+ *    do boi. Fica sem card com número.
+ * Boi usa só BOI_FUT (B3): CARNE_BOVINA_WB é carne desossada NZ, outro produto.
+ */
+type AssetSeries = { code: string } | { code: null; noQuote: string };
+const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
+  // ── Agro ──
+  Soja:     { code: "SOJA_WB" },
+  Milho:    { code: "MILHO_WB" },
+  Trigo:    { code: "TRIGO_WB" },
+  Cafe:     { code: "CAFE_ICO" },
+  Algodao:  { code: "ALGODAO_WB" },
+  BoiGordo: { code: "BOI_FUT" },
+  Acucar:   { code: "ACUCAR_WB" },
+  Cacau:    { code: "CACAU_WB" },
+  Arroz:    { code: "ARROZ_WB" },
+  Frango:   { code: "FRANGO_WB" },
+  Etanol:   { code: "ETANOL_FUT" },
+  Amendoim: { code: "AMENDOIM_WB" },
+  Laranja:  { code: null, noQuote: "Sem cotação disponível" },
+  // ── Metais ──
+  Ouro:         { code: "OURO_LBMA" },
+  Prata:        { code: "PRATA_LBMA" },
+  Cobre:        { code: "COBRE_WB" },
+  Aluminio:     { code: "ALUMINIO_WB" },
+  MinerioFerro: { code: "MINERIO_WB" },
+  Paladio:      { code: null, noQuote: "Sem cotação disponível" },
+  Niobio:       { code: null, noQuote: "Sem cotação pública em bolsa" },
+  // ── Energia ──
+  Brent:      { code: "BRENT_SPOT" },
+  GasNatural: { code: "GAS_NATURAL_HH" },
+};
+
 /* ── Painel de informações — versão institucional ── */
 function InfoPanel({
   selectedAsset,
+  point,
+  hasSeries,
+  loading,
+  noQuote,
   onClose,
 }: {
   selectedAsset: NonNullable<AssetType>;
+  point: MarketPoint | null;
+  hasSeries: boolean;
+  loading: boolean;
+  noQuote: string | null;
   onClose: () => void;
 }) {
   const data = assetFlows[selectedAsset];
   if (!data) return null;
 
-  const changePositive = data.change > 0;
-  const changeNeutral  = data.change === 0;
-  const changeColor = changePositive
+  // Variação vem pronta do hook (changePercent já é null em roll e sem prev).
+  const cp = point?.changePercent ?? null;
+  const up = cp != null && cp > 0;
+  const down = cp != null && cp < 0;
+  const changeColor = up
     ? "rgba(52,211,153,1)"
-    : changeNeutral
-    ? "rgba(255,255,255,0.4)"
-    : "rgba(248,113,113,1)";
-  const ChangeIcon = changePositive ? TrendingUp : changeNeutral ? Minus : TrendingDown;
+    : down
+    ? "rgba(248,113,113,1)"
+    : "rgba(255,255,255,0.4)";
+  const ChangeIcon = up ? TrendingUp : down ? TrendingDown : Minus;
+  // Sem número: distingue "não existe cotação" (design) de "não carregou" (transitório).
+  const noQuoteText = hasSeries
+    ? (loading ? "Carregando…" : "Cotação indisponível")
+    : (noQuote ?? "Sem cotação pública");
 
   return (
     <>
@@ -589,26 +632,52 @@ function InfoPanel({
               </button>
             </div>
 
-            {/* Preço + variação */}
-            <div className="px-4 py-3 flex items-center justify-between"
+            {/* Preço + variação — dado real do cache (series_latest) */}
+            <div className="px-4 py-3 flex items-start justify-between"
               style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               <div>
                 <div className="font-sans text-[8px] uppercase tracking-widest mb-0.5"
                   style={{ color: "rgba(255,255,255,0.25)" }}>
                   Preço Atual
                 </div>
-                <div className="font-display text-lg text-white">{data.price}</div>
-                <div className="font-sans text-[8px]"
-                  style={{ color: "rgba(255,255,255,0.3)" }}>
-                  {data.unit}
+                {point ? (
+                  <>
+                    {/* unidade colada ao valor; vírgula decimal via formatValueUnit */}
+                    <div className="font-display text-lg text-white">{formatValueUnit(point)}</div>
+                    <div className="font-sans text-[8px]"
+                      style={{ color: point.isStale ? "rgba(248,113,113,0.8)" : "rgba(255,255,255,0.3)" }}>
+                      {`Atualizado ${formatDayMonthUTC(point.ts)}`}{point.isStale ? " · dado defasado" : ""}
+                    </div>
+                    {point.attribution && (
+                      <div className="font-sans text-[7px] mt-0.5"
+                        style={{ color: "rgba(255,255,255,0.22)" }}>
+                        {point.attribution}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="font-display text-base"
+                    style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {noQuoteText}
+                  </div>
+                )}
+              </div>
+              {point && cp != null && (
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div className="flex items-center gap-1" style={{ color: changeColor }}>
+                    <ChangeIcon className="w-4 h-4" />
+                    <span className="font-display text-sm font-bold">
+                      {up ? "+" : ""}{pctFmt.format(cp)}%
+                    </span>
+                  </div>
+                  {point.changeLabel && (
+                    <span className="font-sans text-[7px] mt-0.5"
+                      style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {point.changeLabel}
+                    </span>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-center gap-1" style={{ color: changeColor }}>
-                <ChangeIcon className="w-4 h-4" />
-                <span className="font-display text-sm font-bold">
-                  {changePositive ? "+" : ""}{data.change.toFixed(2)}%
-                </span>
-              </div>
+              )}
             </div>
 
             {/* Descrição do fluxo */}
@@ -714,12 +783,22 @@ function InfoPanel({
               <div>
                 <div className="font-display text-sm" style={{ color: GOLD }}>{data.label}</div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="font-display text-white text-sm">{data.price}</span>
-                  <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: changeColor }}>
-                    <ChangeIcon className="w-3 h-3" />
-                    {changePositive ? "+" : ""}{data.change.toFixed(2)}%
+                  <span className="font-display text-white text-sm">
+                    {point ? formatValueUnit(point) : noQuoteText}
                   </span>
+                  {point && cp != null && (
+                    <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: changeColor }}>
+                      <ChangeIcon className="w-3 h-3" />
+                      {up ? "+" : ""}{pctFmt.format(cp)}%
+                    </span>
+                  )}
                 </div>
+                {point && (
+                  <div className="font-sans text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                    {point.changeLabel ?? `Atualizado ${formatDayMonthUTC(point.ts)}`}
+                    {point.isStale ? " · defasado" : ""}
+                  </div>
+                )}
               </div>
               <button onClick={onClose} className="p-1.5">
                 <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
@@ -845,8 +924,25 @@ export default function GlobalFlowMap() {
   const [showCountries, setShowCountries]   = useState(false);
   const uid = useId();
 
+  // Cache real (series_latest). Indexado por code para lookup O(1) por commodity.
+  const { data: market, loading } = useMarketData();
+  const bySeries = useMemo(() => {
+    const m = new Map<string, MarketPoint>();
+    (market ?? []).forEach((p) => m.set(p.code, p));
+    return m;
+  }, [market]);
+
   const assetData           = selectedAsset ? assetFlows[selectedAsset] : null;
   const relevantCountryIds  = assetData?.relevantCountries.map((c) => c.id) ?? [];
+
+  // Série + estado do preço da commodity aberta: distingue "sem cotação por
+  // design" (code null) de "ainda não carregou / indisponível" (transitório).
+  const selectedInfo = (() => {
+    if (!selectedAsset) return { point: null as MarketPoint | null, hasSeries: false, noQuote: null as string | null };
+    const s = ASSET_SERIES[selectedAsset];
+    if (s.code == null) return { point: null as MarketPoint | null, hasSeries: false, noQuote: s.noQuote };
+    return { point: bySeries.get(s.code) ?? null, hasSeries: true, noQuote: null as string | null };
+  })();
   const filteredAssets = (
     Object.entries(assetFlows) as [NonNullable<AssetType>, typeof assetFlows[NonNullable<AssetType>]][]
   )
@@ -1158,6 +1254,10 @@ export default function GlobalFlowMap() {
         {selectedAsset && (
           <InfoPanel
             selectedAsset={selectedAsset}
+            point={selectedInfo.point}
+            hasSeries={selectedInfo.hasSeries}
+            loading={loading}
+            noQuote={selectedInfo.noQuote}
             onClose={() => setSelectedAsset(null)}
           />
         )}
