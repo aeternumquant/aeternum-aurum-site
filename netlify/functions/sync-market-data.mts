@@ -615,6 +615,18 @@ const WORLDBANK_SERIES: WbSeries[] = [
   { name: "Chicken", code: "FRANGO_WB", labelPt: "Frango (Brasil, atacado São Paulo)", labelEn: "Chicken (Brazil, São Paulo wholesale)", unit: "USD/kg", category: "agro", market: null },
   { name: "Beef", code: "CARNE_BOVINA_WB", labelPt: "Carne bovina (Nova Zelândia, 90% lean, cif EUA)", labelEn: "Beef (New Zealand, 90% lean, cif US)", unit: "USD/kg", category: "agro", market: null },
   { name: "Orange", code: "LARANJA_WB", labelPt: "Laranja (Mediterrâneo, navel, importação UE)", labelEn: "Oranges (Mediterranean, navel, EU import)", unit: "USD/kg", category: "agro", market: null },
+  // Derivados da soja (category 'agro'). Fonte fisica (Oil World/S&P/USDA), nao bolsa -> market null.
+  { name: "Soybean meal", code: "FARELO_SOJA_WB", labelPt: "Farelo de soja (US 48% proteína, FOB Rotterdam)", labelEn: "Soybean meal (US 48% protein, FOB Rotterdam)", unit: "USD/t", category: "agro", market: null },
+  { name: "Soybean oil", code: "OLEO_SOJA_WB", labelPt: "Óleo de soja (US crude degummed, FOB US Gulf)", labelEn: "Soybean oil (US crude degummed, FOB US Gulf)", unit: "USD/t", category: "agro", market: null },
+  // Fertilizantes (category 'fertilizante'). Fonte: Bloomberg L.P. - Green Markets, uma price
+  // reporting agency (nao bolsa) -> market null. Origem/incoterm no label (o Brasil importa ~85%,
+  // a ORIGEM do preco de referencia e a historia). Ureia mudou de FOB Mar Negro para FOB Oriente
+  // Medio em mar/2022 (pos-invasao); KCL virou Brasil CFR granular em jan/2020 (dai o "**" na coluna).
+  { name: "DAP", code: "DAP_WB", labelPt: "DAP / fosfato diamônico (FOB US Gulf)", labelEn: "DAP / diammonium phosphate (FOB US Gulf)", unit: "USD/t", category: "fertilizante", market: null },
+  { name: "Urea", code: "UREIA_WB", labelPt: "Ureia (Ucrânia, FOB Oriente Médio)", labelEn: "Urea (Ukraine, FOB Middle East)", unit: "USD/t", category: "fertilizante", market: null },
+  { name: "Potassium chloride", code: "KCL_WB", labelPt: "Cloreto de potássio / KCl (Brasil CFR granular)", labelEn: "Potassium chloride / MOP (Brazil CFR granular)", unit: "USD/t", category: "fertilizante", market: null },
+  { name: "TSP", code: "TSP_WB", labelPt: "TSP / superfosfato triplo (importação US Gulf)", labelEn: "TSP / triple superphosphate (import US Gulf)", unit: "USD/t", category: "fertilizante", market: null },
+  { name: "Phosphate rock", code: "ROCHA_FOSFATICA_WB", labelPt: "Rocha fosfática (FOB Norte da África)", labelEn: "Phosphate rock (FOB North Africa)", unit: "USD/t", category: "fertilizante", market: null },
 ];
 
 const WB_REPROCESS_MONTHS = 6; // reprocessa os ultimos meses (revisoes retroativas)
