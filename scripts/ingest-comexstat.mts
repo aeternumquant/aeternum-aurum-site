@@ -45,46 +45,63 @@ const db = new PostgrestClient(`${URL}/rest/v1`, {
 const API = "https://api-comexstat.mdic.gov.br/general";
 const UA = "Mozilla/5.0 (AeternumWorker)";
 
-/** SH6 aprovado pelo Gabriel. code = subHeading (6 digitos). */
-type Prod = { key: string; code: number; flow: "export" | "import" };
+/**
+ * Lista FECHADA pelo Gabriel apos o probe do mapa de migracao. code = subHeading
+ * (SH6). Cada SH6 e um product_code proprio em trade_flows; o agrupamento por
+ * card (ex.: arroz = casca+branqueado+quebrado) e do front, depois.
+ *  - l2only: so a serie longa agregada (nao faz sentido pais-nivel recente).
+ *  - maxYear: limita o range (codigo ANTIGO de produto migrado, valido ate ~2011).
+ * COSTURA (c): soja/trigo/acucar-bruto/amendoim ganham o codigo antigo (l2only,
+ * ate 2011); o front concatena antigo+novo (sao disjuntos por ano). TSP NAO
+ * costura (b): o 310310 pre-2017 era TSP+SSP juntos; costurar mudaria o
+ * significado da serie em silencio. Prata e paladio saem (exportam ~zero).
+ */
+type Prod = { key: string; code: number; flow: "export" | "import"; l2only?: boolean; maxYear?: number };
 const PRODUCTS: Prod[] = [
-  // Exportacao
+  // ── Exportacao ──
   { key: "soja_grao", code: 120190, flow: "export" },
+  { key: "soja_grao_old", code: 120100, flow: "export", l2only: true, maxYear: 2011 }, // costura pre-2012
   { key: "soja_farelo", code: 230400, flow: "export" },
   { key: "soja_oleo", code: 150710, flow: "export" },
+  { key: "soja_oleo_ref", code: 150790, flow: "export" }, // +refinado (22% em 2020)
   { key: "cafe_verde", code: 90111, flow: "export" },
   { key: "milho", code: 100590, flow: "export" },
-  { key: "arroz", code: 100630, flow: "export" },
+  { key: "arroz_casca", code: 100610, flow: "export" }, // Brasil exporta arroz em casca
+  { key: "arroz_branqueado", code: 100630, flow: "export" },
+  { key: "arroz_quebrado", code: 100640, flow: "export" },
   { key: "algodao", code: 520100, flow: "export" },
   { key: "acucar_bruto", code: 170114, flow: "export" },
-  { key: "acucar_refinado", code: 170199, flow: "export" },
-  { key: "cacau", code: 180100, flow: "export" },
+  { key: "acucar_bruto_old", code: 170111, flow: "export", l2only: true, maxYear: 2011 }, // costura
+  { key: "acucar_refinado", code: 170199, flow: "export" }, // estavel, nao migra
+  { key: "cacau", code: 180100, flow: "export" }, // exporta ~zero; editorial do Gabriel depois
   { key: "amendoim", code: 120242, flow: "export" },
-  { key: "frango", code: 20714, flow: "export" },
+  { key: "amendoim_old", code: 120220, flow: "export", l2only: true, maxYear: 2011 }, // costura
+  { key: "frango_cortes", code: 20714, flow: "export" },
+  { key: "frango_inteiro", code: 20712, flow: "export" }, // +inteiro (Oriente Medio)
   { key: "carne_bovina", code: 20230, flow: "export" },
   { key: "suco_fcoj", code: 200911, flow: "export" },
-  { key: "suco_nfc", code: 200912, flow: "export" },
+  { key: "suco_nfc_leve", code: 200912, flow: "export" },
+  { key: "suco_nfc_forte", code: 200919, flow: "export" }, // +NFC Brix>20 (28% a mais)
   { key: "etanol", code: 220710, flow: "export" },
   { key: "etanol_desnat", code: 220720, flow: "export" },
-  { key: "ouro", code: 710812, flow: "export" },
-  { key: "prata", code: 710691, flow: "export" },
-  { key: "cobre_conc", code: 260300, flow: "export" },
+  { key: "ouro", code: 710812, flow: "export" }, // so bullion; 710813 semimanuf fica fora
+  { key: "cobre_conc", code: 260300, flow: "export" }, // serie comeca ~2005 (Sossego), nao migracao
   { key: "niobio_fenb", code: 720293, flow: "export" },
   { key: "bauxita", code: 260600, flow: "export" },
   { key: "alumina", code: 281820, flow: "export" },
   { key: "aluminio", code: 760110, flow: "export" },
   { key: "minerio_finos", code: 260111, flow: "export" },
   { key: "minerio_pelotas", code: 260112, flow: "export" },
-  { key: "paladio", code: 711021, flow: "export" },
   { key: "petroleo", code: 270900, flow: "export" },
-  // Importacao (Brasil e importador)
+  // ── Importacao (Brasil e importador) ──
   { key: "trigo", code: 100199, flow: "import" },
+  { key: "trigo_old", code: 100190, flow: "import", l2only: true, maxYear: 2011 }, // costura
   { key: "gas_gnl", code: 271111, flow: "import" },
   { key: "gas_gasoso", code: 271121, flow: "import" },
-  { key: "ureia", code: 310210, flow: "import" },
+  { key: "ureia", code: 310210, flow: "import" }, // 310221 (sulfato de amonio) e outro produto
   { key: "kcl", code: 310420, flow: "import" },
-  { key: "dap", code: 310530, flow: "import" },
-  { key: "tsp", code: 310311, flow: "import" },
+  { key: "fosfatado_map", code: 310540, flow: "import" }, // era DAP 310530 (2%); Brasil compra MAP
+  { key: "tsp", code: 310311, flow: "import" }, // opcao (b): serie comeca ~2017, sem costura
   { key: "rocha_10", code: 251010, flow: "import" },
   { key: "rocha_20", code: 251020, flow: "import" },
 ];
@@ -234,8 +251,9 @@ async function main() {
 
   let total = 0, l1rows = 0, l2rows = 0;
   for (const p of products) {
-    if (doL1)
-      for (let y = l1From; y <= to; y++) {
+    const pTo = Math.min(to, p.maxYear ?? to); // codigo antigo (migrado) para em 2011
+    if (doL1 && !p.l2only)
+      for (let y = l1From; y <= pTo; y++) {
         try {
           const n = await ingest(p, y, 1, cmap);
           total += n; l1rows += n;
@@ -245,7 +263,7 @@ async function main() {
         }
       }
     if (doL2)
-      for (let y = l2From; y <= to; y++) {
+      for (let y = l2From; y <= pTo; y++) {
         try {
           const n = await ingest(p, y, 2, cmap);
           total += n; l2rows += n;
