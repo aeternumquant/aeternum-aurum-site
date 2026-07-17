@@ -22,9 +22,12 @@
  *  - Nivel 1: details:["country"] -> uma linha por (mes, pais). country_code preenchido.
  *  - Nivel 2: details:[]          -> uma linha por mes, agregado. country_code NULL.
  *
- * Idempotente: para cada (produto, fluxo, nivel, ano) faz DELETE do intervalo
- * antes do INSERT (a Secex revisa meses anteriores; o indice unico usa
- * coalesce(country_code,-1), que o upsert do PostgREST nao enxerga -> delete+insert).
+ * Idempotente e ATOMICO: cada (produto, fluxo, nivel, ano) vira UMA chamada a
+ * public.replace_trade_flows, que faz delete+insert do escopo na MESMA transacao
+ * (insert falha -> delete volta atras). A Secex revisa meses anteriores, entao o
+ * delete limpa (upsert deixaria pais-mes removido para sempre); e o on_conflict do
+ * PostgREST nao mira o indice de expressao coalesce(country_code,-1), entao a
+ * atomicidade vem da funcao, nao de duas chamadas REST. O indice segue como guarda.
  * Valores vem como STRING; "" / ausente NAO e zero (vira null / linha descartada).
  */
 import { PostgrestClient } from "@supabase/postgrest-js";
@@ -131,12 +134,11 @@ async function loadCountryMap(): Promise<Map<string, number>> {
   return m;
 }
 
+// Objeto de p_rows (so os campos por-linha; o resto vem do escopo da RPC).
 type Row = {
-  flow: string; product_code: string; product_level: string;
   country_code: number | null; ref_month: string;
   fob_usd: number | null; net_kg: number | null;
   freight_usd: number | null; insurance_usd: number | null; stat_qty: number | null;
-  source_slug: string;
 };
 
 const orphans = new Set<string>();
@@ -144,17 +146,20 @@ const orphans = new Set<string>();
 async function ingest(p: Prod, year: number, level: 1 | 2, cmap: Map<string, number>): Promise<number> {
   const isImport = p.flow === "import";
   const metrics = ["metricFOB", "metricKG", ...(isImport ? ["metricFreight", "metricInsurance"] : [])];
+  // SH6 como STRING com zero à esquerda (ex.: "090111"): o filtro nao casa
+  // codigo de capitulo 01-09 passado como numero (090111 -> 90111 -> vazio).
+  const code6 = String(p.code).padStart(6, "0");
   const list = await comexList({
     flow: p.flow,
     monthDetail: true,
     period: { from: `${year}-01`, to: `${year}-12` },
-    filters: [{ filter: "subHeading", values: [p.code] }],
+    filters: [{ filter: "subHeading", values: [code6] }],
     details: level === 1 ? ["country"] : [],
     metrics,
   });
-
-  const code6 = String(p.code).padStart(6, "0");
-  const rows: Row[] = [];
+  // p_rows leva SO os campos por-linha; flow/product_code/product_level/ano/scope
+  // sao parametros da RPC. A funcao ignora chave extra e trata ausente como null.
+  const dataRows: Row[] = [];
   for (const r of list) {
     const mm = String(r.monthNumber ?? "").padStart(2, "0");
     if (!/^\d{2}$/.test(mm)) continue;
@@ -165,28 +170,29 @@ async function ingest(p: Prod, year: number, level: 1 | 2, cmap: Map<string, num
       if (cc == null) { orphans.add(name); continue; } // orfao: reporta, NAO grava
       country_code = cc;
     }
-    rows.push({
-      flow: p.flow, product_code: code6, product_level: "sh6",
+    dataRows.push({
       country_code, ref_month: `${year}-${mm}-01`,
       fob_usd: num(r.metricFOB), net_kg: num(r.metricKG),
       freight_usd: isImport ? num(r.metricFreight) : null,
       insurance_usd: isImport ? num(r.metricInsurance) : null,
-      stat_qty: null, source_slug: "comexstat",
+      stat_qty: null,
     });
   }
 
-  // idempotente: apaga o intervalo (deste nivel) antes de inserir.
-  let del = db.from("trade_flows").delete()
-    .eq("flow", p.flow).eq("product_code", code6).eq("product_level", "sh6")
-    .gte("ref_month", `${year}-01-01`).lte("ref_month", `${year}-12-01`);
-  del = level === 1 ? del.not("country_code", "is", null) : del.is("country_code", null);
-  const { error: delErr } = await del;
-  if (delErr) throw new Error(`delete ${p.key} ${year} L${level}: ${delErr.message}`);
-
-  if (rows.length === 0) return 0;
-  const { error: insErr } = await db.from("trade_flows").insert(rows);
-  if (insErr) throw new Error(`insert ${p.key} ${year} L${level}: ${insErr.message}`);
-  return rows.length;
+  // UMA chamada: delete+insert na MESMA transacao (replace_trade_flows). Escopo
+  // do delete: (flow, product_code, product_level, ano, scope); scope='country'
+  // apaga so country_code not null, 'aggregate' so is null. Insert falha -> delete
+  // volta atras. Devolve a contagem inserida.
+  const { data, error } = await db.rpc("replace_trade_flows", {
+    p_flow: p.flow,
+    p_product_code: code6,
+    p_product_level: "sh6",
+    p_year: year,
+    p_scope: level === 1 ? "country" : "aggregate",
+    p_rows: dataRows,
+  });
+  if (error) throw new Error(`rpc ${p.key} ${year} L${level}: ${error.message}`);
+  return typeof data === "number" ? data : dataRows.length;
 }
 
 async function main() {
