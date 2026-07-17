@@ -37,6 +37,22 @@ export function formatDayMonthUTC(ts: string): string {
   return `${dd}/${mm}`;
 }
 
+const MESES_PT = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
+
+/**
+ * "junho/2026" a partir do ts (UTC). Para serie MENSAL o ts marca o MES: o Pink
+ * Sheet publica a media do mes com ts no dia 1. O dia NAO deve aparecer -
+ * "01/06" apresentaria uma media mensal como se fosse o preco de um unico dia.
+ */
+export function formatMonthUTC(ts: string): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return "";
+  return `${MESES_PT[d.getUTCMonth()]}/${d.getUTCFullYear()}`;
+}
+
 /** Chave de data em UTC (YYYY-MM-DD) para casar dias ignorando a hora. */
 export function utcDateKey(ts: string): string {
   const d = new Date(ts);

@@ -29,7 +29,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../../hooks/useMarketData";
-import { formatValueUnit, formatDayMonthUTC } from "../../lib/marketFormat";
+import { formatValueUnit, formatDayMonthUTC, formatMonthUTC } from "../../lib/marketFormat";
 
 const geoUrl = "/data/countries-110m.json";
 
@@ -511,30 +511,62 @@ const pctFmt = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 2,
 });
 
+/* ── Vermelho sóbrio (Sistema A) para o estado defasado — não neon ── */
+const RED_STALE = "#C0564C";
+
 /**
- * Liga cada commodity do mapa a UMA série do cache (series_latest). O mapa é
- * MUNDIAL: nas commodities com dois mercados a escolha é a REFERÊNCIA GLOBAL
- * (Pink Sheet mensal), não a B3 diária — esta fica no terminal, que é
- * brasileiro. O rótulo de cada série carrega a diferença (ex.: "Soja (FOB US
- * Gulf)" vs. a soja B3), então preços diferentes não viram contradição.
+ * Linha de frescor/período de um ponto. A honestidade mora aqui:
+ *  - mensal: "Média de junho/2026" — NUNCA "01/06". O Pink Sheet publica a média
+ *    do mês; mostrar o dia apresentaria a média como preço de uma data única.
+ *  - diária/contínua: "Atualizado DD/MM".
+ *  - defasado (isStale): "Última atualização <ref>" em vermelho sóbrio.
+ * `withMarket` prefixa o mercado onde o preço se forma (B3, LBMA…), quando há.
+ * `lower` deixa a palavra minúscula para uso inline no bloco secundário.
+ */
+function freshnessLine(
+  point: MarketPoint,
+  opts?: { withMarket?: boolean; lower?: boolean },
+): { text: string; stale: boolean } {
+  const withMarket = opts?.withMarket ?? true;
+  const isMonthly = point.frequency === "mensal";
+  const ref = isMonthly ? formatMonthUTC(point.ts) : formatDayMonthUTC(point.ts);
+  const mkt = withMarket && point.market ? `${point.market} · ` : "";
+  const word = (s: string) => (opts?.lower ? s.toLowerCase() : s);
+  if (point.isStale) return { text: `${mkt}${word("Última atualização")} ${ref}`, stale: true };
+  if (isMonthly) return { text: `${mkt}${word("Média de")} ${ref}`, stale: false };
+  return { text: `${mkt}${word("Atualizado")} ${ref}`, stale: false };
+}
+
+/**
+ * Liga cada commodity do mapa às séries do cache (series_latest).
+ *
+ * Quatro commodities têm DOIS mercados (global mensal + diário BR). O mapa mostra
+ * os dois: primário = o DIÁRIO (mais fresco, e o público é brasileiro);
+ * secundário, menor e discreto = a referência GLOBAL mensal. São números
+ * diferentes, de mercados, unidades e períodos diferentes — o `note` e o período
+ * ("média de junho/2026") carregam a diferença para não virarem contradição. As
+ * outras 15 têm uma série só; não se força simetria (card com mais dado mostra
+ * mais). Prata/cobre/alumínio/minério/trigo/algodão/açúcar/cacau/arroz/frango/
+ * amendoim: só mensal. Boi/etanol/Brent/gás: só diária.
  *
  * `code: null` = sem cotação no cache; o card mostra `noQuote`, nunca um número
- * (regra 4.5: zero mock ao lado de dado real). Três casos, por motivos
- * DIFERENTES — nenhum inventa preço:
- *  - Nióbio: não tem preço público em bolsa nenhuma (OTC). É a própria história.
+ * (regra 4.5: zero mock ao lado de dado real). Três casos, motivos DIFERENTES —
+ * nenhum inventa preço:
+ *  - Nióbio: não há preço público em bolsa nenhuma (OTC). É a própria história.
  *  - Paládio: tem preço (NYMEX), mas não é ingerido no cache hoje.
  *  - Suco de Laranja: LARANJA_WB é laranja FRUTA (navel, importação UE), produto
- *    DIFERENTE de FCOJ (suco concentrado). Casar seria a mesma troca de produto
- *    do boi. Fica sem card com número.
+ *    DIFERENTE de FCOJ (suco concentrado). Casar seria a mesma troca do boi.
  * Boi usa só BOI_FUT (B3): CARNE_BOVINA_WB é carne desossada NZ, outro produto.
  */
-type AssetSeries = { code: string } | { code: null; noQuote: string };
+type AssetSeries =
+  | { code: string; secondary?: { code: string; note: string } }
+  | { code: null; noQuote: string };
 const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   // ── Agro ──
-  Soja:     { code: "SOJA_WB" },
-  Milho:    { code: "MILHO_WB" },
+  Soja:     { code: "SOJA_FUT",  secondary: { code: "SOJA_WB",  note: "referência global · US Gulf" } },
+  Milho:    { code: "MILHO_FUT", secondary: { code: "MILHO_WB", note: "referência global · US Gulf" } },
   Trigo:    { code: "TRIGO_WB" },
-  Cafe:     { code: "CAFE_ICO" },
+  Cafe:     { code: "CAFE_FUT",  secondary: { code: "CAFE_ICO", note: "referência global · ICO" } },
   Algodao:  { code: "ALGODAO_WB" },
   BoiGordo: { code: "BOI_FUT" },
   Acucar:   { code: "ACUCAR_WB" },
@@ -545,7 +577,7 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   Amendoim: { code: "AMENDOIM_WB" },
   Laranja:  { code: null, noQuote: "Sem cotação disponível" },
   // ── Metais ──
-  Ouro:         { code: "OURO_LBMA" },
+  Ouro:         { code: "OURO_PAXG", secondary: { code: "OURO_LBMA", note: "spot Londres · LBMA" } },
   Prata:        { code: "PRATA_LBMA" },
   Cobre:        { code: "COBRE_WB" },
   Aluminio:     { code: "ALUMINIO_WB" },
@@ -561,6 +593,7 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
 function InfoPanel({
   selectedAsset,
   point,
+  secondary,
   hasSeries,
   loading,
   noQuote,
@@ -568,6 +601,7 @@ function InfoPanel({
 }: {
   selectedAsset: NonNullable<AssetType>;
   point: MarketPoint | null;
+  secondary: { point: MarketPoint | null; note: string } | null;
   hasSeries: boolean;
   loading: boolean;
   noQuote: string | null;
@@ -575,6 +609,9 @@ function InfoPanel({
 }) {
   const data = assetFlows[selectedAsset];
   if (!data) return null;
+
+  // Secundário só existe se a série mensal já carregou (narrowing p/ o JSX).
+  const sec = secondary?.point ? { point: secondary.point, note: secondary.note } : null;
 
   // Variação vem pronta do hook (changePercent já é null em roll e sem prev).
   const cp = point?.changePercent ?? null;
@@ -644,10 +681,15 @@ function InfoPanel({
                   <>
                     {/* unidade colada ao valor; vírgula decimal via formatValueUnit */}
                     <div className="font-display text-lg text-white">{formatValueUnit(point)}</div>
-                    <div className="font-sans text-[8px]"
-                      style={{ color: point.isStale ? "rgba(248,113,113,0.8)" : "rgba(255,255,255,0.3)" }}>
-                      {`Atualizado ${formatDayMonthUTC(point.ts)}`}{point.isStale ? " · dado defasado" : ""}
-                    </div>
+                    {(() => {
+                      const fl = freshnessLine(point);
+                      return (
+                        <div className="font-sans text-[8px]"
+                          style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
+                          {fl.text}
+                        </div>
+                      );
+                    })()}
                     {point.attribution && (
                       <div className="font-sans text-[7px] mt-0.5"
                         style={{ color: "rgba(255,255,255,0.22)" }}>
@@ -679,6 +721,24 @@ function InfoPanel({
                 </div>
               )}
             </div>
+
+            {/* Referência global (mensal) — secundária e discreta. Só nas 4 duais. */}
+            {sec && (
+              <div className="px-4 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.72)" }}>
+                  {formatValueUnit(sec.point)}
+                </div>
+                {(() => {
+                  const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
+                  return (
+                    <div className="font-sans text-[8px] mt-0.5"
+                      style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
+                      {sec.note} · {fl.text}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             {/* Descrição do fluxo */}
             <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -782,7 +842,7 @@ function InfoPanel({
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="font-display text-sm" style={{ color: GOLD }}>{data.label}</div>
-                <div className="flex items-center gap-2 mt-0.5">
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   <span className="font-display text-white text-sm">
                     {point ? formatValueUnit(point) : noQuoteText}
                   </span>
@@ -792,13 +852,31 @@ function InfoPanel({
                       {up ? "+" : ""}{pctFmt.format(cp)}%
                     </span>
                   )}
+                  {point?.changeLabel && (
+                    <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      {point.changeLabel}
+                    </span>
+                  )}
                 </div>
-                {point && (
-                  <div className="font-sans text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {point.changeLabel ?? `Atualizado ${formatDayMonthUTC(point.ts)}`}
-                    {point.isStale ? " · defasado" : ""}
-                  </div>
-                )}
+                {point && (() => {
+                  const fl = freshnessLine(point);
+                  return (
+                    <div className="font-sans text-[8px] mt-0.5"
+                      style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
+                      {fl.text}
+                    </div>
+                  );
+                })()}
+                {sec && (() => {
+                  const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
+                  return (
+                    <div className="font-sans text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <span style={{ color: "rgba(255,255,255,0.72)" }}>{formatValueUnit(sec.point)}</span>
+                      {" · "}{sec.note} ·{" "}
+                      <span style={{ color: fl.stale ? RED_STALE : "inherit" }}>{fl.text}</span>
+                    </div>
+                  );
+                })()}
               </div>
               <button onClick={onClose} className="p-1.5">
                 <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
@@ -937,11 +1015,21 @@ export default function GlobalFlowMap() {
 
   // Série + estado do preço da commodity aberta: distingue "sem cotação por
   // design" (code null) de "ainda não carregou / indisponível" (transitório).
+  // Nas 4 duais resolve também o secundário (referência global mensal).
   const selectedInfo = (() => {
-    if (!selectedAsset) return { point: null as MarketPoint | null, hasSeries: false, noQuote: null as string | null };
+    const empty = {
+      point: null as MarketPoint | null,
+      secondary: null as { point: MarketPoint | null; note: string } | null,
+      hasSeries: false,
+      noQuote: null as string | null,
+    };
+    if (!selectedAsset) return empty;
     const s = ASSET_SERIES[selectedAsset];
-    if (s.code == null) return { point: null as MarketPoint | null, hasSeries: false, noQuote: s.noQuote };
-    return { point: bySeries.get(s.code) ?? null, hasSeries: true, noQuote: null as string | null };
+    if (s.code == null) return { ...empty, noQuote: s.noQuote };
+    const secondary = s.secondary
+      ? { point: bySeries.get(s.secondary.code) ?? null, note: s.secondary.note }
+      : null;
+    return { point: bySeries.get(s.code) ?? null, secondary, hasSeries: true, noQuote: null as string | null };
   })();
   const filteredAssets = (
     Object.entries(assetFlows) as [NonNullable<AssetType>, typeof assetFlows[NonNullable<AssetType>]][]
@@ -1255,6 +1343,7 @@ export default function GlobalFlowMap() {
           <InfoPanel
             selectedAsset={selectedAsset}
             point={selectedInfo.point}
+            secondary={selectedInfo.secondary}
             hasSeries={selectedInfo.hasSeries}
             loading={loading}
             noQuote={selectedInfo.noQuote}

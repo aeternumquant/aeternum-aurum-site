@@ -47,12 +47,16 @@ export type MarketPoint = {
  *                  quarta = 5 dias. Com 4 daria FALSO POSITIVO toda quaresma.
  *                  Trade-off aceito: um worker morto de verdade so aparece em 6
  *                  dias, nao 4.
- *  - mensal   = 45: um mes mais o atraso de publicacao (ex.: Pink Sheet).
+ *  - mensal   = 70: o Pink Sheet publica a MEDIA do mes ~2 dias depois, e essa
+ *                  edicao segue sendo a mais recente ate a proxima (ex.: junho,
+ *                  ts=01/06, publicado em 02/07, e canonico ate agosto). 45 dava
+ *                  FALSO POSITIVO em julho (46 dias). 70 = mes (31) + atraso (~2)
+ *                  + proxima edicao (31) + margem: so acende se a fonte morreu.
  */
 export const STALE_LIMITS_DAYS: Record<Frequency, number> = {
   continua: 2,
   diaria: 6,
-  mensal: 45,
+  mensal: 70,
 };
 
 /**
