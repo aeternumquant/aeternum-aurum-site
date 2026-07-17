@@ -601,7 +601,7 @@ const WORLDBANK_SERIES: WbSeries[] = [
   { name: "Silver", code: "PRATA_LBMA", labelPt: "Prata (spot Londres/LBMA)", labelEn: "Silver (London spot/LBMA)", unit: "USD/oz", category: "metal", market: "LBMA" },
   { name: "Copper", code: "COBRE_WB", labelPt: "Cobre (LME)", labelEn: "Copper (LME)", unit: "USD/t", category: "metal", market: "LME" },
   { name: "Aluminum", code: "ALUMINIO_WB", labelPt: "Alumínio (LME)", labelEn: "Aluminum (LME)", unit: "USD/t", category: "metal", market: "LME" },
-  { name: "Iron ore, cfr spot", code: "MINERIO_WB", labelPt: "Minério de ferro (spot cfr China, 62% Fe)", labelEn: "Iron ore (spot cfr China, 62% Fe)", unit: "USD/dmtu", category: "metal", market: null },
+  { name: "Iron ore, cfr spot", code: "MINERIO_WB", labelPt: "Minério de ferro (spot cfr China, 62% Fe)", labelEn: "Iron ore (spot cfr China, 62% Fe)", unit: "USD/t", category: "metal", market: null },
   // Agro (category 'agro'; category hoje so serve para o mapa agrupar)
   { name: "Coffee, Arabica", code: "CAFE_ICO", labelPt: "Café arábica (ICO, referência global)", labelEn: "Coffee, arabica (ICO)", unit: "USD/kg", category: "agro", market: "ICO" },
   { name: "Cocoa", code: "CACAU_WB", labelPt: "Cacau (ICCO)", labelEn: "Cocoa (ICCO)", unit: "USD/kg", category: "agro", market: "ICCO" },
