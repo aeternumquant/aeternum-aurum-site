@@ -195,32 +195,62 @@ async function main() {
 
   const only = (process.env.COMEX_PRODUCTS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   const products = only.length ? PRODUCTS.filter((p) => only.includes(p.key)) : PRODUCTS;
-  const from = Number(process.env.COMEX_FROM ?? "1997");
-  const to = Number(process.env.COMEX_TO ?? new Date().getUTCFullYear());
-  const levelEnv = process.env.COMEX_LEVEL ?? "both";
-  const levels: (1 | 2)[] = levelEnv === "1" ? [1] : levelEnv === "2" ? [2] : [1, 2];
 
-  console.log(`produtos=${products.length} anos=${from}..${to} niveis=${levels.join(",")}`);
-  let total = 0;
+  const now = new Date().getUTCFullYear();
+  const to = Number(process.env.COMEX_TO ?? now);
+  // JANELA DUPLA (default = backfill):
+  //  - L1 (pais-nivel): ULTIMOS ~60 meses (5 anos). NUNCA desde 1997, senao o
+  //    pais-nivel sozinho da ~200-300 MB (metade do Free).
+  //  - L2 (agregado):   1997 -> hoje (a linha longa de tendencia, barata).
+  // COMEX_FROM (se setado) forca AMBOS os niveis nesse ano -> modo validacao.
+  const forced = process.env.COMEX_FROM ? Number(process.env.COMEX_FROM) : null;
+  const l1From = forced ?? Number(process.env.COMEX_L1_FROM ?? to - 4);
+  const l2From = forced ?? Number(process.env.COMEX_L2_FROM ?? 1997);
+  const levelEnv = process.env.COMEX_LEVEL ?? "both";
+  const doL1 = levelEnv === "1" || levelEnv === "both";
+  const doL2 = levelEnv === "2" || levelEnv === "both";
+
+  console.log(
+    `produtos=${products.length} | L1(pais)=${doL1 ? `${l1From}..${to}` : "off"}` +
+      ` | L2(agregado)=${doL2 ? `${l2From}..${to}` : "off"}`,
+  );
+
+  // Janela rolante do L1: no backfill (forced==null), apaga pais-nivel mais
+  // velho que l1From, mantendo o L1 em ~60 meses. No modo targeted nao mexe.
+  if (doL1 && forced == null) {
+    const { error } = await db
+      .from("trade_flows")
+      .delete()
+      .not("country_code", "is", null)
+      .lt("ref_month", `${l1From}-01-01`);
+    console.log(error ? `aviso: trim L1 falhou: ${error.message}` : `trim L1: pais-nivel < ${l1From} removido`);
+  }
+
+  let total = 0, l1rows = 0, l2rows = 0;
   for (const p of products) {
-    for (let y = from; y <= to; y++) {
-      for (const lvl of levels) {
+    if (doL1)
+      for (let y = l1From; y <= to; y++) {
         try {
-          const n = await ingest(p, y, lvl, cmap);
-          total += n;
-          console.log(`  ${p.key} ${y} L${lvl}: ${n} linhas`);
+          const n = await ingest(p, y, 1, cmap);
+          total += n; l1rows += n;
+          console.log(`  ${p.key} ${y} L1: ${n}`);
         } catch (e: any) {
-          console.log(`  ${p.key} ${y} L${lvl}: ERRO ${e?.message ?? e}`);
+          console.log(`  ${p.key} ${y} L1: ERRO ${e?.message ?? e}`);
         }
       }
-    }
+    if (doL2)
+      for (let y = l2From; y <= to; y++) {
+        try {
+          const n = await ingest(p, y, 2, cmap);
+          total += n; l2rows += n;
+          console.log(`  ${p.key} ${y} L2: ${n}`);
+        } catch (e: any) {
+          console.log(`  ${p.key} ${y} L2: ERRO ${e?.message ?? e}`);
+        }
+      }
   }
-  console.log(`\nTOTAL inserido: ${total} linhas`);
-  if (orphans.size) {
-    console.log(`ORFAOS (nome nao casou em trade_countries, NAO gravados): ${[...orphans].join(" | ")}`);
-  } else {
-    console.log("ORFAOS: nenhum (todos os nomes casaram)");
-  }
+  console.log(`\nTOTAL inserido: ${total} (L1=${l1rows} L2=${l2rows})`);
+  console.log(orphans.size ? `ORFAOS (NAO gravados): ${[...orphans].join(" | ")}` : "ORFAOS: nenhum");
 }
 
 main().then(() => process.exit(0)).catch((e) => {
