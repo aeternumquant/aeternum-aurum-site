@@ -29,7 +29,13 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../../hooks/useMarketData";
-import { formatValueUnit, formatDayMonthUTC, formatMonthUTC } from "../../lib/marketFormat";
+import {
+  formatValueUnit,
+  formatDayMonthUTC,
+  formatMonthUTC,
+  brlConvert,
+  formatBRLRefApprox,
+} from "../../lib/marketFormat";
 
 const geoUrl = "/data/countries-110m.json";
 
@@ -538,6 +544,28 @@ function freshnessLine(
 }
 
 /**
+ * Linha de conversão de REFERÊNCIA para BRL (só moeda, nunca unidade — o sufixo
+ * "/t", "/oz", "/dmtu" é preservado). Regra por frequência:
+ *  - diária: só converte se a PTAX é do MESMO dia do preço (câmbio velho com preço
+ *    novo mente); rótulo "(PTAX DD/MM)".
+ *  - mensal: as datas nunca casam (Pink Sheet marca o mês); converte ao câmbio de
+ *    hoje com rótulo EXPLÍCITO "ao câmbio de hoje (PTAX DD/MM)" — não afirma o
+ *    preço em reais do mês, afirma a conversão de hoje e diz qual.
+ * PTAX defasada/ausente ⇒ null (não converte). Só séries cotadas em USD.
+ */
+function brlRefLine(point: MarketPoint, ptax: MarketPoint | null): string | null {
+  const c = brlConvert(point, ptax);
+  if (!c) return null;
+  const isMonthly = point.frequency === "mensal";
+  if (!isMonthly && !c.sameDay) return null;
+  const suffix = point.unit ? point.unit.slice(3) : ""; // "USD/t" -> "/t"
+  const cambio = isMonthly
+    ? ` ao câmbio de hoje (PTAX ${c.ptaxDate})`
+    : ` (PTAX ${c.ptaxDate})`;
+  return `≈ ${formatBRLRefApprox(c.brl)}${suffix}${cambio}`;
+}
+
+/**
  * Liga cada commodity do mapa às séries do cache (series_latest).
  *
  * Quatro commodities têm DOIS mercados (global mensal + diário BR). O mapa mostra
@@ -594,6 +622,7 @@ function InfoPanel({
   selectedAsset,
   point,
   secondary,
+  ptax,
   hasSeries,
   loading,
   noQuote,
@@ -602,6 +631,7 @@ function InfoPanel({
   selectedAsset: NonNullable<AssetType>;
   point: MarketPoint | null;
   secondary: { point: MarketPoint | null; note: string } | null;
+  ptax: MarketPoint | null;
   hasSeries: boolean;
   loading: boolean;
   noQuote: string | null;
@@ -682,9 +712,17 @@ function InfoPanel({
                     {/* unidade colada ao valor; vírgula decimal via formatValueUnit */}
                     <div className="font-display text-lg text-white">{formatValueUnit(point)}</div>
                     {(() => {
+                      const brl = brlRefLine(point, ptax);
+                      return brl ? (
+                        <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>
+                          {brl}
+                        </div>
+                      ) : null;
+                    })()}
+                    {(() => {
                       const fl = freshnessLine(point);
                       return (
-                        <div className="font-sans text-[8px]"
+                        <div className="font-sans text-[8px] mt-0.5"
                           style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
                           {fl.text}
                         </div>
@@ -728,6 +766,14 @@ function InfoPanel({
                 <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.72)" }}>
                   {formatValueUnit(sec.point)}
                 </div>
+                {(() => {
+                  const brl = brlRefLine(sec.point, ptax);
+                  return brl ? (
+                    <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>
+                      {brl}
+                    </div>
+                  ) : null;
+                })()}
                 {(() => {
                   const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
                   return (
@@ -859,6 +905,12 @@ function InfoPanel({
                   )}
                 </div>
                 {point && (() => {
+                  const brl = brlRefLine(point, ptax);
+                  return brl ? (
+                    <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>{brl}</div>
+                  ) : null;
+                })()}
+                {point && (() => {
                   const fl = freshnessLine(point);
                   return (
                     <div className="font-sans text-[8px] mt-0.5"
@@ -876,6 +928,12 @@ function InfoPanel({
                       <span style={{ color: fl.stale ? RED_STALE : "inherit" }}>{fl.text}</span>
                     </div>
                   );
+                })()}
+                {sec && (() => {
+                  const brl = brlRefLine(sec.point, ptax);
+                  return brl ? (
+                    <div className="font-sans text-[7px] mt-0.5" style={{ color: `${GOLD}99` }}>{brl}</div>
+                  ) : null;
                 })()}
               </div>
               <button onClick={onClose} className="p-1.5">
@@ -1344,6 +1402,7 @@ export default function GlobalFlowMap() {
             selectedAsset={selectedAsset}
             point={selectedInfo.point}
             secondary={selectedInfo.secondary}
+            ptax={bySeries.get("PTAX_USD_VENDA") ?? null}
             hasSeries={selectedInfo.hasSeries}
             loading={loading}
             noQuote={selectedInfo.noQuote}

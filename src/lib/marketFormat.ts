@@ -101,3 +101,42 @@ export function brlToUsdReference(
   if (referenceTs && utcDateKey(referenceTs) !== utcDateKey(ptax.ts)) return null;
   return { usd: brlAmount / ptax.value, ptaxDate: formatDayMonthUTC(ptax.ts) };
 }
+
+/**
+ * Conversao de REFERENCIA so-MOEDA (nunca unidade): USD -> BRL pela PTAX. So o
+ * numero e convertido; o denominador da unidade e preservado pelo chamador
+ * ("/t", "/oz", "/dmtu"). Diferente de brlReference, NAO exige mesmo dia: devolve
+ * `sameDay` e deixa o chamador decidir a politica por frequencia (diaria exige
+ * mesmo dia; mensal converte ao cambio de hoje com rotulo explicito). So serie em
+ * USD, com PTAX presente, positiva e NAO defasada. Devolve null se qualquer trava
+ * falhar.
+ */
+export function brlConvert(
+  point: Pick<MarketPoint, "unit" | "ts" | "value">,
+  ptax: Pick<MarketPoint, "isStale" | "value" | "ts"> | null,
+): { brl: number; ptaxDate: string; sameDay: boolean } | null {
+  if (!point.unit || !point.unit.toUpperCase().startsWith("USD")) return null;
+  if (!ptax || ptax.isStale) return null;
+  if (!Number.isFinite(ptax.value) || ptax.value <= 0) return null;
+  if (!Number.isFinite(point.value)) return null;
+  return {
+    brl: point.value * ptax.value,
+    ptaxDate: formatDayMonthUTC(ptax.ts),
+    sameDay: utcDateKey(point.ts) === utcDateKey(ptax.ts),
+  };
+}
+
+const brlApproxInt = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
+const brlApproxDec = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * "R$ 2.387" (>= 100, sem casas) ou "R$ 24,58" (< 100, 2 casas). O "aproximado"
+ * ja e sinalizado pelo "≈" no rotulo; o corte em 100 evita tanto o excesso de
+ * casas em preco alto quanto a perda de precisao em preco por kg (ex.: acucar).
+ */
+export function formatBRLRefApprox(value: number): string {
+  return `R$ ${(value < 100 ? brlApproxDec : brlApproxInt).format(value)}`;
+}
