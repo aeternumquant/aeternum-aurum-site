@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase, supabaseConfigError } from "../lib/supabase";
 
-export type MarketCategory = "grao" | "energia" | "cambio" | "macro" | "rwa";
+export type MarketCategory = "agro" | "metal" | "energia" | "cambio" | "macro" | "rwa";
 
 export type Frequency = "continua" | "diaria" | "mensal";
 
