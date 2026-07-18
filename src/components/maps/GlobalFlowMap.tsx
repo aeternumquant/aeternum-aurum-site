@@ -36,6 +36,8 @@ import {
   brlConvert,
   formatBRLRefApprox,
 } from "../../lib/marketFormat";
+import SojaFlowMap from "./SojaFlowMap";
+import { useSojaFlows } from "../../hooks/useSojaFlows";
 
 const geoUrl = "/data/countries-110m.json";
 
@@ -1062,6 +1064,9 @@ export default function GlobalFlowMap() {
 
   // Cache real (series_latest). Indexado por code para lookup O(1) por commodity.
   const { data: market, loading } = useMarketData();
+
+  // Piloto Mapa v2: so busca o fluxo Comex quando a SOJA esta selecionada.
+  const sojaFlows = useSojaFlows(selectedAsset === "Soja");
   const bySeries = useMemo(() => {
     const m = new Map<string, MarketPoint>();
     (market ?? []).forEach((p) => m.set(p.code, p));
@@ -1186,6 +1191,22 @@ export default function GlobalFlowMap() {
         </div>
       </div>
 
+      {selectedAsset === "Soja" ? (
+        /* Piloto Mapa v2: a lei nova, so na soja (as outras 18 seguem abaixo). */
+        <div className="flex-1 relative min-h-0">
+          {sojaFlows.data ? (
+            <SojaFlowMap flows={sojaFlows.data} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="font-sans text-[9px] uppercase tracking-widest"
+                style={{ color: "rgba(255,255,255,0.3)" }}>
+                {sojaFlows.error ? "fluxo indisponível" : "carregando fluxo…"}
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+      <>
       {/* ── Mapa ── */}
       <div className="flex-1 relative overflow-hidden min-h-0">
         {/* Mapa ajustado: center deslocado para direita para eliminar espaço
@@ -1474,6 +1495,8 @@ export default function GlobalFlowMap() {
           )}
         </AnimatePresence>
       </div>
+      </>
+      )}
     </div>
   );
 }

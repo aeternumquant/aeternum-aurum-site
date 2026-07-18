@@ -68,7 +68,7 @@ export default function ZonaPiloto() {
       </div>
 
       {/* ── Mapa Interativo ── */}
-      <div className="w-full" style={{ height: "70vh", minHeight: 400, maxHeight: 700 }}>
+      <div className="w-full" style={{ height: "82vh", minHeight: 460, maxHeight: 880 }}>
         <Suspense fallback={<div className="w-full h-full bg-[#1C1C1C] animate-pulse rounded" />}>
           <GlobalFlowMap />
         </Suspense>
