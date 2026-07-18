@@ -97,6 +97,23 @@ function FlowLayer({
   const supplierN3 = new Set(impDrawn.map((d) => d.b.isoN3!));
   const competitors = new Set(cfg.competitorsN3 ?? []);
 
+  // Caso 2: pais nos DOIS conjuntos ganha linhas PARALELAS (offset
+  // perpendicular em graus; sign +1 = lado da verde, -1 = lado da ambar).
+  // Pais de uma direcao so: sem offset (linha direta ao centroide).
+  const PAR_OFF = 1.0; // graus ≈ 2,3px no scale 132 (≈4,6px entre as duas)
+  const parallelFor = (n3: number, centroid: [number, number], sign: 1 | -1) => {
+    if (!(buyerN3.has(n3) && supplierN3.has(n3))) return { a: BRASILIA, b: centroid };
+    const dx = centroid[0] - BRASILIA[0];
+    const dy = centroid[1] - BRASILIA[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const px = (-dy / len) * PAR_OFF * sign;
+    const py = (dx / len) * PAR_OFF * sign;
+    return {
+      a: [BRASILIA[0] + px, BRASILIA[1] + py] as [number, number],
+      b: [centroid[0] + px, centroid[1] + py] as [number, number],
+    };
+  };
+
   // Bolinha por pais (uma so, mesmo nos dois): raio pelo volume TOTAL do sub.
   const markers = useMemo(() => {
     const m = new Map<number, { b: Partner; centroid: [number, number]; kg: number; both: boolean; dir: "export" | "import" }>();
@@ -156,12 +173,16 @@ function FlowLayer({
         );
       })}
 
-      {/* Canal 1 — linhas uniformes finas, dash correndo. Verde sai; ambar entra. */}
+      {/* Canal 1 — linhas uniformes finas, dash correndo. Verde sai; ambar entra.
+          Pais que faz OS DOIS (Caso 2): as duas linhas em PARALELAS com offset
+          perpendicular (~1 grau ≈ 2,3px por lado no scale 132) — verde de um
+          lado, ambar do outro, cada dash correndo no seu sentido. Sobrepor
+          viraria sopa verde-ambar. */}
       {expDrawn.map(({ b, centroid }, i) => (
         <Line
           key={`e-${b.isoA3}`}
-          from={BRASILIA}
-          to={centroid}
+          from={parallelFor(b.isoN3!, centroid, 1).a}
+          to={parallelFor(b.isoN3!, centroid, 1).b}
           stroke={GREEN}
           strokeWidth={1.6}
           strokeLinecap="round"
@@ -181,8 +202,8 @@ function FlowLayer({
       {impDrawn.map(({ b, centroid }, i) => (
         <Line
           key={`i-${b.isoA3}`}
-          from={centroid}
-          to={BRASILIA}
+          from={parallelFor(b.isoN3!, centroid, -1).b}
+          to={parallelFor(b.isoN3!, centroid, -1).a}
           stroke={AMBER}
           strokeWidth={1.6}
           strokeLinecap="round"

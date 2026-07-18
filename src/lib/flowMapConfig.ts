@@ -246,4 +246,27 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       },
     ],
   },
+  // ── Grupo D: o unico Caso 2 — o Brasil exporta E importa etanol (EUA nos
+  // dois lados). Cada sub tem as duas direcoes; pais nos dois = linhas
+  // PARALELAS (verde/ambar), pais listrado, bolinha miolo verde + anel ambar.
+  // Preco: o contrato ETH da B3 e etanol HIDRATADO (BRL/m3) — descreve o sub
+  // hidratado e cola nele; o desnaturado nao tem cotacao.
+  Etanol: {
+    subs: [
+      {
+        key: "hidratado",
+        label: "Hidratado",
+        export: ["220710"],
+        import: ["220710"],
+        price: { code: "ETANOL_FUT" },
+      },
+      {
+        key: "desnat",
+        label: "Desnaturado",
+        export: ["220720"],
+        import: ["220720"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+    ],
+  },
 };
