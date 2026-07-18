@@ -1,80 +1,43 @@
 /**
  * SojaFlowMap — piloto da gramatica nova do mapa (Mapa v2), SO na soja.
  *
- * SAIDAS COSTEIRAS (a solucao do no do Brasil): as linhas NAO saem de um
- * ponto unico — saem de FAIXAS da costa conforme o rumo (bearing) do destino,
- * como o fluxo real escoa:
- *   rumo N  (Caribe/Am. Central)  -> costa Norte (~Belem/Itaqui)
- *   rumo NE (Europa/Africa)       -> Nordeste (~Fortaleza/Recife)
- *   rumo L  (Asia)                -> Sudeste (~Vitoria/Santos)
- *   rumo S  (Cone Sul/Africa Sul) -> Sul (~Paranagua/Rio Grande)
- * Interpolacao continua DENTRO da faixa (bearing -> ponto da costa), entao
- * duas linhas nunca nascem no mesmo pixel. Sutil: sem porto nomeado, sem
- * bolinha na saida — a linha simplesmente emerge do litoral.
- * O rotulo "Brasil" vai em BRASILIA (centro geografico), longe das saidas.
+ * BASE: a linha bonita do mapa antigo, ligada ao dado real. NAO reconstruida —
+ * reaproveitada:
+ *  - <Line> do react-simple-maps: curva GEODESICA (great-circle), a geometria
+ *    decide o arco. from = Brasilia (uma origem, como o antigo).
+ *  - animacao flow-line: keyframe anima stroke-dashoffset 60->0, o TRACO CORRE
+ *    do Brasil ao destino. Por linha, o VOLUME regula densidade (dasharray) e
+ *    velocidade (animation-duration): mais volume = mais denso e rapido. A
+ *    GROSSURA fica constante nesta volta (entra depois, regulada).
+ *  - glow: feGaussianBlur + feFlood(verde) + feComposite + feMerge (halo).
+ *  - <Marker> nos centroides reais: anel pulsante + ponto + NOME.
  *
- * LINHA: tracejada com BRILHO (glow suave), stroke com espessura-log 2-10px
- * relativa a carta (maior parceiro = 10px). Curva quadratica SUAVE (as saidas
- * espalhadas ja separam; bend 10-17%), arco por cima. Sem triangulo, sem
- * cunha (descartados). A direcao vem da animacao de entrada (a linha se
- * desenha do litoral ao destino) e das saidas costeiras.
- *
- * PREENCHIMENTO: verde comprador, vermelho competidor (curado EUA/Argentina).
- * ROTULOS: TODOS os desenhados (>=1%) com nome (6,5px) + bolinha.
- * Hover: pulso unico ao longo da curva. reduced-motion: pronto, nada se move.
- * Enquadramento mundial fixo. As outras 18 commodities nao passam por aqui.
+ * DESTINOS: centroides dos paises reais do trade_flows (>=1%), no lugar dos 25
+ * baseMarkers. Enquadramento mundial fixo. Preenchimento verde/vermelho.
+ * Entrada: linhas surgem escalonadas do Brasil. reduced-motion: sem flow, sem
+ * anel, sem fade (estatico; a informacao esta nas linhas/nomes/preenchimento).
+ * As outras 18 commodities nao passam por aqui.
  */
 import { useEffect, useMemo, useRef, useState, useId } from "react";
-import { ComposableMap, Geography, useGeographies, useMapContext } from "react-simple-maps";
+import { ComposableMap, Geography, Line, Marker, useGeographies } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { SojaFlows, SojaSub, SojaBuyer } from "../../hooks/useSojaFlows";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
 const GREEN = "#34d399";
+const GREEN_GLOW = "rgba(52,211,153,0.9)";
 const RED = "#c0564c";
 const COMPETIDORES_N3 = new Set([840, 32]); // EUA, Argentina
 const PISO_PCT = 1;
-
 const BRASILIA: [number, number] = [-47.93, -15.78];
-// Faixas da costa (lng, lat), Norte -> Sul.
-const COAST = {
-  belem: [-48.3, -1.2] as [number, number],
-  fortaleza: [-38.6, -3.8] as [number, number],
-  recife: [-34.9, -8.2] as [number, number],
-  vitoria: [-40.3, -20.3] as [number, number],
-  santos: [-46.3, -23.95] as [number, number],
-  paranagua: [-48.5, -25.5] as [number, number],
-  rioGrande: [-52.1, -32.1] as [number, number],
-};
 
 const SUBS: { key: SojaSub; label: string }[] = [
   { key: "grao", label: "Grão" },
   { key: "farelo", label: "Farelo" },
   { key: "oleo", label: "Óleo" },
 ];
-
-/** Escala log 2-10px: maior parceiro -> 10px; 1% do maior -> 2px. */
-function widthFor(kg: number, maxKg: number): number {
-  if (maxKg <= 0 || kg <= 0) return 2;
-  return Math.max(2, Math.min(10, 10 + 4 * Math.log10(kg / maxKg)));
-}
-
-/**
- * Ponto de saida na costa pelo bearing (graus; 0 = leste, 90 = norte, tela).
- * Interpola dentro da faixa: bearings vizinhos saem de pontos vizinhos.
- */
-function exitFor(phi: number): [number, number] {
-  const lerp = (a: [number, number], b: [number, number], t: number): [number, number] => [
-    a[0] + (b[0] - a[0]) * t,
-    a[1] + (b[1] - a[1]) * t,
-  ];
-  if (phi > 70) return COAST.belem; // norte (Caribe; e oeste via Amazonia)
-  if (phi > 35) return lerp(COAST.fortaleza, COAST.recife, (70 - phi) / 35); // nordeste (Europa/Africa)
-  if (phi > 0) return lerp(COAST.vitoria, COAST.santos, (35 - phi) / 35); // sudeste (Asia)
-  return lerp(COAST.paranagua, COAST.rioGrande, Math.min(1, -phi / 40)); // sul
-}
 
 const ktFmt = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 function fmtVol(kg: number): string {
@@ -84,50 +47,15 @@ function fmtVol(kg: number): string {
 }
 const pctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-// ── Geometria ─────────────────────────────────────────────────────────────
-type Pt = { x: number; y: number; t: number };
+type Drawn = { b: SojaBuyer; centroid: [number, number] };
 
-/** Bezier quadratica amostrada, arco por cima (apice ao norte). */
-function sampleCurve(x1: number, y1: number, x2: number, y2: number, bend: number, N = 26): Pt[] {
-  const mx = (x1 + x2) / 2;
-  const my = (y1 + y2) / 2;
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const len = Math.hypot(dx, dy) || 1;
-  let ux = -dy / len;
-  let uy = dx / len;
-  if (uy > 0) {
-    ux = -ux;
-    uy = -uy; // apice sempre para cima (tela: y cresce para baixo)
-  }
-  const cx = mx + ux * bend;
-  const cy = my + uy * bend;
-  const pts: Pt[] = [];
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const a = (1 - t) * (1 - t);
-    const b = 2 * (1 - t) * t;
-    const c = t * t;
-    pts.push({ x: a * x1 + b * cx + c * x2, y: a * y1 + b * cy + c * y2, t });
-  }
-  return pts;
-}
-
-/** Polyline ate tEnd (animacao de entrada: a linha se desenha). */
-function pathUpTo(pts: Pt[], tEnd: number): string {
-  const upto = pts.filter((p) => p.t <= tEnd);
-  if (upto.length < 2) return "";
-  return `M${upto[0].x},${upto[0].y} ${upto.slice(1).map((p) => `L${p.x},${p.y}`).join(" ")}`;
-}
-
-// ── Camada do mapa ────────────────────────────────────────────────────────
 function SojaLayer({
   buyers,
   maxKg,
   hovered,
   setHovered,
   reduced,
-  progress,
+  revealed,
   glowId,
 }: {
   buyers: SojaBuyer[];
@@ -135,10 +63,9 @@ function SojaLayer({
   hovered: string | null;
   setHovered: (v: string | null) => void;
   reduced: boolean;
-  progress: number;
+  revealed: boolean;
   glowId: string;
 }) {
-  const { projection } = useMapContext() as any;
   const { geographies } = useGeographies({ geography: geoUrl });
 
   const centroids = useMemo(() => {
@@ -150,35 +77,10 @@ function SojaLayer({
     return m;
   }, [geographies]);
 
-  const drawn = buyers.filter((b) => b.pct >= PISO_PCT && b.isoN3 != null && centroids[b.isoN3!]);
-  const buyerN3 = new Set(drawn.map((b) => b.isoN3!));
-  const bsb = projection(BRASILIA) as [number, number] | null;
-
-  // Saida costeira pelo bearing + curva suave escalonada pelo rank angular.
-  const lines = useMemo(() => {
-    if (!bsb) return [];
-    const [x0, y0] = bsb;
-    const raw = drawn
-      .map((b) => {
-        const dst = projection(centroids[b.isoN3!]) as [number, number] | null;
-        if (!dst) return null;
-        const phi = (Math.atan2(-(dst[1] - y0), dst[0] - x0) * 180) / Math.PI;
-        return { b, dst, phi };
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null)
-      .sort((a, z) => a.phi - z.phi);
-    const n = Math.max(1, raw.length - 1);
-    return raw.map((r, i) => {
-      const exit = projection(exitFor(r.phi)) as [number, number];
-      const len = Math.hypot(r.dst[0] - exit[0], r.dst[1] - exit[1]);
-      const bend = len * (0.1 + 0.07 * (i / n)); // suave: as saidas ja separam
-      const w = widthFor(r.b.kg, maxKg);
-      const pts = sampleCurve(exit[0], exit[1], r.dst[0], r.dst[1], bend);
-      return { b: r.b, dst: r.dst, w, pts };
-    });
-  }, [drawn, bsb, centroids, maxKg, projection]);
-
-  const tEnd = Math.max(0.04, progress);
+  const drawn: Drawn[] = buyers
+    .filter((b) => b.pct >= PISO_PCT && b.isoN3 != null && centroids[b.isoN3!])
+    .map((b) => ({ b, centroid: centroids[b.isoN3!] }));
+  const buyerN3 = new Set(drawn.map((d) => d.b.isoN3!));
 
   return (
     <>
@@ -187,14 +89,14 @@ function SojaLayer({
         const n3 = Number(geo.id);
         const isBuyer = buyerN3.has(n3);
         const isComp = !isBuyer && COMPETIDORES_N3.has(n3);
-        const fill = isBuyer ? `${GREEN}44` : isComp ? `${RED}55` : "rgba(255,255,255,0.025)";
-        const hoverFill = isBuyer ? `${GREEN}66` : isComp ? `${RED}77` : "rgba(255,255,255,0.045)";
+        const fill = isBuyer ? `${GREEN}40` : isComp ? `${RED}55` : "rgba(255,255,255,0.025)";
+        const hoverFill = isBuyer ? `${GREEN}60` : isComp ? `${RED}77` : "rgba(255,255,255,0.045)";
         return (
           <Geography
             key={geo.rsmKey}
             geography={geo}
             fill={fill}
-            stroke="rgba(255,255,255,0.12)"
+            stroke="rgba(255,255,255,0.1)"
             strokeWidth={0.35}
             style={{
               default: { outline: "none", transition: "fill 0.4s ease" },
@@ -205,102 +107,97 @@ function SojaLayer({
         );
       })}
 
-      {/* Canal 1 — linhas tracejadas com brilho, saindo da costa */}
-      {lines.map(({ b, w, pts }) => {
+      {/* Canal 1 — linhas: geodesica + dash correndo + glow */}
+      {drawn.map(({ b, centroid }, i) => {
+        const ratio = maxKg > 0 ? b.kg / maxKg : 0;
+        const dashLen = (3 + 4 * (1 - ratio)).toFixed(1);
+        const gap = (2.5 + 3 * (1 - ratio)).toFixed(1);
+        const dur = (2.0 + 2.8 * (1 - ratio)).toFixed(2); // + volume => + rapido
         const isHov = hovered === b.isoA3;
-        const d = pathUpTo(pts, tEnd);
         return (
-          <g key={b.isoA3}>
-            <path
-              d={d}
-              fill="none"
-              stroke={GREEN}
-              strokeWidth={w}
-              strokeLinecap="round"
-              strokeDasharray="7 4.5"
-              opacity={isHov ? 1 : 0.72}
-              filter={`url(#${glowId})`}
-              style={{ transition: "opacity 0.25s ease" }}
-            />
-            {/* hit area (curva inteira, largura generosa) */}
-            <path
-              d={pathUpTo(pts, 1)}
-              fill="none"
-              stroke="transparent"
-              strokeWidth={Math.max(12, w + 6)}
-              onMouseEnter={() => setHovered(b.isoA3)}
-              onMouseLeave={() => setHovered(null)}
-              style={{ cursor: "pointer" }}
-            />
-            {isHov && !reduced && <HoverPulse pts={pts} w={w} />}
-          </g>
+          <Line
+            key={b.isoA3}
+            from={BRASILIA}
+            to={centroid}
+            stroke={GREEN}
+            strokeWidth={1.6}
+            strokeLinecap="round"
+            strokeDasharray={`${dashLen} ${gap}`}
+            className={reduced ? undefined : "soja-flow"}
+            filter={`url(#${glowId})`}
+            onMouseEnter={() => setHovered(b.isoA3)}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              opacity: reduced ? 0.82 : revealed ? (isHov ? 1 : 0.78) : 0,
+              animationDuration: `${dur}s`,
+              transition: `opacity 0.6s ease ${i * 0.04}s`,
+              cursor: "pointer",
+            }}
+          />
         );
       })}
 
-      {/* Rotulos: TODOS os desenhados — nome + bolinha */}
-      {lines.map(({ b, dst }) => (
-        <g key={`lbl-${b.isoA3}`} opacity={Math.min(1, progress * 1.4)} style={{ pointerEvents: "none" }}>
-          <circle cx={dst[0]} cy={dst[1]} r={1.9} fill={GREEN} fillOpacity={0.95} />
-          <text
-            x={dst[0] + 4.5}
-            y={dst[1] - 3.5}
-            textAnchor="start"
-            style={{
-              fontFamily: "monospace",
-              fontSize: "6.5px",
-              fontWeight: 500,
-              fill: "rgba(255,255,255,0.62)",
-              letterSpacing: "0.3px",
-            }}
-          >
-            {b.namePt}
-          </text>
-        </g>
-      ))}
+      {/* Marcadores nos centroides reais: anel + ponto + nome */}
+      {drawn.map(({ b, centroid }, i) => {
+        const isHov = hovered === b.isoA3;
+        return (
+          <Marker key={`m-${b.isoA3}`} coordinates={centroid}>
+            <motion.g
+              initial={reduced ? false : { opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: reduced ? 0 : 0.15 + i * 0.03, duration: 0.35 }}
+              onMouseEnter={() => setHovered(b.isoA3)}
+              onMouseLeave={() => setHovered(null)}
+            >
+              {isHov && !reduced && (
+                <circle cx={0} cy={0} r={8} fill="rgba(255,255,255,0.05)">
+                  <animate attributeName="r" values="4;16" dur="1.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.7;0" dur="1.8s" repeatCount="indefinite" />
+                </circle>
+              )}
+              <circle cx={0} cy={0} r={isHov ? 2.6 : 2} fill={GREEN} filter={`url(#${glowId})`} style={{ transition: "r 0.2s ease" }} />
+              <text
+                x={0}
+                y={-4.5}
+                textAnchor="middle"
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: "6.5px",
+                  fontWeight: 500,
+                  fill: isHov ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
+                  letterSpacing: "0.3px",
+                  pointerEvents: "none",
+                }}
+              >
+                {b.namePt}
+              </text>
+            </motion.g>
+          </Marker>
+        );
+      })}
 
-      {/* "Brasil" em Brasilia (centro geografico; as saidas estao na costa) */}
-      {bsb && (
-        <g style={{ pointerEvents: "none" }}>
-          <circle cx={bsb[0]} cy={bsb[1]} r={2.2} fill={GOLD} />
-          <text
-            x={bsb[0]}
-            y={bsb[1] + 9}
-            textAnchor="middle"
-            style={{ fontFamily: "monospace", fontSize: "6.5px", fontWeight: 600, fill: GOLD }}
-          >
-            Brasil
-          </text>
-        </g>
-      )}
+      {/* Brasil (origem unica, em Brasilia) */}
+      <Marker coordinates={BRASILIA}>
+        {!reduced && (
+          <circle cx={0} cy={0} r={10} fill={`${GOLD}15`}>
+            <animate attributeName="r" values="3;20" dur="2.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.8;0" dur="2.4s" repeatCount="indefinite" />
+          </circle>
+        )}
+        <circle cx={0} cy={0} r={3.5} fill={GOLD} filter={`url(#${glowId}-gold)`} />
+        <text
+          x={0}
+          y={11}
+          textAnchor="middle"
+          style={{ fontFamily: "monospace", fontSize: "7px", fontWeight: 600, fill: GOLD, pointerEvents: "none" }}
+        >
+          Brasil
+        </text>
+      </Marker>
     </>
   );
 }
 
-/** Pulso unico viajando ao longo da curva (rAF; morre sozinho). */
-function HoverPulse({ pts, w }: { pts: Pt[]; w: number }) {
-  const [i, setI] = useState(0);
-  const raf = useRef<number | null>(null);
-  useEffect(() => {
-    const t0 = performance.now();
-    const dur = 900;
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / dur);
-      setI(Math.round(p * (pts.length - 1)));
-      if (p < 1) raf.current = requestAnimationFrame(step);
-    };
-    raf.current = requestAnimationFrame(step);
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-  }, [pts]);
-  const p = pts[Math.min(i, pts.length - 1)];
-  const done = i >= pts.length - 1;
-  return done ? null : (
-    <circle cx={p.x} cy={p.y} r={Math.max(2.2, w * 0.55)} fill="#ffffff" opacity={0.9} style={{ pointerEvents: "none" }} />
-  );
-}
-
-// ── Componente principal ──────────────────────────────────────────────────
 export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
   const [sub, setSub] = useState<SojaSub>("grao");
   const [hovered, setHovered] = useState<string | null>(null);
@@ -308,27 +205,17 @@ export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
   const uid = useId().replace(/:/g, "");
   const glowId = `soja-glow-${uid}`;
 
-  // Animacao de entrada (first load e troca de carta): a linha se desenha.
-  const [progress, setProgress] = useState(reduced ? 1 : 0);
-  const rafRef = useRef<number | null>(null);
+  // Entrada: as linhas surgem escalonadas (opacidade 0 -> alvo) no load e na
+  // troca de carta. reduced-motion: aparece pronto.
+  const [revealed, setRevealed] = useState(reduced);
   useEffect(() => {
     if (reduced) {
-      setProgress(1);
+      setRevealed(true);
       return;
     }
-    setProgress(0);
-    const t0 = performance.now();
-    const dur = 700;
-    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / dur);
-      setProgress(easeOut(p));
-      if (p < 1) rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    setRevealed(false);
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setRevealed(true)));
+    return () => cancelAnimationFrame(id);
   }, [sub, reduced]);
 
   const data = flows[sub];
@@ -353,16 +240,31 @@ export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
           style={{ width: "100%", height: "100%", outline: "none" }}
         >
           <defs>
-            {/* brilho suave das linhas (verde) */}
-            <filter id={glowId} x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="2" result="blur" />
-              <feFlood floodColor={GREEN} floodOpacity="0.55" result="color" />
+            {/* glow verde (linhas + pontos) */}
+            <filter id={glowId} x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" result="blur" />
+              <feFlood floodColor={GREEN_GLOW} result="color" />
               <feComposite in="color" in2="blur" operator="in" result="glow" />
               <feMerge>
                 <feMergeNode in="glow" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            {/* glow dourado (Brasil) */}
+            <filter id={`${glowId}-gold`} x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" result="blur" />
+              <feFlood floodColor={GOLD} result="color" />
+              <feComposite in="color" in2="blur" operator="in" result="glow" />
+              <feMerge>
+                <feMergeNode in="glow" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* o TRACO que corre do Brasil ao destino (dashoffset 60 -> 0) */}
+            <style>{`
+              @keyframes soja-flow-run { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
+              .soja-flow { animation-name: soja-flow-run; animation-timing-function: linear; animation-iteration-count: infinite; }
+            `}</style>
           </defs>
           <SojaLayer
             buyers={buyers}
@@ -370,7 +272,7 @@ export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
             hovered={hovered}
             setHovered={setHovered}
             reduced={reduced}
-            progress={progress}
+            revealed={revealed}
             glowId={glowId}
           />
         </ComposableMap>
@@ -395,7 +297,7 @@ export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
         </div>
       </div>
 
-      {/* ── Card: desktop direita / mobile embaixo ── */}
+      {/* ── Card ── */}
       <div
         className="relative w-full sm:w-72 sm:flex-shrink-0 sm:overflow-y-auto"
         style={{ backgroundColor: "rgba(6,5,3,0.96)", borderLeft: `1px solid ${GOLD}22` }}
