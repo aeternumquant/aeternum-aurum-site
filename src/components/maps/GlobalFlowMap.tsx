@@ -52,7 +52,10 @@ type AssetType =
   | "Cafe" | "Algodao" | "BoiGordo" | "Acucar" | "Cacau"
   | "Arroz" | "Frango" | "Laranja" | "Etanol" | "Amendoim"
   | "MinerioFerro" | "Niobio"
+  | "Ureia" | "KCl" | "MAP" | "TSP" | "Rocha"
   | null;
+
+type MapCategory = "Agro" | "Metais" | "Energia" | "Fertilizantes";
 
 /* ── Cores dos tipos de relação — elegantes e profissionais ── */
 const relColor: Record<RelationType, { stroke: string; label: string }> = {
@@ -223,7 +226,7 @@ const strategicCountries = [
 /* ── Dados de commodities — sem emojis, estilo institucional ── */
 const assetFlows: Record<NonNullable<AssetType>, {
   label: string;
-  category: "Agro" | "Metais" | "Energia";
+  category: MapCategory;
   relevantCountries: Array<{ id: string; type: RelationType; note?: string }>;
   flowData: string;
   percentage: string;
@@ -506,12 +509,22 @@ const assetFlows: Record<NonNullable<AssetType>, {
     flowData: "Brasil controla 94% da produção mundial de nióbio via CBMM (Araxá-MG). Metal estratégico para aço de alta resistência, carros elétricos, aviões e ressonâncias magnéticas. Mercado OTC: sem bolsa de referência pública.",
     percentage: "94% global", volume: "90K ton FeNb/ano",
   },
+  // ── Fertilizantes (importacao; renderizam SEMPRE pela lei nova/FLOW_CARDS;
+  //    os campos editoriais do mapa velho ficam vazios de proposito) ──
+  Ureia: { label: "Ureia", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
+  KCl:   { label: "KCl (potássio)", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
+  MAP:   { label: "Fosfatado (MAP)", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
+  TSP:   { label: "TSP", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
+  Rocha: { label: "Rocha fosfática", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
 };
 
-const categories: { key: "Agro" | "Metais" | "Energia" }[] = [
+// Fertilizantes: a unica categoria toda de IMPORTACAO. A aba propria deixa a
+// assimetria visivel — tres abas do que sai, uma do que entra.
+const categories: { key: MapCategory }[] = [
   { key: "Agro" },
   { key: "Metais" },
   { key: "Energia" },
+  { key: "Fertilizantes" },
 ];
 
 /* ── Variação em vírgula decimal (pt-BR), 2 casas — ex.: "1,82" ── */
@@ -615,6 +628,12 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   MinerioFerro: { code: "MINERIO_WB" },
   Paladio:      { code: null, noQuote: "Sem cotação disponível" },
   Niobio:       { code: null, noQuote: "Sem cotação pública em bolsa" },
+  // ── Fertilizantes (2g). MAP: o preco de referencia e DAP (substituto). ──
+  Ureia: { code: "UREIA_WB" },
+  KCl:   { code: "KCL_WB" },
+  MAP:   { code: "DAP_WB" },
+  TSP:   { code: "TSP_WB" },
+  Rocha: { code: "ROCHA_FOSFATICA_WB" },
   // ── Energia ──
   Brent:      { code: "BRENT_SPOT" },
   GasNatural: { code: "GAS_NATURAL_HH" },
@@ -1158,7 +1177,7 @@ function CountryCard({
 /* ── Componente Principal ── */
 export default function GlobalFlowMap() {
   const [selectedAsset, setSelectedAsset]   = useState<AssetType>(null);
-  const [activeCategory, setActiveCategory] = useState<"Agro" | "Metais" | "Energia">("Agro");
+  const [activeCategory, setActiveCategory] = useState<MapCategory>("Agro");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [showCountries, setShowCountries]   = useState(false);
   const uid = useId();

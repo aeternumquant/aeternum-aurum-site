@@ -194,4 +194,56 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       { key: "metal", label: "Metal", export: ["760110"], price: { code: "ALUMINIO_WB" } },
     ],
   },
+  // ── Grupo C: IMPORTACAO (Caso 1) — linha AMBAR pais -> Brasilia, pais
+  // pintado ambar. Trigo fica em Agro e gas em Energia; os 5 fertilizantes
+  // ganham a aba propria (a unica categoria toda de importacao).
+  Trigo: {
+    subs: [{ key: "trigo", label: "Trigo", import: ["100199"] }], // preco herdado: TRIGO_WB (US HRW)
+  },
+  GasNatural: {
+    // DECISAO DE PRECO: o Henry Hub que temos e a referencia DOMESTICA dos
+    // EUA — nao precifica o gas que o Brasil importa (Bolivia: contrato
+    // indexado a petroleo; GNL: mercado global, ~JKM/TTF, que historicamente
+    // DESCOLA do HH). Emprestar o numero seria o erro da laranja. Os dois
+    // subs dizem "sem cotacao" e a nota explica onde a referencia HH vive.
+    subs: [
+      {
+        key: "gnl",
+        label: "GNL",
+        import: ["271111"],
+        price: { code: null, noQuote: "Sem cotação do gás importado" },
+        note: "GNL é precificado no mercado global (~JKM/TTF). O Henry Hub (EUA) é outra praça — não descreve o que o Brasil paga.",
+      },
+      {
+        key: "gasoduto",
+        label: "Gasoduto",
+        import: ["271121"],
+        price: { code: null, noQuote: "Sem cotação do gás importado" },
+        note: "Gás boliviano é contrato indexado a petróleo — sem cotação spot. O Henry Hub (EUA) não descreve o que o Brasil paga.",
+      },
+    ],
+  },
+  Ureia: { subs: [{ key: "ureia", label: "Ureia", import: ["310210"], price: { code: "UREIA_WB" } }] },
+  KCl: { subs: [{ key: "kcl", label: "KCl", import: ["310420"], price: { code: "KCL_WB" } }] },
+  MAP: {
+    cardLabel: "Fosfatado (MAP)",
+    subs: [{ key: "map", label: "MAP", import: ["310540"], price: { code: "DAP_WB" } }],
+    // MAP e DAP sao SUBSTITUTOS no mesmo estagio: o preco de referencia
+    // internacional e DAP; o que o Brasil compra e MAP. O rotulo diz.
+    priceNote: "Preço: DAP (referência internacional — substituto do MAP)",
+    flowNote: "Fluxo: MAP (importação)",
+  },
+  TSP: { subs: [{ key: "tsp", label: "TSP", import: ["310311"], price: { code: "TSP_WB" } }] },
+  Rocha: {
+    cardLabel: "Rocha fosfática",
+    subs: [
+      { key: "bruta", label: "Bruta", import: ["251010"], price: { code: "ROCHA_FOSFATICA_WB" } },
+      {
+        key: "moida",
+        label: "Moída",
+        import: ["251020"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+    ],
+  },
 };
