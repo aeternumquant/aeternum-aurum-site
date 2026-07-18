@@ -36,8 +36,9 @@ import {
   brlConvert,
   formatBRLRefApprox,
 } from "../../lib/marketFormat";
-import SojaFlowMap from "./SojaFlowMap";
-import { useSojaFlows } from "../../hooks/useSojaFlows";
+import CommodityFlowMap from "./CommodityFlowMap";
+import { useTradeFlows } from "../../hooks/useTradeFlows";
+import { FLOW_CARDS } from "../../lib/flowMapConfig";
 
 const geoUrl = "/data/countries-110m.json";
 
@@ -619,6 +620,106 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   GasNatural: { code: "GAS_NATURAL_HH" },
 };
 
+/**
+ * Bloco compacto de preço para o card do Mapa v2 (CommodityFlowMap). A mesma
+ * honestidade do InfoPanel: valor+unidade, conversão BRL de referência, período
+ * (média mensal vs. atualizado), atribuição, variação com rótulo, secundário.
+ * Vive aqui para reusar brlRefLine/freshnessLine sem duplicar as travas.
+ */
+function PriceSummary({
+  point,
+  secondary,
+  ptax,
+  hasSeries,
+  loading,
+  noQuote,
+}: {
+  point: MarketPoint | null;
+  secondary: { point: MarketPoint | null; note: string } | null;
+  ptax: MarketPoint | null;
+  hasSeries: boolean;
+  loading: boolean;
+  noQuote: string | null;
+}) {
+  const cp = point?.changePercent ?? null;
+  const up = cp != null && cp > 0;
+  const down = cp != null && cp < 0;
+  const changeColor = up ? "rgba(52,211,153,1)" : down ? "rgba(248,113,113,1)" : "rgba(255,255,255,0.4)";
+  const ChangeIcon = up ? TrendingUp : down ? TrendingDown : Minus;
+  const noQuoteText = hasSeries ? (loading ? "Carregando…" : "Cotação indisponível") : (noQuote ?? "Sem cotação pública");
+  const sec = secondary?.point ? { point: secondary.point, note: secondary.note } : null;
+
+  return (
+    <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="px-4 py-3 flex items-start justify-between">
+        <div>
+          <div className="font-sans text-[8px] uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>
+            Preço
+          </div>
+          {point ? (
+            <>
+              <div className="font-display text-base text-white">{formatValueUnit(point)}</div>
+              {(() => {
+                const brl = brlRefLine(point, ptax);
+                return brl ? (
+                  <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>{brl}</div>
+                ) : null;
+              })()}
+              {(() => {
+                const fl = freshnessLine(point);
+                return (
+                  <div className="font-sans text-[8px] mt-0.5" style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
+                    {fl.text}
+                  </div>
+                );
+              })()}
+              {point.attribution && (
+                <div className="font-sans text-[7px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)" }}>
+                  {point.attribution}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {noQuoteText}
+            </div>
+          )}
+        </div>
+        {point && cp != null && (
+          <div className="flex flex-col items-end flex-shrink-0">
+            <div className="flex items-center gap-1" style={{ color: changeColor }}>
+              <ChangeIcon className="w-3.5 h-3.5" />
+              <span className="font-display text-xs font-bold">
+                {up ? "+" : ""}{pctFmt.format(cp)}%
+              </span>
+            </div>
+            {point.changeLabel && (
+              <span className="font-sans text-[7px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                {point.changeLabel}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      {sec && (
+        <div className="px-4 pb-2.5">
+          <div className="font-display text-xs" style={{ color: "rgba(255,255,255,0.72)" }}>
+            {formatValueUnit(sec.point)}
+          </div>
+          {(() => {
+            const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
+            return (
+              <div className="font-sans text-[7.5px] mt-0.5" style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
+                {sec.note} · {fl.text}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Painel de informações — versão institucional ── */
 function InfoPanel({
   selectedAsset,
@@ -1065,8 +1166,10 @@ export default function GlobalFlowMap() {
   // Cache real (series_latest). Indexado por code para lookup O(1) por commodity.
   const { data: market, loading } = useMarketData();
 
-  // Piloto Mapa v2: so busca o fluxo Comex quando a SOJA esta selecionada.
-  const sojaFlows = useSojaFlows(selectedAsset === "Soja");
+  // Mapa v2: cards com config na FLOW_CARDS usam a lei nova (rollout por
+  // grupos). So busca o fluxo Comex quando um deles esta selecionado.
+  const flowCfg = selectedAsset ? FLOW_CARDS[selectedAsset] : undefined;
+  const tradeFlows = useTradeFlows(flowCfg, !!flowCfg);
   const bySeries = useMemo(() => {
     const m = new Map<string, MarketPoint>();
     (market ?? []).forEach((p) => m.set(p.code, p));
@@ -1191,16 +1294,50 @@ export default function GlobalFlowMap() {
         </div>
       </div>
 
-      {selectedAsset === "Soja" ? (
-        /* Piloto Mapa v2: a lei nova, so na soja (as outras 18 seguem abaixo). */
+      {flowCfg && selectedAsset ? (
+        /* Mapa v2: a lei nova para os cards com config (rollout por grupos). */
         <div className="flex-1 relative min-h-0">
-          {sojaFlows.data ? (
-            <SojaFlowMap flows={sojaFlows.data} />
+          {tradeFlows.data || flowCfg.mode === "priceOnly" ? (
+            <CommodityFlowMap
+              label={flowCfg.cardLabel ?? assetFlows[selectedAsset].label}
+              cfg={flowCfg}
+              flows={tradeFlows.data}
+              priceBlockFor={(subKey) => {
+                // Preco COLADO ao sub-produto: usa o price do sub quando ha;
+                // senao herda o mapeamento do card (ASSET_SERIES).
+                const sp = flowCfg.subs.find((s) => s.key === subKey)?.price;
+                let point = selectedInfo.point;
+                let secondary = selectedInfo.secondary;
+                let noQuote = selectedInfo.noQuote;
+                let hasSeries = selectedInfo.hasSeries;
+                if (sp) {
+                  if (sp.code == null) {
+                    point = null; secondary = null; hasSeries = false; noQuote = sp.noQuote;
+                  } else {
+                    hasSeries = true; noQuote = null;
+                    point = bySeries.get(sp.code) ?? null;
+                    secondary = sp.secondary
+                      ? { point: bySeries.get(sp.secondary.code) ?? null, note: sp.secondary.note }
+                      : null;
+                  }
+                }
+                return (
+                  <PriceSummary
+                    point={point}
+                    secondary={secondary}
+                    ptax={bySeries.get("PTAX_USD_VENDA") ?? null}
+                    hasSeries={hasSeries}
+                    loading={loading}
+                    noQuote={noQuote}
+                  />
+                );
+              }}
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="font-sans text-[9px] uppercase tracking-widest"
                 style={{ color: "rgba(255,255,255,0.3)" }}>
-                {sojaFlows.error ? "fluxo indisponível" : "carregando fluxo…"}
+                {tradeFlows.error ? "fluxo indisponível" : "carregando fluxo…"}
               </span>
             </div>
           )}

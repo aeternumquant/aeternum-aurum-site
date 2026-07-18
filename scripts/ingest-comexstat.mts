@@ -84,6 +84,10 @@ const PRODUCTS: Prod[] = [
   { key: "suco_nfc_forte", code: 200919, flow: "export" }, // +NFC Brix>20 (28% a mais)
   { key: "etanol", code: 220710, flow: "export" },
   { key: "etanol_desnat", code: 220720, flow: "export" },
+  // CASO 2 do mapa (listrado): o Brasil tambem IMPORTA etanol (EUA). Mesmos
+  // codigos, flow invertido — habilita as duas direcoes na mesma carta.
+  { key: "etanol_imp", code: 220710, flow: "import" },
+  { key: "etanol_desnat_imp", code: 220720, flow: "import" },
   { key: "ouro", code: 710812, flow: "export" }, // so bullion; 710813 semimanuf fica fora
   { key: "cobre_conc", code: 260300, flow: "export" }, // serie comeca ~2005 (Sossego), nao migracao
   { key: "niobio_fenb", code: 720293, flow: "export" },
