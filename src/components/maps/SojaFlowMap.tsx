@@ -48,15 +48,20 @@ function fmtVol(kg: number): string {
 const pctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /**
- * RAIO DA BOLINHA = volume, escala LOG. Maior importador (ratio 1) -> teto
- * 6,5px; 1% do maior -> piso 2px. O volume vive na BOLINHA (area compara bem,
- * escala sozinha em qualquer commodity), NAO na grossura da linha (grossura e
- * dash brigam pelo mesmo espaco e quebram entre distribuicoes). A linha fica
- * uniforme fina; o numero exato vai no card.
+ * RAIO DA BOLINHA = volume, escala RAIZ QUADRADA (nao log). O volume vive na
+ * bolinha (nao na grossura da linha, que briga com o dash e quebra entre
+ * distribuicoes). Por que sqrt e nao log:
+ *  - a AREA do circulo e ~raio^2, entao raio ~ sqrt(volume) faz a AREA ser
+ *    PROPORCIONAL ao volume — a correspondencia mais honesta (o olho le por area);
+ *  - sqrt SEPARA os paises proximos melhor que o log (que os achata quando sao
+ *    parecidos, ex.: o farelo), sem o dominante virar mancha como o linear faria.
+ * Piso 2px (menor), teto 6,5px (maior da carta). Escala sozinha em cada commodity.
  */
+const R_PISO = 2;
+const R_TETO = 6.5;
 function radiusFor(kg: number, maxKg: number): number {
-  if (maxKg <= 0 || kg <= 0) return 2;
-  return Math.max(2, Math.min(6.5, 6.5 + 2.2 * Math.log10(kg / maxKg)));
+  if (maxKg <= 0 || kg <= 0) return R_PISO;
+  return R_PISO + (R_TETO - R_PISO) * Math.sqrt(kg / maxKg);
 }
 
 type Drawn = { b: SojaBuyer; centroid: [number, number] };
