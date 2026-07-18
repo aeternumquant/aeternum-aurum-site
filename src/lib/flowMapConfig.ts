@@ -71,27 +71,34 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
   // Opcao (b) do Gabriel: card unico "Laranja e suco", tres produtos, cada um
   // com SEU preco e SEU fluxo. A fruta tem preco (referencia UE) e fluxo ~zero;
   // o suco tem fluxo real e preco nenhum. Nenhum numero descreve o outro.
+  // Card "Laranja e suco" (opcao b): abre no FCOJ (o produto real); a fruta
+  // (~zero de fluxo) vem por ultimo. A fruta empresta CONTEXTO, nao NUMERO:
+  // o preco da fruta NAO entra no card do suco (mercados descolam — geada
+  // dispara o FCOJ sem mexer na fruta mediterranea); o suco so REFERENCIA
+  // onde o numero vive com o rotulo certo.
   Laranja: {
     cardLabel: "Laranja e suco",
     subs: [
+      {
+        key: "fcoj",
+        label: "Suco FCOJ",
+        export: ["200911"],
+        price: { code: null, noQuote: "Sem cotação pública de FCOJ" },
+        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos — o suco descola da fruta.",
+      },
+      {
+        key: "nfc",
+        label: "Suco NFC",
+        export: ["200912", "200919"],
+        price: { code: null, noQuote: "Sem cotação pública de suco NFC" },
+        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos — o suco descola da fruta.",
+      },
       {
         key: "fruta",
         label: "Laranja (fruta)",
         price: { code: "LARANJA_WB" },
         note:
           "Preço de referência da fruta na UE (Mediterrâneo, navel, importação) — não o recebido pelo Brasil. O Brasil exporta ~zero de fruta: a laranja vira suco.",
-      },
-      {
-        key: "fcoj",
-        label: "Suco FCOJ",
-        export: ["200911"],
-        price: { code: null, noQuote: "Sem cotação disponível" },
-      },
-      {
-        key: "nfc",
-        label: "Suco NFC",
-        export: ["200912", "200919"],
-        price: { code: null, noQuote: "Sem cotação disponível" },
       },
     ],
   },
@@ -125,5 +132,66 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     subs: [{ key: "petroleo", label: "Petróleo bruto", export: ["270900"] }],
     priceNote: "Preço: Brent (referência global)",
     flowNote: "Fluxo: petróleo bruto brasileiro (exportação)",
+  },
+  // ── Grupo B: exportacao com sub-cards. Preco COLADO ao sub que descreve:
+  // referencia de acucar bruto (ISA) nao precifica refinado; Thai 5% e arroz
+  // BRANQUEADO; LME e o METAL, nao bauxita/alumina.
+  Acucar: {
+    subs: [
+      { key: "bruto", label: "Bruto", export: ["170114"], price: { code: "ACUCAR_WB" } },
+      {
+        key: "refinado",
+        label: "Refinado",
+        export: ["170199"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+    ],
+  },
+  Frango: {
+    subs: [
+      { key: "cortes", label: "Cortes", export: ["020714"] },
+      { key: "inteiro", label: "Inteiro", export: ["020712"] },
+    ],
+    // FRANGO_WB (atacado SP) descreve frango como carne — vale para os dois
+    // subs; herdado do card (ASSET_SERIES), sem duplicar.
+  },
+  Arroz: {
+    subs: [
+      {
+        key: "branqueado",
+        label: "Branqueado",
+        export: ["100630"],
+        price: { code: "ARROZ_WB" }, // Thai 5% = arroz beneficiado/branqueado
+      },
+      {
+        key: "casca",
+        label: "Em casca",
+        export: ["100610"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+      {
+        key: "quebrado",
+        label: "Quebrado",
+        export: ["100640"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+    ],
+  },
+  Aluminio: {
+    subs: [
+      {
+        key: "bauxita",
+        label: "Bauxita",
+        export: ["260600"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+      {
+        key: "alumina",
+        label: "Alumina",
+        export: ["281820"],
+        price: { code: null, noQuote: "Sem cotação disponível" },
+      },
+      { key: "metal", label: "Metal", export: ["760110"], price: { code: "ALUMINIO_WB" } },
+    ],
   },
 };
