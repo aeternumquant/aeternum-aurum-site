@@ -116,10 +116,16 @@ function num(v: unknown): number | null {
 }
 
 let lastComex = 0;
-/** POST janelado com throttle >=11s e retry no 429. Devolve data.list. */
-async function comexList(body: unknown, tries = 6): Promise<any[]> {
+/**
+ * POST janelado com throttle >=11s e retry ESCALONADO no 429. O limite do Comex
+ * e por JANELA (medido: ~1 req/10s, e sob carga sustentada estoura por >1min),
+ * entao no 429 esperamos progressivamente mais (+6s por 429 acumulado) — backoff
+ * simples e mais tentativas reduzem a cauda de falhas. Devolve data.list.
+ */
+async function comexList(body: unknown, tries = 8): Promise<any[]> {
+  let n429 = 0;
   for (let i = 0; i < tries; i++) {
-    const wait = 11_000 - (Date.now() - lastComex);
+    const wait = Math.max(11_000 - (Date.now() - lastComex), 0) + n429 * 6_000;
     if (wait > 0) await sleep(wait);
     lastComex = Date.now();
     let j: any = null;
@@ -131,7 +137,7 @@ async function comexList(body: unknown, tries = 6): Promise<any[]> {
         signal: AbortSignal.timeout(90_000),
       });
       j = await res.json().catch(() => null);
-      if (j?.error?.code === 429) continue; // throttle e tenta de novo
+      if (j?.error?.code === 429) { n429++; continue; } // backoff escalonado
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       if (j?.error) throw new Error(`API: ${j.error.message}`);
       return Array.isArray(j?.data?.list) ? j.data.list : [];
@@ -215,6 +221,28 @@ async function ingest(p: Prod, year: number, level: 1 | 2, cmap: Map<string, num
 async function main() {
   const cmap = await loadCountryMap();
   console.log(`bridge: ${cmap.size} paises carregados`);
+
+  // Modo retry por celula: COMEX_CELLS="produto:ano:nivel,produto:ano:nivel,..."
+  // Refaz EXATAMENTE as celulas que falharam (429), fora do horario do backfill.
+  const cellsEnv = process.env.COMEX_CELLS;
+  if (cellsEnv) {
+    let ok = 0, fail = 0, n = 0;
+    for (const c of cellsEnv.split(",").map((s) => s.trim()).filter(Boolean)) {
+      const [key, yStr, lvlStr] = c.split(":");
+      const p = PRODUCTS.find((x) => x.key === key);
+      if (!p) { console.log(`  ${c}: produto desconhecido`); fail++; continue; }
+      const lvl = (Number(lvlStr) === 1 ? 1 : 2) as 1 | 2;
+      try {
+        const r = await ingest(p, Number(yStr), lvl, cmap);
+        n += r; ok++; console.log(`  ${key} ${yStr} L${lvl}: ${r}`);
+      } catch (e: any) {
+        fail++; console.log(`  ${key} ${yStr} L${lvl}: ERRO ${e?.message ?? e}`);
+      }
+    }
+    console.log(`\nRETRY: ${ok} ok, ${fail} falhas, ${n} linhas`);
+    console.log(orphans.size ? `ORFAOS: ${[...orphans].join(" | ")}` : "ORFAOS: nenhum");
+    return;
+  }
 
   const only = (process.env.COMEX_PRODUCTS ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   const products = only.length ? PRODUCTS.filter((p) => only.includes(p.key)) : PRODUCTS;
