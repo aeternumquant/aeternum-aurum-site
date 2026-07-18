@@ -47,6 +47,16 @@ function fmtVol(kg: number): string {
 }
 const pctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
+/**
+ * GROSSURA = volume, escala LOG. Maior importador (ratio 1) -> teto 6,4px;
+ * 1% do maior -> piso 1,6px. Log porque China/Ira e ~60x: em linear o meio
+ * sumiria. A grossura e o unico canal do volume (leitura num relance).
+ */
+function widthFor(kg: number, maxKg: number): number {
+  if (maxKg <= 0 || kg <= 0) return 1.6;
+  return Math.max(1.6, Math.min(6.4, 6.4 + 2.4 * Math.log10(kg / maxKg)));
+}
+
 type Drawn = { b: SojaBuyer; centroid: [number, number] };
 
 function SojaLayer({
@@ -107,12 +117,9 @@ function SojaLayer({
         );
       })}
 
-      {/* Canal 1 — linhas: geodesica + dash correndo + glow */}
+      {/* Canal 1 — GROSSURA = volume (log 1,6-6,4); dash UNIFORME (so textura de
+          fluxo, nao dado — cada canal um trabalho, sem a inversao do lento). */}
       {drawn.map(({ b, centroid }, i) => {
-        const ratio = maxKg > 0 ? b.kg / maxKg : 0;
-        const dashLen = (3 + 4 * (1 - ratio)).toFixed(1);
-        const gap = (2.5 + 3 * (1 - ratio)).toFixed(1);
-        const dur = (2.0 + 2.8 * (1 - ratio)).toFixed(2); // + volume => + rapido
         const isHov = hovered === b.isoA3;
         return (
           <Line
@@ -120,16 +127,16 @@ function SojaLayer({
             from={BRASILIA}
             to={centroid}
             stroke={GREEN}
-            strokeWidth={1.6}
+            strokeWidth={widthFor(b.kg, maxKg)}
             strokeLinecap="round"
-            strokeDasharray={`${dashLen} ${gap}`}
+            strokeDasharray="5 3.5"
             className={reduced ? undefined : "soja-flow"}
             filter={`url(#${glowId})`}
             onMouseEnter={() => setHovered(b.isoA3)}
             onMouseLeave={() => setHovered(null)}
             style={{
               opacity: reduced ? 0.82 : revealed ? (isHov ? 1 : 0.78) : 0,
-              animationDuration: `${dur}s`,
+              animationDuration: "3s",
               transition: `opacity 0.6s ease ${i * 0.04}s`,
               cursor: "pointer",
             }}
