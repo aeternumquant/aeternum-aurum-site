@@ -48,13 +48,15 @@ function fmtVol(kg: number): string {
 const pctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 /**
- * GROSSURA = volume, escala LOG. Maior importador (ratio 1) -> teto 6,4px;
- * 1% do maior -> piso 1,6px. Log porque China/Ira e ~60x: em linear o meio
- * sumiria. A grossura e o unico canal do volume (leitura num relance).
+ * RAIO DA BOLINHA = volume, escala LOG. Maior importador (ratio 1) -> teto
+ * 6,5px; 1% do maior -> piso 2px. O volume vive na BOLINHA (area compara bem,
+ * escala sozinha em qualquer commodity), NAO na grossura da linha (grossura e
+ * dash brigam pelo mesmo espaco e quebram entre distribuicoes). A linha fica
+ * uniforme fina; o numero exato vai no card.
  */
-function widthFor(kg: number, maxKg: number): number {
-  if (maxKg <= 0 || kg <= 0) return 1.6;
-  return Math.max(1.6, Math.min(6.4, 6.4 + 2.4 * Math.log10(kg / maxKg)));
+function radiusFor(kg: number, maxKg: number): number {
+  if (maxKg <= 0 || kg <= 0) return 2;
+  return Math.max(2, Math.min(6.5, 6.5 + 2.2 * Math.log10(kg / maxKg)));
 }
 
 type Drawn = { b: SojaBuyer; centroid: [number, number] };
@@ -117,8 +119,9 @@ function SojaLayer({
         );
       })}
 
-      {/* Canal 1 — GROSSURA = volume (log 1,6-6,4); dash UNIFORME (so textura de
-          fluxo, nao dado — cada canal um trabalho, sem a inversao do lento). */}
+      {/* Canal 1 — linha UNIFORME fina, dash correndo (movimento, nao dado). O
+          volume nao mora aqui: mora na bolinha (raio) e no card (numero). Linha
+          igual em toda commodity -> estavel nas 19, o dash nunca vira bloco. */}
       {drawn.map(({ b, centroid }, i) => {
         const isHov = hovered === b.isoA3;
         return (
@@ -127,7 +130,7 @@ function SojaLayer({
             from={BRASILIA}
             to={centroid}
             stroke={GREEN}
-            strokeWidth={widthFor(b.kg, maxKg)}
+            strokeWidth={1.6}
             strokeLinecap="round"
             strokeDasharray="5 3.5"
             className={reduced ? undefined : "soja-flow"}
@@ -144,9 +147,10 @@ function SojaLayer({
         );
       })}
 
-      {/* Marcadores nos centroides reais: anel + ponto + nome */}
+      {/* Marcadores: BOLINHA = volume (raio log) + anel(hover) + nome */}
       {drawn.map(({ b, centroid }, i) => {
         const isHov = hovered === b.isoA3;
+        const r = radiusFor(b.kg, maxKg);
         return (
           <Marker key={`m-${b.isoA3}`} coordinates={centroid}>
             <motion.g
@@ -157,15 +161,15 @@ function SojaLayer({
               onMouseLeave={() => setHovered(null)}
             >
               {isHov && !reduced && (
-                <circle cx={0} cy={0} r={8} fill="rgba(255,255,255,0.05)">
-                  <animate attributeName="r" values="4;16" dur="1.8s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.7;0" dur="1.8s" repeatCount="indefinite" />
+                <circle cx={0} cy={0} r={r} fill="rgba(255,255,255,0.05)">
+                  <animate attributeName="r" values={`${r.toFixed(1)};${(r + 11).toFixed(1)}`} dur="1.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.6;0" dur="1.8s" repeatCount="indefinite" />
                 </circle>
               )}
-              <circle cx={0} cy={0} r={isHov ? 2.6 : 2} fill={GREEN} filter={`url(#${glowId})`} style={{ transition: "r 0.2s ease" }} />
+              <circle cx={0} cy={0} r={isHov ? r + 0.6 : r} fill={GREEN} fillOpacity={0.92} filter={`url(#${glowId})`} style={{ transition: "r 0.2s ease" }} />
               <text
                 x={0}
-                y={-4.5}
+                y={-(r + 3)}
                 textAnchor="middle"
                 style={{
                   fontFamily: "monospace",
