@@ -269,4 +269,43 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       },
     ],
   },
+  // ── Grupo E: os casos degenerados. ──
+  // Niobio (Caso 4): fluxo REAL sem preco — o Brasil domina a producao
+  // mundial e nao existe bolsa de niobio. O "sem cotacao" E a historia.
+  Niobio: {
+    cardLabel: "Nióbio (FeNb)",
+    subs: [
+      {
+        key: "fenb",
+        label: "Ferronióbio",
+        export: ["720293"],
+        price: { code: null, noQuote: "Sem cotação pública em bolsa" },
+        note: "O Brasil domina a produção mundial de nióbio (CBMM, Araxá-MG). Mercado OTC: não existe bolsa de referência.",
+      },
+    ],
+  },
+  // Prata e Paladio (Caso 3): preco sem fluxo — o Brasil exporta ~zero.
+  // Mapa vazio e honesto; as linhas de quem compra virao com fontes futuras.
+  Prata: {
+    mode: "priceOnly",
+    subs: [
+      {
+        key: "prata",
+        label: "Prata",
+        price: { code: "PRATA_LBMA" },
+        note: "O Brasil exporta ~zero — sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
+      },
+    ],
+  },
+  Paladio: {
+    mode: "priceOnly",
+    subs: [
+      {
+        key: "paladio",
+        label: "Paládio",
+        price: { code: null, noQuote: "Sem cotação disponível" },
+        note: "O Brasil exporta ~zero — sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
+      },
+    ],
+  },
 };

@@ -401,7 +401,8 @@ export default function CommodityFlowMap({
           />
         </ComposableMap>
 
-        {/* Legenda (so o que existe nesta carta) */}
+        {/* Legenda (so o que existe nesta carta; priceOnly nao tem legenda) */}
+        {(hasExport || hasImport || cfg.competitorsN3?.length) ? (
         <div
           className="absolute bottom-3 left-3 z-10 flex items-center gap-3 px-3 py-1.5"
           style={{ backgroundColor: "rgba(5,5,3,0.85)", border: "1px solid rgba(255,255,255,0.07)" }}
@@ -431,6 +432,7 @@ export default function CommodityFlowMap({
             </span>
           ) : null}
         </div>
+        ) : null}
       </div>
 
       {/* ── Card ── */}
@@ -440,7 +442,13 @@ export default function CommodityFlowMap({
       >
         <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5" style={{ color: `${GOLD}90` }}>
-            {hasImport && !hasExport ? "Fluxo de importação" : hasImport ? "Fluxo de comércio" : "Fluxo de exportação"}
+            {hasImport && !hasExport
+              ? "Fluxo de importação"
+              : hasImport
+              ? "Fluxo de comércio"
+              : hasExport
+              ? "Fluxo de exportação"
+              : "Referência de preço"}
           </div>
           <div className="font-display text-base mb-2" style={{ color: GOLD }}>
             {label}
@@ -564,11 +572,13 @@ export default function CommodityFlowMap({
             ),
         )}
 
-        <div className="px-4 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.22)" }}>
-            Fonte: MDIC/Secex (Comex Stat) · nível de país
+        {(hasExport || hasImport) && (
+          <div className="px-4 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.22)" }}>
+              Fonte: MDIC/Secex (Comex Stat) · nível de país
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

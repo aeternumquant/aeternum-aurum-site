@@ -10,17 +10,9 @@
  *   - Painel de países estratégicos abaixo do mapa com detalhes por clique
  *   - Dados mock nível Bloomberg: preço, variação, volume, pontos-chave
  */
-import { useState, useId, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Marker,
-  Line,
-} from "react-simple-maps";
-import {
-  X,
   RotateCcw,
   TrendingUp,
   TrendingDown,
@@ -40,12 +32,12 @@ import CommodityFlowMap from "./CommodityFlowMap";
 import { useTradeFlows } from "../../hooks/useTradeFlows";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
 
-const geoUrl = "/data/countries-110m.json";
-
 /* ── Dourado da marca ── */
 const GOLD = "#C6A85A";
 
-type RelationType = "VERDE" | "VERMELHO" | "DOURADA";
+// Painel de rodape preservado para o futuro card de COMPETIDOR (nao renderiza).
+const SHOW_STRATEGIC_PANEL = false;
+
 type AssetType =
   | "Soja" | "Milho" | "Trigo" | "Brent" | "Ouro" | "Prata"
   | "Cobre" | "GasNatural" | "Aluminio" | "Paladio"
@@ -56,48 +48,6 @@ type AssetType =
   | null;
 
 type MapCategory = "Agro" | "Metais" | "Energia" | "Fertilizantes";
-
-/* ── Cores dos tipos de relação — elegantes e profissionais ── */
-const relColor: Record<RelationType, { stroke: string; label: string }> = {
-  VERDE:    { stroke: "rgba(52,211,153,0.80)", label: "Parceiro / Exportação" },
-  VERMELHO: { stroke: "rgba(248,113,113,0.80)", label: "Competição" },
-  DOURADA:  { stroke: `${GOLD}cc`,             label: "Estratégico" },
-};
-
-/* ── Países — 25 nós estratégicos ── */
-const baseMarkers = [
-  // América do Sul
-  { id: "BR", label: "Brasil",         city: "São Paulo",        coordinates: [-47.929, -15.780] as [number, number], isPrimary: true  },
-  { id: "AR", label: "Argentina",      city: "Buenos Aires",     coordinates: [-58.381, -34.603] as [number, number], isPrimary: false },
-  { id: "CL", label: "Chile",          city: "Santiago",         coordinates: [-70.669, -33.448] as [number, number], isPrimary: false },
-  { id: "CO", label: "Colômbia",       city: "Bogotá",           coordinates: [-74.072,  4.711]  as [number, number], isPrimary: false },
-  // América do Norte
-  { id: "US", label: "EUA",            city: "Chicago (CME)",    coordinates: [-87.629, 41.878]  as [number, number], isPrimary: false },
-  { id: "MX", label: "México",         city: "Cidade do México", coordinates: [-99.133, 19.432]  as [number, number], isPrimary: false },
-  { id: "CA", label: "Canadá",         city: "Vancouver",        coordinates: [-123.120, 49.282] as [number, number], isPrimary: false },
-  // Europa
-  { id: "UK", label: "Reino Unido",    city: "Londres (LME)",    coordinates: [-0.127,  51.507]  as [number, number], isPrimary: false },
-  { id: "EU", label: "União Europeia", city: "Frankfurt",        coordinates: [8.682,   50.110]  as [number, number], isPrimary: false },
-  { id: "RU", label: "Rússia",         city: "Novorossiysk",     coordinates: [37.766,  44.716]  as [number, number], isPrimary: false },
-  { id: "TR", label: "Turquia",        city: "Istambul",         coordinates: [28.978,  41.015]  as [number, number], isPrimary: false },
-  // Oriente Médio & África
-  { id: "SA", label: "Arábia Saudita", city: "Riad",             coordinates: [46.675,  24.686]  as [number, number], isPrimary: false },
-  { id: "AE", label: "Emirados",       city: "Dubai",            coordinates: [55.296,  25.276]  as [number, number], isPrimary: false },
-  { id: "EG", label: "Egito",          city: "Cairo",            coordinates: [31.235,  30.044]  as [number, number], isPrimary: false },
-  { id: "ZA", label: "África do Sul",  city: "Joanesburgo",      coordinates: [28.047, -26.202]  as [number, number], isPrimary: false },
-  // Ásia
-  { id: "CN", label: "China",          city: "Xangai",           coordinates: [121.473, 31.230]  as [number, number], isPrimary: false },
-  { id: "JP", label: "Japão",          city: "Tóquio",           coordinates: [139.691, 35.689]  as [number, number], isPrimary: false },
-  { id: "KR", label: "Coreia do Sul",  city: "Seul",             coordinates: [126.977, 37.566]  as [number, number], isPrimary: false },
-  { id: "IN", label: "Índia",          city: "Mumbai",           coordinates: [72.847,  19.076]  as [number, number], isPrimary: false },
-  { id: "SG", label: "Singapura",      city: "Porto Jurong",     coordinates: [103.819,  1.352]  as [number, number], isPrimary: false },
-  { id: "ID", label: "Indonésia",      city: "Jacarta",          coordinates: [106.845, -6.208]  as [number, number], isPrimary: false },
-  { id: "VN", label: "Vietnã",         city: "Hanói",            coordinates: [105.834, 21.027]  as [number, number], isPrimary: false },
-  { id: "TH", label: "Tailândia",      city: "Bangcoc",          coordinates: [100.501, 13.756]  as [number, number], isPrimary: false },
-  { id: "PK", label: "Paquistão",      city: "Carachi",          coordinates: [67.009,  24.860]  as [number, number], isPrimary: false },
-  // Oceania
-  { id: "AU", label: "Austrália",      city: "Sydney",           coordinates: [151.209, -33.868] as [number, number], isPrimary: false },
-];
 
 /* ── Países estratégicos para o painel abaixo do mapa ── */
 const strategicCountries = [
@@ -227,295 +177,131 @@ const strategicCountries = [
 const assetFlows: Record<NonNullable<AssetType>, {
   label: string;
   category: MapCategory;
-  relevantCountries: Array<{ id: string; type: RelationType; note?: string }>;
   flowData: string;
   percentage: string;
   volume?: string;
 }> = {
   Soja: {
     label: "Soja", category: "Agro",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "58% das exportações" },
-      { id: "US", type: "VERMELHO", note: "Competidor direto" },
-      { id: "AR", type: "VERMELHO", note: "Competidor regional" },
-      { id: "EU", type: "VERDE",    note: "Importador 12%" },
-      { id: "JP", type: "VERDE",    note: "Importador 4%" },
-    ],
     flowData: "Brasil exporta 45% da soja global (≈55M toneladas). China responde por 58% do destino. Referência CME/CBOT. Safra BR 23/24: recorde de 158M ton.",
     percentage: "45% global", volume: "55M ton/ano",
   },
   Milho: {
     label: "Milho", category: "Agro",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "Maior importador" },
-      { id: "US", type: "VERMELHO", note: "Competidor" },
-      { id: "JP", type: "VERDE",    note: "Importador relevante" },
-      { id: "KR", type: "VERDE",    note: "Importador crescente" },
-      { id: "MX", type: "VERDE",    note: "Importador próximo" },
-      { id: "SG", type: "DOURADA",  note: "Hub de trading" },
-    ],
     flowData: "Brasil 2º exportador mundial. Safra 23/24 recorde de 135M ton. China absorveu 11M ton. Referência CBOT Chicago.",
     percentage: "28% global", volume: "135M ton/ano",
   },
   Cafe: {
     label: "Café", category: "Agro",
-    relevantCountries: [
-      { id: "US", type: "VERDE",    note: "Maior importador global" },
-      { id: "EU", type: "VERDE",    note: "Alemanha + Itália" },
-      { id: "JP", type: "VERDE",    note: "3º maior importador" },
-      { id: "KR", type: "VERDE",    note: "Demanda crescente" },
-      { id: "RU", type: "VERMELHO", note: "Competição por blends" },
-      { id: "CO", type: "VERMELHO", note: "Competidor arábica" },
-    ],
     flowData: "Brasil: maior produtor mundial (38% da oferta). Café arábica referenciado na ICE NY (KC). Presença em 80+ países exportadores.",
     percentage: "38% global", volume: "68M sacas/ano",
   },
   BoiGordo: {
     label: "Boi Gordo", category: "Agro",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "50% do volume exportado" },
-      { id: "US", type: "DOURADA",  note: "Referência CME" },
-      { id: "ID", type: "VERDE",    note: "Importador relevante" },
-      { id: "EG", type: "VERDE",    note: "Importador crescente" },
-      { id: "SA", type: "VERDE",    note: "Mercado Halal" },
-      { id: "AE", type: "VERDE",    note: "Hub de distribuição" },
-    ],
     flowData: "Brasil: maior exportador de carne bovina global (27%). China concentra 50% do volume. Contrato futuro negociado na B3/BM&F.",
     percentage: "27% global", volume: "2.8M ton/ano",
   },
   Algodao: {
     label: "Algodão", category: "Agro",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "Maior importador" },
-      { id: "VN", type: "VERDE",    note: "Indústria têxtil" },
-      { id: "ID", type: "VERDE",    note: "Têxteis crescentes" },
-      { id: "PK", type: "VERDE",    note: "Indústria têxtil" },
-      { id: "TR", type: "VERDE",    note: "Hub têxtil europeu" },
-      { id: "IN", type: "VERMELHO", note: "Competidor" },
-    ],
     flowData: "Brasil: 2º maior exportador global. Centro-Oeste concentra 70% da produção. Referência ICE NY (CT).",
     percentage: "22% global", volume: "3.4M ton/ano",
   },
   Acucar: {
     label: "Açúcar", category: "Agro",
-    relevantCountries: [
-      { id: "IN", type: "VERMELHO", note: "Competidor" },
-      { id: "CN", type: "VERDE",    note: "Importador top 5" },
-      { id: "ID", type: "VERDE",    note: "Maior importador" },
-      { id: "SA", type: "VERDE",    note: "Importador Golfo" },
-      { id: "US", type: "DOURADA",  note: "ICE NY referência" },
-      { id: "EU", type: "VERDE",    note: "Importador relevante" },
-    ],
     flowData: "Brasil: maior produtor e exportador mundial, ≈40% do mercado. Safra Centro-Sul 24/25 estimada em 680M ton de cana. ICE NY (SB).",
     percentage: "40% global", volume: "36M ton/ano",
   },
   Cacau: {
     label: "Cacau", category: "Agro",
-    relevantCountries: [
-      { id: "EU", type: "VERDE",    note: "Maior importador" },
-      { id: "US", type: "VERDE",    note: "Indústria de chocolates" },
-      { id: "ID", type: "VERMELHO", note: "Competidor Ásia" },
-      { id: "UK", type: "DOURADA",  note: "ICE London" },
-      { id: "SG", type: "DOURADA",  note: "Hub Ásia-Pacífico" },
-    ],
     flowData: "Brasil: 6º produtor mundial, Bahia com 60% da produção. Déficit global de 374K ton em 23/24 impulsionou preços +70%.",
     percentage: "6% global", volume: "300K ton/ano",
   },
   Arroz: {
     label: "Arroz", category: "Agro",
-    relevantCountries: [
-      { id: "CN", type: "DOURADA",  note: "Maior produtor global" },
-      { id: "IN", type: "VERMELHO", note: "Maior exportador" },
-      { id: "VN", type: "VERMELHO", note: "2º exportador" },
-      { id: "TH", type: "VERMELHO", note: "3º exportador" },
-      { id: "ID", type: "VERDE",    note: "Maior importador" },
-    ],
     flowData: "Brasil: maior produtor fora da Ásia. RS responde por 70% da produção nacional. Foco no mercado interno e Mercosul.",
     percentage: "2% global", volume: "12M ton/ano",
   },
   Frango: {
     label: "Frango", category: "Agro",
-    relevantCountries: [
-      { id: "SA", type: "VERDE",    note: "Maior importador" },
-      { id: "JP", type: "VERDE",    note: "Importador histórico" },
-      { id: "CN", type: "VERDE",    note: "Demanda crescente" },
-      { id: "EG", type: "VERDE",    note: "Importador MENA" },
-      { id: "EU", type: "VERDE",    note: "Certificação Halal" },
-      { id: "US", type: "DOURADA",  note: "Referência CBOT" },
-    ],
     flowData: "Brasil: maior exportador global de frango (37%). Golfo Pérsico e Japão são destinos históricos. JBS, BRF e Marfrig lideram.",
     percentage: "37% global", volume: "5.1M ton/ano",
   },
   Laranja: {
     label: "Suco de Laranja", category: "Agro",
-    relevantCountries: [
-      { id: "EU", type: "VERDE",    note: "60% das exportações" },
-      { id: "US", type: "VERDE",    note: "Importador histórico" },
-      { id: "JP", type: "VERDE",    note: "Importador relevante" },
-      { id: "UK", type: "VERDE",    note: "5% das exportações" },
-      { id: "CA", type: "VERDE",    note: "Importador crescente" },
-    ],
     flowData: "Brasil: monopolista global com 75% das exportações de FCOJ. São Paulo + Triângulo Mineiro. ICE NY (OJ).",
     percentage: "75% global", volume: "1.7M ton FCOJ",
   },
   Etanol: {
     label: "Etanol", category: "Agro",
-    relevantCountries: [
-      { id: "US", type: "DOURADA",  note: "Maior produtor / referência" },
-      { id: "EU", type: "VERDE",    note: "Importador crescente" },
-      { id: "IN", type: "VERDE",    note: "Blending mandatório" },
-      { id: "CA", type: "VERDE",    note: "Importador NAFTA" },
-      { id: "KR", type: "VERDE",    note: "Demanda renovável" },
-    ],
     flowData: "Brasil: 2º maior produtor global de etanol (cana). Capacidade de 35B litros/ano. Paridade com gasolina é principal driver interno.",
     percentage: "25% global", volume: "35B litros/ano",
   },
   Amendoim: {
     label: "Amendoim", category: "Agro",
-    relevantCountries: [
-      { id: "EU", type: "VERDE",    note: "Maior importador" },
-      { id: "RU", type: "VERDE",    note: "Importador relevante" },
-      { id: "UK", type: "VERDE",    note: "Mercado especializado" },
-      { id: "CN", type: "DOURADA",  note: "Competidor e comprador" },
-      { id: "TR", type: "VERDE",    note: "Processamento regional" },
-    ],
     flowData: "Brasil: 2º exportador de amendoim in natura. SP concentra 80% da produção. Crescimento por pet food e indústria alimentícia.",
     percentage: "18% global", volume: "600K ton/ano",
   },
   Trigo: {
     label: "Trigo", category: "Agro",
-    relevantCountries: [
-      { id: "RU", type: "VERMELHO", note: "Maior exportador (22%)" },
-      { id: "US", type: "VERMELHO", note: "CBOT referência" },
-      { id: "AU", type: "VERMELHO", note: "Competidor hemisfério sul" },
-      { id: "CN", type: "VERDE",    note: "Maior importador" },
-      { id: "EG", type: "VERDE",    note: "2º maior importador" },
-      { id: "TR", type: "DOURADA",  note: "Hub de reexportação" },
-    ],
     flowData: "Rússia controla 22% das exportações via Mar Negro. Brasil importa ≈7M ton/ano do Mercosul e Mar Negro.",
     percentage: "22% global (RU)", volume: "800M ton/ano",
   },
   // ── Metais ──
   Ouro: {
     label: "Ouro", category: "Metais",
-    relevantCountries: [
-      { id: "US", type: "DOURADA",  note: "COMEX referência" },
-      { id: "CN", type: "VERDE",    note: "Maior comprador BC" },
-      { id: "UK", type: "DOURADA",  note: "LBMA London" },
-      { id: "EU", type: "DOURADA",  note: "Genebra cofres" },
-      { id: "IN", type: "VERDE",    note: "Demanda joalheria" },
-      { id: "AU", type: "VERDE",    note: "Maior produtor" },
-    ],
     flowData: "Precificado na CME/COMEX e armazenado em cofres via LBMA. Bancos Centrais adicionaram 1.037 ton em 2023 — maior compra desde 1967.",
     percentage: "Reserva global", volume: "3.644 ton/ano",
   },
   Prata: {
     label: "Prata", category: "Metais",
-    relevantCountries: [
-      { id: "US", type: "DOURADA",  note: "COMEX referência" },
-      { id: "CN", type: "VERDE",    note: "Demanda industrial" },
-      { id: "IN", type: "VERDE",    note: "Solar fotovoltaico" },
-      { id: "UK", type: "DOURADA",  note: "LBMA" },
-    ],
     flowData: "Metal dual: industrial (solar consome 14%/ano) e reserva de valor. COMEX define spot global. Déficit estrutural pelo boom solar.",
     percentage: "Ref. COMEX", volume: "25.000+ ton/ano",
   },
   Cobre: {
     label: "Cobre", category: "Metais",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "55% da demanda" },
-      { id: "AU", type: "VERDE",    note: "Exportador" },
-      { id: "UK", type: "DOURADA",  note: "LME Londres" },
-      { id: "SG", type: "DOURADA",  note: "Hub Ásia" },
-      { id: "CL", type: "VERMELHO", note: "Maior produtor (28%)" },
-    ],
     flowData: "Metal da transição energética. China consome 55% da demanda. Chile é maior produtor. LME London define preço spot global.",
     percentage: "Ref. LME", volume: "24M ton/ano",
   },
   Aluminio: {
     label: "Alumínio", category: "Metais",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "60% produção global" },
-      { id: "UK", type: "DOURADA",  note: "LME referência" },
-      { id: "EU", type: "VERDE",    note: "Importador" },
-      { id: "IN", type: "VERDE",    note: "Crescimento rápido" },
-    ],
     flowData: "China domina 60% da produção global. Custo energético define competitividade. LME London é bolsa de referência.",
     percentage: "Ref. LME", volume: "69M ton/ano",
   },
   Paladio: {
     label: "Paládio", category: "Metais",
-    relevantCountries: [
-      { id: "RU", type: "VERDE",    note: "40% da oferta" },
-      { id: "US", type: "DOURADA",  note: "NYMEX referência" },
-      { id: "CN", type: "VERDE",    note: "Catalisadores" },
-      { id: "UK", type: "DOURADA",  note: "LBMA" },
-      { id: "ZA", type: "VERDE",    note: "2º maior produtor" },
-    ],
     flowData: "PGM raro para catalisadores automotivos. Rússia + África do Sul = 80% oferta. Substitui platina como tendência de risco.",
     percentage: "Ref. NYMEX", volume: "220+ ton/ano",
   },
   // ── Energia ──
   Brent: {
     label: "Petróleo Brent", category: "Energia",
-    relevantCountries: [
-      { id: "SA", type: "DOURADA",  note: "OPEC+ 12% oferta" },
-      { id: "AE", type: "DOURADA",  note: "Estreito de Ormuz" },
-      { id: "US", type: "VERDE",    note: "Shale / WTI" },
-      { id: "CN", type: "VERDE",    note: "Maior importador" },
-      { id: "EU", type: "VERDE",    note: "Importação crítica" },
-      { id: "RU", type: "VERMELHO", note: "Sanções & rerouting" },
-    ],
     flowData: "Fluxo via Estreito de Ormuz (20% do petróleo global). Arabia Saudita e OPEC+ controlam produção. ICE London é bolsa de referência.",
     percentage: "21M bbl/dia", volume: "Hormuz chokepoint",
   },
   GasNatural: {
     label: "Gás Natural", category: "Energia",
-    relevantCountries: [
-      { id: "US", type: "VERDE",    note: "Henry Hub shale" },
-      { id: "EU", type: "VERDE",    note: "TTF Amsterdam" },
-      { id: "RU", type: "VERMELHO", note: "Gasodutos sancionados" },
-      { id: "SA", type: "DOURADA",  note: "GNL Golfo" },
-      { id: "AU", type: "VERDE",    note: "Exportador LNG" },
-    ],
     flowData: "Mercados regionais segmentados. EUA (Henry Hub), Europa (TTF Amsterdam), Golfo (GNL). Brasil: gás boliviano + GNL.",
     percentage: "Ref. Henry Hub", volume: "4.000+ bcm/ano",
   },
   // ── Minério de Ferro ──
   MinerioFerro: {
     label: "Minério de Ferro", category: "Metais",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "70% das exportações brasileiras" },
-      { id: "JP", type: "VERDE",    note: "Siderúrgicas premium" },
-      { id: "KR", type: "VERDE",    note: "POSCO e siderurgia" },
-      { id: "AU", type: "VERMELHO", note: "Rio Tinto / BHP competem" },
-      { id: "UK", type: "DOURADA",  note: "LME e Anglo American" },
-      { id: "EU", type: "VERDE",    note: "ArcelorMittal e Thyssenkrupp" },
-    ],
     flowData: "Brasil é o 2º maior exportador mundial de minério (Vale + CSN). China absorve 70% do volume. Preço referenciado na SGX Singapore e Dalian Commodity Exchange (DCE). Vale sozinha = 20% do supply global.",
     percentage: "20% global (Vale)", volume: "400M ton/ano",
   },
   // ── Nióbio ──
   Niobio: {
     label: "Nióbio", category: "Metais",
-    relevantCountries: [
-      { id: "CN", type: "VERDE",    note: "Maior consumidor de FeNb" },
-      { id: "EU", type: "VERDE",    note: "Siderurgia especializada" },
-      { id: "US", type: "VERDE",    note: "Aeronáutica e defesa" },
-      { id: "JP", type: "VERDE",    note: "Aço especial automotivo" },
-      { id: "KR", type: "VERDE",    note: "Hyundai e Samsung Steel" },
-      { id: "CA", type: "DOURADA",  note: "Niobec — único concorrente" },
-    ],
     flowData: "Brasil controla 94% da produção mundial de nióbio via CBMM (Araxá-MG). Metal estratégico para aço de alta resistência, carros elétricos, aviões e ressonâncias magnéticas. Mercado OTC: sem bolsa de referência pública.",
     percentage: "94% global", volume: "90K ton FeNb/ano",
   },
   // ── Fertilizantes (importacao; renderizam SEMPRE pela lei nova/FLOW_CARDS;
   //    os campos editoriais do mapa velho ficam vazios de proposito) ──
-  Ureia: { label: "Ureia", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
-  KCl:   { label: "KCl (potássio)", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
-  MAP:   { label: "Fosfatado (MAP)", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
-  TSP:   { label: "TSP", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
-  Rocha: { label: "Rocha fosfática", category: "Fertilizantes", relevantCountries: [], flowData: "", percentage: "" },
+  Ureia: { label: "Ureia", category: "Fertilizantes", flowData: "", percentage: "" },
+  KCl:   { label: "KCl (potássio)", category: "Fertilizantes", flowData: "", percentage: "" },
+  MAP:   { label: "Fosfatado (MAP)", category: "Fertilizantes", flowData: "", percentage: "" },
+  TSP:   { label: "TSP", category: "Fertilizantes", flowData: "", percentage: "" },
+  Rocha: { label: "Rocha fosfática", category: "Fertilizantes", flowData: "", percentage: "" },
 };
 
 // Fertilizantes: a unica categoria toda de IMPORTACAO. A aba propria deixa a
@@ -739,358 +525,6 @@ function PriceSummary({
   );
 }
 
-/* ── Painel de informações — versão institucional ── */
-function InfoPanel({
-  selectedAsset,
-  point,
-  secondary,
-  ptax,
-  hasSeries,
-  loading,
-  noQuote,
-  onClose,
-}: {
-  selectedAsset: NonNullable<AssetType>;
-  point: MarketPoint | null;
-  secondary: { point: MarketPoint | null; note: string } | null;
-  ptax: MarketPoint | null;
-  hasSeries: boolean;
-  loading: boolean;
-  noQuote: string | null;
-  onClose: () => void;
-}) {
-  const data = assetFlows[selectedAsset];
-  if (!data) return null;
-
-  // Secundário só existe se a série mensal já carregou (narrowing p/ o JSX).
-  const sec = secondary?.point ? { point: secondary.point, note: secondary.note } : null;
-
-  // Variação vem pronta do hook (changePercent já é null em roll e sem prev).
-  const cp = point?.changePercent ?? null;
-  const up = cp != null && cp > 0;
-  const down = cp != null && cp < 0;
-  const changeColor = up
-    ? "rgba(52,211,153,1)"
-    : down
-    ? "rgba(248,113,113,1)"
-    : "rgba(255,255,255,0.4)";
-  const ChangeIcon = up ? TrendingUp : down ? TrendingDown : Minus;
-  // Sem número: distingue "não existe cotação" (design) de "não carregou" (transitório).
-  const noQuoteText = hasSeries
-    ? (loading ? "Carregando…" : "Cotação indisponível")
-    : (noQuote ?? "Sem cotação pública");
-
-  return (
-    <>
-      {/* Desktop — lateral direita fixada ao TOPO do container (sem cortar) */}
-      <div
-        className="hidden sm:block absolute top-0 right-0 z-30 w-72"
-        style={{
-          /* max-height = 100% do container \u2014 nunca ultrapassa */
-          maxHeight: "100%",
-          overflowY: "auto",
-          backgroundColor: "rgba(6,5,3,0.96)",
-          border: `1px solid ${GOLD}30`,
-          borderTop: "none",   /* sem borda dupla com o header do mapa */
-          boxShadow: `-8px 0 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
-        }}
-      >
-        <AnimatePresence>
-          <motion.div
-            key={selectedAsset}
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 16 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between px-4 py-3"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <div>
-                <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5"
-                  style={{ color: `${GOLD}90` }}>
-                  {data.category}
-                </div>
-                <div className="font-display text-base" style={{ color: GOLD }}>
-                  {data.label}
-                </div>
-              </div>
-              <button onClick={onClose}
-                className="p-1 transition-colors hover:bg-white/5 mt-0.5">
-                <X className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.3)" }} />
-              </button>
-            </div>
-
-            {/* Preço + variação — dado real do cache (series_latest) */}
-            <div className="px-4 py-3 flex items-start justify-between"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <div>
-                <div className="font-sans text-[8px] uppercase tracking-widest mb-0.5"
-                  style={{ color: "rgba(255,255,255,0.25)" }}>
-                  Preço Atual
-                </div>
-                {point ? (
-                  <>
-                    {/* unidade colada ao valor; vírgula decimal via formatValueUnit */}
-                    <div className="font-display text-lg text-white">{formatValueUnit(point)}</div>
-                    {(() => {
-                      const brl = brlRefLine(point, ptax);
-                      return brl ? (
-                        <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>
-                          {brl}
-                        </div>
-                      ) : null;
-                    })()}
-                    {(() => {
-                      const fl = freshnessLine(point);
-                      return (
-                        <div className="font-sans text-[8px] mt-0.5"
-                          style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
-                          {fl.text}
-                        </div>
-                      );
-                    })()}
-                    {point.attribution && (
-                      <div className="font-sans text-[7px] mt-0.5"
-                        style={{ color: "rgba(255,255,255,0.22)" }}>
-                        {point.attribution}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="font-display text-base"
-                    style={{ color: "rgba(255,255,255,0.5)" }}>
-                    {noQuoteText}
-                  </div>
-                )}
-              </div>
-              {point && cp != null && (
-                <div className="flex flex-col items-end flex-shrink-0">
-                  <div className="flex items-center gap-1" style={{ color: changeColor }}>
-                    <ChangeIcon className="w-4 h-4" />
-                    <span className="font-display text-sm font-bold">
-                      {up ? "+" : ""}{pctFmt.format(cp)}%
-                    </span>
-                  </div>
-                  {point.changeLabel && (
-                    <span className="font-sans text-[7px] mt-0.5"
-                      style={{ color: "rgba(255,255,255,0.3)" }}>
-                      {point.changeLabel}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Referência global (mensal) — secundária e discreta. Só nas 4 duais. */}
-            {sec && (
-              <div className="px-4 py-2.5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.72)" }}>
-                  {formatValueUnit(sec.point)}
-                </div>
-                {(() => {
-                  const brl = brlRefLine(sec.point, ptax);
-                  return brl ? (
-                    <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>
-                      {brl}
-                    </div>
-                  ) : null;
-                })()}
-                {(() => {
-                  const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
-                  return (
-                    <div className="font-sans text-[8px] mt-0.5"
-                      style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
-                      {sec.note} · {fl.text}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-            {/* Descrição do fluxo */}
-            <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="font-sans text-[10px] leading-relaxed"
-                style={{ color: "rgba(255,255,255,0.45)" }}>
-                {data.flowData}
-              </p>
-            </div>
-
-            {/* Métricas */}
-            <div className="px-4 py-3 flex gap-6"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <div>
-                <div className="font-sans text-[7px] uppercase tracking-wider"
-                  style={{ color: "rgba(255,255,255,0.25)" }}>
-                  Participação
-                </div>
-                <div className="font-display text-xs font-bold"
-                  style={{ color: GOLD }}>
-                  {data.percentage}
-                </div>
-              </div>
-              {data.volume && (
-                <div>
-                  <div className="font-sans text-[7px] uppercase tracking-wider"
-                    style={{ color: "rgba(255,255,255,0.25)" }}>
-                    Volume
-                  </div>
-                  <div className="font-display text-xs font-bold"
-                    style={{ color: GOLD }}>
-                    {data.volume}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Fluxos estratégicos */}
-            <div className="px-4 py-3">
-              <div className="font-sans text-[7px] uppercase tracking-wider mb-2"
-                style={{ color: "rgba(255,255,255,0.25)" }}>
-                Fluxos Estratégicos
-              </div>
-              <div className="space-y-1.5">
-                {data.relevantCountries.map((c) => {
-                  const m = baseMarkers.find((b) => b.id === c.id);
-                  const col = relColor[c.type];
-                  return (
-                    <div key={c.id}
-                      className="flex items-center justify-between px-2 py-1.5"
-                      style={{ backgroundColor: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <div>
-                        <span className="font-sans text-[9px] text-white/70 uppercase tracking-wide">
-                          {m?.label}
-                        </span>
-                        {c.note && (
-                          <div className="font-sans text-[7px] mt-0.5"
-                            style={{ color: "rgba(255,255,255,0.28)" }}>
-                            {c.note}
-                          </div>
-                        )}
-                      </div>
-                      <span
-                        className="font-sans text-[7px] uppercase tracking-wide font-semibold px-1.5 py-0.5"
-                        style={{
-                          color: col.stroke.replace("0.80", "1"),
-                          backgroundColor: col.stroke.replace("0.80", "0.12"),
-                          border: `1px solid ${col.stroke.replace("0.80", "0.3")}`,
-                        }}
-                      >
-                        {col.label.split(" / ")[0]}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Mobile — bottom sheet */}
-      <AnimatePresence>
-        <motion.div
-          key={`mobile-${selectedAsset}`}
-          initial={{ y: "100%" }}
-          animate={{ y: 0 }}
-          exit={{ y: "100%" }}
-          transition={{ type: "spring", damping: 32, stiffness: 320 }}
-          className="sm:hidden fixed bottom-0 left-0 right-0 z-50 overflow-y-auto"
-          style={{
-            maxHeight: "42vh",
-            backgroundColor: "rgba(6,5,3,0.97)",
-            borderTop: `1px solid ${GOLD}35`,
-          }}
-        >
-          <div className="flex justify-center pt-2.5 pb-1.5">
-            <div className="w-8 h-0.5 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.2)" }} />
-          </div>
-          <div className="px-4 pb-5">
-            {/* Título + preço */}
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="font-display text-sm" style={{ color: GOLD }}>{data.label}</div>
-                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                  <span className="font-display text-white text-sm">
-                    {point ? formatValueUnit(point) : noQuoteText}
-                  </span>
-                  {point && cp != null && (
-                    <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: changeColor }}>
-                      <ChangeIcon className="w-3 h-3" />
-                      {up ? "+" : ""}{pctFmt.format(cp)}%
-                    </span>
-                  )}
-                  {point?.changeLabel && (
-                    <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      {point.changeLabel}
-                    </span>
-                  )}
-                </div>
-                {point && (() => {
-                  const brl = brlRefLine(point, ptax);
-                  return brl ? (
-                    <div className="font-sans text-[8px] mt-0.5" style={{ color: `${GOLD}aa` }}>{brl}</div>
-                  ) : null;
-                })()}
-                {point && (() => {
-                  const fl = freshnessLine(point);
-                  return (
-                    <div className="font-sans text-[8px] mt-0.5"
-                      style={{ color: fl.stale ? RED_STALE : "rgba(255,255,255,0.3)" }}>
-                      {fl.text}
-                    </div>
-                  );
-                })()}
-                {sec && (() => {
-                  const fl = freshnessLine(sec.point, { withMarket: false, lower: true });
-                  return (
-                    <div className="font-sans text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-                      <span style={{ color: "rgba(255,255,255,0.72)" }}>{formatValueUnit(sec.point)}</span>
-                      {" · "}{sec.note} ·{" "}
-                      <span style={{ color: fl.stale ? RED_STALE : "inherit" }}>{fl.text}</span>
-                    </div>
-                  );
-                })()}
-                {sec && (() => {
-                  const brl = brlRefLine(sec.point, ptax);
-                  return brl ? (
-                    <div className="font-sans text-[7px] mt-0.5" style={{ color: `${GOLD}99` }}>{brl}</div>
-                  ) : null;
-                })()}
-              </div>
-              <button onClick={onClose} className="p-1.5">
-                <ChevronDown className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
-              </button>
-            </div>
-            <p className="font-sans text-[10px] leading-relaxed mb-3"
-              style={{ color: "rgba(255,255,255,0.45)" }}>
-              {data.flowData}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {data.relevantCountries.map((c) => {
-                const m   = baseMarkers.find((b) => b.id === c.id);
-                const col = relColor[c.type];
-                return (
-                  <span key={c.id}
-                    className="font-sans text-[7px] uppercase tracking-wide font-semibold px-2 py-1"
-                    style={{
-                      color: col.stroke.replace("0.80", "1"),
-                      backgroundColor: col.stroke.replace("0.80", "0.12"),
-                      border: `1px solid ${col.stroke.replace("0.80", "0.3")}`,
-                    }}
-                  >
-                    {m?.label}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    </>
-  );
-}
-
 /* ── País Estratégico — card abaixo do mapa ── */
 function CountryCard({
   country,
@@ -1180,7 +614,6 @@ export default function GlobalFlowMap() {
   const [activeCategory, setActiveCategory] = useState<MapCategory>("Agro");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [showCountries, setShowCountries]   = useState(false);
-  const uid = useId();
 
   // Cache real (series_latest). Indexado por code para lookup O(1) por commodity.
   const { data: market, loading } = useMarketData();
@@ -1195,8 +628,6 @@ export default function GlobalFlowMap() {
     return m;
   }, [market]);
 
-  const assetData           = selectedAsset ? assetFlows[selectedAsset] : null;
-  const relevantCountryIds  = assetData?.relevantCountries.map((c) => c.id) ?? [];
 
   // Série + estado do preço da commodity aberta: distingue "sem cotação por
   // design" (code null) de "ainda não carregou / indisponível" (transitório).
@@ -1363,232 +794,24 @@ export default function GlobalFlowMap() {
         </div>
       ) : (
       <>
-      {/* ── Mapa ── */}
-      <div className="flex-1 relative overflow-hidden min-h-0">
-        {/* Mapa ajustado: center deslocado para direita para eliminar espaço
-            vazio da região do Alasca e enquadrar Europa-Ásia com o Japão visível */}
-        <ComposableMap
-          projection="geoMercator"
-          projectionConfig={{ scale: 128, center: [25, 18] }}
-          width={900}
-          height={460}
-          style={{ width: "100%", height: "100%", outline: "none" }}
-        >
-            <defs>
-              {/* Filtros de glow por tipo */}
-              {["gold", "verde", "vermelho", "dourada"].map((type) => {
-                const colors: Record<string, string> = {
-                  gold:     GOLD,
-                  verde:    "rgba(52,211,153,0.9)",
-                  vermelho: "rgba(248,113,113,0.9)",
-                  dourada:  `${GOLD}ee`,
-                };
-                return (
-                  <filter key={type} id={`glow-${type}-${uid}`}>
-                    <feGaussianBlur stdDeviation="2.5" result="blur" />
-                    <feFlood floodColor={colors[type]} result="color" />
-                    <feComposite in="color" in2="blur" operator="in" result="glow" />
-                    <feMerge>
-                      <feMergeNode in="glow" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                );
-              })}
-
-              {/* Animação de fluxo nas linhas */}
-              <style>{`
-                @keyframes flow-run {
-                  0%   { stroke-dashoffset: 60; opacity: 0.2; }
-                  50%  { opacity: 0.9; }
-                  100% { stroke-dashoffset: 0; opacity: 0.2; }
-                }
-                .flow-line { animation: flow-run 3.2s ease-in-out infinite; }
-              `}</style>
-            </defs>
-
-            {/* Países */}
-            <Geographies geography={geoUrl}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill="rgba(255,255,255,0.025)"
-                    stroke="rgba(255,255,255,0.1)"
-                    strokeWidth={0.35}
-                    style={{
-                      default: { outline: "none" },
-                      hover:   { outline: "none", fill: `${GOLD}08` },
-                      pressed: { outline: "none" },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
-
-            {/* Linhas de fluxo */}
-            {assetData &&
-              (() => {
-                const primary = baseMarkers.find((m) => m.isPrimary)!;
-                return baseMarkers.filter((m) => !m.isPrimary).map((dest, i) => {
-                  const rel = assetData.relevantCountries.find((c) => c.id === dest.id);
-                  const isActive = !!rel;
-                  const col = isActive ? relColor[rel!.type] : null;
-                  return (
-                    <Line
-                      key={dest.id}
-                      from={primary.coordinates}
-                      to={dest.coordinates}
-                      stroke={isActive ? col!.stroke : "rgba(255,255,255,0.05)"}
-                      strokeWidth={isActive ? 1.8 : 0.5}
-                      strokeLinecap="round"
-                      strokeDasharray={isActive ? "5 3" : "2 5"}
-                      className={isActive ? "flow-line" : ""}
-                      filter={isActive ? `url(#glow-${rel!.type.toLowerCase()}-${uid})` : ""}
-                      style={{
-                        opacity: isActive ? 0.9 : 0.1,
-                        transition: `opacity 0.5s ease ${i * 0.035}s, stroke 0.5s ease`,
-                      }}
-                    />
-                  );
-                });
-              })()}
-
-            {/* Marcadores */}
-            {baseMarkers.map((marker, i) => {
-              const rel = assetData?.relevantCountries.find((c) => c.id === marker.id);
-              const isHighlighted = !!relColor && !!rel;
-              const col = rel ? relColor[rel.type] : null;
-
-              return (
-                <Marker key={marker.id} coordinates={marker.coordinates}>
-                  <motion.g
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.05, duration: 0.35 }}
-                  >
-                    {/* Pulso primário (Brasil) */}
-                    {marker.isPrimary && (
-                      <circle cx={0} cy={0} r={10} fill={`${GOLD}15`}>
-                        <animate attributeName="r" values="3;22" dur="2.4s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.8;0" dur="2.4s" repeatCount="indefinite" />
-                      </circle>
-                    )}
-                    {/* Pulso para países ativos */}
-                    {isHighlighted && col && (
-                      <circle cx={0} cy={0} r={10} fill="rgba(255,255,255,0.04)">
-                        <animate attributeName="r" values="4;18" dur="2.0s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.7;0" dur="2.0s" repeatCount="indefinite" />
-                      </circle>
-                    )}
-                    {/* Ponto */}
-                    <circle
-                      cx={0} cy={0}
-                      r={isHighlighted ? 4 : marker.isPrimary ? 3.5 : 1.6}
-                      fill={
-                        isHighlighted && col
-                          ? col.stroke.replace("0.80", "1")
-                          : marker.isPrimary
-                          ? GOLD
-                          : "rgba(255,255,255,0.5)"
-                      }
-                      filter={
-                        isHighlighted
-                          ? `url(#glow-${rel!.type.toLowerCase()}-${uid})`
-                          : marker.isPrimary
-                          ? `url(#glow-gold-${uid})`
-                          : undefined
-                      }
-                      style={{ transition: "all 0.45s ease" }}
-                    />
-                    {/* Label — posicionada acima da bolinha para países menores,
-                        abaixo para o Brasil (isPrimary) */}
-                    <text
-                      textAnchor="middle"
-                      x={0}
-                      y={
-                        marker.isPrimary
-                          ? 14      /* Brasil: label abaixo do ponto grande */
-                          : ["AE", "SA", "TR", "SG", "KR", "EG"].includes(marker.id)
-                          ? -8     /* Oriente Médio / Ásia compacta: label acima */
-                          : 9      /* demais: logo abaixo */
-                      }
-                      style={{
-                        fontFamily: "monospace",
-                        fontSize: isHighlighted || marker.isPrimary ? "6.5px" : "5px",
-                        fontWeight: "600",
-                        fill: isHighlighted && col
-                          ? col.stroke.replace("0.80", "1")
-                          : marker.isPrimary
-                          ? GOLD
-                          : "rgba(255,255,255,0.45)",
-                        letterSpacing: "0.3px",
-                        pointerEvents: "none",
-                        transition: "all 0.45s ease",
-                      }}
-                    >
-                      {marker.label}
-                    </text>
-                  </motion.g>
-                </Marker>
-              );
-            })}
-        </ComposableMap>
-
-        {/* Legenda */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-4 px-3 py-2"
-          style={{
-            backgroundColor: "rgba(5,5,3,0.85)",
-            border: "1px solid rgba(255,255,255,0.07)",
-          }}
-        >
-          {(["VERDE", "VERMELHO", "DOURADA"] as RelationType[]).map((type) => {
-            const col = relColor[type];
-            return (
-              <div key={type} className="flex items-center gap-1.5">
-                <div className="w-5 h-px" style={{ backgroundColor: col.stroke.replace("0.80", "1") }} />
-                <span className="font-sans text-[7px] sm:text-[8px] uppercase tracking-wide"
-                  style={{ color: "rgba(255,255,255,0.35)" }}>
-                  {col.label}
-                </span>
-              </div>
-            );
-          })}
+      {/* Sem commodity selecionada: so o prompt. O mapa VELHO morreu no cleanup
+          do Grupo E (os 27 chips usam a lei nova). */}
+      <div className="flex-1 relative min-h-0 flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-display text-[11px] tracking-[0.25em] uppercase mb-1"
+            style={{ color: `${GOLD}90` }}>
+            Inteligência Geopolítica de Commodities
+          </p>
+          <p className="font-sans text-[8px] tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.22)" }}>
+            Selecione uma commodity acima para visualizar os fluxos
+          </p>
         </div>
-
-        {/* Prompt inicial */}
-        {!selectedAsset && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <p className="font-display text-[11px] tracking-[0.25em] uppercase mb-1"
-                style={{ color: `${GOLD}90` }}>
-                Inteligência Geopolítica de Commodities
-              </p>
-              <p className="font-sans text-[8px] tracking-widest uppercase"
-                style={{ color: "rgba(255,255,255,0.22)" }}>
-                Selecione uma commodity acima para visualizar os fluxos
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Painel de informações */}
-        {selectedAsset && (
-          <InfoPanel
-            selectedAsset={selectedAsset}
-            point={selectedInfo.point}
-            secondary={selectedInfo.secondary}
-            ptax={bySeries.get("PTAX_USD_VENDA") ?? null}
-            hasSeries={selectedInfo.hasSeries}
-            loading={loading}
-            noQuote={selectedInfo.noQuote}
-            onClose={() => setSelectedAsset(null)}
-          />
-        )}
       </div>
 
-      {/* ── Painel de Países Estratégicos ── */}
+      {/* ── Painel de Países Estratégicos — PRESERVADO, nao renderizado: futuro
+          lar do card de COMPETIDOR (estrutura reaproveitavel). ── */}
+      {SHOW_STRATEGIC_PANEL && (
       <div className="flex-shrink-0 relative z-20"
         style={{ borderTop: `1px solid ${GOLD}18` }}>
         {/* Toggle header */}
@@ -1651,6 +874,7 @@ export default function GlobalFlowMap() {
           )}
         </AnimatePresence>
       </div>
+      )}
       </>
       )}
     </div>
