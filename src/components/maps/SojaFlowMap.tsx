@@ -40,7 +40,7 @@ const COMPETIDORES_N3 = new Set([840, 32]); // EUA, Argentina
 const PISO_PCT = 1; // linha so para >=1% do volume da carta
 const NOME_PCT = 5; // nome so para >=5% (os pequenos ficam com a bolinha)
 
-type LineStyle = "solida" | "contorno" | "tracejada";
+type LineStyle = "solida" | "mista" | "contorno" | "tracejada";
 
 const SUBS: { key: SojaSub; label: string }[] = [
   { key: "grao", label: "Grão" },
@@ -74,8 +74,14 @@ function sampleCurve(x1: number, y1: number, x2: number, y2: number, bend: numbe
   const dx = x2 - x1;
   const dy = y2 - y1;
   const len = Math.hypot(dx, dy) || 1;
-  const ux = -dy / len; // normal unitaria da corda
-  const uy = dx / len;
+  let ux = -dy / len; // normal unitaria da corda
+  let uy = dx / len;
+  // Arco sempre POR CIMA (apice ao norte): a linha sobe e desce no pais,
+  // como o mapa antigo. Em tela, y cresce para baixo -> normal com uy<0.
+  if (uy > 0) {
+    ux = -ux;
+    uy = -uy;
+  }
   const cx = mx + ux * bend;
   const cy = my + uy * bend;
   const pts: Pt[] = [];
@@ -95,10 +101,22 @@ function sampleCurve(x1: number, y1: number, x2: number, y2: number, bend: numbe
   return pts;
 }
 
+/**
+ * Meia-largura no ponto t. Perfil SATURADO, nao linear: afila so nos
+ * primeiros ~35% (as agulhas convergindo no Brasil) e viaja o resto com a
+ * largura CHEIA — senao a espessura-log (o dado!) so aparece no ultimo pixel
+ * e China e Indonesia parecem iguais no percurso (a regressao apontada).
+ */
+function halfWidth(t: number, w1: number): number {
+  const w0 = 0.35;
+  const s = Math.min(1, t / 0.35);
+  const k = s * s * (3 - 2 * s); // smoothstep
+  return w0 + (w1 / 2 - w0) * k;
+}
+
 /** Cunha afilada ao longo da curva, truncada em tEnd (animacao de desenho). */
 function taperCurvePath(pts: Pt[], w1: number, tEnd: number): string {
-  const w0 = 0.35; // metade da largura na origem
-  const half = (t: number) => w0 + (w1 / 2 - w0) * t;
+  const half = (t: number) => halfWidth(t, w1);
   const upto = pts.filter((p) => p.t <= tEnd);
   if (upto.length < 2) return "";
   const left = upto.map((p) => `${p.x + p.nx * half(p.t)},${p.y + p.ny * half(p.t)}`);
@@ -108,8 +126,7 @@ function taperCurvePath(pts: Pt[], w1: number, tEnd: number): string {
 
 /** Variante tracejada: segmentos de cunha com vao, na mesma curva. */
 function taperCurveDashes(pts: Pt[], w1: number, tEnd: number, n = 10, duty = 0.62): string[] {
-  const w0 = 0.35;
-  const half = (t: number) => w0 + (w1 / 2 - w0) * t;
+  const half = (t: number) => halfWidth(t, w1);
   const at = (t: number): Pt => {
     const i = Math.min(pts.length - 1, Math.max(0, Math.round(t * (pts.length - 1))));
     return pts[i];
@@ -203,7 +220,9 @@ function SojaLayer({
     const n = Math.max(1, raw.length - 1);
     return raw.map((r, i) => {
       const len = Math.hypot(r.dst[0] - x1, r.dst[1] - y1);
-      const bend = len * (0.08 + 0.1 * (i / n)); // arco cresce atraves do leque
+      // Parabola PRONUNCIADA (~28-42% do comprimento), escalonada pelo rank
+      // angular: espalha as linhas na saida E na chegada.
+      const bend = len * (0.28 + 0.14 * (i / n));
       const w = widthFor(r.b.kg, maxKg);
       const pts = sampleCurve(x1, y1, r.dst[0], r.dst[1], bend);
       return { b: r.b, dst: r.dst, w, pts };
@@ -247,6 +266,18 @@ function SojaLayer({
             {lineStyle === "solida" && (
               <path d={taperCurvePath(pts, w, tEnd)} fill={GREEN} fillOpacity={alpha} stroke="none" />
             )}
+            {lineStyle === "mista" && (
+              /* solida (a massa = volume) + contorno TRACEJADO mais grosso (o fluxo) */
+              <path
+                d={taperCurvePath(pts, w, tEnd)}
+                fill={GREEN}
+                fillOpacity={alpha * 0.85}
+                stroke={GREEN}
+                strokeWidth={isHov ? 1.8 : 1.4}
+                strokeOpacity={0.95}
+                strokeDasharray="5 3.5"
+              />
+            )}
             {lineStyle === "contorno" && (
               <path
                 d={taperCurvePath(pts, w, tEnd)}
@@ -261,8 +292,8 @@ function SojaLayer({
                 <path key={i} d={d} fill={GREEN} fillOpacity={alpha} stroke="none" />
               ))}
 
-            {/* carimbo de chegada (percorre com a animacao, para no destino) */}
-            <path d={tri} fill={GREEN} fillOpacity={isHov ? 1 : 0.85} stroke="none" />
+            {/* carimbo de chegada: SOLIDO/opaco sempre (e o acento, tem que marcar) */}
+            <path d={tri} fill={GREEN} fillOpacity={1} stroke="none" />
 
             {/* hit area na curva (a cunha e fina demais perto do Brasil) */}
             <path
@@ -429,7 +460,7 @@ export default function SojaFlowMap({ flows }: { flows: SojaFlows }) {
             className="flex items-center gap-1"
             style={{ borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 8 }}
           >
-            {(["solida", "contorno", "tracejada"] as LineStyle[]).map((s) => (
+            {(["solida", "mista", "contorno", "tracejada"] as LineStyle[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setLineStyle(s)}
