@@ -68,7 +68,9 @@ export default function ZonaPiloto() {
       </div>
 
       {/* ── Mapa Interativo ── */}
-      <div className="w-full" style={{ height: "82vh", minHeight: 460, maxHeight: 880 }}>
+      {/* relative: o framer-motion (whileInView) mede este container; static dispara
+          o warning "non-static position" e força re-medição no scroll. */}
+      <div className="w-full relative" style={{ height: "82vh", minHeight: 460, maxHeight: 880 }}>
         <Suspense fallback={<div className="w-full h-full bg-[#1C1C1C] animate-pulse rounded" />}>
           <GlobalFlowMap />
         </Suspense>
