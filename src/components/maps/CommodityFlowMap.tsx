@@ -24,7 +24,8 @@ import { geoCentroid } from "d3-geo";
 import { motion, useReducedMotion } from "framer-motion";
 import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
-import { usePsdBalance, fmtPsd } from "../../hooks/usePsdBalance";
+import { TrendingUp, TrendingDown, MapPin } from "lucide-react";
+import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
 import { usePamProduction, usePamAbate, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
 
 const geoUrl = "/data/countries-110m.json";
@@ -303,168 +304,170 @@ function FlowLayer({
   );
 }
 
-/**
- * Donut do balanco interno (USDA PSD): verde = fracao exportada, cinza = uso
- * interno, normalizados sobre (export + consumo) — o anel fecha 100%, e todos
- * os numeros vem do MESMO eixo (safra). Centro: a % dominante + o verbo (a
- * soja "exporta", o milho "consome"). Ao lado: os numeros exatos + producao.
- */
 const GREEN_EXP = "#1baf7a";
 const GRAY_USE = "var(--border-strong, rgba(255,255,255,0.28))"; // --border-strong ainda nao existe no CSS
+const DELTA_UP = "#1d9e75";
+const DELTA_DOWN = "#c0564c";
 
-function PsdDonut({
-  exportt,
-  consumption,
-  production,
-  unitId,
-  safraLabel,
-  consumoLabel,
-  consumoNote,
-}: {
-  exportt: number | null;
-  consumption: number | null;
-  production: number | null;
-  unitId: number | null;
-  safraLabel: string;
-  consumoLabel: string;
-  consumoNote: string;
-}) {
-  const exp = exportt ?? 0;
-  const cons = consumption ?? 0;
-  const tot = exp + cons;
-  const expFrac = tot > 0 ? exp / tot : 0;
-  const expPct = Math.round(expFrac * 100);
-  const exportDom = exp >= cons;
-  const domPct = exportDom ? expPct : 100 - expPct;
-  const verb = exportDom ? "exporta" : consumoLabel === "Uso interno" ? "usa" : "consome";
+/** Delta de 5 anos: SEMPRE com "em 5 anos" (nunca parecer anual). null = oculto. */
+function Delta({ pct }: { pct: number | null }) {
+  if (pct == null) return null;
+  const up = pct >= 0;
+  const Icon = up ? TrendingUp : TrendingDown;
+  return (
+    <span className="inline-flex items-center gap-0.5" style={{ color: up ? DELTA_UP : DELTA_DOWN }}>
+      <Icon className="w-2.5 h-2.5" />
+      <span className="font-sans text-[9px] font-semibold">{up ? "+" : ""}{pct}%</span>
+      <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.35)" }}>em 5 anos</span>
+    </span>
+  );
+}
 
+/** So o anel (proporcao exporta/consome). */
+function DonutRing({ expFrac, domPct, verb }: { expFrac: number; domPct: number; verb: string }) {
   const R = 18;
   const C = 2 * Math.PI * R;
-
   return (
-    <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="flex items-baseline justify-between mb-2">
-        <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-          Balanço interno · Brasil
-        </span>
-        <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
-          safra {safraLabel} · projeção USDA
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3">
-        {/* o anel */}
-        <svg width={52} height={52} viewBox="0 0 48 48" className="flex-shrink-0">
-          <circle cx={24} cy={24} r={R} fill="none" stroke={GRAY_USE} strokeWidth={6} />
-          <circle
-            cx={24}
-            cy={24}
-            r={R}
-            fill="none"
-            stroke={GREEN_EXP}
-            strokeWidth={6}
-            strokeDasharray={`${expFrac * C} ${C}`}
-            transform="rotate(-90 24 24)"
-          />
-          <text x={24} y={23} textAnchor="middle" style={{ fontFamily: "var(--font-display, serif)", fontSize: "12px", fontWeight: 700, fill: "#fff" }}>
-            {domPct}%
-          </text>
-          <text x={24} y={31} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: "5.5px", fill: "rgba(255,255,255,0.5)", letterSpacing: "0.5px" }}>
-            {verb}
-          </text>
-        </svg>
-
-        {/* os numeros exatos, mesmo eixo */}
-        <div className="flex-1 min-w-0 space-y-0.5">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: GREEN_EXP }} />
-              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>Exporta</span>
-            </span>
-            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(exportt, unitId)}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.28)" }} />
-              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>{consumoLabel}</span>
-            </span>
-            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(consumption, unitId)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-0.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.4)" }}>Produção</span>
-            <span className="font-sans text-[8.5px]" style={{ color: `${GOLD}dd` }}>{fmtPsd(production, unitId)}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="font-sans text-[6.5px] mt-1.5" style={{ color: "rgba(255,255,255,0.22)" }}>
-        USDA PSD · exportação (attr 88) e {consumoNote}
-      </div>
-    </div>
+    <svg width={54} height={54} viewBox="0 0 48 48" className="flex-shrink-0">
+      <circle cx={24} cy={24} r={R} fill="none" stroke={GRAY_USE} strokeWidth={6} />
+      <circle cx={24} cy={24} r={R} fill="none" stroke={GREEN_EXP} strokeWidth={6}
+        strokeDasharray={`${expFrac * C} ${C}`} transform="rotate(-90 24 24)" />
+      <text x={24} y={23} textAnchor="middle" style={{ fontFamily: "var(--font-display, serif)", fontSize: "12px", fontWeight: 700, fill: "#fff" }}>{domPct}%</text>
+      <text x={24} y={31} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: "5.5px", fill: "rgba(255,255,255,0.5)", letterSpacing: "0.5px" }}>{verb}</text>
+    </svg>
   );
 }
 
 /**
- * Bloco do IBGE (campo brasileiro): producao (PAM) + estados lideres + abate.
- * `withUsda` = ha o donut USDA acima (os dois numeros lado a lado, eixos de ano
- * DISTINTOS — a divergencia e informacao); senao e o unico numero (cacau/
- * laranja/amendoim, que o USDA nao tem). O abate tem rotulo PROPRIO (metrica
- * diferente: inspecionado, ~85-90% da producao total do USDA).
+ * BalanceBlock — hierarquia (um protagonista por nivel). Deltas de 5 anos
+ * SEMPRE no proprio eixo (USDA vs USDA; IBGE vs IBGE) e rotulados "em 5 anos".
+ *  A (conversam): donut USDA + HEROI producao USDA (+delta) + exporta(+delta)/
+ *    consumo + rodape IBGE (validacao, pin) + regioes.
+ *  B (so USDA): igual A, sem rodape IBGE nem regioes (o IBGE deles fica no banco).
+ *  C (so IBGE): sem donut USDA; o HEROI e a producao IBGE (+delta) + regioes.
+ * Mostra a relacao producao-exportacao (o contraste dos deltas); NUNCA afirma causa.
  */
-function IbgeBlock({
-  pam,
-  abate,
-  species,
-  withUsda,
-}: {
-  pam: PamProduction | null;
-  abate: Abate | null;
-  species?: string;
-  withUsda: boolean;
-}) {
-  if (!pam && !abate) return null;
-  return (
-    <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-      {pam && (
-        <>
-          <div className="flex items-baseline justify-between">
-            <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-              {withUsda ? "Produção · campo" : "Produção · Brasil"}
-            </span>
-            <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
-              safra {pam.year} · IBGE (PAM)
-            </span>
-          </div>
-          <div className="font-display text-base mt-0.5" style={{ color: withUsda ? "rgba(255,255,255,0.82)" : "#fff" }}>
-            {fmtTon(pam.value)}
-          </div>
-          {pam.states.length > 0 && (
-            <div className="font-sans text-[7.5px] mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-              Principais: {pam.states.map((s) => `${s.name} ${pctFmt.format(s.pct)}%`).join(" · ")}
+function BalanceBlock({ psd, pam, abate, cfg }: { psd: PsdBalance | null; pam: PamProduction | null; abate: Abate | null; cfg: FlowCardCfg }) {
+  const hasUsda = !!cfg.psd && !!psd && (psd.exportt != null || psd.consumption != null);
+  const border = "1px solid rgba(255,255,255,0.06)";
+
+  if (hasUsda && psd && cfg.psd) {
+    const exp = psd.exportt ?? 0;
+    const cons = psd.consumption ?? 0;
+    const tot = exp + cons;
+    const expFrac = tot > 0 ? exp / tot : 0;
+    const exportDom = exp >= cons;
+    const domPct = exportDom ? Math.round(expFrac * 100) : 100 - Math.round(expFrac * 100);
+    const verb = exportDom ? "exporta" : cfg.psd.consumoLabel === "Uso interno" ? "usa" : "consome";
+    return (
+      <div className="px-4 py-3" style={{ borderBottom: border }}>
+        <div className="flex items-baseline justify-between mb-2">
+          <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>Balanço interno</span>
+          <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>safra {psd.safraLabel} · projeção USDA</span>
+        </div>
+
+        {/* donut + HEROI producao */}
+        <div className="flex items-center gap-3">
+          <DonutRing expFrac={expFrac} domPct={domPct} verb={verb} />
+          <div className="flex-1 min-w-0">
+            <div className="font-display leading-none text-white" style={{ fontSize: "22px" }}>{fmtPsd(psd.production, psd.unitId)}</div>
+            <div className="flex flex-wrap items-center gap-x-1.5 mt-1">
+              <span className="font-sans text-[7px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>produção</span>
+              <Delta pct={psd.productionDelta5y} />
             </div>
-          )}
-        </>
-      )}
-      {abate && (
-        <div className={pam ? "mt-2 pt-2" : ""} style={pam ? { borderTop: "1px solid rgba(255,255,255,0.06)" } : undefined}>
-          <div className="flex items-baseline justify-between">
-            <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-              Abate inspecionado
-            </span>
-            <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
-              {abate.year} · IBGE
-            </span>
-          </div>
-          <div className="font-display text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.82)" }}>
-            {fmtCwe(abate.carcassKg)} <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.4)" }}>peso carcaça</span>
-          </div>
-          <div className="font-sans text-[6.5px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)" }}>
-            só {species === "bovino" ? "bovinos" : "frangos"} sob inspeção (SIF/SIE/SIM) — subconjunto da produção USDA
           </div>
         </div>
-      )}
-    </div>
-  );
+
+        {/* exporta (delta) / consumo */}
+        <div className="mt-2 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 flex-wrap">
+              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: GREEN_EXP }} />
+              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>Exporta</span>
+              <Delta pct={psd.exportDelta5y} />
+            </span>
+            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(psd.exportt, psd.unitId)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.28)" }} />
+              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>{cfg.psd.consumoLabel}</span>
+            </span>
+            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(psd.consumption, psd.unitId)}</span>
+          </div>
+        </div>
+
+        {/* rodape IBGE (validacao: campo medido vs projecao) */}
+        {pam && (
+          <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: border }}>
+            <span className="flex items-center gap-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <MapPin className="w-2.5 h-2.5" />
+              <span className="font-sans text-[7.5px]">campo · IBGE {pam.year}</span>
+            </span>
+            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.62)" }}>{fmtTon(pam.value)}</span>
+          </div>
+        )}
+
+        {/* abate: metrica PROPRIA (inspecionado), nunca a producao total */}
+        {abate && (
+          <div className="flex items-center justify-between mt-2 pt-2" style={{ borderTop: border }}>
+            <span className="flex items-center gap-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <MapPin className="w-2.5 h-2.5" />
+              <span className="font-sans text-[7.5px]">abate insp. · IBGE {abate.year}</span>
+            </span>
+            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.62)" }}>{fmtCwe(abate.carcassKg)} carcaça</span>
+          </div>
+        )}
+
+        {/* regioes lideres (contexto publico, N3) */}
+        {pam && pam.states.length > 0 && (
+          <div className="font-sans text-[7.5px] mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+            {pam.states.map((s) => `${s.name} ${pctFmt.format(s.pct)}%`).join(" · ")}
+          </div>
+        )}
+
+        <div className="font-sans text-[6.5px] mt-1.5" style={{ color: "rgba(255,255,255,0.22)" }}>
+          Balanço: USDA PSD{pam ? " · campo: IBGE (PAM)" : ""}{abate ? " · abate: IBGE (só inspecionado, SIF/SIE/SIM)" : ""}
+        </div>
+      </div>
+    );
+  }
+
+  // Variante C: so IBGE (o USDA nao tem) — o HEROI e a producao IBGE.
+  if (pam) {
+    return (
+      <div className="px-4 py-3" style={{ borderBottom: border }}>
+        <div className="flex items-baseline justify-between mb-1.5">
+          <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>Produção · Brasil</span>
+          <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>safra {pam.year} · IBGE (PAM)</span>
+        </div>
+        <div className="font-display leading-none text-white" style={{ fontSize: "22px" }}>{fmtTon(pam.value)}</div>
+        <div className="flex flex-wrap items-center gap-x-1.5 mt-1">
+          <span className="font-sans text-[7px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>produção</span>
+          <Delta pct={pam.delta5y} />
+        </div>
+        {pam.states.length > 0 && (
+          <div className="font-sans text-[7.5px] mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+            {pam.states.map((s) => `${s.name} ${pctFmt.format(s.pct)}%`).join(" · ")}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // so abate (carne/frango sem PSD nao ocorre hoje, mas por seguranca)
+  if (abate) {
+    return (
+      <div className="px-4 py-3" style={{ borderBottom: border }}>
+        <div className="flex items-baseline justify-between">
+          <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>Abate inspecionado · IBGE</span>
+          <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>{abate.year}</span>
+        </div>
+        <div className="font-display mt-0.5 text-white" style={{ fontSize: "18px" }}>{fmtCwe(abate.carcassKg)} <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.4)" }}>peso carcaça</span></div>
+      </div>
+    );
+  }
+  return null;
 }
 
 export default function CommodityFlowMap({
@@ -681,50 +684,28 @@ export default function CommodityFlowMap({
           </div>
         )}
 
-        {/* Totais por direcao */}
+        {/* Fluxo Comex: SUBTITULO discreto (outro eixo, civil) — fora do balanco
+            para nao competir com a exportacao USDA (que e safra). */}
         {(exp || imp) && (
-          <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div className="px-4 py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             {exp && (
-              <div className="mb-1.5">
-                <div className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-                  Exportação ({flows?.monthsLabel})
-                </div>
-                <div className="font-display text-lg text-white">{fmtVol(exp.totalKg)}</div>
+              <div className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Exportação <span className="text-white/85">{fmtVol(exp.totalKg)}</span>
+                <span style={{ color: "rgba(255,255,255,0.3)" }}> · 12 meses · MDIC</span>
               </div>
             )}
             {imp && (
-              <div>
-                <div className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-                  Importação ({flows?.monthsLabel})
-                </div>
-                <div className="font-display text-lg" style={{ color: AMBER }}>
-                  {fmtVol(imp.totalKg)}
-                </div>
+              <div className="font-sans text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                Importação <span style={{ color: AMBER }}>{fmtVol(imp.totalKg)}</span>
+                <span style={{ color: "rgba(255,255,255,0.3)" }}> · 12 meses · MDIC</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Balanco interno (USDA PSD) — DONUT: verde = exportado, cinza = uso
-            interno, ambos do MESMO eixo (safra, export attr 88 + consumo). O
-            anel fecha 100% por construcao (fracao de exp+cons). Eixo de tempo
-            PROPRIO, distinto do fluxo acima (12m civil MDIC). So no card. */}
-        {cfg.psd && psd && (psd.exportt != null || psd.consumption != null) && (
-          <PsdDonut
-            exportt={psd.exportt}
-            consumption={psd.consumption}
-            production={psd.production}
-            unitId={psd.unitId}
-            safraLabel={psd.safraLabel}
-            consumoLabel={cfg.psd.consumoLabel}
-            consumoNote={cfg.psd.consumoNote}
-          />
-        )}
-
-        {/* IBGE (campo brasileiro): ao lado do USDA onde conversa (grao vs grao),
-            sozinho onde o USDA nao tem (cacau/laranja/amendoim). Abate com rotulo
-            proprio (metrica distinta). Eixos de ano DISTINTOS do USDA. */}
-        {(pam || abate) && <IbgeBlock pam={pam} abate={abate} species={cfg.abate?.species} withUsda={!!cfg.psd} />}
+        {/* Balanco: hierarquia (donut + HEROI producao + deltas 5a + rodape IBGE
+            + regioes). Variantes A/B/C conforme USDA e/ou IBGE. So no card. */}
+        <BalanceBlock psd={psd} pam={pam} abate={abate} cfg={cfg} />
 
         {/* Parceiros por direcao */}
         {([

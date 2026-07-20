@@ -14,7 +14,7 @@ import { supabase } from "../lib/supabase";
  *    (rotulo proprio no card).
  */
 export type LeaderState = { name: string; pct: number };
-export type PamProduction = { year: number; value: number | null; unit: string; states: LeaderState[] };
+export type PamProduction = { year: number; value: number | null; unit: string; states: LeaderState[]; delta5y: number | null };
 export type Abate = { year: number; carcassKg: number };
 
 const nf = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
@@ -63,7 +63,10 @@ export function usePamProduction(slug: string | undefined): { data: PamProductio
         .map((r: any) => ({ name: r.locality_name as string, pct: total > 0 ? (100 * Number(r.value)) / total : 0 }))
         .sort((a, b) => b.pct - a.pct)
         .slice(0, 3);
-      setData({ year, value: n1?.value ?? null, unit: n1?.unit ?? "Toneladas", states });
+      // delta 5 anos: IBGE-hoje vs IBGE de (year-5). Mesmo eixo (campo medido).
+      const past = rows.find((r: any) => r.locality_level === "N1" && r.year === year - 5 && r.value != null)?.value ?? null;
+      const delta5y = past != null && Number(past) !== 0 ? Math.round((100 * (total - Number(past))) / Number(past)) : null;
+      setData({ year, value: n1?.value ?? null, unit: n1?.unit ?? "Toneladas", states, delta5y });
     })();
     return () => {
       cancelled = true;

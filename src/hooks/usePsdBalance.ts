@@ -18,7 +18,15 @@ export type PsdBalance = {
   consumption: number | null;
   exportt: number | null; // export do PSD (attr 88) — MESMO eixo do balanco (safra)
   unitId: number | null;
+  productionDelta5y: number | null; // % arredondado, USDA vs USDA de 5 anos atras; null se serie curta
+  exportDelta5y: number | null; // idem para export (attr 88)
 };
+
+/** delta % de 5 anos, arredondado; null se nao ha valor de 5 anos atras. */
+function delta5(now: number | null | undefined, past: number | null | undefined): number | null {
+  if (now == null || past == null || past === 0) return null;
+  return Math.round((100 * (now - past)) / past);
+}
 
 const nfmt = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
@@ -72,6 +80,11 @@ export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | nul
       const consRows = inYear.filter((r: any) => consumo.includes(r.attribute_id) && r.value != null);
       const consumption = consRows.length ? consRows.reduce((s: number, r: any) => s + Number(r.value), 0) : null;
 
+      // delta de 5 anos: USDA-hoje vs USDA de (my-5). NUNCA misturar com IBGE.
+      const at = (yr: number, attr: number) => rows.find((r: any) => r.market_year === yr && r.attribute_id === attr)?.value ?? null;
+      const productionDelta5y = delta5(prodRow?.value, at(my - 5, 28));
+      const exportDelta5y = delta5(expRow?.value, at(my - 5, 88));
+
       setData({
         marketYear: my,
         safraLabel: `${my}/${String((my + 1) % 100).padStart(2, "0")}`,
@@ -79,6 +92,8 @@ export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | nul
         consumption,
         exportt: expRow?.value ?? null,
         unitId: prodRow?.unit_id ?? null,
+        productionDelta5y,
+        exportDelta5y,
       });
     })();
 
