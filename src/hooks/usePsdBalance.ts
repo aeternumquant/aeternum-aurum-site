@@ -16,6 +16,7 @@ export type PsdBalance = {
   safraLabel: string; // "2024/25"
   production: number | null;
   consumption: number | null;
+  exportt: number | null; // export do PSD (attr 88) — MESMO eixo do balanco (safra)
   unitId: number | null;
 };
 
@@ -48,7 +49,7 @@ export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | nul
     const consumo = cfg.consumoAttrs;
 
     (async () => {
-      const attrs = [28, ...consumo];
+      const attrs = [28, 88, ...consumo]; // 28 producao, 88 export (mesmo eixo safra)
       const { data: rows, error } = await supabase!
         .from("psd_balances")
         .select("market_year,attribute_id,value,unit_id")
@@ -67,6 +68,7 @@ export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | nul
       const my = Math.max(...prodYears);
       const inYear = rows.filter((r: any) => r.market_year === my);
       const prodRow = inYear.find((r: any) => r.attribute_id === 28);
+      const expRow = inYear.find((r: any) => r.attribute_id === 88);
       const consRows = inYear.filter((r: any) => consumo.includes(r.attribute_id) && r.value != null);
       const consumption = consRows.length ? consRows.reduce((s: number, r: any) => s + Number(r.value), 0) : null;
 
@@ -75,6 +77,7 @@ export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | nul
         safraLabel: `${my}/${String((my + 1) % 100).padStart(2, "0")}`,
         production: prodRow?.value ?? null,
         consumption,
+        exportt: expRow?.value ?? null,
         unitId: prodRow?.unit_id ?? null,
       });
     })();

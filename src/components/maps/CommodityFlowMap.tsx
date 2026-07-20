@@ -302,6 +302,107 @@ function FlowLayer({
   );
 }
 
+/**
+ * Donut do balanco interno (USDA PSD): verde = fracao exportada, cinza = uso
+ * interno, normalizados sobre (export + consumo) — o anel fecha 100%, e todos
+ * os numeros vem do MESMO eixo (safra). Centro: a % dominante + o verbo (a
+ * soja "exporta", o milho "consome"). Ao lado: os numeros exatos + producao.
+ */
+const GREEN_EXP = "#1baf7a";
+const GRAY_USE = "var(--border-strong, rgba(255,255,255,0.28))"; // --border-strong ainda nao existe no CSS
+
+function PsdDonut({
+  exportt,
+  consumption,
+  production,
+  unitId,
+  safraLabel,
+  consumoLabel,
+  consumoNote,
+}: {
+  exportt: number | null;
+  consumption: number | null;
+  production: number | null;
+  unitId: number | null;
+  safraLabel: string;
+  consumoLabel: string;
+  consumoNote: string;
+}) {
+  const exp = exportt ?? 0;
+  const cons = consumption ?? 0;
+  const tot = exp + cons;
+  const expFrac = tot > 0 ? exp / tot : 0;
+  const expPct = Math.round(expFrac * 100);
+  const exportDom = exp >= cons;
+  const domPct = exportDom ? expPct : 100 - expPct;
+  const verb = exportDom ? "exporta" : consumoLabel === "Uso interno" ? "usa" : "consome";
+
+  const R = 18;
+  const C = 2 * Math.PI * R;
+
+  return (
+    <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
+          Balanço interno · Brasil
+        </span>
+        <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
+          safra {safraLabel} · projeção USDA
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        {/* o anel */}
+        <svg width={52} height={52} viewBox="0 0 48 48" className="flex-shrink-0">
+          <circle cx={24} cy={24} r={R} fill="none" stroke={GRAY_USE} strokeWidth={6} />
+          <circle
+            cx={24}
+            cy={24}
+            r={R}
+            fill="none"
+            stroke={GREEN_EXP}
+            strokeWidth={6}
+            strokeDasharray={`${expFrac * C} ${C}`}
+            transform="rotate(-90 24 24)"
+          />
+          <text x={24} y={23} textAnchor="middle" style={{ fontFamily: "var(--font-display, serif)", fontSize: "12px", fontWeight: 700, fill: "#fff" }}>
+            {domPct}%
+          </text>
+          <text x={24} y={31} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: "5.5px", fill: "rgba(255,255,255,0.5)", letterSpacing: "0.5px" }}>
+            {verb}
+          </text>
+        </svg>
+
+        {/* os numeros exatos, mesmo eixo */}
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: GREEN_EXP }} />
+              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>Exporta</span>
+            </span>
+            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(exportt, unitId)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 flex-shrink-0" style={{ backgroundColor: "rgba(255,255,255,0.28)" }} />
+              <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>{consumoLabel}</span>
+            </span>
+            <span className="font-sans text-[8.5px] text-white/85">{fmtPsd(consumption, unitId)}</span>
+          </div>
+          <div className="flex items-center justify-between pt-0.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.4)" }}>Produção</span>
+            <span className="font-sans text-[8.5px]" style={{ color: `${GOLD}dd` }}>{fmtPsd(production, unitId)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="font-sans text-[6.5px] mt-1.5" style={{ color: "rgba(255,255,255,0.22)" }}>
+        USDA PSD · exportação (attr 88) e {consumoNote}
+      </div>
+    </div>
+  );
+}
+
 export default function CommodityFlowMap({
   label,
   cfg,
@@ -534,39 +635,20 @@ export default function CommodityFlowMap({
           </div>
         )}
 
-        {/* Balanco interno (USDA PSD) — so as 9 com psd. Eixo de tempo PROPRIO
-            (safra), DISTINTO do fluxo acima (12m civil). Os dois lado a lado,
-            cada um rotulado; sem forcar o mesmo eixo. */}
-        {cfg.psd && psd && (
-          <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            <div className="flex items-baseline justify-between mb-1.5">
-              <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-                Balanço interno · Brasil
-              </span>
-              <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
-                safra {psd.safraLabel} · USDA
-              </span>
-            </div>
-            <div className="flex gap-4">
-              <div>
-                <div className="font-sans text-[6.5px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  Produção
-                </div>
-                <div className="font-display text-sm text-white">{fmtPsd(psd.production, psd.unitId)}</div>
-              </div>
-              <div>
-                <div className="font-sans text-[6.5px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  {cfg.psd.consumoLabel}
-                </div>
-                <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.82)" }}>
-                  {fmtPsd(psd.consumption, psd.unitId)}
-                </div>
-              </div>
-            </div>
-            <div className="font-sans text-[6.5px] mt-1.5" style={{ color: "rgba(255,255,255,0.22)" }}>
-              USDA PSD · {cfg.psd.consumoNote}
-            </div>
-          </div>
+        {/* Balanco interno (USDA PSD) — DONUT: verde = exportado, cinza = uso
+            interno, ambos do MESMO eixo (safra, export attr 88 + consumo). O
+            anel fecha 100% por construcao (fracao de exp+cons). Eixo de tempo
+            PROPRIO, distinto do fluxo acima (12m civil MDIC). So no card. */}
+        {cfg.psd && psd && (psd.exportt != null || psd.consumption != null) && (
+          <PsdDonut
+            exportt={psd.exportt}
+            consumption={psd.consumption}
+            production={psd.production}
+            unitId={psd.unitId}
+            safraLabel={psd.safraLabel}
+            consumoLabel={cfg.psd.consumoLabel}
+            consumoNote={cfg.psd.consumoNote}
+          />
         )}
 
         {/* Parceiros por direcao */}
