@@ -1,0 +1,88 @@
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import type { PsdCfg } from "../lib/flowMapConfig";
+
+/**
+ * Balanco interno do Brasil (USDA PSD) para o card. Le a producao (attr 28) e o
+ * consumo (o(s) attribute_id do PsdCfg, que varia por commodity) do marketYear
+ * mais recente com producao. Valor CRU em milhares + unitId (o front formata; a
+ * unidade varia por commodity: 1000 MT, sacas, fardos, MT CWE).
+ *
+ * Tabela SEPARADA do trade_flows — este hook NAO cruza com o fluxo; o card
+ * apresenta os dois lado a lado, cada um com seu eixo de tempo.
+ */
+export type PsdBalance = {
+  marketYear: number;
+  safraLabel: string; // "2024/25"
+  production: number | null;
+  consumption: number | null;
+  unitId: number | null;
+};
+
+const nfmt = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+
+/** valor CRU (milhares) + unitId -> texto. value/1000 = milhoes da unidade base. */
+export function fmtPsd(value: number | null, unitId: number | null): string {
+  if (value == null) return "—";
+  const mi = value / 1000;
+  const suf: Record<number, string> = {
+    8: "Mt", // (1000 MT)
+    21: "Mt", // (MT) — raro; ainda milhares na base
+    7: "Mt eq. carcaça", // (1000 MT CWE)
+    2: "Mi sacas (60 kg)", // (1000 60 KG BAGS)
+    27: "Mi fardos (480 lb)", // 1000 480 lb Bales
+    6: "Mi hL", // (1000 HL)
+  };
+  return `${nfmt.format(mi)} ${suf[unitId ?? -1] ?? "(mil, un. PSD)"}`;
+}
+
+export function usePsdBalance(cfg: PsdCfg | undefined): { data: PsdBalance | null } {
+  const [data, setData] = useState<PsdBalance | null>(null);
+
+  useEffect(() => {
+    if (!cfg || !supabase) {
+      setData(null);
+      return;
+    }
+    let cancelled = false;
+    const consumo = cfg.consumoAttrs;
+
+    (async () => {
+      const attrs = [28, ...consumo];
+      const { data: rows, error } = await supabase!
+        .from("psd_balances")
+        .select("market_year,attribute_id,value,unit_id")
+        .eq("commodity_code", cfg.code)
+        .eq("country_code", "BR")
+        .in("attribute_id", attrs);
+      if (cancelled || error || !rows) {
+        if (!cancelled) setData(null);
+        return;
+      }
+      const prodYears = rows.filter((r: any) => r.attribute_id === 28 && r.value != null).map((r: any) => r.market_year);
+      if (!prodYears.length) {
+        setData(null);
+        return;
+      }
+      const my = Math.max(...prodYears);
+      const inYear = rows.filter((r: any) => r.market_year === my);
+      const prodRow = inYear.find((r: any) => r.attribute_id === 28);
+      const consRows = inYear.filter((r: any) => consumo.includes(r.attribute_id) && r.value != null);
+      const consumption = consRows.length ? consRows.reduce((s: number, r: any) => s + Number(r.value), 0) : null;
+
+      setData({
+        marketYear: my,
+        safraLabel: `${my}/${String((my + 1) % 100).padStart(2, "0")}`,
+        production: prodRow?.value ?? null,
+        consumption,
+        unitId: prodRow?.unit_id ?? null,
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cfg]);
+
+  return { data };
+}

@@ -38,6 +38,20 @@ export type SubCardCfg = {
   note?: string;
 };
 
+/**
+ * Balanco interno do USDA PSD (producao/consumo do Brasil), tabela SEPARADA do
+ * fluxo (unilateral vs bilateral) — os dois eixos de tempo ficam DISTINTOS no
+ * card (safra USDA vs 12m civil MDIC). Consumo NAO e o mesmo atributo em todas
+ * (descoberta do cross-check): o mapa por commodity fica aqui, RASTREAVEL —
+ * consumoNote registra qual attribute_id alimentou o numero.
+ */
+export type PsdCfg = {
+  code: string;              // commodity_code do PSD ('2222000')
+  consumoAttrs: number[];    // attribute_id(s) que somam o "consumo/uso interno"
+  consumoLabel: string;      // "Consumo interno" | "Uso interno" (fiel ao atributo)
+  consumoNote: string;       // rastreabilidade: "Total Disappearance (attr 126)"
+};
+
 export type FlowCardCfg = {
   subs: SubCardCfg[];
   /** sobrescreve o label do chip (ex.: "Laranja e suco") */
@@ -51,7 +65,22 @@ export type FlowCardCfg = {
   mode?: "priceOnly";
   /** caso 4: fluxo normal, card sem cotacao (texto exato no lugar do preco) */
   noPriceText?: string;
+  /** balanco interno USDA PSD (so as 9 que existem no PSD) */
+  psd?: PsdCfg;
 };
+
+/**
+ * Mapa de consumo por commodity (opcao a do Gabriel; rastreavel no card).
+ * A maioria usa Domestic Consumption (125); acucar e algodao contabilizam
+ * consumo em atributos proprios (descoberta do cross-check), com rotulo
+ * "Uso interno" (mais fiel: incluem perda/uso industrial, nao so consumo).
+ */
+const psdDC = (code: string): PsdCfg => ({
+  code,
+  consumoAttrs: [125],
+  consumoLabel: "Consumo interno",
+  consumoNote: "Domestic Consumption (attr 125)",
+});
 
 /** Grupo A (exportacao simples) + a soja (piloto). Grupos B-E entram depois. */
 export const FLOW_CARDS: Record<string, FlowCardCfg> = {
@@ -67,6 +96,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       { key: "oleo", label: "Óleo", export: ["150710", "150790"], price: { code: "OLEO_SOJA_WB" } },
     ],
     competitorsN3: [840, 32], // EUA, Argentina (curados pelo Gabriel)
+    psd: psdDC("2222000"), // Oilseed, Soybean
   },
   // Opcao (b) do Gabriel: card unico "Laranja e suco", tres produtos, cada um
   // com SEU preco e SEU fluxo. A fruta tem preco (referencia UE) e fluxo ~zero;
@@ -102,16 +132,26 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       },
     ],
   },
-  Milho: { subs: [{ key: "milho", label: "Milho", export: ["100590"] }] },
-  Cafe: { subs: [{ key: "cafe", label: "Café verde", export: ["090111"] }] },
+  Milho: { subs: [{ key: "milho", label: "Milho", export: ["100590"] }], psd: psdDC("0440000") },
+  Cafe: { subs: [{ key: "cafe", label: "Café verde", export: ["090111"] }], psd: psdDC("0711100") },
   BoiGordo: {
     subs: [{ key: "carne", label: "Carne bovina", export: ["020230"] }],
     // preco (boi vivo B3) e fluxo (carne desossada) sao produtos DIFERENTES:
     // cada linha com sua verdade, sem fundir (aprovado pelo Gabriel).
     priceNote: "Preço: boi gordo, B3 (animal vivo)",
     flowNote: "Fluxo: carne bovina desossada congelada (exportação)",
+    psd: psdDC("0111000"), // Meat, Beef and Veal (produção em 1000 MT CWE)
   },
-  Algodao: { subs: [{ key: "algodao", label: "Algodão", export: ["520100"] }] },
+  Algodao: {
+    subs: [{ key: "algodao", label: "Algodão", export: ["520100"] }],
+    // algodao: consumo = Domestic Use (142) + Loss (150); rotulo "Uso interno"
+    psd: {
+      code: "2631000",
+      consumoAttrs: [142, 150],
+      consumoLabel: "Uso interno",
+      consumoNote: "Domestic Use + Loss (attr 142+150)",
+    },
+  },
   Cacau: { subs: [{ key: "cacau", label: "Amêndoa", export: ["180100"] }] },
   Amendoim: { subs: [{ key: "amendoim", label: "Amendoim", export: ["120242"] }] },
   MinerioFerro: {
@@ -146,6 +186,13 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         price: { code: null, noQuote: "Sem cotação disponível" },
       },
     ],
+    // acucar: consumo = Total Disappearance (126, inclui perda); rotulo "Uso interno"
+    psd: {
+      code: "0612000",
+      consumoAttrs: [126],
+      consumoLabel: "Uso interno",
+      consumoNote: "Total Disappearance (attr 126)",
+    },
   },
   Frango: {
     subs: [
@@ -154,6 +201,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     ],
     // FRANGO_WB (atacado SP) descreve frango como carne — vale para os dois
     // subs; herdado do card (ASSET_SERIES), sem duplicar.
+    psd: psdDC("0115000"), // Meat, Chicken
   },
   Arroz: {
     subs: [
@@ -176,6 +224,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         price: { code: null, noQuote: "Sem cotação disponível" },
       },
     ],
+    psd: psdDC("0422110"), // Rice, Milled
   },
   Aluminio: {
     subs: [
@@ -199,6 +248,8 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
   // ganham a aba propria (a unica categoria toda de importacao).
   Trigo: {
     subs: [{ key: "trigo", label: "Trigo", import: ["100199"] }], // preco herdado: TRIGO_WB (US HRW)
+    // trigo: a historia e o balanco — produz 7,9 Mt, consome 12,2, importa o gap.
+    psd: psdDC("0410000"), // Wheat
   },
   GasNatural: {
     // DECISAO DE PRECO: o Henry Hub que temos e a referencia DOMESTICA dos

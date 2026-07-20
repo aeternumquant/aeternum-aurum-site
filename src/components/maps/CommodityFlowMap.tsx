@@ -24,6 +24,7 @@ import { geoCentroid } from "d3-geo";
 import { motion, useReducedMotion } from "framer-motion";
 import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
+import { usePsdBalance, fmtPsd } from "../../hooks/usePsdBalance";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
@@ -347,6 +348,10 @@ export default function CommodityFlowMap({
   const hasImport = cfg.subs.some((s) => s.import?.length);
   const hasExport = cfg.subs.some((s) => s.export?.length);
 
+  // Balanco interno USDA PSD (so as 9 com psd na config). Eixo de tempo PROPRIO
+  // (safra), distinto do fluxo (12m civil). Tabela separada — nao cruza.
+  const { data: psd } = usePsdBalance(cfg.psd);
+
   return (
     <div
       className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
@@ -526,6 +531,41 @@ export default function CommodityFlowMap({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Balanco interno (USDA PSD) — so as 9 com psd. Eixo de tempo PROPRIO
+            (safra), DISTINTO do fluxo acima (12m civil). Os dois lado a lado,
+            cada um rotulado; sem forcar o mesmo eixo. */}
+        {cfg.psd && psd && (
+          <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
+                Balanço interno · Brasil
+              </span>
+              <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
+                safra {psd.safraLabel} · USDA
+              </span>
+            </div>
+            <div className="flex gap-4">
+              <div>
+                <div className="font-sans text-[6.5px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  Produção
+                </div>
+                <div className="font-display text-sm text-white">{fmtPsd(psd.production, psd.unitId)}</div>
+              </div>
+              <div>
+                <div className="font-sans text-[6.5px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {cfg.psd.consumoLabel}
+                </div>
+                <div className="font-display text-sm" style={{ color: "rgba(255,255,255,0.82)" }}>
+                  {fmtPsd(psd.consumption, psd.unitId)}
+                </div>
+              </div>
+            </div>
+            <div className="font-sans text-[6.5px] mt-1.5" style={{ color: "rgba(255,255,255,0.22)" }}>
+              USDA PSD · {cfg.psd.consumoNote}
+            </div>
           </div>
         )}
 
