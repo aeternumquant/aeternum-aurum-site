@@ -25,6 +25,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
 import { usePsdBalance, fmtPsd } from "../../hooks/usePsdBalance";
+import { usePamProduction, usePamAbate, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
@@ -403,6 +404,69 @@ function PsdDonut({
   );
 }
 
+/**
+ * Bloco do IBGE (campo brasileiro): producao (PAM) + estados lideres + abate.
+ * `withUsda` = ha o donut USDA acima (os dois numeros lado a lado, eixos de ano
+ * DISTINTOS — a divergencia e informacao); senao e o unico numero (cacau/
+ * laranja/amendoim, que o USDA nao tem). O abate tem rotulo PROPRIO (metrica
+ * diferente: inspecionado, ~85-90% da producao total do USDA).
+ */
+function IbgeBlock({
+  pam,
+  abate,
+  species,
+  withUsda,
+}: {
+  pam: PamProduction | null;
+  abate: Abate | null;
+  species?: string;
+  withUsda: boolean;
+}) {
+  if (!pam && !abate) return null;
+  return (
+    <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      {pam && (
+        <>
+          <div className="flex items-baseline justify-between">
+            <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
+              {withUsda ? "Produção · campo" : "Produção · Brasil"}
+            </span>
+            <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
+              safra {pam.year} · IBGE (PAM)
+            </span>
+          </div>
+          <div className="font-display text-base mt-0.5" style={{ color: withUsda ? "rgba(255,255,255,0.82)" : "#fff" }}>
+            {fmtTon(pam.value)}
+          </div>
+          {pam.states.length > 0 && (
+            <div className="font-sans text-[7.5px] mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Principais: {pam.states.map((s) => `${s.name} ${pctFmt.format(s.pct)}%`).join(" · ")}
+            </div>
+          )}
+        </>
+      )}
+      {abate && (
+        <div className={pam ? "mt-2 pt-2" : ""} style={pam ? { borderTop: "1px solid rgba(255,255,255,0.06)" } : undefined}>
+          <div className="flex items-baseline justify-between">
+            <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
+              Abate inspecionado
+            </span>
+            <span className="font-sans text-[7px]" style={{ color: `${GOLD}99` }}>
+              {abate.year} · IBGE
+            </span>
+          </div>
+          <div className="font-display text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.82)" }}>
+            {fmtCwe(abate.carcassKg)} <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.4)" }}>peso carcaça</span>
+          </div>
+          <div className="font-sans text-[6.5px] mt-0.5" style={{ color: "rgba(255,255,255,0.22)" }}>
+            só {species === "bovino" ? "bovinos" : "frangos"} sob inspeção (SIF/SIE/SIM) — subconjunto da produção USDA
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CommodityFlowMap({
   label,
   cfg,
@@ -452,6 +516,12 @@ export default function CommodityFlowMap({
   // Balanco interno USDA PSD (so as 9 com psd na config). Eixo de tempo PROPRIO
   // (safra), distinto do fluxo (12m civil). Tabela separada — nao cruza.
   const { data: psd } = usePsdBalance(cfg.psd);
+
+  // IBGE (campo brasileiro): producao do card OU do sub atual (ex.: laranja-
+  // fruta so no sub 'fruta'). Abate na carne/frango. Tabelas separadas.
+  const pamSlug = cfg.ibge?.slug ?? sub?.ibge?.slug;
+  const { data: pam } = usePamProduction(pamSlug);
+  const { data: abate } = usePamAbate(cfg.abate?.species);
 
   return (
     <div
@@ -650,6 +720,11 @@ export default function CommodityFlowMap({
             consumoNote={cfg.psd.consumoNote}
           />
         )}
+
+        {/* IBGE (campo brasileiro): ao lado do USDA onde conversa (grao vs grao),
+            sozinho onde o USDA nao tem (cacau/laranja/amendoim). Abate com rotulo
+            proprio (metrica distinta). Eixos de ano DISTINTOS do USDA. */}
+        {(pam || abate) && <IbgeBlock pam={pam} abate={abate} species={cfg.abate?.species} withUsda={!!cfg.psd} />}
 
         {/* Parceiros por direcao */}
         {([

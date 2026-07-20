@@ -36,6 +36,8 @@ export type SubCardCfg = {
   price?: SubPriceCfg;
   /** nota de honestidade especifica do sub (ex.: laranja-fruta) */
   note?: string;
+  /** producao IBGE (PAM) DESTE sub — ex.: a laranja-fruta no card do suco */
+  ibge?: { slug: string };
 };
 
 /**
@@ -67,6 +69,14 @@ export type FlowCardCfg = {
   noPriceText?: string;
   /** balanco interno USDA PSD (so as 9 que existem no PSD) */
   psd?: PsdCfg;
+  /**
+   * Producao IBGE (PAM, campo brasileiro) no card. PRESENTE = mostra (ao lado
+   * do USDA onde conversa; sozinho onde o USDA nao tem). AUSENTE = fica so no
+   * banco (acucar/algodao/arroz: cana!=acucar etc — nao confrontar).
+   */
+  ibge?: { slug: string };
+  /** abate IBGE (peso carcaca, INSPECIONADO) — metrica propria, rotulo distinto */
+  abate?: { species: string };
 };
 
 /**
@@ -97,6 +107,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     ],
     competitorsN3: [840, 32], // EUA, Argentina (curados pelo Gabriel)
     psd: psdDC("2222000"), // Oilseed, Soybean
+    ibge: { slug: "soja" }, // conversa com o USDA (grao vs grao)
   },
   // Opcao (b) do Gabriel: card unico "Laranja e suco", tres produtos, cada um
   // com SEU preco e SEU fluxo. A fruta tem preco (referencia UE) e fluxo ~zero;
@@ -129,11 +140,12 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         price: { code: "LARANJA_WB" },
         note:
           "Preço de referência da fruta na UE (Mediterrâneo, navel, importação) — não o recebido pelo Brasil. O Brasil exporta ~zero de fruta: a laranja vira suco.",
+        ibge: { slug: "laranja" }, // o numero que faltava: producao da fruta (IBGE)
       },
     ],
   },
-  Milho: { subs: [{ key: "milho", label: "Milho", export: ["100590"] }], psd: psdDC("0440000") },
-  Cafe: { subs: [{ key: "cafe", label: "Café verde", export: ["090111"] }], psd: psdDC("0711100") },
+  Milho: { subs: [{ key: "milho", label: "Milho", export: ["100590"] }], psd: psdDC("0440000"), ibge: { slug: "milho" } },
+  Cafe: { subs: [{ key: "cafe", label: "Café verde", export: ["090111"] }], psd: psdDC("0711100"), ibge: { slug: "cafe" } },
   BoiGordo: {
     subs: [{ key: "carne", label: "Carne bovina", export: ["020230"] }],
     // preco (boi vivo B3) e fluxo (carne desossada) sao produtos DIFERENTES:
@@ -141,6 +153,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     priceNote: "Preço: boi gordo, B3 (animal vivo)",
     flowNote: "Fluxo: carne bovina desossada congelada (exportação)",
     psd: psdDC("0111000"), // Meat, Beef and Veal (produção em 1000 MT CWE)
+    abate: { species: "bovino" }, // IBGE abate INSPECIONADO (~85% do total USDA; rotulo distinto)
   },
   Algodao: {
     subs: [{ key: "algodao", label: "Algodão", export: ["520100"] }],
@@ -152,8 +165,11 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       consumoNote: "Domestic Use + Loss (attr 142+150)",
     },
   },
-  Cacau: { subs: [{ key: "cacau", label: "Amêndoa", export: ["180100"] }] },
-  Amendoim: { subs: [{ key: "amendoim", label: "Amendoim", export: ["120242"] }] },
+  // Cacau: SO IBGE (o USDA PSD nao tem cacau). O bloco de producao preenche a
+  // historia "produz e consome, quase nao exporta" que o fluxo ~zero nao contava.
+  Cacau: { subs: [{ key: "cacau", label: "Amêndoa", export: ["180100"] }], ibge: { slug: "cacau" } },
+  // Amendoim: so IBGE no nosso banco (o PSD do amendoim nao foi ingerido).
+  Amendoim: { subs: [{ key: "amendoim", label: "Amendoim", export: ["120242"] }], ibge: { slug: "amendoim" } },
   MinerioFerro: {
     subs: [
       { key: "finos", label: "Finos", export: ["260111"] },
@@ -202,6 +218,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     // FRANGO_WB (atacado SP) descreve frango como carne — vale para os dois
     // subs; herdado do card (ASSET_SERIES), sem duplicar.
     psd: psdDC("0115000"), // Meat, Chicken
+    abate: { species: "frango" }, // IBGE abate INSPECIONADO (~90% do total USDA)
   },
   Arroz: {
     subs: [
@@ -250,6 +267,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     subs: [{ key: "trigo", label: "Trigo", import: ["100199"] }], // preco herdado: TRIGO_WB (US HRW)
     // trigo: a historia e o balanco — produz 7,9 Mt, consome 12,2, importa o gap.
     psd: psdDC("0410000"), // Wheat
+    ibge: { slug: "trigo" }, // conversa com o USDA (grao vs grao)
   },
   GasNatural: {
     // DECISAO DE PRECO: o Henry Hub que temos e a referencia DOMESTICA dos
