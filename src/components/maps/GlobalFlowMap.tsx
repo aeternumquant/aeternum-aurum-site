@@ -30,6 +30,7 @@ import {
 } from "../../lib/marketFormat";
 import CommodityFlowMap from "./CommodityFlowMap";
 import { useTradeFlows } from "../../hooks/useTradeFlows";
+import { usePsdRanking, fmtPsd as fmtPsdRank } from "../../hooks/usePsdRanking";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
 
 /* ── Dourado da marca ── */
@@ -426,6 +427,51 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
 };
 
 /**
+ * Rodape do mapa: ranking MUNDIAL de producao da commodity selecionada (USDA
+ * PSD, o competidor de producao). Dado ja no banco (todos os paises); reativo a
+ * carta. O Brasil SEMPRE destacado (peso/borda dourada) — esteja em 1o ou em
+ * 8o. Os outros neutros (so numero, sem cor de papel). Mesma fonte/eixo (safra).
+ */
+function ProductionRankingFooter({ code }: { code: string }) {
+  const { data } = usePsdRanking(code);
+  if (!data) return null;
+  const cell = (r: { iso: string; name: string; value: number | null; rank: number; isBrazil: boolean }) => (
+    <span
+      key={r.iso}
+      className="flex-shrink-0 flex items-baseline gap-1.5 px-2.5 py-1"
+      style={{
+        backgroundColor: r.isBrazil ? `${GOLD}12` : "rgba(255,255,255,0.02)",
+        border: `1px solid ${r.isBrazil ? `${GOLD}55` : "rgba(255,255,255,0.06)"}`,
+      }}
+    >
+      <span className="font-sans text-[8px]" style={{ color: r.isBrazil ? GOLD : "rgba(255,255,255,0.3)" }}>{r.rank}</span>
+      <span className="font-sans text-[9px]" style={{ color: r.isBrazil ? "#fff" : "rgba(255,255,255,0.7)", fontWeight: r.isBrazil ? 600 : 400 }}>
+        {r.name}
+      </span>
+      <span className="font-sans text-[8.5px]" style={{ color: r.isBrazil ? `${GOLD}dd` : "rgba(255,255,255,0.45)" }}>
+        {fmtPsdRank(r.value, data.unitId)}
+      </span>
+    </span>
+  );
+  return (
+    <div className="flex-shrink-0 px-4 py-2" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
+      <div className="font-sans text-[8px] uppercase tracking-[0.2em] mb-1.5" style={{ color: `${GOLD}90` }}>
+        Produção mundial · safra {data.safraLabel} · projeção USDA
+      </div>
+      <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+        {data.top.map(cell)}
+        {data.brazilOutside && (
+          <>
+            <span className="flex-shrink-0 font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>…</span>
+            {cell(data.brazilOutside)}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Bloco compacto de preço para o card do Mapa v2 (CommodityFlowMap). A mesma
  * honestidade do InfoPanel: valor+unidade, conversão BRL de referência, período
  * (média mensal vs. atualizado), atribuição, variação com rótulo, secundário.
@@ -746,7 +792,8 @@ export default function GlobalFlowMap() {
 
       {flowCfg && selectedAsset ? (
         /* Mapa v2: a lei nova para os cards com config (rollout por grupos). */
-        <div className="flex-1 relative min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 relative min-h-0">
           {tradeFlows.data || flowCfg.mode === "priceOnly" ? (
             <CommodityFlowMap
               label={flowCfg.cardLabel ?? assetFlows[selectedAsset].label}
@@ -791,6 +838,8 @@ export default function GlobalFlowMap() {
               </span>
             </div>
           )}
+          </div>
+          {flowCfg.psd && <ProductionRankingFooter code={flowCfg.psd.code} />}
         </div>
       ) : (
       <>
