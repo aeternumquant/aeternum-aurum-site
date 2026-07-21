@@ -93,7 +93,16 @@ export default function RareEarthMap() {
       </div>
     );
   }
-  const maxRes = Math.max(...data.gap.map((r) => r.reserve ?? 0), 1);
+  // Taxa de extracao = producao anual / reserva. Ordena por taxa desc (quem
+  // USA o que tem no topo; quem esta SENTADO na reserva no fim). So paises com
+  // reserva E producao (senao a taxa nao existe / distorce). O volume absoluto
+  // vem SEMPRE ao lado — a taxa sozinha engana sobre magnitude.
+  const rates = Object.values(data.byIso)
+    .filter((c) => (c.reserve ?? 0) > 0 && c.production > 0)
+    .map((c) => ({ ...c, rate: (100 * c.production) / (c.reserve as number) }))
+    .sort((a, b) => b.rate - a.rate);
+  const maxRate = Math.max(...rates.map((r) => r.rate), 0.0001);
+  const fmtRate = (t: number) => `${(t >= 1 ? t.toFixed(1) : t >= 0.1 ? t.toFixed(2) : t.toFixed(3)).replace(".", ",")}%`;
 
   return (
     <div className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden" style={{ backgroundColor: "#050503" }}>
@@ -127,41 +136,36 @@ export default function RareEarthMap() {
             Terras raras
           </div>
           <div className="font-display text-base mb-1" style={{ color: GOLD }}>
-            Reserva no solo vs produção
+            Taxa de extração
           </div>
           <div className="font-sans text-[8px] leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-            O Brasil tem a 2ª maior reserva mundial e extrai quase nada. A China domina os dois lados. É a distância entre ter no solo e produzir — o dado, não uma recomendação.
+            Quanto da reserva cada país extrai por ano. Os EUA extraem intensamente uma reserva pequena; o Brasil tem a 2ª maior reserva do mundo e extrai 0,01% ao ano. O dado, não uma recomendação.
           </div>
         </div>
-        <div className="px-4 py-3 space-y-3">
-          {data.gap.map((r) => {
-            const resW = ((r.reserve ?? 0) / maxRes) * 100;
-            const prodW = r.reserve ? ((r.production ?? 0) / (r.reserve || 1)) * resW : 0;
+        <div className="px-4 py-3 space-y-2.5">
+          {rates.map((r) => {
+            const w = (r.rate / maxRate) * 100;
             const isBr = r.iso === "BRA";
             return (
               <div key={r.iso}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <span className="font-sans text-[9px]" style={{ color: isBr ? GOLD : "rgba(255,255,255,0.8)", fontWeight: isBr ? 600 : 400 }}>{r.name}</span>
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <span className="font-sans text-[9px]" style={{ color: isBr ? GOLD : "rgba(255,255,255,0.8)", fontWeight: isBr ? 600 : 400 }}>
+                    {r.name}
+                    <span className="ml-1.5 font-sans text-[9px]" style={{ color: isBr ? `${GOLD}dd` : "rgba(255,255,255,0.55)" }}>{fmtRate(r.rate)}</span>
+                  </span>
                   <span className="font-sans text-[7.5px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    res. {fmtUsgs(r.reserve, data.unit)} · prod. {fmtUsgs(r.production, "metric tons")}
+                    {fmtUsgs(r.production, "metric tons")} de {fmtUsgs(r.reserve, data.unit)}
                   </span>
                 </div>
-                <div className="relative h-3" style={{ backgroundColor: "rgba(255,255,255,0.04)" }}>
-                  <div className="absolute inset-y-0 left-0" style={{ width: `${resW}%`, backgroundColor: isBr ? `${AMBER}55` : "rgba(255,255,255,0.14)" }} />
-                  <div className="absolute inset-y-0 left-0" style={{ width: `${Math.max(prodW, r.production ? 0.6 : 0)}%`, backgroundColor: GREEN }} />
+                <div className="relative h-2.5" style={{ backgroundColor: "rgba(255,255,255,0.04)" }}>
+                  {/* a barra e a TAXA; min 0,5px p/ o Brasil nao sumir de todo */}
+                  <div className="absolute inset-y-0 left-0" style={{ width: `${Math.max(w, 0.5)}%`, backgroundColor: isBr ? AMBER : GREEN }} />
                 </div>
               </div>
             );
           })}
-          <div className="flex items-center gap-3 pt-1">
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-2" style={{ backgroundColor: "rgba(255,255,255,0.14)" }} />
-              <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.45)" }}>reserva</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-2" style={{ backgroundColor: GREEN }} />
-              <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.45)" }}>produção/ano</span>
-            </span>
+          <div className="font-sans text-[7.5px] pt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.35)" }}>
+            Barra = taxa de extração (produção ÷ reserva). O número ao lado é o volume absoluto — a intensidade com a magnitude.
           </div>
         </div>
         <div className="px-4 py-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
