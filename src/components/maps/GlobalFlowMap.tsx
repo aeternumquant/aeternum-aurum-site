@@ -31,6 +31,7 @@ import {
 import CommodityFlowMap from "./CommodityFlowMap";
 import { useTradeFlows } from "../../hooks/useTradeFlows";
 import { usePsdRanking, fmtPsd as fmtPsdRank } from "../../hooks/usePsdRanking";
+import { useUsgsRanking, useRareEarthGap, fmtUsgs } from "../../hooks/useUsgs";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
 
 /* ── Dourado da marca ── */
@@ -46,9 +47,10 @@ type AssetType =
   | "Arroz" | "Frango" | "Laranja" | "Etanol" | "Amendoim"
   | "MinerioFerro" | "Niobio"
   | "Ureia" | "KCl" | "MAP" | "TSP" | "Rocha"
+  | "TerrasRaras"
   | null;
 
-type MapCategory = "Agro" | "Metais" | "Energia" | "Fertilizantes";
+type MapCategory = "Agro" | "Minérios" | "Energia" | "Fertilizantes" | "Terras raras";
 
 /* ── Países estratégicos para o painel abaixo do mapa ── */
 const strategicCountries = [
@@ -247,29 +249,29 @@ const assetFlows: Record<NonNullable<AssetType>, {
     flowData: "Rússia controla 22% das exportações via Mar Negro. Brasil importa ≈7M ton/ano do Mercosul e Mar Negro.",
     percentage: "22% global (RU)", volume: "800M ton/ano",
   },
-  // ── Metais ──
+  // ── Minérios ──
   Ouro: {
-    label: "Ouro", category: "Metais",
+    label: "Ouro", category: "Minérios",
     flowData: "Precificado na CME/COMEX e armazenado em cofres via LBMA. Bancos Centrais adicionaram 1.037 ton em 2023 — maior compra desde 1967.",
     percentage: "Reserva global", volume: "3.644 ton/ano",
   },
   Prata: {
-    label: "Prata", category: "Metais",
+    label: "Prata", category: "Minérios",
     flowData: "Metal dual: industrial (solar consome 14%/ano) e reserva de valor. COMEX define spot global. Déficit estrutural pelo boom solar.",
     percentage: "Ref. COMEX", volume: "25.000+ ton/ano",
   },
   Cobre: {
-    label: "Cobre", category: "Metais",
+    label: "Cobre", category: "Minérios",
     flowData: "Metal da transição energética. China consome 55% da demanda. Chile é maior produtor. LME London define preço spot global.",
     percentage: "Ref. LME", volume: "24M ton/ano",
   },
   Aluminio: {
-    label: "Alumínio", category: "Metais",
+    label: "Alumínio", category: "Minérios",
     flowData: "China domina 60% da produção global. Custo energético define competitividade. LME London é bolsa de referência.",
     percentage: "Ref. LME", volume: "69M ton/ano",
   },
   Paladio: {
-    label: "Paládio", category: "Metais",
+    label: "Paládio", category: "Minérios",
     flowData: "PGM raro para catalisadores automotivos. Rússia + África do Sul = 80% oferta. Substitui platina como tendência de risco.",
     percentage: "Ref. NYMEX", volume: "220+ ton/ano",
   },
@@ -286,13 +288,13 @@ const assetFlows: Record<NonNullable<AssetType>, {
   },
   // ── Minério de Ferro ──
   MinerioFerro: {
-    label: "Minério de Ferro", category: "Metais",
+    label: "Minério de Ferro", category: "Minérios",
     flowData: "Brasil é o 2º maior exportador mundial de minério (Vale + CSN). China absorve 70% do volume. Preço referenciado na SGX Singapore e Dalian Commodity Exchange (DCE). Vale sozinha = 20% do supply global.",
     percentage: "20% global (Vale)", volume: "400M ton/ano",
   },
   // ── Nióbio ──
   Niobio: {
-    label: "Nióbio", category: "Metais",
+    label: "Nióbio", category: "Minérios",
     flowData: "Brasil controla 94% da produção mundial de nióbio via CBMM (Araxá-MG). Metal estratégico para aço de alta resistência, carros elétricos, aviões e ressonâncias magnéticas. Mercado OTC: sem bolsa de referência pública.",
     percentage: "94% global", volume: "90K ton FeNb/ano",
   },
@@ -303,15 +305,18 @@ const assetFlows: Record<NonNullable<AssetType>, {
   MAP:   { label: "Fosfatado (MAP)", category: "Fertilizantes", flowData: "", percentage: "" },
   TSP:   { label: "TSP", category: "Fertilizantes", flowData: "", percentage: "" },
   Rocha: { label: "Rocha fosfática", category: "Fertilizantes", flowData: "", percentage: "" },
+  // ── Terras raras (aba propria; renderiza o card de GAP reserva-vs-producao) ──
+  TerrasRaras: { label: "Terras raras", category: "Terras raras", flowData: "", percentage: "" },
 };
 
 // Fertilizantes: a unica categoria toda de IMPORTACAO. A aba propria deixa a
 // assimetria visivel — tres abas do que sai, uma do que entra.
 const categories: { key: MapCategory }[] = [
   { key: "Agro" },
-  { key: "Metais" },
+  { key: "Minérios" },
   { key: "Energia" },
   { key: "Fertilizantes" },
+  { key: "Terras raras" },
 ];
 
 /* ── Variação em vírgula decimal (pt-BR), 2 casas — ex.: "1,82" ── */
@@ -407,7 +412,7 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   Etanol:   { code: "ETANOL_FUT" },
   Amendoim: { code: "AMENDOIM_WB" },
   Laranja:  { code: null, noQuote: "Sem cotação disponível" },
-  // ── Metais ──
+  // ── Minérios ──
   Ouro:         { code: "OURO_PAXG", secondary: { code: "OURO_LBMA", note: "spot Londres · LBMA" } },
   Prata:        { code: "PRATA_LBMA" },
   Cobre:        { code: "COBRE_WB" },
@@ -424,6 +429,8 @@ const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
   // ── Energia ──
   Brent:      { code: "BRENT_SPOT" },
   GasNatural: { code: "GAS_NATURAL_HH" },
+  // Terras raras: sem preco de bolsa (card e o gap reserva-vs-producao, USGS).
+  TerrasRaras: { code: null, noQuote: "Sem cotação pública em bolsa" },
 };
 
 /**
@@ -466,6 +473,125 @@ function ProductionRankingFooter({ code }: { code: string }) {
             {cell(data.brazilOutside)}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Rodape da aba Minerios: ranking mundial de PRODUCAO do mineral (USGS MCS).
+ * Mesmo padrao do agricola (Brasil destacado); o niobio mostra o Brasil ~93%,
+ * o espelho da soja. Fonte USGS (nao PSD); unidade por mineral.
+ */
+function UsgsRankingFooter({ commodity }: { commodity: string }) {
+  const { data } = useUsgsRanking(commodity);
+  if (!data) return null;
+  const cell = (r: { iso: string; name: string; value: number | null; rank: number; isBrazil: boolean }) => (
+    <span
+      key={r.iso}
+      className="flex-shrink-0 flex items-baseline gap-1.5 px-2.5 py-1"
+      style={{
+        backgroundColor: r.isBrazil ? `${GOLD}12` : "rgba(255,255,255,0.02)",
+        border: `1px solid ${r.isBrazil ? `${GOLD}55` : "rgba(255,255,255,0.06)"}`,
+      }}
+    >
+      <span className="font-sans text-[8px]" style={{ color: r.isBrazil ? GOLD : "rgba(255,255,255,0.3)" }}>{r.rank}</span>
+      <span className="font-sans text-[9px]" style={{ color: r.isBrazil ? "#fff" : "rgba(255,255,255,0.7)", fontWeight: r.isBrazil ? 600 : 400 }}>
+        {r.name}
+      </span>
+      <span className="font-sans text-[8.5px]" style={{ color: r.isBrazil ? `${GOLD}dd` : "rgba(255,255,255,0.45)" }}>
+        {fmtUsgs(r.value, data.unit)}
+      </span>
+    </span>
+  );
+  return (
+    <div className="flex-shrink-0 px-4 py-2" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
+      <div className="font-sans text-[8px] uppercase tracking-[0.2em] mb-1.5" style={{ color: `${GOLD}90` }}>
+        Produção mundial · {data.year} · USGS MCS 2026
+      </div>
+      <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+        {data.top.map(cell)}
+        {data.brazilOutside && (
+          <>
+            <span className="flex-shrink-0 font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>…</span>
+            {cell(data.brazilOutside)}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Card da aba Terras raras: o GAP reserva-vs-producao por pais. Barra CHEIA =
+ * reserva (o que ha no solo), barra ESCURA embutida = producao (o que se
+ * extrai). O Brasil: reserva 2a do mundo, producao ~0 -> o gap visivel. FATO
+ * estrutural (reserva vs producao), NUNCA recomendacao de investimento.
+ */
+function RareEarthGapCard() {
+  const { data } = useRareEarthGap();
+  if (!data) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <span className="font-sans text-[9px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>
+          carregando…
+        </span>
+      </div>
+    );
+  }
+  const maxRes = Math.max(...data.rows.map((r) => r.reserve ?? 0), 1);
+  const GREEN = "#1baf7a";
+  return (
+    <div className="w-full h-full overflow-y-auto" style={{ backgroundColor: "#050503" }}>
+      <div className="px-6 py-5 max-w-3xl mx-auto">
+        <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5" style={{ color: `${GOLD}90` }}>
+          Terras raras · o abismo entre reserva e produção
+        </div>
+        <div className="font-display text-lg mb-1" style={{ color: GOLD }}>
+          Reserva no solo vs produção extraída
+        </div>
+        <div className="font-sans text-[9px] mb-5 leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+          O Brasil tem a 2ª maior reserva mundial e extrai quase nada. A China domina os dois lados. É o
+          dado, não uma recomendação — a distância entre ter no solo e produzir.
+        </div>
+        <div className="space-y-3.5">
+          {data.rows.map((r) => {
+            const resW = ((r.reserve ?? 0) / maxRes) * 100;
+            const prodW = r.reserve ? ((r.production ?? 0) / (r.reserve || 1)) * resW : 0;
+            const isBr = r.iso === "BRA";
+            return (
+              <div key={r.iso}>
+                <div className="flex items-baseline justify-between mb-1">
+                  <span className="font-sans text-[10px]" style={{ color: isBr ? GOLD : "rgba(255,255,255,0.8)", fontWeight: isBr ? 600 : 400 }}>
+                    {r.name}
+                  </span>
+                  <span className="font-sans text-[8.5px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    reserva {fmtUsgs(r.reserve, data.unit)} · produção {fmtUsgs(r.production, "metric tons")}
+                  </span>
+                </div>
+                <div className="relative h-3.5" style={{ backgroundColor: "rgba(255,255,255,0.04)" }}>
+                  {/* barra da reserva (clara) */}
+                  <div className="absolute inset-y-0 left-0" style={{ width: `${resW}%`, backgroundColor: isBr ? `${GOLD}44` : "rgba(255,255,255,0.14)" }} />
+                  {/* fatia da producao (escura/verde) embutida */}
+                  <div className="absolute inset-y-0 left-0" style={{ width: `${Math.max(prodW, r.production ? 0.6 : 0)}%`, backgroundColor: GREEN }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-4 mt-5">
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-2.5" style={{ backgroundColor: "rgba(255,255,255,0.14)" }} />
+            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.45)" }}>reserva (no solo)</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-2.5" style={{ backgroundColor: GREEN }} />
+            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.45)" }}>produção (extraída/ano)</span>
+          </span>
+        </div>
+        <div className="font-sans text-[7.5px] mt-4" style={{ color: "rgba(255,255,255,0.25)" }}>
+          Fonte: USGS Mineral Commodity Summaries 2026 · reserva e produção {data.year} · toneladas de óxido (REO)
+        </div>
       </div>
     </div>
   );
@@ -790,7 +916,12 @@ export default function GlobalFlowMap() {
         </div>
       </div>
 
-      {flowCfg && selectedAsset ? (
+      {selectedAsset === "TerrasRaras" ? (
+        /* Aba Terras raras: o card de GAP reserva-vs-producao (USGS). */
+        <div className="flex-1 relative min-h-0">
+          <RareEarthGapCard />
+        </div>
+      ) : flowCfg && selectedAsset ? (
         /* Mapa v2: a lei nova para os cards com config (rollout por grupos). */
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 relative min-h-0">
@@ -840,6 +971,7 @@ export default function GlobalFlowMap() {
           )}
           </div>
           {flowCfg.psd && <ProductionRankingFooter code={flowCfg.psd.code} />}
+          {flowCfg.usgs && <UsgsRankingFooter commodity={flowCfg.usgs} />}
         </div>
       ) : (
       <>

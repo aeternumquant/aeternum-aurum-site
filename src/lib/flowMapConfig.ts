@@ -77,6 +77,8 @@ export type FlowCardCfg = {
   ibge?: { slug: string };
   /** abate IBGE (peso carcaca, INSPECIONADO) — metrica propria, rotulo distinto */
   abate?: { species: string };
+  /** nome USGS da commodity p/ o ranking mundial de PRODUCAO no rodape (minerios) */
+  usgs?: string;
 };
 
 /**
@@ -175,6 +177,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       { key: "finos", label: "Finos", export: ["260111"] },
       { key: "pelotas", label: "Pelotas", export: ["260112"] },
     ],
+    usgs: "Iron Ore",
   },
   Cobre: {
     subs: [{ key: "concentrado", label: "Concentrado", export: ["260300"] }],
@@ -182,8 +185,9 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     // diferentes da cadeia — o rotulo carrega, nao funde.
     priceNote: "Preço: cobre refinado, LME",
     flowNote: "Fluxo: concentrado de cobre (exportação)",
+    usgs: "Copper",
   },
-  Ouro: { subs: [{ key: "ouro", label: "Ouro", export: ["710812"] }] },
+  Ouro: { subs: [{ key: "ouro", label: "Ouro", export: ["710812"] }], usgs: "Gold" },
   Brent: {
     subs: [{ key: "petroleo", label: "Petróleo bruto", export: ["270900"] }],
     priceNote: "Preço: Brent (referência global)",
@@ -259,6 +263,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       },
       { key: "metal", label: "Metal", export: ["760110"], price: { code: "ALUMINIO_WB" } },
     ],
+    usgs: "Bauxite", // o Brasil e grande produtor de bauxita (o minerio do aluminio)
   },
   // ── Grupo C: IMPORTACAO (Caso 1) — linha AMBAR pais -> Brasilia, pais
   // pintado ambar. Trigo fica em Agro e gas em Energia; os 5 fertilizantes
@@ -352,6 +357,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         note: "O Brasil domina a produção mundial de nióbio (CBMM, Araxá-MG). Mercado OTC: não existe bolsa de referência.",
       },
     ],
+    usgs: "Niobium (Columbium)", // o espelho da soja: Brasil ~93% da producao mundial
   },
   // Prata e Paladio (Caso 3): preco sem fluxo — o Brasil exporta ~zero.
   // Mapa vazio e honesto; as linhas de quem compra virao com fontes futuras.
@@ -365,6 +371,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         note: "O Brasil exporta ~zero — sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
       },
     ],
+    usgs: "Silver",
   },
   Paladio: {
     mode: "priceOnly",
