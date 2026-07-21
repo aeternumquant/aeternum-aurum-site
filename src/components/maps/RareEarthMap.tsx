@@ -14,8 +14,8 @@ import { useRareEarthMap, fmtUsgs } from "../../hooks/useUsgs";
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
 const AMBER = "#d9b13b"; // Brasil (a reserva latente)
-const CHINA_RED = "#8f2019"; // o dominante, tom mais escuro da rampa
-const PROD_RED = "#b0463c"; // outros produtores, vermelho mais claro
+const PROD_RED = "#c0564c"; // TODOS os produtores, mesmo vermelho discreto (o
+                            // destaque da China e o TAMANHO da bolinha, nao a cor)
 const GREEN = "#1baf7a"; // a fatia de producao no card de gap
 
 /** iso_a3 -> iso_n3 (o mapa desenha por ISO numerico). So os paises de REO. */
@@ -46,8 +46,7 @@ function ReoLayer({ byIso, maxProduction }: { byIso: Record<string, any>; maxPro
   const fillFor = (iso: string | undefined): string => {
     if (!iso || !byIso[iso]) return "rgba(255,255,255,0.025)";
     if (iso === "BRA") return `${AMBER}bb`; // reserva latente, mesmo produzindo ~0
-    if (iso === "CHN") return CHINA_RED;
-    if (byIso[iso].production > 0) return `${PROD_RED}cc`; // produtor
+    if (byIso[iso].production > 0) return `${PROD_RED}88`; // produtor (China inclusa, mesmo tom)
     return "rgba(255,255,255,0.045)"; // tem reserva mas nao produz (neutro suave)
   };
 
@@ -72,10 +71,10 @@ function ReoLayer({ byIso, maxProduction }: { byIso: Record<string, any>; maxPro
         const centroid = n3 != null ? centroids[n3] : null;
         if (!centroid || c.production <= 0) return null;
         const r = radiusFor(c.production, maxProduction);
-        const color = c.iso === "BRA" ? AMBER : c.iso === "CHN" ? CHINA_RED : PROD_RED;
+        const color = c.iso === "BRA" ? AMBER : PROD_RED; // China no mesmo vermelho
         return (
           <Marker key={c.iso} coordinates={centroid}>
-            <circle r={r} fill={color} fillOpacity={0.55} stroke={color} strokeWidth={0.8} />
+            <circle r={r} fill={color} fillOpacity={0.6} stroke={color} strokeWidth={1} />
           </Marker>
         );
       })}
@@ -107,12 +106,8 @@ export default function RareEarthMap() {
         {/* Legenda propria desta aba (cor = reserva/papel; tamanho = producao) */}
         <div className="absolute bottom-3 left-3 z-10 flex flex-col gap-1 px-3 py-2" style={{ backgroundColor: "rgba(5,5,3,0.88)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5" style={{ backgroundColor: CHINA_RED }} />
-            <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.55)" }}>China domina a produção</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5" style={{ backgroundColor: `${PROD_RED}cc` }} />
-            <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.55)" }}>produz terras raras</span>
+            <span className="w-2.5 h-2.5" style={{ backgroundColor: `${PROD_RED}88` }} />
+            <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.55)" }}>produz terras raras (China domina — ver o tamanho)</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5" style={{ backgroundColor: `${AMBER}bb` }} />
