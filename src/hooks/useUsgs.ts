@@ -16,6 +16,14 @@ export type UsgsRow = { iso: string; name: string; value: number | null; rank: n
 export type UsgsRanking = { year: number; top: UsgsRow[]; brazilOutside: UsgsRow | null; unit: string };
 export type GapRow = { iso: string; name: string; reserve: number | null; production: number | null };
 export type RareEarthGap = { year: number; unit: string; rows: GapRow[] };
+export type ReoCountry = { iso: string; name: string; production: number; reserve: number | null };
+export type RareEarthMapData = {
+  year: number;
+  unit: string;
+  maxProduction: number;
+  byIso: Record<string, ReoCountry>; // todos os paises (produtor e/ou reserva)
+  gap: GapRow[]; // top por reserva, para o card lateral
+};
 
 /** iso_a3 -> pt para os produtores de minerais (mais amplo que o agricola). */
 const ISO_PT: Record<string, string> = {
@@ -102,6 +110,53 @@ export function useUsgsRanking(commodity: string | undefined): { data: UsgsRanki
       cancelled = true;
     };
   }, [commodity]);
+  return { data };
+}
+
+/** Terras raras para o MAPA: producao (bolinha) + reserva (cor/gap) por pais. */
+export function useRareEarthMap(): { data: RareEarthMapData | null } {
+  const [data, setData] = useState<RareEarthMapData | null>(null);
+  useEffect(() => {
+    if (!supabase) return;
+    let cancelled = false;
+    (async () => {
+      const { data: rows, error } = await supabase!
+        .from("usgs_minerals")
+        .select("country,country_iso,statistic,value,unit,year")
+        .eq("commodity", "Rare Earths")
+        .in("statistic", ["Production", "Reserves"])
+        .not("country_iso", "is", null);
+      if (cancelled || error || !rows) {
+        if (!cancelled) setData(null);
+        return;
+      }
+      const prod = rows.filter((r: any) => r.statistic === "Production" && r.value != null);
+      const res = rows.filter((r: any) => r.statistic === "Reserves" && r.value != null);
+      if (!prod.length && !res.length) {
+        setData(null);
+        return;
+      }
+      const py = prod.length ? Math.max(...prod.map((r: any) => Number(r.year))) : 0;
+      const ry = res.length ? Math.max(...res.map((r: any) => Number(r.year))) : 0;
+      const byIso: Record<string, ReoCountry> = {};
+      const get = (iso: string, name: string) => (byIso[iso] ??= { iso, name: ptName(iso) || name, production: 0, reserve: null });
+      prod.filter((r: any) => Number(r.year) === py).forEach((r: any) => { get(r.country_iso, r.country).production = Number(r.value); });
+      res.filter((r: any) => Number(r.year) === ry).forEach((r: any) => { get(r.country_iso, r.country).reserve = Number(r.value); });
+      const maxProduction = Math.max(...Object.values(byIso).map((c) => c.production), 1);
+      const gap: GapRow[] = Object.values(byIso)
+        .filter((c) => c.reserve != null)
+        .sort((a, b) => (b.reserve ?? 0) - (a.reserve ?? 0))
+        .slice(0, 6)
+        .map((c) => ({ iso: c.iso, name: c.name, reserve: c.reserve, production: c.production }));
+      if (!gap.some((g) => g.iso === "BRA") && byIso.BRA) {
+        gap.push({ iso: "BRA", name: byIso.BRA.name, reserve: byIso.BRA.reserve, production: byIso.BRA.production });
+      }
+      setData({ year: ry || py, unit: (res[0] ?? prod[0])?.unit ?? "metric tons", maxProduction, byIso, gap });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return { data };
 }
 

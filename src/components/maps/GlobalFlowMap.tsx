@@ -31,7 +31,8 @@ import {
 import CommodityFlowMap from "./CommodityFlowMap";
 import { useTradeFlows } from "../../hooks/useTradeFlows";
 import { usePsdRanking, fmtPsd as fmtPsdRank } from "../../hooks/usePsdRanking";
-import { useUsgsRanking, useRareEarthGap, fmtUsgs } from "../../hooks/useUsgs";
+import { useUsgsRanking, fmtUsgs } from "../../hooks/useUsgs";
+import RareEarthMap from "./RareEarthMap";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
 
 /* ── Dourado da marca ── */
@@ -523,81 +524,6 @@ function UsgsRankingFooter({ commodity }: { commodity: string }) {
 }
 
 /**
- * Card da aba Terras raras: o GAP reserva-vs-producao por pais. Barra CHEIA =
- * reserva (o que ha no solo), barra ESCURA embutida = producao (o que se
- * extrai). O Brasil: reserva 2a do mundo, producao ~0 -> o gap visivel. FATO
- * estrutural (reserva vs producao), NUNCA recomendacao de investimento.
- */
-function RareEarthGapCard() {
-  const { data } = useRareEarthGap();
-  if (!data) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <span className="font-sans text-[9px] uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.3)" }}>
-          carregando…
-        </span>
-      </div>
-    );
-  }
-  const maxRes = Math.max(...data.rows.map((r) => r.reserve ?? 0), 1);
-  const GREEN = "#1baf7a";
-  return (
-    <div className="w-full h-full overflow-y-auto" style={{ backgroundColor: "#050503" }}>
-      <div className="px-6 py-5 max-w-3xl mx-auto">
-        <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5" style={{ color: `${GOLD}90` }}>
-          Terras raras · o abismo entre reserva e produção
-        </div>
-        <div className="font-display text-lg mb-1" style={{ color: GOLD }}>
-          Reserva no solo vs produção extraída
-        </div>
-        <div className="font-sans text-[9px] mb-5 leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-          O Brasil tem a 2ª maior reserva mundial e extrai quase nada. A China domina os dois lados. É o
-          dado, não uma recomendação — a distância entre ter no solo e produzir.
-        </div>
-        <div className="space-y-3.5">
-          {data.rows.map((r) => {
-            const resW = ((r.reserve ?? 0) / maxRes) * 100;
-            const prodW = r.reserve ? ((r.production ?? 0) / (r.reserve || 1)) * resW : 0;
-            const isBr = r.iso === "BRA";
-            return (
-              <div key={r.iso}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <span className="font-sans text-[10px]" style={{ color: isBr ? GOLD : "rgba(255,255,255,0.8)", fontWeight: isBr ? 600 : 400 }}>
-                    {r.name}
-                  </span>
-                  <span className="font-sans text-[8.5px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    reserva {fmtUsgs(r.reserve, data.unit)} · produção {fmtUsgs(r.production, "metric tons")}
-                  </span>
-                </div>
-                <div className="relative h-3.5" style={{ backgroundColor: "rgba(255,255,255,0.04)" }}>
-                  {/* barra da reserva (clara) */}
-                  <div className="absolute inset-y-0 left-0" style={{ width: `${resW}%`, backgroundColor: isBr ? `${GOLD}44` : "rgba(255,255,255,0.14)" }} />
-                  {/* fatia da producao (escura/verde) embutida */}
-                  <div className="absolute inset-y-0 left-0" style={{ width: `${Math.max(prodW, r.production ? 0.6 : 0)}%`, backgroundColor: GREEN }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-4 mt-5">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-2.5" style={{ backgroundColor: "rgba(255,255,255,0.14)" }} />
-            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.45)" }}>reserva (no solo)</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-2.5" style={{ backgroundColor: GREEN }} />
-            <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.45)" }}>produção (extraída/ano)</span>
-          </span>
-        </div>
-        <div className="font-sans text-[7.5px] mt-4" style={{ color: "rgba(255,255,255,0.25)" }}>
-          Fonte: USGS Mineral Commodity Summaries 2026 · reserva e produção {data.year} · toneladas de óxido (REO)
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
  * Bloco compacto de preço para o card do Mapa v2 (CommodityFlowMap). A mesma
  * honestidade do InfoPanel: valor+unidade, conversão BRL de referência, período
  * (média mensal vs. atualizado), atribuição, variação com rótulo, secundário.
@@ -917,9 +843,10 @@ export default function GlobalFlowMap() {
       </div>
 
       {selectedAsset === "TerrasRaras" ? (
-        /* Aba Terras raras: o card de GAP reserva-vs-producao (USGS). */
+        /* Aba Terras raras: o MAPA pintado (cor=reserva, tamanho=producao) +
+           card lateral de gap. Sem fluxo bilateral (o dado nao tem). */
         <div className="flex-1 relative min-h-0">
-          <RareEarthGapCard />
+          <RareEarthMap />
         </div>
       ) : flowCfg && selectedAsset ? (
         /* Mapa v2: a lei nova para os cards com config (rollout por grupos). */
