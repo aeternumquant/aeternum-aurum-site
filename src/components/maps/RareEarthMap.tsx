@@ -20,7 +20,6 @@ const GOLD = "#C6A85A";
 const AMBER = "#d9b13b"; // Brasil no mapa (a reserva latente)
 const AMBER_BR = "#c98500"; // Brasil no scatter (ponto destacado)
 const PROD_RED = "#c0564c"; // produtores (China inclusa; o destaque e o tamanho)
-const GREEN = "#1baf7a";
 
 /** iso_a3 -> iso_n3 (o mapa desenha por ISO numerico). So os paises de REO. */
 const A3_N3: Record<string, number> = {
@@ -35,14 +34,33 @@ const radiusFor = (prod: number, max: number) => (max <= 0 || prod <= 0 ? 0 : R_
 
 /** Óxidos de terras raras — REFERENCIA ESTATICA (faixas publicas 2026), nao do
  *  banco. Terras raras nao tem bolsa; o preco real vem de Argus/SMM pagas. A
- *  ordem (valor crescente) conta a historia: abundantes baratos, raros caros. */
-const OXIDES: { name: string; abund: string; price: string; note?: string }[] = [
-  { name: "Cério", abund: "31%", price: "~US$ 5/kg", note: "o mais comum" },
-  { name: "Lantânio", abund: "18%", price: "~US$ 5/kg" },
-  { name: "Neodímio", abund: "36%", price: "~US$ 120/kg", note: "comum e caro — o do superímã" },
-  { name: "Praseodímio", abund: "7%", price: "~US$ 130/kg" },
-  { name: "Disprósio", abund: "2%", price: "~US$ 210/kg" },
-  { name: "Térbio", abund: "<1%", price: "~US$ 1.000/kg", note: "o mais raro" },
+ *  ordem (valor crescente) conta a historia: os caros sao todos de IMA — a
+ *  transicao energetica puxa o valor. Funcoes: Lynas / Rare Element Resources /
+ *  Stanford Materials. */
+const OXIDES: { name: string; abund: string; price: string; use: string }[] = [
+  { name: "Cério", abund: "31%", price: "~US$ 5/kg", use: "catalisador · polimento de vidro" },
+  { name: "Lantânio", abund: "18%", price: "~US$ 5/kg", use: "lentes ópticas · baterias" },
+  { name: "Neodímio", abund: "36%", price: "~US$ 120/kg", use: "ímãs de motor (eólica, VE)" },
+  { name: "Praseodímio", abund: "7%", price: "~US$ 130/kg", use: "ímãs · ligas de aeronave" },
+  { name: "Disprósio", abund: "2%", price: "~US$ 210/kg", use: "ímãs de alta temperatura · reatores" },
+  { name: "Térbio", abund: "<1%", price: "~US$ 1.000/kg", use: "ímãs de alta performance (VE, defesa)" },
+];
+
+/** Mineracao vs refino — o SEGUNDO gap. Mineracao do USGS 2025; refino e
+ *  hard-code (nao vem do nosso banco): CSIS / Mining Technology 2025. A China
+ *  domina os dois, mas o refino ainda mais — "mesmo o minerio extraido fora
+ *  vai para a China refinar". FATO estrutural, nunca recomendacao. */
+const STAGES: { label: string; parts: { name: string; pct: number; isChina?: boolean }[]; source: string }[] = [
+  {
+    label: "Mineração",
+    parts: [{ name: "China", pct: 69, isChina: true }, { name: "EUA", pct: 13 }, { name: "Austrália", pct: 7 }, { name: "resto", pct: 11 }],
+    source: "USGS 2025",
+  },
+  {
+    label: "Refino",
+    parts: [{ name: "China", pct: 90, isChina: true }, { name: "resto do mundo", pct: 10 }],
+    source: "CSIS / Mining Technology 2025",
+  },
 ];
 
 // ── Mapa ────────────────────────────────────────────────────────────────────
@@ -241,24 +259,72 @@ export default function RareEarthMap() {
         </div>
       </div>
 
-      {/* ── Rodape: tabela de OXIDOS (referencia estatica, rotulada) ── */}
-      <div className="flex-shrink-0 px-4 py-2" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
-        <div className="flex items-baseline gap-2 mb-1.5">
-          <span className="font-sans text-[8px] uppercase tracking-[0.2em]" style={{ color: `${GOLD}90` }}>Óxidos de terras raras · por valor</span>
-          <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.3)" }}>
-            valores estimados de referência · não cotação de mercado · fontes públicas 2026
-          </span>
-        </div>
-        <div className="flex items-stretch gap-2 overflow-x-auto pb-0.5">
-          {OXIDES.map((o) => (
-            <span key={o.name} className="flex-shrink-0 flex flex-col px-2.5 py-1" style={{ backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <span className="font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.8)" }}>
-                {o.name} <span style={{ color: "rgba(255,255,255,0.4)" }}>· {o.abund}</span>
-              </span>
-              <span className="font-sans text-[8.5px]" style={{ color: `${GOLD}cc` }}>{o.price}</span>
-              {o.note && <span className="font-sans text-[6.5px]" style={{ color: "rgba(255,255,255,0.3)" }}>{o.note}</span>}
+      {/* ── Rodape: tabela de OXIDOS + infografico de refino + botao ── */}
+      <div className="flex-shrink-0 px-4 py-2 flex flex-col lg:flex-row gap-x-6 gap-y-3" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
+        {/* tabela de oxidos (por valor + funcao) */}
+        <div className="min-w-0 lg:flex-1">
+          <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
+            <span className="font-sans text-[8px] uppercase tracking-[0.2em]" style={{ color: `${GOLD}90` }}>Óxidos de terras raras · por valor</span>
+            <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+              valores estimados de referência · não cotação de mercado · fontes públicas 2026
             </span>
-          ))}
+          </div>
+          <div className="flex items-stretch gap-2 overflow-x-auto pb-0.5">
+            {OXIDES.map((o) => (
+              <span key={o.name} className="flex-shrink-0 flex flex-col px-2.5 py-1" style={{ width: 128, backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <span className="font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {o.name} <span style={{ color: "rgba(255,255,255,0.4)" }}>· {o.abund}</span>
+                </span>
+                <span className="font-sans text-[8.5px]" style={{ color: `${GOLD}cc` }}>{o.price}</span>
+                <span className="font-sans text-[6.5px] leading-tight mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{o.use}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* infografico mineracao vs refino (o segundo gap) */}
+        <div className="flex-shrink-0 lg:w-72">
+          <div className="font-sans text-[8px] uppercase tracking-[0.2em] mb-1.5" style={{ color: `${GOLD}90` }}>
+            Mineração vs refino
+          </div>
+          <div className="space-y-1.5">
+            {STAGES.map((st) => (
+              <div key={st.label}>
+                <div className="flex items-baseline justify-between mb-0.5">
+                  <span className="font-sans text-[8px]" style={{ color: "rgba(255,255,255,0.6)" }}>{st.label}</span>
+                  <span className="font-sans text-[6.5px]" style={{ color: "rgba(255,255,255,0.28)" }}>{st.source}</span>
+                </div>
+                <div className="flex h-3 overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+                  {st.parts.map((p) => (
+                    <span
+                      key={p.name}
+                      className="flex items-center justify-center overflow-hidden"
+                      style={{ width: `${p.pct}%`, backgroundColor: p.isChina ? PROD_RED : "rgba(255,255,255,0.08)" }}
+                      title={`${p.name} ${p.pct}%`}
+                    >
+                      <span className="font-sans text-[6px] px-0.5 truncate" style={{ color: p.isChina ? "#fff" : "rgba(255,255,255,0.55)" }}>
+                        {p.name} {p.pct}%
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="font-sans text-[6.5px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>
+            Mesmo o minério extraído fora vai para a China refinar. As terras raras pesadas (Disprósio, Térbio) — quase todo o refino é chinês.
+          </div>
+        </div>
+
+        {/* botao "veja mais" (discreto; so navega, o gate e da pagina) */}
+        <div className="flex-shrink-0 flex items-end">
+          <a
+            href="/research/white-house-rare-earth-stocks"
+            className="font-sans text-[8px] tracking-wide whitespace-nowrap px-2.5 py-1 transition-colors"
+            style={{ color: `${GOLD}cc`, border: `1px solid ${GOLD}33` }}
+          >
+            Aprofundamento: EUA e o reshoring de terras raras →
+          </a>
         </div>
       </div>
     </div>
