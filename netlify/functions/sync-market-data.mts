@@ -389,8 +389,16 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
 
   let fetched = 0;
   let saved = 0;
+  let curveRows = 0;
   const chosen: Record<string, unknown> = {};
   const errors: string[] = [];
+
+  /** Number seguro: "" / null / NaN -> null (ausencia NAO e zero). */
+  const num = (v: unknown): number | null => {
+    if (v == null || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
 
   for (const a of BRAPI_FUTURES) {
     try {
@@ -454,6 +462,33 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
       fetched += 1;
       saved += n;
 
+      // CURVA: grava os 7 contratos (a estrutura a termo que descartavamos) na
+      // futures_curve, ALEM do front month acima (a observations fica intacta —
+      // o card de preco nao muda). trade_date = pregao do front (a coleta e "as
+      // of" essa data). Upsert por (series_code, trade_date, contract_symbol):
+      // re-rodar no mesmo dia atualiza. So os que tem vencimento e symbol.
+      const tradeDate = ts.slice(0, 10);
+      const curve = contracts
+        .filter((c) => c?.symbol && c?.expirationDate)
+        .map((c) => ({
+          series_code: a.code,
+          trade_date: tradeDate,
+          contract_symbol: c.symbol,
+          expiration_date: c.expirationDate,
+          settlement: num(c.settlement),
+          close: num(c.close),
+          volume: num(c.volume),
+          oscillation_pct: num(c.oscillationPct),
+          currency: c.tradingCurrency ?? a.expectedCurrency,
+        }));
+      if (curve.length) {
+        const { error: curveErr } = await db
+          .from("futures_curve")
+          .upsert(curve, { onConflict: "series_code,trade_date,contract_symbol" });
+        if (curveErr) log(`[brapi] AVISO curva ${a.code}: ${curveErr.message}`);
+        else curveRows += curve.length;
+      }
+
       chosen[a.code] = {
         asset: a.asset,
         contract: front.symbol,
@@ -477,7 +512,7 @@ async function syncBrapi(): Promise<Record<string, unknown>> {
     throw new Error(`nenhuma serie de futuro gravada. Erros: ${errors.join(" | ")}`);
   }
 
-  const out: Record<string, unknown> = { fetched, saved, chosen };
+  const out: Record<string, unknown> = { fetched, saved, curveRows, chosen };
   if (errors.length) out.errors = errors;
   return out;
 }
