@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
 /**
- * Curva de futuros (estrutura a termo) de uma commodity B3 — o que a auditoria
+ * Curva de futuros (estrutura a termo) de uma commodity B3, o que a auditoria
  * mandou parar de jogar fora. Le a futures_curve, o trade_date mais recente,
  * os N contratos ordenados por vencimento. O rotulo contango/backwardation e
  * FATO de mercado (com explicacao), nunca recomendacao.

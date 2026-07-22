@@ -1,12 +1,12 @@
 /**
- * assets.ts — a FONTE UNICA de ativos (preco + categoria + editorial). O mapa
+ * assets.ts, a FONTE UNICA de ativos (preco + categoria + editorial). O mapa
  * (GlobalFlowMap) e o terminal (CommodityTerminal) leem DAQUI, nao de listas
  * proprias. Foi o DRIFT (duas listas) que deixou o terminal em 4 de 35 series
  * enquanto o mapa cresceu: adicionar um ativo aqui o adiciona nos DOIS.
  *
  *  - price: codigo da serie de preco (series_latest) + secundario (referencia)
  *    ou { code:null, noQuote } quando nao ha bolsa (niobio, paladio).
- *  - curveCode: series_code da futures_curve — SO os 5 futuros B3 tem estrutura
+ *  - curveCode: series_code da futures_curve, SO os 5 futuros B3 tem estrutura
  *    a termo; spot/WB nao tem curva.
  *  - editorial: OPCIONAL. So onde ja existe (soja/milho/boi/cafe); as demais
  *    entram so com o dado. O Gabriel adiciona editorial aos poucos.
@@ -44,14 +44,14 @@ export const ASSETS: AssetDef[] = [
       insight: "Brasil produz 6 em cada 10 toneladas de soja exportadas no mundo. A rota Mato Grosso–Hong Kong é a nova artéria da proteína global.",
       fearTitle: "Riscos invisíveis",
       fear: [
-        "Tensões no Mar Negro + retenção de exportação russa afetam 30% do trigo global — soja sofre contágio direto.",
+        "Tensões no Mar Negro + retenção de exportação russa afetam 30% do trigo global, soja sofre contágio direto.",
         "OVX em alta = frete explode → custo de escoamento de Goiás para Santos dispara sem aviso.",
         "Gamma Wall em US$ 11,80/bushel → preço ricocheteia sem nenhuma notícia fundamental.",
       ],
       greedTitle: "Proteção Aeternum",
       greed: [
         "Hedge institucional com assimetria positiva via modelos CTA calibrados para o Basis de Goiás.",
-        "Parceiros diretos de escoamento na China + UAE — contratos de receita já estruturados e tokenizados.",
+        "Parceiros diretos de escoamento na China + UAE, contratos de receita já estruturados e tokenizados.",
         "Tokenização de CPR / CDA via Stellar → liquidez instantânea sem banco, sem taxa CDI.",
       ],
     },
@@ -61,11 +61,11 @@ export const ASSETS: AssetDef[] = [
     price: { code: "MILHO_FUT", secondary: { code: "MILHO_WB", note: "referência global · US Gulf" } },
     curveCode: "MILHO_FUT",
     editorial: {
-      insight: "Brasil é o 2º exportador mundial de milho — safra 23/24 recorde de 135 M ton. CBOT ainda subestima a oferta brasileira.",
+      insight: "Brasil é o 2º exportador mundial de milho, safra 23/24 recorde de 135 M ton. CBOT ainda subestima a oferta brasileira.",
       fearTitle: "Riscos invisíveis",
       fear: [
         "Descolamento do Basis B3–CBOT impede hedges tradicionais de funcionar nas janelas de rolagem.",
-        "Choques El Niño/La Niña com lags ocultos — modelos climáticos privados chegam tarde demais.",
+        "Choques El Niño/La Niña com lags ocultos, modelos climáticos privados chegam tarde demais.",
         "Alta correlação com energia: when OVX sobe, o custo de secagem e frete terrestre explode.",
       ],
       greedTitle: "Proteção Aeternum",
@@ -81,10 +81,10 @@ export const ASSETS: AssetDef[] = [
     price: { code: "CAFE_FUT", secondary: { code: "CAFE_ICO", note: "referência global · ICO" } },
     curveCode: "CAFE_FUT",
     editorial: {
-      insight: "Brasil produz 1 em cada 3 xícaras de café consumidas no planeta — 38% da oferta global. O mercado ainda subestima o poder de pricing.",
+      insight: "Brasil produz 1 em cada 3 xícaras de café consumidas no planeta, 38% da oferta global. O mercado ainda subestima o poder de pricing.",
       fearTitle: "Riscos invisíveis",
       fear: [
-        "Short Squeeze estrutural forçado por fundos na ICE NY — exportadores com posição short são dizimados.",
+        "Short Squeeze estrutural forçado por fundos na ICE NY, exportadores com posição short são dizimados.",
         "Geadas pontuais em MG/SP com modelos meteorológicos privados chegando com 5 dias de atraso.",
         "Risco de contraparte elevado nas tradings em momentos de margin calls extremas e liquidações.",
       ],
@@ -101,12 +101,12 @@ export const ASSETS: AssetDef[] = [
     price: { code: "BOI_FUT" },
     curveCode: "BOI_FUT",
     editorial: {
-      insight: "Brasil é o maior exportador de carne bovina global (27%) — China concentra 50% do volume. Rota Goiás–Xangai é estratégica.",
+      insight: "Brasil é o maior exportador de carne bovina global (27%), China concentra 50% do volume. Rota Goiás–Xangai é estratégica.",
       fearTitle: "Riscos invisíveis",
       fear: [
         "Banimentos sanitários por febre aftosa ou BSE travam exportação da noite para o dia sem aviso.",
         "Basis Risk irrecuperável entre mercado físico e contrato futuro B3 em momentos de liquidação.",
-        "Custo de reposição (garrote) descolado da curva forward da arroba — ciclo pecuário distorcido.",
+        "Custo de reposição (garrote) descolado da curva forward da arroba, ciclo pecuário distorcido.",
       ],
       greedTitle: "Proteção Aeternum",
       greed: [
@@ -157,7 +157,7 @@ export const ASSETS: AssetDef[] = [
   { key: "RWA", label: "RWA tokenizado", category: "Financeiro", price: { code: "RWA_TVL_TOTAL" } },
 ];
 
-/** Lookup de preco por chave — o mapa usa (ASSET_SERIES[selectedAsset]). */
+/** Lookup de preco por chave, o mapa usa (ASSET_SERIES[selectedAsset]). */
 export const ASSET_SERIES: Record<string, PriceCfg> = Object.fromEntries(ASSETS.map((a) => [a.key, a.price]));
 
 /** ordem de exibicao das secoes no terminal (alinhada com as abas do mapa). */

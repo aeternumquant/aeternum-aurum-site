@@ -1,11 +1,14 @@
 /**
- * FuturesCurveCard — a estrutura a termo dos futuros B3 (compartilhado entre o
- * mapa e o terminal). X = vencimento, Y = settlement; a linha liga os contratos.
- * Contango (sobe) = futuro mais caro que a vista (carrego / expectativa de
- * alta); backwardation (desce) = vista mais cara (escassez atual). FATO de
- * mercado com a explicacao, NUNCA recomendacao. Fonte B3 via brapi.
+ * FuturesCurveCard: "Preco por data de entrega" (compartilhado entre o mapa e o
+ * terminal). X = data de vencimento, Y = settlement; a linha liga os contratos.
+ * O titulo diz o que o eixo X e (datas de entrega) antes do jargao. A forma:
+ * contango (sobe) = entrega futura mais cara; backwardation (desce) = entrega
+ * proxima mais cara. FATO de mercado com a explicacao, NUNCA recomendacao.
  */
 import type { FuturesCurve } from "../hooks/useFuturesCurve";
+
+const HELP =
+  "Cada ponto é um contrato futuro com sua data de vencimento. A linha mostra quanto o mercado cobra para entregar em cada data. Se sobe, a entrega futura é mais cara (contango); se desce, a próxima é mais cara (backwardation).";
 
 const pctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -22,22 +25,32 @@ export default function FuturesCurveCard({ curve }: { curve: FuturesCurve }) {
   const y = (v: number) => mt + ph - ((v - lo) / (hi - lo || 1)) * ph;
   const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.settlement).toFixed(1)}`).join(" ");
   const up = curve.shape === "contango";
-  const color = up ? "#1baf7a" : curve.shape === "backwardation" ? "#c0564c" : "rgba(255,255,255,0.5)";
-  const shapePt = up ? "Contango" : curve.shape === "backwardation" ? "Backwardation" : "Curva plana";
+  const back = curve.shape === "backwardation";
+  const color = up ? "#1baf7a" : back ? "#c0564c" : "rgba(255,255,255,0.5)";
+  // significado PRIMEIRO, o termo tecnico entre parenteses
+  const shapeLabel = up
+    ? "Entrega futura mais cara (contango)"
+    : back
+    ? "Entrega próxima mais cara (backwardation)"
+    : "Entrega em linha (curva plana)";
   const explain = up
-    ? "futuro mais caro que a vista — custo de carrego / expectativa de alta"
-    : curve.shape === "backwardation"
-    ? "vista mais cara que o futuro — escassez atual / prêmio na ponta"
-    : "vista e futuro em linha";
+    ? "a entrega futura custa mais que a próxima, sinal de custo de carrego ou oferta confortável"
+    : back
+    ? "a entrega próxima custa mais que a futura, sinal de escassez agora"
+    : "a entrega próxima e a futura custam quase o mesmo";
   const mesAno = (d: string) => `${d.slice(5, 7)}/${d.slice(2, 4)}`;
   return (
     <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-      <div className="flex items-baseline justify-between mb-1">
-        <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>Estrutura a termo</span>
-        <span className="font-sans text-[8px]" style={{ color }}>
-          {shapePt}{curve.spreadPct != null ? ` ${curve.spreadPct > 0 ? "+" : ""}${pctFmt.format(curve.spreadPct)}%` : ""}
+      <div className="flex items-baseline justify-between mb-0.5">
+        <span className="font-sans text-[8px] uppercase tracking-wider inline-flex items-center gap-1" style={{ color: "rgba(255,255,255,0.55)" }}>
+          Preço por data de entrega
+          <span title={HELP} className="cursor-help font-sans text-[8px] rounded-full px-1" style={{ border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.4)" }}>?</span>
         </span>
+        {curve.spreadPct != null && (
+          <span className="font-sans text-[8px]" style={{ color }}>{curve.spreadPct > 0 ? "+" : ""}{pctFmt.format(curve.spreadPct)}%</span>
+        )}
       </div>
+      <div className="font-sans text-[8px] mb-1" style={{ color }}>{shapeLabel}</div>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
         <path d={line} fill="none" stroke={color} strokeWidth={1.4} strokeLinejoin="round" />
         {pts.map((p, i) => (
@@ -60,6 +73,7 @@ export default function FuturesCurveCard({ curve }: { curve: FuturesCurve }) {
       <div className="font-sans text-[6.5px] mt-1" style={{ color: "rgba(255,255,255,0.22)" }}>
         {pts.length} vencimentos · settlement (ajuste) em {curve.currency} · B3 via brapi · {curve.tradeDate.split("-").reverse().join("/")}
       </div>
+      {/* item 3: o eixo X sao datas de entrega; o titulo ja diz isso */}
     </div>
   );
 }

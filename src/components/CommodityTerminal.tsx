@@ -1,5 +1,5 @@
 /**
- * CommodityTerminal.tsx — terminal de commodities.
+ * CommodityTerminal.tsx, terminal de commodities.
  *
  * FONTE UNICA (conserto do drift): le src/config/assets.ts, a MESMA config do
  * mapa. Antes tinha lista propria de 10 e ficou em 4 de 35 series enquanto o
@@ -13,9 +13,9 @@
  * Honestidade: unidade colada por ativo, data visivel, badge de defasagem,
  * conversao PTAX de referencia, atribuicao exata do banco, virgula pt-BR.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout, Mountain, Zap, FlaskConical, Landmark } from "lucide-react";
+import { Sprout, Mountain, Zap, FlaskConical, Landmark, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
 import { useFuturesCurve } from "../hooks/useFuturesCurve";
 import FuturesCurveCard from "./FuturesCurveCard";
@@ -103,6 +103,26 @@ export default function CommodityTerminal() {
     [],
   );
 
+  // ordem linear (setores achatados) para as setas ‹ › do header no mobile.
+  const ordered = useMemo(() => groups.flatMap((g) => g.items), [groups]);
+  const activeIndex = Math.max(0, ordered.findIndex((a) => a.key === activeKey));
+  const step = (delta: number) => {
+    const n = ordered.length;
+    setActiveKey(ordered[(activeIndex + delta + n) % n].key);
+  };
+
+  // no mobile, ao trocar de ativo, traz o chip ativo para o centro da faixa.
+  // pula a montagem para nao sequestrar o scroll inicial da pagina.
+  const activeChipRef = useRef<HTMLButtonElement | null>(null);
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    activeChipRef.current?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [activeKey]);
+
   // atribuicao das fontes exibidas no ativo ativo (string exata do banco).
   const attributions = useMemo(() => {
     const set = new Set<string>();
@@ -120,8 +140,47 @@ export default function CommodityTerminal() {
         )}
 
         <div className="flex flex-col md:flex-row border border-white/10 bg-[#08090c] rounded-sm overflow-hidden shadow-2xl shadow-black/60">
-          {/* ── Sidebar por setor ── */}
-          <div className="md:w-60 shrink-0 border-b md:border-b-0 md:border-r border-white/5 bg-black/30 md:overflow-y-auto md:max-h-[640px] custom-scrollbar-hide">
+          {/* ── Seletor mobile: faixa horizontal de chips por setor (so < md) ── */}
+          <div className="md:hidden border-b border-white/5 bg-black/30">
+            <div className="flex items-center gap-1 px-3 pt-2 pb-1">
+              <span className="font-sans text-[8px] uppercase tracking-[0.2em] text-muted-foreground/40">Toque para trocar</span>
+              <span className="font-mono text-[8px] text-muted-foreground/30 ml-auto">{activeIndex + 1}/{ordered.length}</span>
+            </div>
+            <div className="relative">
+              <div className="flex gap-1.5 overflow-x-auto px-3 pb-2 custom-scrollbar-hide snap-x">
+                {groups.map((g) => {
+                  const Icon = CAT_ICON[g.cat];
+                  return (
+                    <div key={g.cat} className="flex items-center gap-1.5 shrink-0">
+                      <Icon className="w-3 h-3 shrink-0 ml-1" style={{ color: `${GOLD}70` }} />
+                      {g.items.map((a) => {
+                        const isActive = a.key === activeKey;
+                        return (
+                          <button
+                            key={a.key}
+                            ref={isActive ? activeChipRef : undefined}
+                            onClick={() => setActiveKey(a.key)}
+                            className={`shrink-0 snap-center whitespace-nowrap rounded-full px-3 py-1 font-display text-[11px] uppercase tracking-wider border transition-colors ${
+                              isActive
+                                ? "border-primary bg-primary/15 text-primary"
+                                : "border-white/10 text-muted-foreground/55 hover:text-muted-foreground/80"
+                            }`}
+                          >
+                            {a.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* fade na borda direita: sinaliza que ha mais para deslizar */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#08090c] to-transparent" />
+            </div>
+          </div>
+
+          {/* ── Sidebar por setor (desktop; so md+) ── */}
+          <div className="hidden md:block md:w-60 shrink-0 md:border-r border-white/5 bg-black/30 md:overflow-y-auto md:max-h-[640px] custom-scrollbar-hide">
             {groups.map((g) => {
               const Icon = CAT_ICON[g.cat];
               return (
@@ -165,7 +224,24 @@ export default function CommodityTerminal() {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 pb-5 border-b border-white/5">
                   <div className="min-w-0">
                     <p className="text-[9px] text-muted-foreground/50 uppercase tracking-[0.25em] mb-1">{active.category}</p>
-                    <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest">{active.label}</h3>
+                    {/* setas de navegacao (so mobile): tornam explicito que da para trocar */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => step(-1)}
+                        aria-label="Commodity anterior"
+                        className="md:hidden shrink-0 grid place-items-center w-8 h-8 rounded-full border border-white/12 text-muted-foreground/70 active:bg-white/5"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest min-w-0 truncate">{active.label}</h3>
+                      <button
+                        onClick={() => step(1)}
+                        aria-label="Próxima commodity"
+                        className="md:hidden shrink-0 grid place-items-center w-8 h-8 rounded-full border border-white/12 text-muted-foreground/70 active:bg-white/5"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                     {activePoint && <p className="text-xs text-muted-foreground/70 mt-1.5 font-light">{activePoint.labelPt}</p>}
                   </div>
 
