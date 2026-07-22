@@ -667,9 +667,6 @@ export default function CommodityFlowMap({
         {/* Preco do PRODUTO atual (colado ao sub, nunca solto no card) */}
         {priceBlockFor?.(sub?.key ?? "")}
 
-        {/* Estrutura a termo (a curva que o worker parou de jogar fora) */}
-        {curve && <FuturesCurveCard curve={curve} />}
-
         {/* Nota de honestidade do sub (ex.: laranja-fruta) */}
         {sub?.note && (
           <div className="px-4 py-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
@@ -766,6 +763,15 @@ export default function CommodityFlowMap({
             <div className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.22)" }}>
               Fonte: MDIC/Secex (Comex Stat) · nível de país
             </div>
+          </div>
+        )}
+
+        {/* Estrutura a termo NO RODAPE (so os 5 futuros B3): o detalhe que
+            aprofunda, abaixo do essencial (preco/balanco/ranking), para o card
+            nao deslizar o que importa. No TERMINAL a curva fica no topo. */}
+        {curve && (
+          <div style={{ borderTop: `1px solid ${GOLD}22` }}>
+            <FuturesCurveCard curve={curve} />
           </div>
         )}
       </div>

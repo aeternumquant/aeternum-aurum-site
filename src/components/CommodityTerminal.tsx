@@ -15,7 +15,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sprout, Mountain, Zap, FlaskConical, Landmark, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sprout, Mountain, Zap, FlaskConical, Landmark } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
 import { useFuturesCurve } from "../hooks/useFuturesCurve";
 import FuturesCurveCard from "./FuturesCurveCard";
@@ -103,14 +103,6 @@ export default function CommodityTerminal() {
     [],
   );
 
-  // ordem linear (setores achatados) para as setas ‹ › do header no mobile.
-  const ordered = useMemo(() => groups.flatMap((g) => g.items), [groups]);
-  const activeIndex = Math.max(0, ordered.findIndex((a) => a.key === activeKey));
-  const step = (delta: number) => {
-    const n = ordered.length;
-    setActiveKey(ordered[(activeIndex + delta + n) % n].key);
-  };
-
   // no mobile, ao trocar de ativo, traz o chip ativo para o centro da faixa.
   // pula a montagem para nao sequestrar o scroll inicial da pagina.
   const activeChipRef = useRef<HTMLButtonElement | null>(null);
@@ -141,11 +133,9 @@ export default function CommodityTerminal() {
 
         <div className="flex flex-col md:flex-row border border-white/10 bg-[#08090c] rounded-sm overflow-hidden shadow-2xl shadow-black/60">
           {/* ── Seletor mobile: faixa horizontal de chips por setor (so < md) ── */}
-          <div className="md:hidden border-b border-white/5 bg-black/30">
-            <div className="flex items-center gap-1 px-3 pt-2 pb-1">
-              <span className="font-sans text-[8px] uppercase tracking-[0.2em] text-muted-foreground/40">Toque para trocar</span>
-              <span className="font-mono text-[8px] text-muted-foreground/30 ml-auto">{activeIndex + 1}/{ordered.length}</span>
-            </div>
+          {/* affordance UNICA: o dourado diz onde voce esta, os vizinhos dizem o
+              que existe, o fade sinaliza deslizar. Sem setas nem contador. */}
+          <div className="md:hidden border-b border-white/5 bg-black/30 pt-2">
             <div className="relative">
               <div className="flex gap-1.5 overflow-x-auto px-3 pb-2 custom-scrollbar-hide snap-x">
                 {groups.map((g) => {
@@ -224,24 +214,7 @@ export default function CommodityTerminal() {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 pb-5 border-b border-white/5">
                   <div className="min-w-0">
                     <p className="text-[9px] text-muted-foreground/50 uppercase tracking-[0.25em] mb-1">{active.category}</p>
-                    {/* setas de navegacao (so mobile): tornam explicito que da para trocar */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => step(-1)}
-                        aria-label="Commodity anterior"
-                        className="md:hidden shrink-0 grid place-items-center w-8 h-8 rounded-full border border-white/12 text-muted-foreground/70 active:bg-white/5"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest min-w-0 truncate">{active.label}</h3>
-                      <button
-                        onClick={() => step(1)}
-                        aria-label="Próxima commodity"
-                        className="md:hidden shrink-0 grid place-items-center w-8 h-8 rounded-full border border-white/12 text-muted-foreground/70 active:bg-white/5"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <h3 className="font-display text-3xl sm:text-4xl text-foreground uppercase tracking-widest">{active.label}</h3>
                     {activePoint && <p className="text-xs text-muted-foreground/70 mt-1.5 font-light">{activePoint.labelPt}</p>}
                   </div>
 
