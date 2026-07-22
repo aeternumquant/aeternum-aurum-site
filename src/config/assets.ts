@@ -135,6 +135,7 @@ export const ASSETS: AssetDef[] = [
   { key: "Cobre", label: "Cobre", category: "Minérios", price: { code: "COBRE_WB" } },
   { key: "Aluminio", label: "Alumínio", category: "Minérios", price: { code: "ALUMINIO_WB" } },
   { key: "Niobio", label: "Nióbio", category: "Minérios", price: { code: null, noQuote: "Sem cotação pública em bolsa" } },
+  { key: "Paladio", label: "Paládio", category: "Minérios", price: { code: null, noQuote: "Sem cotação disponível" } },
 
   // ── ENERGIA ──
   {
