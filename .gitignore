@@ -22,6 +22,12 @@ dist-ssr
 # Estado local do Netlify CLI
 .netlify/
 
+# Lockfile do Deno: artefato local do Netlify CLI (bootstrap de edge functions
+# via Deno). O build de producao e `pnpm build` (Vite) e as Functions sao Node
+# (node_bundler = esbuild, imports npm), entao o build NAO consome deno.lock. O
+# lockfile que a Netlify usa e o pnpm-lock.yaml, esse sim versionado.
+deno.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
