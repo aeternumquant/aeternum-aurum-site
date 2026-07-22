@@ -38,6 +38,9 @@ import { FLOW_CARDS } from "../../lib/flowMapConfig";
 /* ── Dourado da marca ── */
 const GOLD = "#C6A85A";
 
+// os futuros B3 que a futures_curve guarda (estrutura a termo no card).
+const FUTURES_CURVE_CODES = new Set(["SOJA_FUT", "MILHO_FUT", "BOI_FUT", "CAFE_FUT", "ETANOL_FUT"]);
+
 // Painel de rodape preservado para o futuro card de COMPETIDOR (nao renderiza).
 const SHOW_STRATEGIC_PANEL = false;
 
@@ -886,6 +889,13 @@ export default function GlobalFlowMap() {
                     noQuote={noQuote}
                   />
                 );
+              }}
+              curveCodeFor={(subKey) => {
+                // a curva usa o series_code do preco do sub (SOJA_FUT...); so os
+                // futuros B3 que a futures_curve guarda tem estrutura a termo.
+                const sp = flowCfg.subs.find((s) => s.key === subKey)?.price;
+                const code = sp ? sp.code : ASSET_SERIES[selectedAsset].code;
+                return code && FUTURES_CURVE_CODES.has(code) ? code : undefined;
               }}
             />
           ) : (
