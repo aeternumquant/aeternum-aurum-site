@@ -27,8 +27,6 @@ import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlo
 import { TrendingUp, TrendingDown, MapPin } from "lucide-react";
 import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
 import { usePamProduction, usePamAbate, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
-import { useFuturesCurve } from "../../hooks/useFuturesCurve";
-import FuturesCurveCard from "../FuturesCurveCard";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
@@ -477,15 +475,12 @@ export default function CommodityFlowMap({
   cfg,
   flows,
   priceBlockFor,
-  curveCodeFor,
 }: {
   label: string;
   cfg: FlowCardCfg;
   flows: CommodityFlows | null;
   /** preco COLADO ao sub-produto atual (regra do rotulo), montado pelo pai */
   priceBlockFor?: (subKey: string) => ReactNode;
-  /** series_code da curva de futuros do sub atual (SOJA_FUT...), se houver */
-  curveCodeFor?: (subKey: string) => string | undefined;
 }) {
   const [subKey, setSubKey] = useState(cfg.subs[0]?.key ?? "");
   const [hovered, setHovered] = useState<string | null>(null);
@@ -520,9 +515,6 @@ export default function CommodityFlowMap({
 
   const hasImport = cfg.subs.some((s) => s.import?.length);
   const hasExport = cfg.subs.some((s) => s.export?.length);
-
-  // Curva de futuros (estrutura a termo) do sub atual, se for um futuro B3.
-  const { data: curve } = useFuturesCurve(curveCodeFor?.(sub?.key ?? ""));
 
   // Balanco interno USDA PSD (so as 9 com psd na config). Eixo de tempo PROPRIO
   // (safra), distinto do fluxo (12m civil). Tabela separada — nao cruza.
@@ -766,14 +758,6 @@ export default function CommodityFlowMap({
           </div>
         )}
 
-        {/* Estrutura a termo NO RODAPE (so os 5 futuros B3): o detalhe que
-            aprofunda, abaixo do essencial (preco/balanco/ranking), para o card
-            nao deslizar o que importa. No TERMINAL a curva fica no topo. */}
-        {curve && (
-          <div style={{ borderTop: `1px solid ${GOLD}22` }}>
-            <FuturesCurveCard curve={curve} />
-          </div>
-        )}
       </div>
     </div>
   );

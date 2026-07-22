@@ -35,12 +35,20 @@ import { useUsgsRanking, fmtUsgs } from "../../hooks/useUsgs";
 import RareEarthMap from "./RareEarthMap";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
 import { ASSET_SERIES } from "../../config/assets";
+import { useFuturesCurve, type FuturesCurve } from "../../hooks/useFuturesCurve";
 
 /* ── Dourado da marca ── */
 const GOLD = "#C6A85A";
 
-// os futuros B3 que a futures_curve guarda (estrutura a termo no card).
+// os futuros B3 que a futures_curve guarda (estrutura a termo). Aparece como
+// sparkline fino no rodape do mapa, ao lado do ranking de producao.
 const FUTURES_CURVE_CODES = new Set(["SOJA_FUT", "MILHO_FUT", "BOI_FUT", "CAFE_FUT", "ETANOL_FUT"]);
+
+// series_code da curva B3 do ativo selecionado, ou undefined (so os 5 futuros).
+function footerCurveCode(asset: string): string | undefined {
+  const code = ASSET_SERIES[asset]?.code;
+  return code && FUTURES_CURVE_CODES.has(code) ? code : undefined;
+}
 
 // Painel de rodape preservado para o futuro card de COMPETIDOR (nao renderiza).
 const SHOW_STRATEGIC_PANEL = false;
@@ -401,14 +409,80 @@ function brlRefLine(point: MarketPoint, ptax: MarketPoint | null): string | null
  */
 // ASSET_SERIES + AssetSeries agora vem da FONTE UNICA (src/config/assets.ts).
 
+const curvePctFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const curveValFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CURVE_HELP =
+  "Cada ponto é um contrato futuro com sua data de vencimento. A linha mostra quanto o mercado cobra para entregar em cada data. Se sobe, a entrega futura é mais cara (contango); se desce, a próxima é mais cara (backwardation).";
+
+/**
+ * Sparkline FINO da estrutura a termo, para o canto direito do rodape do mapa
+ * (ao lado do ranking). Sobe = contango, desce = backwardation. FATO de mercado
+ * com a explicacao, NUNCA recomendacao. A curva completa (card) vive no terminal;
+ * aqui e so a tendencia + os dois pontos ancora + a fonte.
+ */
+function CurveSparkline({ curve }: { curve: FuturesCurve }) {
+  const pts = curve.points.filter((p) => p.settlement != null) as { symbol: string; expiration: string; settlement: number }[];
+  if (pts.length < 2) return null;
+  const up = curve.shape === "contango";
+  const back = curve.shape === "backwardation";
+  const color = up ? "#1baf7a" : back ? "#c0564c" : "rgba(255,255,255,0.5)";
+  // significado PRIMEIRO, o termo tecnico entre parenteses (igual ao card)
+  const shapeLabel = up
+    ? "Entrega futura mais cara (contango)"
+    : back
+    ? "Entrega próxima mais cara (backwardation)"
+    : "Entrega em linha (curva plana)";
+  const explain = up
+    ? "a entrega futura custa mais que a próxima, sinal de custo de carrego ou oferta confortável"
+    : back
+    ? "a entrega próxima custa mais que a futura, sinal de escassez agora"
+    : "a entrega próxima e a futura custam quase o mesmo";
+  const W = 72, H = 14, pad = 2;
+  const vals = pts.map((p) => p.settlement);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const span = max - min || max * 0.02 || 1;
+  const x = (i: number) => pad + (i / (pts.length - 1)) * (W - 2 * pad);
+  const y = (v: number) => H - pad - ((v - min) / span) * (H - 2 * pad);
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.settlement).toFixed(1)}`).join(" ");
+  const mesAno = (d: string) => `${d.slice(5, 7)}/${d.slice(2, 4)}`;
+  const front = pts[0], backP = pts[pts.length - 1];
+  const date = curve.tradeDate.split("-").reverse().join("/");
+  // se o canto for estreito, o "?" carrega a explicacao + a fonte
+  const tip = `${CURVE_HELP}\n\n${explain}.\n\nB3 via brapi · ${date}`;
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="flex-shrink-0" style={{ overflow: "visible" }}>
+        <path d={line} fill="none" stroke={color} strokeWidth={1.2} strokeLinejoin="round" strokeLinecap="round" />
+        <circle cx={x(pts.length - 1)} cy={y(backP.settlement)} r={1.6} fill={color} />
+      </svg>
+      <div className="min-w-0">
+        <div className="font-sans text-[8px] leading-tight flex items-center gap-1 flex-wrap">
+          <span style={{ color: "rgba(255,255,255,0.55)" }}>Preço por data de entrega</span>
+          <span title={tip} className="cursor-help rounded-full px-1" style={{ border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.4)" }}>?</span>
+          {curve.spreadPct != null && (
+            <span style={{ color }}>· {curve.spreadPct > 0 ? "+" : ""}{curvePctFmt.format(curve.spreadPct)}%</span>
+          )}
+          <span style={{ color }}>· {shapeLabel}</span>
+        </div>
+        <div className="font-sans text-[7px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+          {curveValFmt.format(front.settlement)} {mesAno(front.expiration)} → {curveValFmt.format(backP.settlement)} {mesAno(backP.expiration)} · B3 via brapi · {date}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Rodape do mapa: ranking MUNDIAL de producao da commodity selecionada (USDA
  * PSD, o competidor de producao). Dado ja no banco (todos os paises); reativo a
  * carta. O Brasil SEMPRE destacado (peso/borda dourada) — esteja em 1o ou em
  * 8o. Os outros neutros (so numero, sem cor de papel). Mesma fonte/eixo (safra).
+ * A curva de futuros (so os 5 B3) entra como sparkline fino no CANTO DIREITO,
+ * sem tocar no ranking (que segue horizontal na esquerda/centro).
  */
-function ProductionRankingFooter({ code }: { code: string }) {
+function ProductionRankingFooter({ code, curveCode }: { code: string; curveCode?: string }) {
   const { data } = usePsdRanking(code);
+  const { data: curve } = useFuturesCurve(curveCode);
   if (!data) return null;
   const cell = (r: { iso: string; name: string; value: number | null; rank: number; isBrazil: boolean }) => (
     <span
@@ -430,18 +504,48 @@ function ProductionRankingFooter({ code }: { code: string }) {
   );
   return (
     <div className="flex-shrink-0 px-4 py-2" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
-      <div className="font-sans text-[8px] uppercase tracking-[0.2em] mb-1.5" style={{ color: `${GOLD}90` }}>
-        Produção mundial · safra {data.safraLabel} · projeção USDA
-      </div>
-      <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
-        {data.top.map(cell)}
-        {data.brazilOutside && (
-          <>
-            <span className="flex-shrink-0 font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>…</span>
-            {cell(data.brazilOutside)}
-          </>
+      <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+        {/* RANKING: esquerda/centro, horizontal, INTOCADO */}
+        <div className="min-w-0 md:flex-1">
+          <div className="font-sans text-[8px] uppercase tracking-[0.2em] mb-1.5" style={{ color: `${GOLD}90` }}>
+            Produção mundial · safra {data.safraLabel} · projeção USDA
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+            {data.top.map(cell)}
+            {data.brazilOutside && (
+              <>
+                <span className="flex-shrink-0 font-sans text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>…</span>
+                {cell(data.brazilOutside)}
+              </>
+            )}
+          </div>
+        </div>
+        {/* CURVA: canto direito, feixe estreito (so os 5 futuros B3); divisoria
+            fina, que no mobile vira uma linha em cima (a curva desce). */}
+        {curve && (
+          <div
+            className="mt-2 pt-2 border-t md:mt-0 md:pt-0 md:border-t-0 md:border-l md:pl-4"
+            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <CurveSparkline curve={curve} />
+          </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Rodape so-curva: para o unico futuro B3 sem ranking de producao (etanol, que
+ * nao tem PSD nem USGS). A curva nao some; ocupa a faixa sozinha. Os outros 4
+ * futuros B3 (soja/milho/boi/cafe) mostram a curva ao lado do ranking PSD.
+ */
+function CurveOnlyFooter({ curveCode }: { curveCode: string }) {
+  const { data: curve } = useFuturesCurve(curveCode);
+  if (!curve) return null;
+  return (
+    <div className="flex-shrink-0 px-4 py-2" style={{ borderTop: `1px solid ${GOLD}18`, backgroundColor: "rgba(5,5,3,0.98)" }}>
+      <CurveSparkline curve={curve} />
     </div>
   );
 }
@@ -854,13 +958,6 @@ export default function GlobalFlowMap() {
                   />
                 );
               }}
-              curveCodeFor={(subKey) => {
-                // a curva usa o series_code do preco do sub (SOJA_FUT...); so os
-                // futuros B3 que a futures_curve guarda tem estrutura a termo.
-                const sp = flowCfg.subs.find((s) => s.key === subKey)?.price;
-                const code = sp ? sp.code : ASSET_SERIES[selectedAsset].code;
-                return code && FUTURES_CURVE_CODES.has(code) ? code : undefined;
-              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -871,8 +968,12 @@ export default function GlobalFlowMap() {
             </div>
           )}
           </div>
-          {flowCfg.psd && <ProductionRankingFooter code={flowCfg.psd.code} />}
+          {flowCfg.psd && <ProductionRankingFooter code={flowCfg.psd.code} curveCode={footerCurveCode(selectedAsset)} />}
           {flowCfg.usgs && <UsgsRankingFooter commodity={flowCfg.usgs} />}
+          {/* etanol: futuro B3 sem ranking (nem PSD nem USGS); a curva nao some */}
+          {!flowCfg.psd && !flowCfg.usgs && footerCurveCode(selectedAsset) && (
+            <CurveOnlyFooter curveCode={footerCurveCode(selectedAsset)!} />
+          )}
         </div>
       ) : (
       <>
