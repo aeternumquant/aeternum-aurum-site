@@ -34,6 +34,7 @@ import { usePsdRanking, fmtPsd as fmtPsdRank } from "../../hooks/usePsdRanking";
 import { useUsgsRanking, fmtUsgs } from "../../hooks/useUsgs";
 import RareEarthMap from "./RareEarthMap";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
+import { ASSET_SERIES } from "../../config/assets";
 
 /* ── Dourado da marca ── */
 const GOLD = "#C6A85A";
@@ -395,44 +396,7 @@ function brlRefLine(point: MarketPoint, ptax: MarketPoint | null): string | null
  *    DIFERENTE de FCOJ (suco concentrado). Casar seria a mesma troca do boi.
  * Boi usa só BOI_FUT (B3): CARNE_BOVINA_WB é carne desossada NZ, outro produto.
  */
-type AssetSeries =
-  | { code: string; secondary?: { code: string; note: string } }
-  | { code: null; noQuote: string };
-const ASSET_SERIES: Record<NonNullable<AssetType>, AssetSeries> = {
-  // ── Agro ──
-  Soja:     { code: "SOJA_FUT",  secondary: { code: "SOJA_WB",  note: "referência global · US Gulf" } },
-  Milho:    { code: "MILHO_FUT", secondary: { code: "MILHO_WB", note: "referência global · US Gulf" } },
-  Trigo:    { code: "TRIGO_WB" },
-  Cafe:     { code: "CAFE_FUT",  secondary: { code: "CAFE_ICO", note: "referência global · ICO" } },
-  Algodao:  { code: "ALGODAO_WB" },
-  BoiGordo: { code: "BOI_FUT" },
-  Acucar:   { code: "ACUCAR_WB" },
-  Cacau:    { code: "CACAU_WB" },
-  Arroz:    { code: "ARROZ_WB" },
-  Frango:   { code: "FRANGO_WB" },
-  Etanol:   { code: "ETANOL_FUT" },
-  Amendoim: { code: "AMENDOIM_WB" },
-  Laranja:  { code: null, noQuote: "Sem cotação disponível" },
-  // ── Minérios ──
-  Ouro:         { code: "OURO_PAXG", secondary: { code: "OURO_LBMA", note: "spot Londres · LBMA" } },
-  Prata:        { code: "PRATA_LBMA" },
-  Cobre:        { code: "COBRE_WB" },
-  Aluminio:     { code: "ALUMINIO_WB" },
-  MinerioFerro: { code: "MINERIO_WB" },
-  Paladio:      { code: null, noQuote: "Sem cotação disponível" },
-  Niobio:       { code: null, noQuote: "Sem cotação pública em bolsa" },
-  // ── Fertilizantes (2g). MAP: o preco de referencia e DAP (substituto). ──
-  Ureia: { code: "UREIA_WB" },
-  KCl:   { code: "KCL_WB" },
-  MAP:   { code: "DAP_WB" },
-  TSP:   { code: "TSP_WB" },
-  Rocha: { code: "ROCHA_FOSFATICA_WB" },
-  // ── Energia ──
-  Brent:      { code: "BRENT_SPOT" },
-  GasNatural: { code: "GAS_NATURAL_HH" },
-  // Terras raras: sem preco de bolsa (card e o gap reserva-vs-producao, USGS).
-  TerrasRaras: { code: null, noQuote: "Sem cotação pública em bolsa" },
-};
+// ASSET_SERIES + AssetSeries agora vem da FONTE UNICA (src/config/assets.ts).
 
 /**
  * Rodape do mapa: ranking MUNDIAL de producao da commodity selecionada (USDA
