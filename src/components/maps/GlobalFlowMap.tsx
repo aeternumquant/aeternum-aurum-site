@@ -34,7 +34,7 @@ import { usePsdRanking, fmtPsd as fmtPsdRank } from "../../hooks/usePsdRanking";
 import { useUsgsRanking, fmtUsgs } from "../../hooks/useUsgs";
 import RareEarthMap from "./RareEarthMap";
 import { FLOW_CARDS } from "../../lib/flowMapConfig";
-import { ASSET_SERIES } from "../../config/assets";
+import { ASSET_SERIES, type PriceCfg } from "../../config/assets";
 import { useFuturesCurve, type FuturesCurve } from "../../hooks/useFuturesCurve";
 
 /* ── Dourado da marca ── */
@@ -817,8 +817,13 @@ export default function GlobalFlowMap() {
       noQuote: null as string | null,
     };
     if (!selectedAsset) return empty;
-    const s = ASSET_SERIES[selectedAsset];
-    if (s.code == null) return { ...empty, noQuote: s.noQuote };
+    // Terras raras (e qualquer asset do mapa sem serie de preco em assets.ts) e
+    // uma visualizacao de reserva/producao, NAO um ativo cotado, entao nao tem
+    // entrada em ASSET_SERIES. O tipo Record<string, PriceCfg> nao revela isso,
+    // por isso o acesso cru estourava "reading 'code' of undefined". A guarda
+    // devolve "sem serie" (o RareEarthMap desenha o resto), sem crashar.
+    const s: PriceCfg | undefined = ASSET_SERIES[selectedAsset];
+    if (!s || s.code == null) return { ...empty, noQuote: s?.noQuote ?? null };
     const secondary = s.secondary
       ? { point: bySeries.get(s.secondary.code) ?? null, note: s.secondary.note }
       : null;
