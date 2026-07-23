@@ -63,7 +63,7 @@ type AssetType =
   | "TerrasRaras"
   | null;
 
-type MapCategory = "Agro" | "Minérios" | "Energia" | "Fertilizantes" | "Terras raras";
+type MapCategory = "Agro" | "Minérios" | "Energia" | "Fertilizantes";
 
 /* ── Países estratégicos para o painel abaixo do mapa ── */
 const strategicCountries = [
@@ -247,11 +247,6 @@ const assetFlows: Record<NonNullable<AssetType>, {
     flowData: "Brasil: monopolista global com 75% das exportações de FCOJ. São Paulo + Triângulo Mineiro. ICE NY (OJ).",
     percentage: "75% global", volume: "1.7M ton FCOJ",
   },
-  Etanol: {
-    label: "Etanol", category: "Agro",
-    flowData: "Brasil: 2º maior produtor global de etanol (cana). Capacidade de 35B litros/ano. Paridade com gasolina é principal driver interno.",
-    percentage: "25% global", volume: "35B litros/ano",
-  },
   Amendoim: {
     label: "Amendoim", category: "Agro",
     flowData: "Brasil: 2º exportador de amendoim in natura. SP concentra 80% da produção. Crescimento por pet food e indústria alimentícia.",
@@ -299,6 +294,13 @@ const assetFlows: Record<NonNullable<AssetType>, {
     flowData: "Mercados regionais segmentados. EUA (Henry Hub), Europa (TTF Amsterdam), Golfo (GNL). Brasil: gás boliviano + GNL.",
     percentage: "Ref. Henry Hub", volume: "4.000+ bcm/ano",
   },
+  // Etanol na Energia (e biocombustivel), alinhado com o terminal que agrupa
+  // por setor. Ordem Brent, Gas, Etanol como no terminal.
+  Etanol: {
+    label: "Etanol", category: "Energia",
+    flowData: "Brasil: 2º maior produtor global de etanol (cana). Capacidade de 35B litros/ano. Paridade com gasolina é principal driver interno.",
+    percentage: "25% global", volume: "35B litros/ano",
+  },
   // ── Minério de Ferro ──
   MinerioFerro: {
     label: "Minério de Ferro", category: "Minérios",
@@ -318,8 +320,15 @@ const assetFlows: Record<NonNullable<AssetType>, {
   MAP:   { label: "Fosfatado (MAP)", category: "Fertilizantes", flowData: "", percentage: "" },
   TSP:   { label: "TSP", category: "Fertilizantes", flowData: "", percentage: "" },
   Rocha: { label: "Rocha fosfática", category: "Fertilizantes", flowData: "", percentage: "" },
-  // ── Terras raras (aba propria; renderiza o card de GAP reserva-vs-producao) ──
-  TerrasRaras: { label: "Terras raras", category: "Terras raras", flowData: "", percentage: "" },
+  // ── Terras raras: por ora um item DENTRO de Minerios (evita dois botoes
+  //    parecidos na barra de abas). Ao seleciona-la, o render especial
+  //    (selectedAsset === "TerrasRaras") mostra o RareEarthMap INTEIRO: mapa
+  //    pintado (China vermelha / Brasil ambar, hover), scatter reserva x
+  //    producao, tabela de oxidos (funcao + valor), mineracao vs refino e o
+  //    botao de aprofundamento. Nao empobrece para um item de ranking.
+  //    VOLTA a ter aba propria no futuro, quando houver mais dados (separacao
+  //    por valor, locais de maior quantidade); hoje cabe em Minerios. ──
+  TerrasRaras: { label: "Terras raras", category: "Minérios", flowData: "", percentage: "" },
 };
 
 // Fertilizantes: a unica categoria toda de IMPORTACAO. A aba propria deixa a
@@ -329,7 +338,6 @@ const categories: { key: MapCategory }[] = [
   { key: "Minérios" },
   { key: "Energia" },
   { key: "Fertilizantes" },
-  { key: "Terras raras" },
 ];
 
 /* ── Variação em vírgula decimal (pt-BR), 2 casas — ex.: "1,82" ── */
