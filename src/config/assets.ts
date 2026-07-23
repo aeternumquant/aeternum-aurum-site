@@ -13,8 +13,28 @@
  */
 export type AssetCategory = "Agro" | "Minérios" | "Energia" | "Fertilizantes" | "Financeiro";
 
+/**
+ * Fonte SECUNDARIA de uma commodity. O `kind` separa dois casos que NAO podem
+ * ser confundidos (seria desonesto tratar igual):
+ *  - "redundant": mede a MESMA coisa por outra janela (ouro PAXG 24/7 vs LBMA
+ *    fixing de Londres). Comportamento no terminal: FALLBACK, exibe a fonte
+ *    mais fresca como principal; se ela atrasa, a outra cobre.
+ *  - "distinct": e uma coisa DIFERENTE, preco legitimamente diferente (Brent
+ *    global vs WTI EUA; futuro B3 negociavel vs referencia WB/ICO global).
+ *    Comportamento: exibe AS DUAS lado a lado (o spread e dado, NUNCA uma e
+ *    substituta da outra).
+ * `note` diz o que a fonte secundaria e; `primaryNote`, o que a primaria e. O
+ * leitor sempre entende por que ha dois numeros.
+ */
+export type SecondaryCfg = {
+  code: string;
+  kind: "redundant" | "distinct";
+  note: string;
+  primaryNote: string;
+};
+
 export type PriceCfg =
-  | { code: string; secondary?: { code: string; note: string } }
+  | { code: string; secondary?: SecondaryCfg }
   | { code: null; noQuote: string };
 
 export type Editorial = {
@@ -38,7 +58,7 @@ export const ASSETS: AssetDef[] = [
   // ── AGRO ──
   {
     key: "Soja", label: "Soja", category: "Agro",
-    price: { code: "SOJA_FUT", secondary: { code: "SOJA_WB", note: "referência global · US Gulf" } },
+    price: { code: "SOJA_FUT", secondary: { code: "SOJA_WB", kind: "distinct", note: "referência global · US Gulf", primaryNote: "futuro B3 · negociável" } },
     curveCode: "SOJA_FUT",
     editorial: {
       insight: "Brasil produz 6 em cada 10 toneladas de soja exportadas no mundo. A rota Mato Grosso–Hong Kong é a nova artéria da proteína global.",
@@ -58,7 +78,7 @@ export const ASSETS: AssetDef[] = [
   },
   {
     key: "Milho", label: "Milho", category: "Agro",
-    price: { code: "MILHO_FUT", secondary: { code: "MILHO_WB", note: "referência global · US Gulf" } },
+    price: { code: "MILHO_FUT", secondary: { code: "MILHO_WB", kind: "distinct", note: "referência global · US Gulf", primaryNote: "futuro B3 · negociável" } },
     curveCode: "MILHO_FUT",
     editorial: {
       insight: "Brasil é o 2º exportador mundial de milho, safra 23/24 recorde de 135 M ton. CBOT ainda subestima a oferta brasileira.",
@@ -78,7 +98,7 @@ export const ASSETS: AssetDef[] = [
   },
   {
     key: "Cafe", label: "Café", category: "Agro",
-    price: { code: "CAFE_FUT", secondary: { code: "CAFE_ICO", note: "referência global · ICO" } },
+    price: { code: "CAFE_FUT", secondary: { code: "CAFE_ICO", kind: "distinct", note: "referência global · ICO", primaryNote: "futuro B3 · negociável" } },
     curveCode: "CAFE_FUT",
     editorial: {
       insight: "Brasil produz 1 em cada 3 xícaras de café consumidas no planeta, 38% da oferta global. O mercado ainda subestima o poder de pricing.",
@@ -129,7 +149,7 @@ export const ASSETS: AssetDef[] = [
   { key: "MinerioFerro", label: "Minério de Ferro", category: "Minérios", price: { code: "MINERIO_WB" } },
   {
     key: "Ouro", label: "Ouro", category: "Minérios",
-    price: { code: "OURO_PAXG", secondary: { code: "OURO_LBMA", note: "spot Londres · LBMA" } },
+    price: { code: "OURO_PAXG", secondary: { code: "OURO_LBMA", kind: "redundant", note: "LBMA · fixing de Londres", primaryNote: "PAXG · tokenizado 24/7" } },
   },
   { key: "Prata", label: "Prata", category: "Minérios", price: { code: "PRATA_LBMA" } },
   { key: "Cobre", label: "Cobre", category: "Minérios", price: { code: "COBRE_WB" } },
@@ -140,7 +160,7 @@ export const ASSETS: AssetDef[] = [
   // ── ENERGIA ──
   {
     key: "Brent", label: "Petróleo", category: "Energia",
-    price: { code: "BRENT_SPOT", secondary: { code: "WTI_SPOT", note: "WTI · Cushing" } },
+    price: { code: "BRENT_SPOT", secondary: { code: "WTI_SPOT", kind: "distinct", note: "WTI · EUA (Cushing)", primaryNote: "Brent · global" } },
   },
   { key: "GasNatural", label: "Gás Natural", category: "Energia", price: { code: "GAS_NATURAL_HH" } },
   { key: "Etanol", label: "Etanol", category: "Energia", price: { code: "ETANOL_FUT" }, curveCode: "ETANOL_FUT" },

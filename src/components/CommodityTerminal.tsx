@@ -18,13 +18,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sprout, Mountain, Zap, FlaskConical, Landmark } from "lucide-react";
 import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
 import { useFuturesCurve } from "../hooks/useFuturesCurve";
+import { usePriceHistory } from "../hooks/usePriceHistory";
 import FuturesCurveCard from "./FuturesCurveCard";
+import PriceHistoryChart from "./PriceHistoryChart";
 import { ASSETS, ASSET_CATEGORIES, type AssetDef, type AssetCategory } from "../config/assets";
 import {
   PTAX_CODE,
   brlReference,
   formatBRLRef,
   formatDayMonthUTC,
+  formatMonthUTC,
   formatValueUnit,
 } from "../lib/marketFormat";
 
@@ -65,6 +68,58 @@ function ChangeLine({ point }: { point: MarketPoint }) {
   );
 }
 
+/** Data por frequency: serie MENSAL mostra o mes ("junho/2026"), nao "01/06"
+ *  (que apresentaria uma media mensal como preco de um dia). Diaria: "15/07". */
+function formatWhen(point: MarketPoint): string {
+  return point.frequency === "mensal" ? formatMonthUTC(point.ts) : formatDayMonthUTC(point.ts);
+}
+
+/** Bloco de preco PRINCIPAL: valor + unidade, rotulo da fonte, variacao, data,
+ *  defasagem e a conversao PTAX de referencia (so serie USD, mesmas travas). */
+function PriceMain({ point, note, ptax }: { point: MarketPoint; note?: string; ptax: MarketPoint | null }) {
+  const brl = brlReference(point, ptax);
+  return (
+    <>
+      <div className="font-mono text-2xl text-foreground leading-tight">{formatValueUnit(point)}</div>
+      {note && <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/45 mt-0.5">{note}</div>}
+      <ChangeLine point={point} />
+      <div className="text-xs font-mono text-muted-foreground/60 mt-1">
+        em {formatWhen(point)}
+        {point.isStale && <StaleTag ageInDays={point.ageInDays} />}
+      </div>
+      {brl && (
+        <div className="text-[11px] font-mono text-muted-foreground/45 mt-1">
+          ≈ {formatBRLRef(brl.brl)} · conversão PTAX de {brl.ptaxDate}
+        </div>
+      )}
+    </>
+  );
+}
+
+/** Bloco SECUNDARIO (menor): a outra fonte, SEMPRE rotulada. `prefix` marca o
+ *  Tipo 1 (mesma commodity, outra janela). */
+function PriceAside({ point, note, prefix }: { point: MarketPoint | null; note: string; prefix?: string }) {
+  return (
+    <div className="text-[11px] font-mono text-muted-foreground/55 mt-1.5 pt-1.5 border-t border-white/5">
+      {prefix && <span className="text-muted-foreground/35">{prefix} </span>}
+      {point ? (
+        <>{formatValueUnit(point)} <span className="text-muted-foreground/35">· {note} · {formatWhen(point)}</span></>
+      ) : (
+        <span className="text-muted-foreground/35">{note}: indisponível</span>
+      )}
+    </div>
+  );
+}
+
+/** Tipo 1 (redundante): a fonte MAIS FRESCA vira principal; se ela atrasa, a
+ *  outra cobre. Prefere a NAO defasada; entre iguais, a de ts mais recente. */
+function fresher<T extends { point: MarketPoint | null }>(a: T, b: T): T {
+  if (!a.point) return b;
+  if (!b.point) return a;
+  if (a.point.isStale !== b.point.isStale) return a.point.isStale ? b : a;
+  return new Date(a.point.ts).getTime() >= new Date(b.point.ts).getTime() ? a : b;
+}
+
 /** Linha curta de status na sidebar: valor, "sem cotação", skeleton ou indisp. */
 function SidebarStatus({ asset, point, loading }: { asset: AssetDef; point: MarketPoint | null; loading: boolean }) {
   if (asset.price.code == null) return <span className="text-muted-foreground/40 uppercase tracking-wider">sem cotação em bolsa</span>;
@@ -87,11 +142,13 @@ export default function CommodityTerminal() {
   const pointFor = (a: AssetDef): MarketPoint | null => (a.price.code ? bySeries.get(a.price.code) ?? null : null);
 
   const activePoint = pointFor(active);
-  const activeSecondary =
-    active.price.code != null && active.price.secondary ? bySeries.get(active.price.secondary.code) ?? null : null;
+  // config da fonte secundaria (Tipo 1 redundante / Tipo 2 distinto), se houver.
+  const sec = active.price.code != null ? active.price.secondary : undefined;
+  const activeSecondary = sec ? bySeries.get(sec.code) ?? null : null;
   const ptax = bySeries.get(PTAX_CODE) ?? null;
-  const activeBrlRef = activePoint ? brlReference(activePoint, ptax) : null;
   const { data: curve } = useFuturesCurve(active.curveCode);
+  // Parte 2: historico de preco da serie primaria (le a observations, ja no banco).
+  const { data: history } = usePriceHistory(active.price.code ?? null);
 
   // secoes por categoria; dentro, com-cotacao primeiro, sem-bolsa ao fim.
   const groups = useMemo(
@@ -218,31 +275,58 @@ export default function CommodityTerminal() {
                     {activePoint && <p className="text-xs text-muted-foreground/70 mt-1.5 font-light">{activePoint.labelPt}</p>}
                   </div>
 
-                  <div className="text-left sm:text-right shrink-0">
+                  <div className="text-left sm:text-right shrink-0 sm:max-w-[260px]">
                     {active.price.code == null ? (
                       <div className="font-mono text-sm text-muted-foreground/70 uppercase tracking-wider max-w-[220px]">{active.price.noQuote}</div>
                     ) : loading ? (
                       <div className="h-7 w-32 rounded-sm bg-white/5 animate-pulse ml-auto" />
-                    ) : activePoint ? (
+                    ) : !activePoint && !activeSecondary ? (
+                      <div className="font-mono text-sm text-muted-foreground/70">dado indisponível</div>
+                    ) : sec?.kind === "distinct" ? (
+                      /* Tipo 2 (distinto): AS DUAS lado a lado, cada uma rotulada. NUNCA
+                         uma substitui a outra (Brent e WTI sao petroleos diferentes). */
                       <>
-                        <div className="font-mono text-2xl text-foreground leading-tight">{formatValueUnit(activePoint)}</div>
-                        <ChangeLine point={activePoint} />
-                        <div className="text-xs font-mono text-muted-foreground/60 mt-1">
-                          em {formatDayMonthUTC(activePoint.ts)}
-                          {activePoint.isStale && <StaleTag ageInDays={activePoint.ageInDays} />}
-                        </div>
-                        {activeBrlRef && (
-                          <div className="text-[11px] font-mono text-muted-foreground/45 mt-1">
-                            ≈ {formatBRLRef(activeBrlRef.brl)} · conversão PTAX de {activeBrlRef.ptaxDate}
-                          </div>
+                        {activePoint ? (
+                          <PriceMain point={activePoint} note={sec.primaryNote} ptax={ptax} />
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground/70">{sec.primaryNote}: indisponível</div>
                         )}
-                        {/* secundario (referencia): valor menor + a nota */}
-                        {activeSecondary && active.price.code != null && active.price.secondary && (
-                          <div className="text-[11px] font-mono text-muted-foreground/55 mt-1.5 pt-1.5 border-t border-white/5">
-                            {formatValueUnit(activeSecondary)} <span className="text-muted-foreground/35">· {active.price.secondary.note}</span>
-                          </div>
-                        )}
+                        <PriceAside point={activeSecondary} note={sec.note} />
+                        {/* spread SO quando as duas tem a MESMA unidade (Brent/WTI em
+                            USD/bbl). Unidade diferente (saca vs t) nao permite spread. */}
+                        {activePoint && activeSecondary && activePoint.unit && activePoint.unit === activeSecondary.unit && (() => {
+                          const d = activePoint.value - activeSecondary.value;
+                          const pct = activeSecondary.value ? (d / activeSecondary.value) * 100 : null;
+                          return (
+                            <div className="text-[10px] font-mono text-muted-foreground/40 mt-1">
+                              spread: {d >= 0 ? "+" : ""}{changeFmt.format(d)} {activePoint.unit}
+                              {pct != null ? ` · ${pct >= 0 ? "+" : ""}${changeFmt.format(pct)}%` : ""}
+                            </div>
+                          );
+                        })()}
                       </>
+                    ) : sec?.kind === "redundant" ? (
+                      /* Tipo 1 (redundante): mesma coisa por duas janelas. Fallback: a
+                         mais fresca vira principal; a outra cobre e fica rotulada. */
+                      (() => {
+                        const primary = { point: activePoint, note: sec.primaryNote };
+                        const secondary = { point: activeSecondary, note: sec.note };
+                        const principal = fresher(primary, secondary);
+                        const backup = principal === primary ? secondary : primary;
+                        return (
+                          <>
+                            {principal.point ? (
+                              <PriceMain point={principal.point} note={principal.note} ptax={ptax} />
+                            ) : (
+                              <div className="font-mono text-sm text-muted-foreground/70">dado indisponível</div>
+                            )}
+                            {backup.point && <PriceAside point={backup.point} note={backup.note} prefix="mesma commodity ·" />}
+                          </>
+                        );
+                      })()
+                    ) : activePoint ? (
+                      /* Sem secundario: preco unico. */
+                      <PriceMain point={activePoint} ptax={ptax} />
                     ) : (
                       <div className="font-mono text-sm text-muted-foreground/70">dado indisponível</div>
                     )}
@@ -253,6 +337,14 @@ export default function CommodityTerminal() {
                 {curve && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <FuturesCurveCard curve={curve} />
+                  </div>
+                )}
+
+                {/* Historico de preco (Onda 2): le a observations, alcance REAL
+                    rotulado. Trava graciosa: some sem pontos suficientes. */}
+                {history && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <PriceHistoryChart history={history} attribution={activePoint?.attribution ?? null} />
                   </div>
                 )}
 
