@@ -384,4 +384,68 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       },
     ],
   },
+  // ── Frente B (expansao): 8 codigos novos do Comex, SO FLUXO (sem serie de
+  // preco no nosso banco). Mesmo tratamento do niobio: o "sem cotacao" e a
+  // verdade, NAO "sob consulta". Import pinta fornecedores (ambar); export,
+  // compradores (verde). Os encadeamentos ficam nos comentarios (UI vem depois).
+  Celulose: {
+    subs: [{
+      key: "celulose", label: "Pasta de eucalipto", export: ["470329"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Brasil é o maior exportador mundial de celulose de eucalipto (fibra curta). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  Suino: {
+    subs: [{
+      key: "suino", label: "Carne suína congelada", export: ["020329"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Carne suína congelada (exportação). Completa a proteína animal ao lado de boi e frango. Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  Fumo: {
+    subs: [{
+      key: "fumo", label: "Fumo em folha", export: ["240120"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Fumo em folha destalado (exportação). Brasil é o maior exportador mundial. Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  Malte: {
+    subs: [{
+      key: "malte", label: "Malte", import: ["110710"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Malte não torrado (importação, cadeia da cerveja). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  Leite: {
+    subs: [{
+      key: "leite", label: "Leite em pó", import: ["040221"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Leite em pó integral (importação, sobretudo Argentina e Uruguai). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  Borracha: {
+    subs: [{
+      key: "borracha", label: "Borracha natural", import: ["400122"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Borracha natural TSNR (importação, insumo de pneus). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  // ENERGIA. Encadeamento: carvao importado + minerio de ferro exportado sao os
+  // dois insumos do alto-forno (a siderurgia depende do carvao que importa).
+  Carvao: {
+    subs: [{
+      key: "carvao", label: "Hulha betuminosa", import: ["270112"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Carvão metalúrgico (importação). Insumo do alto-forno junto do minério de ferro que o Brasil exporta. Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
+  // FERTILIZANTES. Encadeamento: enxofre importado vira acido sulfurico, insumo
+  // do fosfatado (MAP/TSP/rocha) JA mapeado (a montante da cadeia).
+  Enxofre: {
+    subs: [{
+      key: "enxofre", label: "Enxofre", import: ["250300"],
+      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+      note: "Enxofre (importação). A montante do fertilizante fosfatado já mapeado: enxofre vira ácido sulfúrico, insumo do MAP/TSP. Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+    }],
+  },
 };

@@ -97,6 +97,10 @@ const PRODUCTS: Prod[] = [
   { key: "minerio_finos", code: 260111, flow: "export" },
   { key: "minerio_pelotas", code: 260112, flow: "export" },
   { key: "petroleo", code: 270900, flow: "export" },
+  // ── Frente B (expansao): 3 exportacoes de peso que estavam fora do mapa ──
+  { key: "celulose", code: 470329, flow: "export" },     // Brasil #1 mundial (eucalipto); US$ 8,94 bi (2025)
+  { key: "carne_suina", code: 20329, flow: "export" },   // ZERO A ESQUERDA: 020329; US$ 3,21 bi
+  { key: "fumo", code: 240120, flow: "export" },         // fumo em folha destalado; US$ 3,01 bi
   // ── Importacao (Brasil e importador) ──
   { key: "trigo", code: 100199, flow: "import" },
   { key: "trigo_old", code: 100190, flow: "import", l2only: true, maxYear: 2011 }, // costura
@@ -108,6 +112,16 @@ const PRODUCTS: Prod[] = [
   { key: "tsp", code: 310311, flow: "import" }, // opcao (b): serie comeca ~2017, sem costura
   { key: "rocha_10", code: 251010, flow: "import" },
   { key: "rocha_20", code: 251020, flow: "import" },
+  // ── Frente B (expansao): 5 importacoes criticas / de cadeia ──
+  // ENCADEAMENTOS (so registro; UI vem depois):
+  //  - enxofre importado -> fosfatado (MAP/TSP/rocha) JA mapeado (a montante).
+  //  - carvao importado + minerio de ferro exportado = os dois insumos do
+  //    alto-forno (a siderurgia depende do carvao enquanto exporta o minerio).
+  { key: "carvao_metalurgico", code: 270112, flow: "import" }, // hulha betuminosa; US$ 2,19 bi (2025)
+  { key: "enxofre", code: 250300, flow: "import" },            // US$ 0,58 bi; a montante do fosfatado
+  { key: "malte", code: 110710, flow: "import" },              // US$ 0,55 bi; cadeia da cerveja
+  { key: "leite_po", code: 40221, flow: "import" },            // ZERO A ESQUERDA: 040221; US$ 0,52 bi
+  { key: "borracha", code: 400122, flow: "import" },           // TSNR; US$ 0,23 bi; insumo de pneus
 ];
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

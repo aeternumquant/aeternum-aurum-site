@@ -61,6 +61,9 @@ type AssetType =
   | "MinerioFerro" | "Niobio"
   | "Ureia" | "KCl" | "MAP" | "TSP" | "Rocha"
   | "TerrasRaras"
+  // Frente B (expansao): 8 codigos novos, SO FLUXO (sem cotacao no nosso banco)
+  | "Celulose" | "Suino" | "Fumo" | "Malte" | "Leite" | "Borracha"
+  | "Carvao" | "Enxofre"
   | null;
 
 type MapCategory = "Agro" | "Minérios" | "Energia" | "Fertilizantes";
@@ -329,6 +332,16 @@ const assetFlows: Record<NonNullable<AssetType>, {
   //    VOLTA a ter aba propria no futuro, quando houver mais dados (separacao
   //    por valor, locais de maior quantidade); hoje cabe em Minerios. ──
   TerrasRaras: { label: "Terras raras", category: "Minérios", flowData: "", percentage: "" },
+  // ── Frente B (expansao): 8 cards SO FLUXO (sem cotacao no nosso banco). O
+  // preco/flowData ficam vazios; a historia vem das linhas + destinos/origens. ──
+  Celulose: { label: "Celulose", category: "Agro", flowData: "", percentage: "" },
+  Suino: { label: "Carne suína", category: "Agro", flowData: "", percentage: "" },
+  Fumo: { label: "Fumo", category: "Agro", flowData: "", percentage: "" },
+  Malte: { label: "Malte", category: "Agro", flowData: "", percentage: "" },
+  Leite: { label: "Leite em pó", category: "Agro", flowData: "", percentage: "" },
+  Borracha: { label: "Borracha", category: "Agro", flowData: "", percentage: "" },
+  Carvao: { label: "Carvão metalúrgico", category: "Energia", flowData: "", percentage: "" },
+  Enxofre: { label: "Enxofre", category: "Fertilizantes", flowData: "", percentage: "" },
 };
 
 // Fertilizantes: a unica categoria toda de IMPORTACAO. A aba propria deixa a
