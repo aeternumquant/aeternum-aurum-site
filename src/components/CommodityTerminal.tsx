@@ -21,6 +21,7 @@ import { useFuturesCurve } from "../hooks/useFuturesCurve";
 import { usePriceHistory } from "../hooks/usePriceHistory";
 import FuturesCurveCard from "./FuturesCurveCard";
 import PriceHistoryChart from "./PriceHistoryChart";
+import ReferenceDotPlot, { type Praca } from "./ReferenceDotPlot";
 import { ASSETS, ASSET_CATEGORIES, type AssetDef, type AssetCategory } from "../config/assets";
 import {
   PTAX_CODE,
@@ -41,6 +42,32 @@ const CAT_ICON: Record<AssetCategory, React.ElementType> = {
 };
 
 const changeFmt = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+
+// Cores das pracas do dot plot de gas (verde EUA, ambar Asia, vermelho Europa).
+const GAS_GREEN = "#10b981", GAS_AMBER = "#d9a13b", GAS_RED = "#ef4444";
+const GAS_PRACAS: Praca[] = [
+  { code: "GAS_NATURAL_HH", label: "Estados Unidos · Henry Hub", source: "EIA · diário", color: GAS_GREEN, isBase: true },
+  { code: "GAS_LNG_JAPAN_WB", label: "Ásia · GNL Japão (~JKM)", source: "World Bank · mensal", color: GAS_AMBER },
+  { code: "GAS_EUROPE_WB", label: "Europa · hub (~TTF)", source: "World Bank · mensal", color: GAS_RED },
+  // 4o SLOT PREPARADO — Brasil (ANP). O componente JA aceita a quarta praca sem
+  // refatorar: outlined (ponto vazado, natureza distinta), approx ("~", a
+  // conversao R$->US$ usa PTAX que nao e tempo real), note (as outras 3 sao
+  // atacado SEM tributo) e a data propria (a serie da ANP termina em nov/2025).
+  // Descomentar quando a serie GAS_ANP_COMERC (vendas-aos-comercializadores,
+  // R$/MMBtu convertido via PTAX) estiver ingerida. NAO inventar valor ate la.
+  // { code: "GAS_ANP_COMERC", label: "Brasil · ANP", source: "ANP · mensal · nov/2025", color: "#6ea8ff", outlined: true, approx: true, note: "inclui tributos (ICMS, PIS, Cofins)" },
+];
+// Dot plot por ativo (generico): so o gas hoje. Outra commodity com N pracas
+// entra aqui com sua propria lista — o componente ReferenceDotPlot e o mesmo.
+const REF_PLOTS: Record<string, { unit: string; axisMax: number; story: string; pracas: Praca[] }> = {
+  GasNatural: {
+    unit: "USD/MMBtu",
+    axisMax: 20,
+    story:
+      "O gás não tem preço único mundial: sem gasoduto ligando os continentes, cada praça precifica a própria oferta, e a distância entre elas é o custo do transporte por navio (GNL).",
+    pracas: GAS_PRACAS,
+  },
+};
 
 function StaleTag({ ageInDays }: { ageInDays: number }) {
   return (
@@ -145,6 +172,10 @@ export default function CommodityTerminal() {
   // config da fonte secundaria (Tipo 1 redundante / Tipo 2 distinto), se houver.
   const sec = active.price.code != null ? active.price.secondary : undefined;
   const activeSecondary = sec ? bySeries.get(sec.code) ?? null : null;
+  // Referencias multiplas (Tipo 2): o gas tem 3 pracas (Henry Hub + JKM + TTF).
+  // Cada 'reference' e DISTINTA, nunca substituta; so aparece se o ativo declarar.
+  const refs = active.price.code != null ? (active.price.references ?? []) : [];
+  const resolvedRefs = refs.map((r) => ({ cfg: r, point: bySeries.get(r.code) ?? null }));
   const ptax = bySeries.get(PTAX_CODE) ?? null;
   const { data: curve } = useFuturesCurve(active.curveCode);
   // Parte 2: historico de preco da serie primaria (le a observations, ja no banco).
@@ -175,9 +206,9 @@ export default function CommodityTerminal() {
   // atribuicao das fontes exibidas no ativo ativo (string exata do banco).
   const attributions = useMemo(() => {
     const set = new Set<string>();
-    for (const p of [activePoint, activeSecondary]) if (p?.attribution) set.add(p.attribution);
+    for (const p of [activePoint, activeSecondary, ...resolvedRefs.map((r) => r.point)]) if (p?.attribution) set.add(p.attribution);
     return [...set];
-  }, [activePoint, activeSecondary]);
+  }, [activePoint, activeSecondary, resolvedRefs]);
 
   return (
     <div className="w-full flex justify-center py-4">
@@ -280,8 +311,18 @@ export default function CommodityTerminal() {
                       <div className="font-mono text-sm text-muted-foreground/70 uppercase tracking-wider max-w-[220px]">{active.price.noQuote}</div>
                     ) : loading ? (
                       <div className="h-7 w-32 rounded-sm bg-white/5 animate-pulse ml-auto" />
-                    ) : !activePoint && !activeSecondary ? (
+                    ) : !activePoint && !activeSecondary && resolvedRefs.every((r) => !r.point) ? (
                       <div className="font-mono text-sm text-muted-foreground/70">dado indisponível</div>
+                    ) : refs.length > 0 ? (
+                      /* Gas (Tipo 2, N pracas): o header mostra so a praca PRIMARIA
+                         (Henry Hub, a mais fresca); as referencias (JKM/TTF + slot
+                         Brasil) viram o DOT PLOT abaixo — o ponto na regua com a
+                         faixa de 5 anos conta onde a praca esta e onde ja negociou. */
+                      activePoint ? (
+                        <PriceMain point={activePoint} note={refs[0].primaryNote} ptax={ptax} />
+                      ) : (
+                        <div className="font-mono text-sm text-muted-foreground/70">{refs[0].primaryNote}: indisponível</div>
+                      )
                     ) : sec?.kind === "distinct" ? (
                       /* Tipo 2 (distinto): AS DUAS lado a lado, cada uma rotulada. NUNCA
                          uma substitui a outra (Brent e WTI sao petroleos diferentes). */
@@ -332,6 +373,18 @@ export default function CommodityTerminal() {
                     )}
                   </div>
                 </div>
+
+                {/* Gas: dot plot das pracas numa escala unica (troca o texto das
+                    referencias). Generico via REF_PLOTS; so aparece onde ha config. */}
+                {refs.length > 0 && REF_PLOTS[active.key] && (
+                  <ReferenceDotPlot
+                    pracas={REF_PLOTS[active.key].pracas}
+                    bySeries={bySeries}
+                    unit={REF_PLOTS[active.key].unit}
+                    axisMax={REF_PLOTS[active.key].axisMax}
+                    story={REF_PLOTS[active.key].story}
+                  />
+                )}
 
                 {/* Estrutura a termo (so os 5 futuros B3; spot/WB nao tem curva) */}
                 {curve && (

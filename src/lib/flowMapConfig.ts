@@ -275,18 +275,19 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     ibge: { slug: "trigo" }, // conversa com o USDA (grao vs grao)
   },
   GasNatural: {
-    // DECISAO DE PRECO: o Henry Hub que temos e a referencia DOMESTICA dos
-    // EUA — nao precifica o gas que o Brasil importa (Bolivia: contrato
-    // indexado a petroleo; GNL: mercado global, ~JKM/TTF, que historicamente
-    // DESCOLA do HH). Emprestar o numero seria o erro da laranja. Os dois
-    // subs dizem "sem cotacao" e a nota explica onde a referencia HH vive.
+    // DECISAO DE PRECO: o Henry Hub (EUA) NAO precifica o gas que o Brasil
+    // importa. Mas agora temos JKM (Asia) e TTF (Europa) do Pink Sheet — as
+    // pracas onde o GNL global se precifica (a propria nota ja citava as duas).
+    // O sub GNL mostra JKM+TTF como REFERENCIA (nao o contrato que o Brasil
+    // paga); o gasoduto boliviano segue sem cotacao (indexado a petroleo).
+    // Mesmas series do terminal (assets.ts GasNatural) — sincronizadas.
     subs: [
       {
         key: "gnl",
         label: "GNL",
         import: ["271111"],
-        price: { code: null, noQuote: "Sem cotação do gás importado" },
-        note: "GNL é precificado no mercado global (~JKM/TTF). O Henry Hub (EUA) é outra praça — não descreve o que o Brasil paga.",
+        price: { code: "GAS_LNG_JAPAN_WB", secondary: { code: "GAS_EUROPE_WB", note: "Europa · hub (~TTF)" } },
+        note: "Referência do mercado global de GNL (mensal, World Bank): Ásia ~JKM (primária) e Europa ~TTF. É a praça onde o GNL se precifica, não o preço de contrato que o Brasil paga.",
       },
       {
         key: "gasoduto",
@@ -405,8 +406,8 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
   Fumo: {
     subs: [{
       key: "fumo", label: "Fumo em folha", export: ["240120"],
-      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
-      note: "Fumo em folha destalado (exportação). Brasil é o maior exportador mundial. Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+      price: { code: "FUMO_WB" },
+      note: "Fumo em folha destalado (exportação). Brasil é o maior exportador mundial. Preço: unit value de importação dos EUA (World Bank Pink Sheet), referência mensal, não cotação de bolsa. Fluxo MDIC/Secex.",
     }],
   },
   Malte: {
@@ -426,8 +427,8 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
   Borracha: {
     subs: [{
       key: "borracha", label: "Borracha natural", import: ["400122"],
-      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
-      note: "Borracha natural TSNR (importação, insumo de pneus). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
+      price: { code: "BORRACHA_WB" },
+      note: "Borracha natural TSNR (importação, insumo de pneus). Preço: TSR20 (SGX/SICOM), o benchmark do TSNR — match direto. Referência mensal (World Bank Pink Sheet). Fluxo MDIC/Secex.",
     }],
   },
   // ENERGIA. Encadeamento: carvao importado + minerio de ferro exportado sao os

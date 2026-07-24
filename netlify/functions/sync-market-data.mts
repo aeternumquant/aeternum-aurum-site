@@ -662,6 +662,16 @@ const WORLDBANK_SERIES: WbSeries[] = [
   { name: "Potassium chloride", code: "KCL_WB", labelPt: "Cloreto de potássio / KCl (Brasil CFR granular)", labelEn: "Potassium chloride / MOP (Brazil CFR granular)", unit: "USD/t", category: "fertilizante", market: null },
   { name: "TSP", code: "TSP_WB", labelPt: "TSP / superfosfato triplo (importação US Gulf)", labelEn: "TSP / triple superphosphate (import US Gulf)", unit: "USD/t", category: "fertilizante", market: null },
   { name: "Phosphate rock", code: "ROCHA_FOSFATICA_WB", labelPt: "Rocha fosfática (FOB Norte da África)", labelEn: "Phosphate rock (FOB North Africa)", unit: "USD/t", category: "fertilizante", market: null },
+  // Frente Pink Sheet: 4 colunas que o worker JA baixa (o XLSX inteiro) e antes
+  // descartava. Zero fonte/licenca nova (CC BY 4.0, ja atribuida). Borracha e
+  // match direto (TSR20 = benchmark de TSNR); gas x2 sao as referencias regionais
+  // que a nota do card de gas ja citava (LNG Japan ~JKM, NG Europe ~TTF); fumo e
+  // unit value de importacao dos EUA (referencia, NAO bolsa). Unidade do gas =
+  // "USD/MMBtu" EXATA (igual ao Henry Hub) para o spread do terminal aparecer.
+  { name: "Rubber, TSR20", code: "BORRACHA_WB", labelPt: "Borracha natural (TSR20, SGX/SICOM)", labelEn: "Natural rubber (TSR20, SGX/SICOM)", unit: "USD/kg", category: "agro", market: "SGX/SICOM" },
+  { name: "Liquefied natural gas, Japan", code: "GAS_LNG_JAPAN_WB", labelPt: "GNL Japão (importação, referência Ásia ~JKM)", labelEn: "LNG Japan (import, Asia ref ~JKM)", unit: "USD/MMBtu", category: "energia", market: null },
+  { name: "Natural gas, Europe", code: "GAS_EUROPE_WB", labelPt: "Gás natural Europa (hub, referência ~TTF)", labelEn: "Natural gas Europe (hub, ~TTF)", unit: "USD/MMBtu", category: "energia", market: null },
+  { name: "Tobacco, US import u.v.", code: "FUMO_WB", labelPt: "Fumo (unit value de importação EUA, referência)", labelEn: "Tobacco (US import unit value, reference)", unit: "USD/t", category: "agro", market: null },
 ];
 
 const WB_REPROCESS_MONTHS = 6; // reprocessa os ultimos meses (revisoes retroativas)

@@ -34,7 +34,10 @@ export type SecondaryCfg = {
 };
 
 export type PriceCfg =
-  | { code: string; secondary?: SecondaryCfg }
+  // `references`: N fontes DISTINTAS (Tipo 2) alem da primaria — o gas tem 3
+  // pracas (Henry Hub + JKM + TTF), cada uma rotulada, nunca substituta. Reusa
+  // SecondaryCfg (kind sempre "distinct"; primaryNote rotula a primaria).
+  | { code: string; secondary?: SecondaryCfg; references?: SecondaryCfg[] }
   | { code: null; noQuote: string };
 
 export type Editorial = {
@@ -144,6 +147,12 @@ export const ASSETS: AssetDef[] = [
   { key: "Frango", label: "Frango", category: "Agro", price: { code: "FRANGO_WB" } },
   { key: "Amendoim", label: "Amendoim", category: "Agro", price: { code: "AMENDOIM_WB" } },
   { key: "Laranja", label: "Laranja", category: "Agro", price: { code: "LARANJA_WB" } },
+  // Frente Pink Sheet: borracha e fumo agora tem preco (WB). Antes so no mapa
+  // (flowMapConfig) — o drift entre as DUAS configs de preco. Sincronizados aqui
+  // para aparecerem TAMBEM no terminal. Rotulo honesto vem na label da serie
+  // (fumo = unit value de importacao EUA; borracha = TSR20, match direto do TSNR).
+  { key: "Borracha", label: "Borracha", category: "Agro", price: { code: "BORRACHA_WB" } },
+  { key: "Fumo", label: "Fumo", category: "Agro", price: { code: "FUMO_WB" } },
 
   // ── MINÉRIOS ──
   { key: "MinerioFerro", label: "Minério de Ferro", category: "Minérios", price: { code: "MINERIO_WB" } },
@@ -162,7 +171,20 @@ export const ASSETS: AssetDef[] = [
     key: "Brent", label: "Petróleo", category: "Energia",
     price: { code: "BRENT_SPOT", secondary: { code: "WTI_SPOT", kind: "distinct", note: "WTI · EUA (Cushing)", primaryNote: "Brent · global" } },
   },
-  { key: "GasNatural", label: "Gás Natural", category: "Energia", price: { code: "GAS_NATURAL_HH" } },
+  {
+    key: "GasNatural", label: "Gás Natural", category: "Energia",
+    // TRES pracas DISTINTAS (Tipo 2, licao da Onda 2): Henry Hub (EUA, primaria,
+    // diaria via EIA) + GNL Japao (~JKM, Asia) + gas Europa (~TTF), mensais do
+    // Pink Sheet. Todas em USD/MMBtu -> o spread entre elas aparece e conta a
+    // historia do GNL global (EUA barato, Asia/Europa caras). NUNCA substitutas.
+    price: {
+      code: "GAS_NATURAL_HH",
+      references: [
+        { code: "GAS_LNG_JAPAN_WB", kind: "distinct", note: "Ásia · GNL Japão (~JKM)", primaryNote: "Henry Hub · EUA" },
+        { code: "GAS_EUROPE_WB", kind: "distinct", note: "Europa · hub (~TTF)", primaryNote: "Henry Hub · EUA" },
+      ],
+    },
+  },
   { key: "Etanol", label: "Etanol", category: "Energia", price: { code: "ETANOL_FUT" }, curveCode: "ETANOL_FUT" },
 
   // ── FERTILIZANTES ──
