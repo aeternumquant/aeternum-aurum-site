@@ -27,6 +27,8 @@ import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlo
 import { TrendingUp, TrendingDown, MapPin } from "lucide-react";
 import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
 import { usePamProduction, usePamAbate, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
+import { useTradeTrend } from "../../hooks/useTradeTrend";
+import TradeTrendChart from "./TradeTrendChart";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
@@ -526,6 +528,9 @@ export default function CommodityFlowMap({
   const { data: pam } = usePamProduction(pamSlug);
   const { data: abate } = usePamAbate(cfg.abate?.species);
 
+  // Tendencia L2: a serie longa de comercio (1997->hoje) do sub atual, agregada.
+  const { data: trend } = useTradeTrend(sub, true);
+
   return (
     <div
       className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
@@ -702,6 +707,12 @@ export default function CommodityFlowMap({
             )}
           </div>
         )}
+
+        {/* Tendencia L2: a serie longa (1997->hoje) do comercio deste sub — o
+            analogo do historico de preco (Onda 2) para volume/valor. Do banco
+            (trade_flows agregado); costura dos codigos antigos; ano corrente
+            parcial tracejado. Trava graciosa: some sem serie L2. */}
+        {trend && <TradeTrendChart trend={trend} />}
 
         {/* Balanco: hierarquia (donut + HEROI producao + deltas 5a + rodape IBGE
             + regioes). Variantes A/B/C conforme USDA e/ou IBGE. So no card. */}

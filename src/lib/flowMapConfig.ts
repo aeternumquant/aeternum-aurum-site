@@ -94,6 +94,20 @@ const psdDC = (code: string): PsdCfg => ({
   consumoNote: "Domestic Consumption (attr 125)",
 });
 
+/**
+ * COSTURA da serie L2 longa (tendencia de comercio): 4 codigos SH6 mudaram na
+ * revisao HS 2012. O codigo ANTIGO tem L2 ate 2011; o NOVO, de 2012 em diante
+ * (DISJUNTOS por mes — overlap zero, confirmado no banco). A tendencia SOMA os
+ * dois para a serie de 30 anos nao ter buraco em 2012 (o salto 2011->2012 e
+ * mercado real, -5% a +21%, nao degrau de troca de codigo). Mapa: novo -> antigo.
+ */
+export const COSTURA_L2: Record<string, string> = {
+  "120190": "120100", // soja em grao
+  "170114": "170111", // acucar bruto
+  "120242": "120220", // amendoim
+  "100199": "100190", // trigo
+};
+
 /** Grupo A (exportacao simples) + a soja (piloto). Grupos B-E entram depois. */
 export const FLOW_CARDS: Record<string, FlowCardCfg> = {
   Soja: {

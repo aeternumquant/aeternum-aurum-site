@@ -13,7 +13,7 @@ import type { Frequency } from "./useMarketData";
  * quem desenha rotula o alcance de verdade. Sem indicadores derivados, sem media
  * movel, sem backtesting: isso e do dashboard de membros, nao do terminal.
  */
-export type HistoryPoint = { ts: string; value: number };
+export type HistoryPoint = { ts: string; value: number; contract: string | null };
 export type PriceHistory = {
   points: HistoryPoint[];
   firstTs: string;
@@ -38,7 +38,7 @@ export function usePriceHistory(seriesCode: string | null | undefined): { data: 
     (async () => {
       const { data: rows, error } = await supabase!
         .from("observations")
-        .select("ts,value,series!inner(code,unit,frequency)")
+        .select("ts,value,contract,series!inner(code,unit,frequency)")
         .eq("series.code", seriesCode)
         .order("ts", { ascending: true });
       if (cancelled) return;
@@ -47,7 +47,7 @@ export function usePriceHistory(seriesCode: string | null | undefined): { data: 
         return;
       }
       const points = rows
-        .map((r: any) => ({ ts: r.ts as string, value: Number(r.value) }))
+        .map((r: any) => ({ ts: r.ts as string, value: Number(r.value), contract: (r.contract as string | null) ?? null }))
         .filter((p) => Number.isFinite(p.value));
       if (points.length < 2) {
         setState({ data: null, loading: false });
