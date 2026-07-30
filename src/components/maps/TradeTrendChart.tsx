@@ -14,6 +14,7 @@
  */
 import { useState } from "react";
 import type { TradeTrend, TrendPoint } from "../../hooks/useTradeTrend";
+import ChartHoverLayer, { type HoverColumn } from "../charts/ChartHover";
 
 const GREEN = "#34d399";
 const AMBER = "#d9b13b";
@@ -34,7 +35,7 @@ function fmtUsd(v: number): string {
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 const mesAno = (ym: string) => `${MESES[Number(ym.slice(5, 7)) - 1]}/${ym.slice(0, 4)}`;
 
-export default function TradeTrendChart({ trend }: { trend: TradeTrend }) {
+export default function TradeTrendChart({ trend, productLabel }: { trend: TradeTrend; productLabel?: string }) {
   const [metric, setMetric] = useState<"kg" | "usd">("kg");
   const { points, firstYear, lastYear, lastYearPartial, lastMonth, hasExport, hasImport } = trend;
   const fmt = metric === "kg" ? fmtVol : fmtUsd;
@@ -68,11 +69,23 @@ export default function TradeTrendChart({ trend }: { trend: TradeTrend }) {
     ["import", AMBER, hasImport],
   ];
 
+  // HOVER (reusavel): por ano, o valor de exp e/ou imp (cor da propria serie).
+  // O ano corrente vem rotulado "parcial" (nao pode parecer queda de mercado);
+  // o valor e o REAL (a costura L2 ja soma antigo+novo no hook, sem duplicar).
+  const hoverCols: HoverColumn[] = points.map((p) => {
+    const markers: { y: number; color: string }[] = [];
+    const rows: { label?: string; value: string; color?: string }[] = [];
+    if (hasExport) { markers.push({ y: y(val(p, "export")), color: GREEN }); rows.push({ label: "exp", value: fmt(val(p, "export")), color: GREEN }); }
+    if (hasImport) { markers.push({ y: y(val(p, "import")), color: AMBER }); rows.push({ label: "imp", value: fmt(val(p, "import")), color: AMBER }); }
+    const partial = lastYearPartial && p.year === lastYear;
+    return { x: x(p.year), markers, title: `${p.year}${partial ? " · parcial" : ""}`, rows };
+  });
+
   return (
     <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-center justify-between mb-1.5">
         <span className="font-sans text-[7px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.25)" }}>
-          Comércio ao longo do tempo
+          Comércio ao longo do tempo{productLabel ? ` · ${productLabel}` : ""}
         </span>
         <div className="flex gap-1">
           {(["kg", "usd"] as const).map((m) => (
@@ -110,6 +123,7 @@ export default function TradeTrendChart({ trend }: { trend: TradeTrend }) {
             </g>
           ) : null,
         )}
+        <ChartHoverLayer columns={hoverCols} w={W} h={H} plotBottom={H - padB} />
       </svg>
 
       <div className="flex justify-between mt-0.5">

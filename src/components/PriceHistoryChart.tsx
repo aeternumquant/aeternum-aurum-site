@@ -10,6 +10,7 @@
  */
 import type { PriceHistory } from "../hooks/usePriceHistory";
 import { formatDayMonthUTC, formatMonthUTC } from "../lib/marketFormat";
+import ChartHoverLayer, { type HoverColumn } from "./charts/ChartHover";
 
 const GOLD = "#C6A85A";
 const MIN_POINTS = 3; // abaixo disso nao ha "historico" util: nao renderiza
@@ -54,6 +55,16 @@ export default function PriceHistoryChart({ history, attribution }: { history: P
   const area = `${line} L${x(pts.length - 1).toFixed(1)},${(mt + ph).toFixed(1)} L${x(0).toFixed(1)},${(mt + ph).toFixed(1)} Z`;
   const first = pts[0], last = pts[pts.length - 1];
 
+  // HOVER (reusavel): valor + data por ponto. O titulo carrega o contrato e
+  // marca o roll (o degrau ali e troca de contrato, nao mercado — a mesma trava
+  // da linha quebrada). Valor sempre o settlement REAL, unidade colada.
+  const hoverCols: HoverColumn[] = pts.map((p, i) => ({
+    x: x(i),
+    markers: [{ y: y(p.value), color: GOLD }],
+    title: `${fmtDate(p.ts)}${p.contract ? ` · ${p.contract}` : ""}${rollAt.has(i) ? " · roll" : ""}`,
+    rows: [{ value: `${valFmt.format(p.value)}${unitSuffix}` }],
+  }));
+
   return (
     <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-baseline justify-between mb-0.5">
@@ -92,6 +103,7 @@ export default function PriceHistoryChart({ history, attribution }: { history: P
         <text x={W - mr} y={H - 4} textAnchor="end" style={{ fontFamily: "monospace", fontSize: "5.5px", fill: "rgba(255,255,255,0.4)" }}>
           {fmtDate(history.lastTs)}
         </text>
+        <ChartHoverLayer columns={hoverCols} w={W} h={H} plotBottom={mt + ph} />
       </svg>
       <div className="font-sans text-[7px] mt-0.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
         alcance real: {pts.length} pontos · {spanLabel}{unitSuffix ? ` · em${unitSuffix}` : ""}

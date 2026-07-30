@@ -153,6 +153,11 @@ export const ASSETS: AssetDef[] = [
   // (fumo = unit value de importacao EUA; borracha = TSR20, match direto do TSNR).
   { key: "Borracha", label: "Borracha", category: "Agro", price: { code: "BORRACHA_WB" } },
   { key: "Fumo", label: "Fumo", category: "Agro", price: { code: "FUMO_WB" } },
+  // Flow-only (Frente B): comercio real (L2) sem preco no nosso banco. Ja no
+  // mapa (FLOW_CARDS); trazidos ao terminal para a tendencia ter casa e nao
+  // repetir o drift. O terminal ja trata code:null (noQuote), sem crashar.
+  { key: "Celulose", label: "Celulose", category: "Agro", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
+  { key: "Leite", label: "Leite em pó", category: "Agro", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
 
   // ── MINÉRIOS ──
   { key: "MinerioFerro", label: "Minério de Ferro", category: "Minérios", price: { code: "MINERIO_WB" } },
@@ -186,6 +191,8 @@ export const ASSETS: AssetDef[] = [
     },
   },
   { key: "Etanol", label: "Etanol", category: "Energia", price: { code: "ETANOL_FUT" }, curveCode: "ETANOL_FUT" },
+  // Flow-only (Frente B): carvão metalúrgico importado — insumo do alto-forno.
+  { key: "Carvao", label: "Carvão metalúrgico", category: "Energia", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
 
   // ── FERTILIZANTES ──
   { key: "Ureia", label: "Ureia", category: "Fertilizantes", price: { code: "UREIA_WB" } },
@@ -193,6 +200,8 @@ export const ASSETS: AssetDef[] = [
   { key: "MAP", label: "Fosfatado (MAP/DAP)", category: "Fertilizantes", price: { code: "DAP_WB" } },
   { key: "TSP", label: "TSP", category: "Fertilizantes", price: { code: "TSP_WB" } },
   { key: "Rocha", label: "Rocha fosfática", category: "Fertilizantes", price: { code: "ROCHA_FOSFATICA_WB" } },
+  // Flow-only (Frente B): enxofre importado -> ácido sulfúrico, insumo do MAP/TSP.
+  { key: "Enxofre", label: "Enxofre", category: "Fertilizantes", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
 
   // ── FINANCEIRO (so no terminal; nao sao ativos do mapa) ──
   { key: "Dolar", label: "Dólar PTAX", category: "Financeiro", price: { code: "PTAX_USD_VENDA" } },

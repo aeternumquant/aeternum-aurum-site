@@ -22,6 +22,9 @@ import { usePriceHistory } from "../hooks/usePriceHistory";
 import FuturesCurveCard from "./FuturesCurveCard";
 import PriceHistoryChart from "./PriceHistoryChart";
 import ReferenceDotPlot, { type Praca } from "./ReferenceDotPlot";
+import TradeTrendChart from "./maps/TradeTrendChart";
+import { useTradeTrend } from "../hooks/useTradeTrend";
+import { FLOW_CARDS } from "../lib/flowMapConfig";
 import { ASSETS, ASSET_CATEGORIES, type AssetDef, type AssetCategory } from "../config/assets";
 import {
   PTAX_CODE,
@@ -180,6 +183,20 @@ export default function CommodityTerminal() {
   const { data: curve } = useFuturesCurve(active.curveCode);
   // Parte 2: historico de preco da serie primaria (le a observations, ja no banco).
   const { data: history } = usePriceHistory(active.price.code ?? null);
+
+  // Tendencia L2 de comercio (a serie temporal que SAIU do card do mapa): le o
+  // trade_flows agregado. O sub vem da FLOW_CARDS[key]: prefere aquele cujo preco
+  // casa com o preco exibido (coerencia preco<->comercio); senao o 1o com codigo.
+  // Flow-only (celulose/carvao/enxofre/leite): preco null -> cai no 1o sub.
+  const trendSub = (() => {
+    const cfg = FLOW_CARDS[active.key];
+    if (!cfg) return undefined;
+    const withCodes = cfg.subs.filter((s) => s.export?.length || s.import?.length);
+    if (!withCodes.length) return undefined;
+    const pc = active.price.code;
+    return (pc ? withCodes.find((s) => s.price?.code === pc) : undefined) ?? withCodes[0];
+  })();
+  const { data: trend } = useTradeTrend(trendSub, true);
 
   // secoes por categoria; dentro, com-cotacao primeiro, sem-bolsa ao fim.
   const groups = useMemo(
@@ -398,6 +415,17 @@ export default function CommodityTerminal() {
                 {history && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <PriceHistoryChart history={history} attribution={activePoint?.attribution ?? null} />
+                  </div>
+                )}
+
+                {/* Comercio ao longo do tempo (tendencia L2, veio do card do
+                    mapa): a serie temporal de volume/valor mora aqui, ao lado do
+                    preco. Le trade_flows agregado; some gracioso sem serie. O
+                    productLabel diz QUAL produto do fluxo (o preco pode ser de
+                    outro estagio — ex.: preco do metal, comercio da bauxita). */}
+                {trend && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <TradeTrendChart trend={trend} productLabel={trendSub?.label} />
                   </div>
                 )}
 

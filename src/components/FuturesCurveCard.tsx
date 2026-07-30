@@ -6,6 +6,7 @@
  * proxima mais cara. FATO de mercado com a explicacao, NUNCA recomendacao.
  */
 import type { FuturesCurve } from "../hooks/useFuturesCurve";
+import ChartHoverLayer, { type HoverColumn } from "./charts/ChartHover";
 
 const HELP =
   "Cada ponto é um contrato futuro com sua data de vencimento. A linha mostra quanto o mercado cobra para entregar em cada data. Se sobe, a entrega futura é mais cara (contango); se desce, a próxima é mais cara (backwardation).";
@@ -39,6 +40,14 @@ export default function FuturesCurveCard({ curve }: { curve: FuturesCurve }) {
     ? "a entrega próxima custa mais que a futura, sinal de escassez agora"
     : "a entrega próxima e a futura custam quase o mesmo";
   const mesAno = (d: string) => `${d.slice(5, 7)}/${d.slice(2, 4)}`;
+
+  // HOVER (reusavel): por vencimento, o settlement (ajuste) daquele contrato.
+  const hoverCols: HoverColumn[] = pts.map((p, i) => ({
+    x: x(i),
+    markers: [{ y: y(p.settlement), color }],
+    title: `venc. ${mesAno(p.expiration)}`,
+    rows: [{ value: `${pctFmt.format(p.settlement)} ${curve.currency}` }],
+  }));
   return (
     <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-baseline justify-between mb-0.5">
@@ -68,6 +77,7 @@ export default function FuturesCurveCard({ curve }: { curve: FuturesCurve }) {
             )}
           </g>
         ))}
+        <ChartHoverLayer columns={hoverCols} w={W} h={H} plotBottom={mt + ph} />
       </svg>
       <div className="font-sans text-[7px] mt-0.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>{explain}</div>
       <div className="font-sans text-[6.5px] mt-1" style={{ color: "rgba(255,255,255,0.22)" }}>
