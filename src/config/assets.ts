@@ -101,7 +101,17 @@ export const ASSETS: AssetDef[] = [
   },
   {
     key: "Cafe", label: "Café", category: "Agro",
-    price: { code: "CAFE_FUT", secondary: { code: "CAFE_ICO", kind: "distinct", note: "referência global · ICO", primaryNote: "futuro B3 · negociável" } },
+    // B3 futuro (negociável) no topo + DUAS referências globais distintas (Tipo 2):
+    // arábica e robusta/conilon, ambas ICO em USD/kg. Como a unidade bate, o spread
+    // arábica x robusta aparece (o prêmio da arábica). O Brasil lidera as DUAS
+    // (arábica e conilon), então as duas contam a história — nenhuma substitui a outra.
+    price: {
+      code: "CAFE_FUT",
+      references: [
+        { code: "CAFE_ICO", kind: "distinct", note: "arábica · ICO global", primaryNote: "futuro B3 · negociável" },
+        { code: "CAFE_ROBUSTA_WB", kind: "distinct", note: "robusta/conilon · ICO global", primaryNote: "futuro B3 · negociável" },
+      ],
+    },
     curveCode: "CAFE_FUT",
     editorial: {
       insight: "Brasil produz 1 em cada 3 xícaras de café consumidas no planeta, 38% da oferta global. O mercado ainda subestima o poder de pricing.",

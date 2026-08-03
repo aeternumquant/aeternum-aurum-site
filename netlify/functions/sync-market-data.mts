@@ -672,6 +672,13 @@ const WORLDBANK_SERIES: WbSeries[] = [
   { name: "Liquefied natural gas, Japan", code: "GAS_LNG_JAPAN_WB", labelPt: "GNL Japão (importação, referência Ásia ~JKM)", labelEn: "LNG Japan (import, Asia ref ~JKM)", unit: "USD/MMBtu", category: "energia", market: null },
   { name: "Natural gas, Europe", code: "GAS_EUROPE_WB", labelPt: "Gás natural Europa (hub, referência ~TTF)", labelEn: "Natural gas Europe (hub, ~TTF)", unit: "USD/MMBtu", category: "energia", market: null },
   { name: "Tobacco, US import u.v.", code: "FUMO_WB", labelPt: "Fumo (unit value de importação EUA, referência)", labelEn: "Tobacco (US import unit value, reference)", unit: "USD/t", category: "agro", market: null },
+  // Frente Pink Sheet (arroz quebrado + robusta): 2 colunas que o worker JA baixa
+  // e antes descartava. Zero fonte/licenca nova (CC BY 4.0). Thai A.1 = arroz 100%
+  // QUEBRADO (match do sub arroz "quebrado", SH 100640, antes sem cotacao). Robusta
+  // = secundaria DISTINTA do cafe (arabica ja mapeada); mesma unidade USD/kg que a
+  // arabica -> o spread arabica x robusta aparece no terminal.
+  { name: "Rice, Thai A.1", code: "ARROZ_QUEBRADO_WB", labelPt: "Arroz quebrado (Tailândia A.1, FOB Bangkok)", labelEn: "Rice, Thai A.1 (broken, FOB Bangkok)", unit: "USD/t", category: "agro", market: null },
+  { name: "Coffee, Robusta", code: "CAFE_ROBUSTA_WB", labelPt: "Café robusta/conilon (ICO, referência global)", labelEn: "Coffee, robusta (ICO)", unit: "USD/kg", category: "agro", market: "ICO" },
 ];
 
 const WB_REPROCESS_MONTHS = 6; // reprocessa os ultimos meses (revisoes retroativas)

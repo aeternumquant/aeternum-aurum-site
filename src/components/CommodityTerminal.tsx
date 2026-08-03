@@ -331,15 +331,39 @@ export default function CommodityTerminal() {
                     ) : !activePoint && !activeSecondary && resolvedRefs.every((r) => !r.point) ? (
                       <div className="font-mono text-sm text-muted-foreground/70">dado indisponível</div>
                     ) : refs.length > 0 ? (
-                      /* Gas (Tipo 2, N pracas): o header mostra so a praca PRIMARIA
-                         (Henry Hub, a mais fresca); as referencias (JKM/TTF + slot
-                         Brasil) viram o DOT PLOT abaixo — o ponto na regua com a
-                         faixa de 5 anos conta onde a praca esta e onde ja negociou. */
-                      activePoint ? (
-                        <PriceMain point={activePoint} note={refs[0].primaryNote} ptax={ptax} />
-                      ) : (
-                        <div className="font-mono text-sm text-muted-foreground/70">{refs[0].primaryNote}: indisponível</div>
-                      )
+                      /* Tipo 2, N referencias distintas. Duas formas:
+                         COM dot plot (so o gas, REF_PLOTS): o header mostra so a
+                         primaria e as referencias viram o dot plot abaixo.
+                         SEM dot plot (cafe: arabica + robusta): as referencias
+                         aparecem como asides rotulados aqui, com o spread entre as
+                         duas primeiras se a unidade bater (arabica x robusta USD/kg). */
+                      <>
+                        {activePoint ? (
+                          <PriceMain point={activePoint} note={refs[0].primaryNote} ptax={ptax} />
+                        ) : (
+                          <div className="font-mono text-sm text-muted-foreground/70">{refs[0].primaryNote}: indisponível</div>
+                        )}
+                        {!REF_PLOTS[active.key] && resolvedRefs.map((r) => (
+                          <PriceAside key={r.cfg.code} point={r.point} note={r.cfg.note} />
+                        ))}
+                        {!REF_PLOTS[active.key] &&
+                          resolvedRefs.length >= 2 &&
+                          resolvedRefs[0].point &&
+                          resolvedRefs[1].point &&
+                          resolvedRefs[0].point.unit &&
+                          resolvedRefs[0].point.unit === resolvedRefs[1].point.unit &&
+                          (() => {
+                            const a = resolvedRefs[0].point!, b = resolvedRefs[1].point!;
+                            const d = a.value - b.value;
+                            const pct = b.value ? (d / b.value) * 100 : null;
+                            return (
+                              <div className="text-[10px] font-mono text-muted-foreground/40 mt-1">
+                                spread: {d >= 0 ? "+" : ""}{changeFmt.format(d)} {a.unit}
+                                {pct != null ? ` · ${pct >= 0 ? "+" : ""}${changeFmt.format(pct)}%` : ""}
+                              </div>
+                            );
+                          })()}
+                      </>
                     ) : sec?.kind === "distinct" ? (
                       /* Tipo 2 (distinto): AS DUAS lado a lado, cada uma rotulada. NUNCA
                          uma substitui a outra (Brent e WTI sao petroleos diferentes). */

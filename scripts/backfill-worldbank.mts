@@ -5,8 +5,8 @@
  * Mesma fonte/licenca (CC BY 4.0), mesma aba "Monthly Prices" — so lemos todos
  * os meses em vez dos ultimos 6. Idempotente (upsert por series_id,ts).
  *
- *   COMEX_WB_CODES=BORRACHA_WB,FUMO_WB npx tsx --env-file=.env scripts/backfill-worldbank.mts
- *   (sem env: backfilla as 4 novas)
+ *   COMEX_WB_CODES=ARROZ_QUEBRADO_WB,CAFE_ROBUSTA_WB npx tsx --env-file=.env scripts/backfill-worldbank.mts
+ *   (sem env: backfilla TODAS as de NEW_SERIES; use COMEX_WB_CODES para so as novas)
  */
 import { PostgrestClient } from "@supabase/postgrest-js";
 import * as XLSX from "xlsx";
@@ -22,7 +22,7 @@ const db = new PostgrestClient(`${URL}/rest/v1`, {
 });
 const UA = { "User-Agent": "Mozilla/5.0 (AeternumWorker)" };
 
-// ESPELHA os 4 novos entries de WORLDBANK_SERIES (sync-market-data.mts). Se
+// ESPELHA os novos entries de WORLDBANK_SERIES (sync-market-data.mts). Se
 // mudar la, mudar aqui. name = nome EXATO da linha 4 do XLSX (** e espaco tolerados).
 type WbSeries = { name: string; code: string; labelPt: string; labelEn: string; unit: string; category: string; market: string | null };
 const NEW_SERIES: WbSeries[] = [
@@ -30,6 +30,8 @@ const NEW_SERIES: WbSeries[] = [
   { name: "Liquefied natural gas, Japan", code: "GAS_LNG_JAPAN_WB", labelPt: "GNL Japão (importação, referência Ásia ~JKM)", labelEn: "LNG Japan (import, Asia ref ~JKM)", unit: "USD/MMBtu", category: "energia", market: null },
   { name: "Natural gas, Europe", code: "GAS_EUROPE_WB", labelPt: "Gás natural Europa (hub, referência ~TTF)", labelEn: "Natural gas Europe (hub, ~TTF)", unit: "USD/MMBtu", category: "energia", market: null },
   { name: "Tobacco, US import u.v.", code: "FUMO_WB", labelPt: "Fumo (unit value de importação EUA, referência)", labelEn: "Tobacco (US import unit value, reference)", unit: "USD/t", category: "agro", market: null },
+  { name: "Rice, Thai A.1", code: "ARROZ_QUEBRADO_WB", labelPt: "Arroz quebrado (Tailândia A.1, FOB Bangkok)", labelEn: "Rice, Thai A.1 (broken, FOB Bangkok)", unit: "USD/t", category: "agro", market: null },
+  { name: "Coffee, Robusta", code: "CAFE_ROBUSTA_WB", labelPt: "Café robusta/conilon (ICO, referência global)", labelEn: "Coffee, robusta (ICO)", unit: "USD/kg", category: "agro", market: "ICO" },
 ];
 
 const norm = (s: unknown) => String(s).replace(/\s*\*+\s*$/, "").trim().replace(/\s+/g, " ");

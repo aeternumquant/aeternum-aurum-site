@@ -256,7 +256,9 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         key: "quebrado",
         label: "Quebrado",
         export: ["100640"],
-        price: { code: null, noQuote: "Sem cotação disponível" },
+        // Thai A.1 (World Bank Pink Sheet) = arroz 100% QUEBRADO, match direto do
+        // SH 100640. Antes sem cotacao; agora a referencia global do quebrado.
+        price: { code: "ARROZ_QUEBRADO_WB" },
       },
     ],
     psd: psdDC("0422110"), // Rice, Milled
