@@ -92,7 +92,7 @@ create or replace function public.replace_ibge_leite_preco(p_rows jsonb)
 returns integer language plpgsql security definer set search_path = public as $$
 declare n integer;
 begin
-  delete from public.ibge_leite_preco;
+  delete from public.ibge_leite_preco where true;  -- 'where true': o guard sql_safe_updates do Supabase exige WHERE
   insert into public.ibge_leite_preco
     (locality_level, locality_code, locality_name, year, quarter, value, unit, ibge_table, ibge_variable)
   select r.locality_level, r.locality_code, r.locality_name, r.year, r.quarter, r.value, r.unit,
@@ -109,7 +109,7 @@ create or replace function public.replace_ibge_ppm(p_rows jsonb)
 returns integer language plpgsql security definer set search_path = public as $$
 declare n integer;
 begin
-  delete from public.ibge_ppm;
+  delete from public.ibge_ppm where true;  -- 'where true': o guard sql_safe_updates do Supabase exige WHERE
   insert into public.ibge_ppm
     (locality_level, locality_code, locality_name, year, metric, value, unit, ibge_table, ibge_variable)
   select r.locality_level, r.locality_code, r.locality_name, r.year, r.metric, r.value, r.unit, r.ibge_table, r.ibge_variable
