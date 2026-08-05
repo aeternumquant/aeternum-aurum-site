@@ -24,6 +24,8 @@ import PriceHistoryChart from "./PriceHistoryChart";
 import ReferenceDotPlot, { type Praca } from "./ReferenceDotPlot";
 import TradeTrendChart from "./maps/TradeTrendChart";
 import { useTradeTrend } from "../hooks/useTradeTrend";
+import { useLeitePreco, useRebanho } from "../hooks/useIbge";
+import { LeitePrecoChart, RebanhoBlock, triLabel, fmtReaisLitro } from "./PecuariaBlocks";
 import { FLOW_CARDS } from "../lib/flowMapConfig";
 import { ASSETS, ASSET_CATEGORIES, type AssetDef, type AssetCategory } from "../config/assets";
 import {
@@ -198,6 +200,12 @@ export default function CommodityTerminal() {
   })();
   const { data: trend } = useTradeTrend(trendSub, true);
 
+  // Par pecuario (IBGE, Fase 4): preco AO PRODUTOR do leite (trimestral) +
+  // rebanho (vitrine publica). Fonte IBGE, FORA do caminho de preco de mercado
+  // (series_latest/WB) — por isso hooks proprios, nao o bySeries.
+  const { data: leite } = useLeitePreco();
+  const { data: rebanho } = useRebanho();
+
   // secoes por categoria; dentro, com-cotacao primeiro, sem-bolsa ao fim.
   const groups = useMemo(
     () =>
@@ -325,7 +333,32 @@ export default function CommodityTerminal() {
 
                   <div className="text-left sm:text-right shrink-0 sm:max-w-[260px]">
                     {active.price.code == null ? (
-                      <div className="font-mono text-sm text-muted-foreground/70 uppercase tracking-wider max-w-[220px]">{active.price.noQuote}</div>
+                      /* Leite: nao tem cotacao de mercado (WB/bolsa), mas TEM o
+                         preco AO PRODUTOR do IBGE (fonte diferente, hook proprio).
+                         Deixa de ser flow-only; rotulo honesto (ao produtor,
+                         trimestral). As demais code:null seguem "sem cotacao". */
+                      active.key === "Leite" && leite ? (
+                        <>
+                          <div className="font-mono text-2xl text-foreground leading-tight">
+                            {fmtReaisLitro(leite.latest.value)}<span className="text-sm text-muted-foreground/55">/litro</span>
+                          </div>
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/45 mt-0.5">preço ao produtor · IBGE</div>
+                          {leite.changePct != null && (() => {
+                            const p = leite.changePct;
+                            const arrow = p > 0 ? "▲" : p < 0 ? "▼" : "▪";
+                            const color = p > 0 ? "#10b981" : p < 0 ? "#ef4444" : "rgba(255,255,255,0.45)";
+                            return (
+                              <div className="text-[11px] font-mono mt-1 leading-tight">
+                                <span style={{ color }}>{arrow} {changeFmt.format(Math.abs(p))}%</span>{" "}
+                                <span className="text-muted-foreground/45">vs. trimestre anterior</span>
+                              </div>
+                            );
+                          })()}
+                          <div className="text-xs font-mono text-muted-foreground/60 mt-1">{triLabel(leite.latest.year, leite.latest.quarter)}</div>
+                        </>
+                      ) : (
+                        <div className="font-mono text-sm text-muted-foreground/70 uppercase tracking-wider max-w-[220px]">{active.price.noQuote}</div>
+                      )
                     ) : loading ? (
                       <div className="h-7 w-32 rounded-sm bg-white/5 animate-pulse ml-auto" />
                     ) : !activePoint && !activeSecondary && resolvedRefs.every((r) => !r.point) ? (
@@ -450,6 +483,35 @@ export default function CommodityTerminal() {
                 {trend && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <TradeTrendChart trend={trend} productLabel={trendSub?.label} />
+                  </div>
+                )}
+
+                {/* PAR PECUARIO (IBGE, Fase 4) — LEITE: a serie trimestral do
+                    preco AO PRODUTOR (receita na porteira). */}
+                {active.key === "Leite" && leite && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <LeitePrecoChart leite={leite} />
+                  </div>
+                )}
+                {/* Coerencia (A.4): preco ao produtor (leite cru interno) x volume
+                    de leite em po IMPORTADO (o "comercio" acima). Elos diferentes. */}
+                {active.key === "Leite" && leite && trend && (
+                  <div className="mb-6 max-w-md text-[10px] leading-relaxed text-muted-foreground/45 px-1">
+                    O <span className="text-muted-foreground/70">preço ao produtor</span> (leite cru, R$/litro, IBGE trimestral) é a receita interna na porteira; o <span className="text-muted-foreground/70">comércio ao longo do tempo</span> acima é o volume de <span className="text-muted-foreground/70">leite em pó importado</span> (Comex). Produtos e elos diferentes da cadeia.
+                  </div>
+                )}
+                {/* Rebanho leiteiro (vitrine publica): producao de leite + vacas. */}
+                {active.key === "Leite" && rebanho && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <RebanhoBlock rebanho={rebanho} mode="leite" />
+                  </div>
+                )}
+                {/* Rebanho bovino (vitrine publica): efetivo nacional + top UF. O
+                    plantel que produz boi E leite; a camada densa (valor do plantel
+                    = colateral pecuario) e de MEMBRO (gancho no PecuariaBlocks). */}
+                {active.key === "BoiGordo" && rebanho && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <RebanhoBlock rebanho={rebanho} mode="bovino" />
                   </div>
                 )}
 

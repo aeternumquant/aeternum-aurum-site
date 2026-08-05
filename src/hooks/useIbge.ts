@@ -75,6 +75,89 @@ export function usePamProduction(slug: string | undefined): { data: PamProductio
   return { data };
 }
 
+/**
+ * Preco AO PRODUTOR do leite cru (IBGE, Pesquisa Trimestral do Leite; tabela
+ * ibge_leite_preco, var 2522). Brasil (N1), serie TRIMESTRAL (2019Q1+). E a
+ * receita na porteira, NAO cotacao de atacado/hub/consumidor; cadencia
+ * trimestral (nunca fingir mensal). Fonte diferente da series_latest/WB -> hook
+ * proprio, fora do caminho de preco de mercado.
+ */
+export type LeitePoint = { year: number; quarter: number; value: number };
+export type LeitePreco = { points: LeitePoint[]; latest: LeitePoint; prev: LeitePoint | null; changePct: number | null; unit: string };
+
+export function useLeitePreco(): { data: LeitePreco | null } {
+  const [data, setData] = useState<LeitePreco | null>(null);
+  useEffect(() => {
+    if (!supabase) { setData(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data: rows, error } = await supabase!
+        .from("ibge_leite_preco")
+        .select("year,quarter,value,unit")
+        .eq("locality_level", "N1")
+        .order("year", { ascending: true })
+        .order("quarter", { ascending: true });
+      if (cancelled || error || !rows || !rows.length) { if (!cancelled) setData(null); return; }
+      const points: LeitePoint[] = rows.filter((r: any) => r.value != null).map((r: any) => ({ year: r.year, quarter: r.quarter, value: Number(r.value) }));
+      if (!points.length) { setData(null); return; }
+      const latest = points[points.length - 1];
+      const prev = points.length > 1 ? points[points.length - 2] : null;
+      const changePct = prev && prev.value ? ((latest.value - prev.value) / prev.value) * 100 : null;
+      setData({ points, latest, prev, changePct, unit: String(rows[0].unit ?? "Reais por litro") });
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  return { data };
+}
+
+/**
+ * Rebanho (IBGE, Pesquisa da Pecuaria Municipal; tabela ibge_ppm). PUBLICO
+ * SIMPLES: o numero-vitrine nacional (efetivo bovino, vacas ordenhadas,
+ * producao de leite) do ano mais recente + o ranking por UF. A camada DENSA
+ * (rebanho x preco x abate = valor do plantel/colateral; serie 1974-2024 por
+ * UF; taxa de especializacao leiteira) fica na CAMADA DE MEMBRO, nao aqui.
+ */
+export type RebanhoUf = { name: string; value: number; pct: number };
+export type Rebanho = {
+  year: number;
+  efetivoBovino: number | null;   // Cabecas
+  vacasOrdenhadas: number | null; // Cabecas
+  producaoLeite: number | null;   // Mil litros
+  efetivoRanking: RebanhoUf[];    // top UF efetivo bovino
+  leiteRanking: RebanhoUf[];      // top UF producao de leite
+};
+
+export function useRebanho(): { data: Rebanho | null } {
+  const [data, setData] = useState<Rebanho | null>(null);
+  useEffect(() => {
+    if (!supabase) { setData(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data: yr } = await supabase!
+        .from("ibge_ppm").select("year")
+        .eq("metric", "efetivo_bovino").eq("locality_level", "N1")
+        .order("year", { ascending: false }).limit(1);
+      const year = (yr as any)?.[0]?.year;
+      if (!year) { if (!cancelled) setData(null); return; }
+      const { data: rows, error } = await supabase!
+        .from("ibge_ppm")
+        .select("locality_level,locality_name,metric,value")
+        .in("metric", ["efetivo_bovino", "vacas_ordenhadas", "producao_leite"])
+        .eq("year", year);
+      if (cancelled || error || !rows) { if (!cancelled) setData(null); return; }
+      const n1 = (m: string) => { const r = rows.find((x: any) => x.locality_level === "N1" && x.metric === m); return r?.value != null ? Number(r.value) : null; };
+      const rank = (m: string, total: number | null): RebanhoUf[] => rows
+        .filter((x: any) => x.locality_level === "N3" && x.metric === m && x.value != null)
+        .map((x: any) => ({ name: x.locality_name as string, value: Number(x.value), pct: total ? (100 * Number(x.value)) / total : 0 }))
+        .sort((a, b) => b.value - a.value).slice(0, 5);
+      const efetivoBovino = n1("efetivo_bovino"), vacasOrdenhadas = n1("vacas_ordenhadas"), producaoLeite = n1("producao_leite");
+      setData({ year, efetivoBovino, vacasOrdenhadas, producaoLeite, efetivoRanking: rank("efetivo_bovino", efetivoBovino), leiteRanking: rank("producao_leite", producaoLeite) });
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  return { data };
+}
+
 export function usePamAbate(species: string | undefined): { data: Abate | null } {
   const [data, setData] = useState<Abate | null>(null);
   useEffect(() => {
