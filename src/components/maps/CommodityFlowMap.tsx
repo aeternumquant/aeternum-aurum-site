@@ -26,7 +26,8 @@ import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
 import { TrendingUp, TrendingDown, MapPin } from "lucide-react";
 import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
-import { usePamProduction, usePamAbate, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
+import { usePamProduction, usePamAbate, useLeitePreco, useRebanho, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
+import { LeiteMapBlock } from "../PecuariaBlocks";
 
 const geoUrl = "/data/countries-110m.json";
 const GOLD = "#C6A85A";
@@ -526,6 +527,11 @@ export default function CommodityFlowMap({
   const { data: pam } = usePamProduction(pamSlug);
   const { data: abate } = usePamAbate(cfg.abate?.species);
 
+  // Leite comum (sub.ibgeLeite): o preco AO PRODUTOR (IBGE) + producao nacional,
+  // no lugar do "sem cotacao". (fetch barato; so renderiza no sub certo.)
+  const { data: leite } = useLeitePreco();
+  const { data: rebanho } = useRebanho();
+
   return (
     <div
       className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
@@ -656,8 +662,12 @@ export default function CommodityFlowMap({
           )}
         </div>
 
-        {/* Preco do PRODUTO atual (colado ao sub, nunca solto no card) */}
-        {priceBlockFor?.(sub?.key ?? "")}
+        {/* Preco do PRODUTO atual (colado ao sub, nunca solto no card). Leite
+            comum: o preco AO PRODUTOR (IBGE), no lugar do "sem cotacao" da
+            series_latest — mercado interno, nao fluxo de export. */}
+        {sub?.ibgeLeite
+          ? leite && <LeiteMapBlock leite={leite} producaoLeite={rebanho?.producaoLeite ?? null} />
+          : priceBlockFor?.(sub?.key ?? "")}
 
         {/* Nota de honestidade do sub (ex.: laranja-fruta) */}
         {sub?.note && (

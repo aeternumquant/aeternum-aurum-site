@@ -338,7 +338,7 @@ const assetFlows: Record<NonNullable<AssetType>, {
   Suino: { label: "Carne suína", category: "Agro", flowData: "", percentage: "" },
   Fumo: { label: "Fumo", category: "Agro", flowData: "", percentage: "" },
   Malte: { label: "Malte", category: "Agro", flowData: "", percentage: "" },
-  Leite: { label: "Leite em pó", category: "Agro", flowData: "", percentage: "" },
+  Leite: { label: "Leite", category: "Agro", flowData: "", percentage: "" },
   Borracha: { label: "Borracha", category: "Agro", flowData: "", percentage: "" },
   Carvao: { label: "Carvão metalúrgico", category: "Energia", flowData: "", percentage: "" },
   Enxofre: { label: "Enxofre", category: "Fertilizantes", flowData: "", percentage: "" },

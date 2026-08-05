@@ -38,6 +38,9 @@ export type SubCardCfg = {
   note?: string;
   /** producao IBGE (PAM) DESTE sub — ex.: a laranja-fruta no card do suco */
   ibge?: { slug: string };
+  /** sub do LEITE COMUM: o preco vem do IBGE (ibge_leite_preco, ao produtor),
+   *  NAO da series_latest. O card renderiza o bloco proprio de produtor. */
+  ibgeLeite?: boolean;
 };
 
 /**
@@ -433,12 +436,26 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
       note: "Malte não torrado (importação, cadeia da cerveja). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
     }],
   },
+  // DOIS mercados distintos, dois subs. O leite NAO e pauta de exportacao no
+  // Brasil (importa mais leite em po do que exporta); o card fala com o publico
+  // INTERNO (produtor/cooperativa/laticinio), o mesmo cliente do colateral RWA.
   Leite: {
-    subs: [{
-      key: "leite", label: "Leite em pó", import: ["040221"],
-      price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
-      note: "Leite em pó integral (importação, sobretudo Argentina e Uruguai). Fluxo MDIC/Secex; sem série de preço no nosso banco.",
-    }],
+    cardLabel: "Leite",
+    subs: [
+      {
+        // PRINCIPAL: o preco AO PRODUTOR (IBGE), mercado interno. Sem codigo de
+        // fluxo (leite nao e export relevante) -> mapa sem linhas, e honesto.
+        key: "comum", label: "Leite comum", ibgeLeite: true,
+        price: { code: null, noQuote: "Preço ao produtor · IBGE (abaixo)" },
+        note: "Preço ao produtor (leite cru, R$/litro, IBGE trimestral). Mercado INTERNO: a produção nacional é consumida internamente, não é pauta de exportação — por isso o mapa fica sem linhas de fluxo.",
+      },
+      {
+        // SECUNDARIO: o volume de importacao de leite em po (Comex).
+        key: "po", label: "Leite em pó", import: ["040221"],
+        price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
+        note: "Leite em pó integral: VOLUME de importação (Comex), sobretudo Argentina e Uruguai. Elo industrializado/importado — NÃO é a receita do produtor. Fluxo MDIC/Secex.",
+      },
+    ],
   },
   Borracha: {
     subs: [{

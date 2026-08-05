@@ -25,7 +25,7 @@ import ReferenceDotPlot, { type Praca } from "./ReferenceDotPlot";
 import TradeTrendChart from "./maps/TradeTrendChart";
 import { useTradeTrend } from "../hooks/useTradeTrend";
 import { useLeitePreco, useRebanho } from "../hooks/useIbge";
-import { LeitePrecoChart, RebanhoBlock, triLabel, fmtReaisLitro } from "./PecuariaBlocks";
+import { LeitePrecoChart, LeiteUfPrices, RebanhoBlock, triLabel, fmtReaisLitro } from "./PecuariaBlocks";
 import { FLOW_CARDS } from "../lib/flowMapConfig";
 import { ASSETS, ASSET_CATEGORIES, type AssetDef, type AssetCategory } from "../config/assets";
 import {
@@ -475,36 +475,48 @@ export default function CommodityTerminal() {
                   </div>
                 )}
 
-                {/* Comercio ao longo do tempo (tendencia L2, veio do card do
-                    mapa): a serie temporal de volume/valor mora aqui, ao lado do
-                    preco. Le trade_flows agregado; some gracioso sem serie. O
-                    productLabel diz QUAL produto do fluxo (o preco pode ser de
-                    outro estagio — ex.: preco do metal, comercio da bauxita). */}
-                {trend && (
+                {/* Comercio ao longo do tempo (tendencia L2): serie de volume/valor.
+                    Para o LEITE fica de fora daqui (renderiza no fim do grupo do
+                    leite, como "contexto de importacao"), para o card seguir a
+                    ordem que o produtor olha: preco -> evolucao -> volume. */}
+                {trend && active.key !== "Leite" && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <TradeTrendChart trend={trend} productLabel={trendSub?.label} />
                   </div>
                 )}
 
-                {/* PAR PECUARIO (IBGE, Fase 4) — LEITE: a serie trimestral do
-                    preco AO PRODUTOR (receita na porteira). */}
+                {/* ── LEITE: bloco orientado ao PRODUTOR (o publico interno, mesmo
+                    cliente do colateral RWA). Ordem do que ele olha: (1) preco em
+                    destaque = header; (2) preco POR ESTADO (negocia com o
+                    laticinio); (3) EVOLUCAO trimestral; (4) VOLUME (producao +
+                    rebanho); (5) contexto: o leite em po IMPORTADO. Respiro entre
+                    os blocos — o denso (margem, valor do plantel) e de MEMBRO. */}
+                {active.key === "Leite" && leite && leite.ufLatest.length >= 2 && (
+                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                    <LeiteUfPrices leite={leite} />
+                  </div>
+                )}
                 {active.key === "Leite" && leite && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <LeitePrecoChart leite={leite} />
                   </div>
                 )}
-                {/* Coerencia (A.4): preco ao produtor (leite cru interno) x volume
-                    de leite em po IMPORTADO (o "comercio" acima). Elos diferentes. */}
-                {active.key === "Leite" && leite && trend && (
-                  <div className="mb-6 max-w-md text-[10px] leading-relaxed text-muted-foreground/45 px-1">
-                    O <span className="text-muted-foreground/70">preço ao produtor</span> (leite cru, R$/litro, IBGE trimestral) é a receita interna na porteira; o <span className="text-muted-foreground/70">comércio ao longo do tempo</span> acima é o volume de <span className="text-muted-foreground/70">leite em pó importado</span> (Comex). Produtos e elos diferentes da cadeia.
-                  </div>
-                )}
-                {/* Rebanho leiteiro (vitrine publica): producao de leite + vacas. */}
                 {active.key === "Leite" && rebanho && (
                   <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
                     <RebanhoBlock rebanho={rebanho} mode="leite" />
                   </div>
+                )}
+                {/* Contexto de importacao (secundario): o volume de leite em po
+                    importado (Comex) — OUTRO elo, nao a receita do produtor. */}
+                {active.key === "Leite" && trend && (
+                  <>
+                    <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                      <TradeTrendChart trend={trend} productLabel="Leite em pó (importação)" />
+                    </div>
+                    <div className="mb-6 max-w-md text-[10px] leading-relaxed text-muted-foreground/45 px-1">
+                      O <span className="text-muted-foreground/70">preço ao produtor</span> (acima) é a receita interna do leite cru; este <span className="text-muted-foreground/70">comércio</span> é o volume de <span className="text-muted-foreground/70">leite em pó importado</span> (Comex, Argentina/Uruguai). Produtos e elos diferentes da cadeia.
+                    </div>
+                  </>
                 )}
                 {/* Rebanho bovino (vitrine publica): efetivo nacional + top UF. O
                     plantel que produz boi E leite; a camada densa (valor do plantel

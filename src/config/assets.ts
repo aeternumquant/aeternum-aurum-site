@@ -167,7 +167,7 @@ export const ASSETS: AssetDef[] = [
   // mapa (FLOW_CARDS); trazidos ao terminal para a tendencia ter casa e nao
   // repetir o drift. O terminal ja trata code:null (noQuote), sem crashar.
   { key: "Celulose", label: "Celulose", category: "Agro", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
-  { key: "Leite", label: "Leite em pó", category: "Agro", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
+  { key: "Leite", label: "Leite", category: "Agro", price: { code: null, noQuote: "Sem cotação pública no nosso banco" } },
 
   // ── MINÉRIOS ──
   { key: "MinerioFerro", label: "Minério de Ferro", category: "Minérios", price: { code: "MINERIO_WB" } },

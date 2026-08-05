@@ -83,7 +83,13 @@ export function usePamProduction(slug: string | undefined): { data: PamProductio
  * proprio, fora do caminho de preco de mercado.
  */
 export type LeitePoint = { year: number; quarter: number; value: number };
-export type LeitePreco = { points: LeitePoint[]; latest: LeitePoint; prev: LeitePoint | null; changePct: number | null; unit: string };
+export type LeiteUf = { name: string; value: number };
+export type LeitePreco = {
+  points: LeitePoint[]; latest: LeitePoint; prev: LeitePoint | null; changePct: number | null; unit: string;
+  /** preco por UF no ULTIMO trimestre (ordenado do maior p/ o menor). O produtor
+   *  usa para negociar (quanto GO recebe vs MG vs RS). */
+  ufLatest: LeiteUf[];
+};
 
 export function useLeitePreco(): { data: LeitePreco | null } {
   const [data, setData] = useState<LeitePreco | null>(null);
@@ -103,7 +109,18 @@ export function useLeitePreco(): { data: LeitePreco | null } {
       const latest = points[points.length - 1];
       const prev = points.length > 1 ? points[points.length - 2] : null;
       const changePct = prev && prev.value ? ((latest.value - prev.value) / prev.value) * 100 : null;
-      setData({ points, latest, prev, changePct, unit: String(rows[0].unit ?? "Reais por litro") });
+      // preco por UF no ultimo trimestre
+      const { data: ufRows } = await supabase!
+        .from("ibge_leite_preco")
+        .select("locality_name,value")
+        .eq("locality_level", "N3")
+        .eq("year", latest.year)
+        .eq("quarter", latest.quarter);
+      const ufLatest: LeiteUf[] = (ufRows ?? [])
+        .filter((r: any) => r.value != null)
+        .map((r: any) => ({ name: r.locality_name as string, value: Number(r.value) }))
+        .sort((a, b) => b.value - a.value);
+      if (!cancelled) setData({ points, latest, prev, changePct, unit: String(rows[0].unit ?? "Reais por litro"), ufLatest });
     })();
     return () => { cancelled = true; };
   }, []);
