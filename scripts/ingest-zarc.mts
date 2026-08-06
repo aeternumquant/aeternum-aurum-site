@@ -63,6 +63,10 @@ async function ingest(src: (typeof SOURCES)[number]): Promise<number> {
     if (!col) { const h = line.replace(/^﻿/, "").split(";"); col = {}; h.forEach((n, i) => (col![n] = i)); base = col["dec1"]; continue; }
     if (!line) continue;
     const p = line.split(";");
+    // Dropa a fase "Producao" dos perenes (cafe/banana/citros/... tem Implantacao
+    // E Producao): a consulta reversa e sobre QUANDO PLANTAR -> so a Implantacao
+    // importa; a Producao e densidade de membro. Anuais nao tem esse split.
+    if (/Produção/i.test(p[col["Nome_cultura"]])) continue;
     const codC = p[col["Cod_Cultura"]], geo = p[col["geocodigo"]], man = Number(p[col["Cod_Outros_Manejos"]]);
     const si = p[col["SafraIni"]], sf = p[col["SafraFin"]];
     const safra = si && /^\d{4}$/.test(si) && sf ? `${si}/${sf}` : "perene";
