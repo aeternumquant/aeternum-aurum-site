@@ -19,12 +19,14 @@
  *    preco e fluxo sao produtos diferentes (carne, cobre, petroleo).
  */
 import { useEffect, useMemo, useRef, useState, useId, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { ComposableMap, Geography, Line, Marker, useGeographies } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
 import { motion, useReducedMotion } from "framer-motion";
 import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
-import { TrendingUp, TrendingDown, MapPin } from "lucide-react";
+import { ASSET_SERIES } from "../../config/assets";
+import { TrendingUp, TrendingDown, MapPin, ArrowRight } from "lucide-react";
 import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
 import { usePamProduction, usePamAbate, useLeitePreco, useRebanho, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
 import { LeiteMapBlock } from "../PecuariaBlocks";
@@ -476,17 +478,25 @@ export default function CommodityFlowMap({
   cfg,
   flows,
   priceBlockFor,
+  assetKey,
 }: {
   label: string;
   cfg: FlowCardCfg;
   flows: CommodityFlows | null;
   /** preco COLADO ao sub-produto atual (regra do rotulo), montado pelo pai */
   priceBlockFor?: (subKey: string) => ReactNode;
+  /** chave do ativo (== assets.ts key) — habilita "ver no terminal". Guarda
+   *  graciosa: sem entrada no terminal (ex.: TerrasRaras), o botao NAO aparece. */
+  assetKey?: string;
 }) {
   const [subKey, setSubKey] = useState(cfg.subs[0]?.key ?? "");
   const [hovered, setHovered] = useState<string | null>(null);
   const reduced = !!useReducedMotion();
   const uid = useId().replace(/:/g, "");
+  const navigate = useNavigate();
+  // So mostra "ver no terminal" se a commodity TEM entrada no terminal (assets.ts).
+  // A licao de terras raras: nao assumir que a chave existe.
+  const hasTerminal = !!assetKey && !!ASSET_SERIES[assetKey];
 
   // Entrada escalonada no load e na troca de carta.
   const [revealed, setRevealed] = useState(reduced);
@@ -659,6 +669,24 @@ export default function CommodityFlowMap({
                 </button>
               ))}
             </div>
+          )}
+
+          {/* Escada isca: acesso discreto ao TERMINAL desta commodity (abre JA
+              nela, via ?commodity=<chave>). Affordance de "aprofundar", nao banner
+              — o mapa segue limpo. So aparece se a commodity tem terminal (guarda
+              graciosa). Funciona no card mobile (mesmo JSX, largura cheia). */}
+          {hasTerminal && (
+            <button
+              onClick={() => navigate(`/commodities?commodity=${encodeURIComponent(assetKey!)}`)}
+              title={`Abrir ${label} no terminal`}
+              className="mt-2.5 w-full flex items-center justify-center gap-1.5 font-sans text-[9px] uppercase tracking-[0.18em] py-1.5 rounded-sm transition-colors"
+              style={{ color: `${GOLD}d0`, border: `1px solid ${GOLD}30`, backgroundColor: `${GOLD}0d` }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${GOLD}1f`; e.currentTarget.style.color = GOLD; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = `${GOLD}0d`; e.currentTarget.style.color = `${GOLD}d0`; }}
+            >
+              Ver no terminal
+              <ArrowRight className="w-3 h-3" />
+            </button>
           )}
         </div>
 

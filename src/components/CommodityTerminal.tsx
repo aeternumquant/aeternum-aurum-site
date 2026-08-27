@@ -14,8 +14,11 @@
  * conversao PTAX de referencia, atribuicao exata do banco, virgula pt-BR.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sprout, Mountain, Zap, FlaskConical, Landmark } from "lucide-react";
+import EscadaTextBlock from "./EscadaTextBlock";
+import ChartSection from "./ChartSection";
 import { useMarketData, type MarketPoint } from "../hooks/useMarketData";
 import { useFuturesCurve } from "../hooks/useFuturesCurve";
 import { usePriceHistory } from "../hooks/usePriceHistory";
@@ -162,7 +165,15 @@ function SidebarStatus({ asset, point, loading }: { asset: AssetDef; point: Mark
 
 export default function CommodityTerminal() {
   const { data, loading, error } = useMarketData();
-  const [activeKey, setActiveKey] = useState<string>("Soja");
+  // Escada isca: o botao do mapa abre o terminal JA nesta commodity, via
+  // ?commodity=<chave> (a MESMA chave de assets.ts). Guarda: chave ausente/
+  // invalida cai na Soja. So no init — o mapa vive noutra pagina (Home), entao
+  // cada chegada aqui remonta o terminal e le o parametro de novo.
+  const [searchParams] = useSearchParams();
+  const deepLinkKey = searchParams.get("commodity");
+  const deepLinkValid = !!deepLinkKey && ASSETS.some((a) => a.key === deepLinkKey);
+  const [activeKey, setActiveKey] = useState<string>(deepLinkValid ? deepLinkKey! : "Soja");
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const bySeries = useMemo(() => {
     const m = new Map<string, MarketPoint>();
@@ -228,6 +239,18 @@ export default function CommodityTerminal() {
     activeChipRef.current?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
   }, [activeKey]);
 
+  // Deep-link do mapa: chegou com ?commodity valido -> traz o terminal para a
+  // vista. A rota faz scroll-to-top no mount (App.tsx); o duplo rAF roda DEPOIS
+  // desse efeito do pai, entao a rolagem para ca nao e sobrescrita. Uma vez.
+  useEffect(() => {
+    if (!deepLinkValid) return;
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })),
+    );
+    return () => cancelAnimationFrame(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // atribuicao das fontes exibidas no ativo ativo (string exata do banco).
   const attributions = useMemo(() => {
     const set = new Set<string>();
@@ -236,7 +259,7 @@ export default function CommodityTerminal() {
   }, [activePoint, activeSecondary, resolvedRefs]);
 
   return (
-    <div className="w-full flex justify-center py-4">
+    <div ref={rootRef} id="commodity-terminal" className="w-full flex justify-center py-4">
       <div className="w-full max-w-6xl">
         {error && (
           <div className="mb-3 text-xs text-[#C6A85A]/90 border border-[#C6A85A]/25 bg-[#C6A85A]/[0.03] px-3 py-2 rounded-sm">
@@ -282,8 +305,15 @@ export default function CommodityTerminal() {
             </div>
           </div>
 
-          {/* ── Sidebar por setor (desktop; so md+) ── */}
-          <div className="hidden md:block md:w-60 shrink-0 md:border-r border-white/5 bg-black/30 md:overflow-y-auto md:max-h-[640px] custom-scrollbar-hide">
+          {/* ── Sidebar por setor (desktop; so md+) ──
+              BUG FIX: a barra ACOMPANHA a altura real do conteudo. Antes tinha
+              max-h-[640px] e nao alcancava o fim de uma commodity longa (Soja/
+              Leite). Agora: o container e `relative` (estica ao painel de detalhe
+              via flex align-stretch, sem forcar altura propria porque a lista
+              interna e absoluta) e a lista rola por dentro (absolute inset-0
+              overflow). Fecha na curta (Paladio) e na longa. */}
+          <div className="hidden md:block md:w-60 shrink-0 md:border-r border-white/5 bg-black/30 relative">
+            <div className="absolute inset-0 overflow-y-auto custom-scrollbar-hide">
             {groups.map((g) => {
               const Icon = CAT_ICON[g.cat];
               return (
@@ -317,10 +347,12 @@ export default function CommodityTerminal() {
                 </div>
               );
             })}
+            </div>
           </div>
 
-          {/* ── Painel de detalhe ── */}
-          <div className="flex-1 p-6 sm:p-8 overflow-hidden">
+          {/* ── Painel de detalhe ── (min-height p/ a commodity curta nao espremer
+              a barra; a longa cresce e a barra acompanha) */}
+          <div className="flex-1 p-6 sm:p-8 overflow-hidden md:min-h-[540px]">
             <AnimatePresence mode="wait">
               <motion.div key={active.key} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.2 }}>
                 {/* Header: nome + preco (ou "sem cotacao") */}
@@ -462,17 +494,17 @@ export default function CommodityTerminal() {
 
                 {/* Estrutura a termo (so os 5 futuros B3; spot/WB nao tem curva) */}
                 {curve && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="futures_curve">
                     <FuturesCurveCard curve={curve} />
-                  </div>
+                  </ChartSection>
                 )}
 
                 {/* Historico de preco (Onda 2): le a observations, alcance REAL
                     rotulado. Trava graciosa: some sem pontos suficientes. */}
                 {history && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="price_history">
                     <PriceHistoryChart history={history} attribution={activePoint?.attribution ?? null} />
-                  </div>
+                  </ChartSection>
                 )}
 
                 {/* Comercio ao longo do tempo (tendencia L2): serie de volume/valor.
@@ -480,9 +512,9 @@ export default function CommodityTerminal() {
                     leite, como "contexto de importacao"), para o card seguir a
                     ordem que o produtor olha: preco -> evolucao -> volume. */}
                 {trend && active.key !== "Leite" && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="trade_trend">
                     <TradeTrendChart trend={trend} productLabel={trendSub?.label} />
-                  </div>
+                  </ChartSection>
                 )}
 
                 {/* ── LEITE: bloco orientado ao PRODUTOR (o publico interno, mesmo
@@ -492,39 +524,38 @@ export default function CommodityTerminal() {
                     rebanho); (5) contexto: o leite em po IMPORTADO. Respiro entre
                     os blocos — o denso (margem, valor do plantel) e de MEMBRO. */}
                 {active.key === "Leite" && leite && leite.ufLatest.length >= 2 && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="leite_uf">
                     <LeiteUfPrices leite={leite} />
-                  </div>
+                  </ChartSection>
                 )}
                 {active.key === "Leite" && leite && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="leite_evolucao">
                     <LeitePrecoChart leite={leite} />
-                  </div>
+                  </ChartSection>
                 )}
                 {active.key === "Leite" && rebanho && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="rebanho">
                     <RebanhoBlock rebanho={rebanho} mode="leite" />
-                  </div>
+                  </ChartSection>
                 )}
                 {/* Contexto de importacao (secundario): o volume de leite em po
-                    importado (Comex) — OUTRO elo, nao a receita do produtor. */}
+                    importado (Comex), OUTRO elo, nao a receita do produtor. A nuance
+                    (produtor x importacao) entra como microOverride do trade_trend. */}
                 {active.key === "Leite" && trend && (
-                  <>
-                    <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
-                      <TradeTrendChart trend={trend} productLabel="Leite em pó (importação)" />
-                    </div>
-                    <div className="mb-6 max-w-md text-[10px] leading-relaxed text-muted-foreground/45 px-1">
-                      O <span className="text-muted-foreground/70">preço ao produtor</span> (acima) é a receita interna do leite cru; este <span className="text-muted-foreground/70">comércio</span> é o volume de <span className="text-muted-foreground/70">leite em pó importado</span> (Comex, Argentina/Uruguai). Produtos e elos diferentes da cadeia.
-                    </div>
-                  </>
+                  <ChartSection
+                    type="trade_trend"
+                    microOverride="O preço ao produtor (acima) é a receita interna do leite cru; este comércio é o volume de leite em pó importado (Comex, sobretudo Argentina e Uruguai). Produtos e elos diferentes da cadeia."
+                  >
+                    <TradeTrendChart trend={trend} productLabel="Leite em pó (importação)" />
+                  </ChartSection>
                 )}
                 {/* Rebanho bovino (vitrine publica): efetivo nacional + top UF. O
                     plantel que produz boi E leite; a camada densa (valor do plantel
                     = colateral pecuario) e de MEMBRO (gancho no PecuariaBlocks). */}
                 {active.key === "BoiGordo" && rebanho && (
-                  <div className="mb-6 max-w-md border border-white/8 rounded-sm bg-white/[0.015]">
+                  <ChartSection type="rebanho">
                     <RebanhoBlock rebanho={rebanho} mode="bovino" />
-                  </div>
+                  </ChartSection>
                 )}
 
                 {/* Editorial OPCIONAL: so onde existe (nao forcar nas novas) */}
@@ -561,6 +592,12 @@ export default function CommodityTerminal() {
                     </div>
                   )
                 )}
+
+                {/* Escada isca (FECHO): o texto longo da commodity vai para o FIM
+                    do card, depois de todos os graficos e do editorial — o fecho
+                    detalhado, com "ler mais" -> Pesquisa. REUSAVEL (escadaTexts.ts);
+                    a guarda continua: sem texto, sem bloco (nao inventa). */}
+                <EscadaTextBlock assetKey={active.key} />
 
                 {/* Rodape: atribuicao das fontes (string exata do banco) */}
                 {attributions.length > 0 && (

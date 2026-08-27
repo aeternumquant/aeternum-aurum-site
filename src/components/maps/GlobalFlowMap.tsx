@@ -954,6 +954,7 @@ export default function GlobalFlowMap() {
               label={flowCfg.cardLabel ?? assetFlows[selectedAsset].label}
               cfg={flowCfg}
               flows={tradeFlows.data}
+              assetKey={selectedAsset}
               priceBlockFor={(subKey) => {
                 // Preco COLADO ao sub-produto: usa o price do sub quando ha;
                 // senao herda o mapeamento do card (ASSET_SERIES).
