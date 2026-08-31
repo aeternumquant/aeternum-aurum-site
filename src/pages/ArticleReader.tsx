@@ -197,6 +197,12 @@ export default function ArticleReader() {
                 </div>
               )}
 
+              {sec.type === "code" && sec.content && (
+                <pre className="not-prose my-8 overflow-x-auto text-[11px] sm:text-xs font-mono text-muted-foreground/80 bg-[#080a0f] border border-white/5 rounded-sm p-5 leading-snug whitespace-pre">
+                  {sec.content}
+                </pre>
+              )}
+
               {sec.type === "bullet-list" && sec.data?.items && (
                 <ul className="not-prose my-8 space-y-4">
                   {sec.data.items.map((item: string, i: number) => (
@@ -219,7 +225,7 @@ export default function ArticleReader() {
                 </div>
               )}
 
-              {!["abstract", "heading", "paragraph", "callout", "table", "chart-placeholder", "bullet-list", "stat-grid", "equation"].includes(sec.type) && sec.content && (
+              {!["abstract", "heading", "paragraph", "callout", "table", "chart-placeholder", "bullet-list", "stat-grid", "equation", "code"].includes(sec.type) && sec.content && (
                 <p className="mb-8">{renderInline(sec.content)}</p>
               )}
             </FadeIn>

@@ -115,6 +115,7 @@ function dateValue(d: string): number {
 
 /* Publicacoes mais recentes (apenas publicas) para o estado vazio */
 const recentPublicPapers = [...shortPapers]
+  .filter((p) => !(p as any).draft)
   .filter((p) => PUBLIC_IDS.has(p.id) || p.isPublic)
   .sort((a, b) => dateValue(b.date) - dateValue(a.date))
   .slice(0, 4);
@@ -182,10 +183,13 @@ export default function ResearchPage() {
   const [activeTag, setActiveTag] = useState("Todos");
   const [query, setQuery] = useState("");
 
+  // RASCUNHOS ficam FORA da grade (nao listados nem no menu); seguem acessiveis
+  // por URL direta /research/<id> para revisao "no ar" antes de liberar.
+  const listed = shortPapers.filter((p) => !(p as any).draft);
   const byTag =
     activeTag === "Todos"
-      ? shortPapers
-      : shortPapers.filter((p) => p.tag === activeTag);
+      ? listed
+      : listed.filter((p) => p.tag === activeTag);
   const q = norm(query.trim());
   const matched =
     q === ""

@@ -1,5 +1,5 @@
 export interface ResearchSection {
-  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list" | "equation";
+  type: "abstract" | "heading" | "paragraph" | "callout" | "table" | "chart-placeholder" | "stat-grid" | "bullet-list" | "equation" | "code";
   content: string;
   data?: any;
 }
@@ -27,6 +27,10 @@ export interface ResearchPaper {
   author: string;
   readTime: string;
   isPublic?: boolean;
+  /** RASCUNHO: fica FORA da grade publica de /research (nao listado, nao linkado),
+   *  mas segue acessivel por URL direta /research/<id> para revisao "no ar" antes de
+   *  liberar. Combinar com isPublic:false (corpo continua com blur p/ nao autenticado). */
+  draft?: boolean;
   sections: ResearchSection[];
 }
 
@@ -1459,6 +1463,225 @@ export const researchPapers: ResearchPaper[] = [
       { type: "paragraph", content: "A discussão envolve dimensões geopolíticas (redução da dependência exclusiva do dólar, autonomia financeira de blocos) e, sobretudo, regulatórias. No Brasil, o Banco Central e a CVM ainda estão desenvolvendo marcos para stablecoins e ativos digitais transfronteiriços. Qualquer infraestrutura financeira crítica exige robustez técnica, governança e marcos legais adequados, e a adoção de qualquer solução específica depende dessa maturação. O acompanhamento dessa área, de forma analítica e atenta à regulação, é relevante para quem estuda a interseção entre commodities, câmbio e infraestrutura financeira." },
       { type: "paragraph", content: "Fontes: literatura sobre pagamentos transfronteiriços e finanças internacionais; e materiais públicos sobre tecnologias de ledger distribuído e sua aplicação em recebíveis agrícolas no Brasil." },
       { type: "paragraph", content: "Autoria: Furtado, G. C. | Revisão: Olivieri, G. J." }
+    ]
+  },
+
+  // ── RASCUNHOS (draft:true, isPublic:false): FORA da grade publica; acessiveis
+  //    so por URL direta /research/<id> para revisao no ar. Versao de trabalho,
+  //    com checklist de verificacao + revisao juridica obrigatoria no fim. ──
+  {
+    id: "resolucao-bcb-561-tesouraria-exportador",
+    date: "Ago 2026",
+    tag: "Finanças Digitais",
+    title: "A Resolução BCB 561 e a tesouraria do exportador",
+    desc: "O trilho que fecha e o capital de giro que aparece: o efeito da Resolução BCB 561 no ciclo de caixa da exportação de commodities.",
+    author: "Aeternum Quantitative Risk Team",
+    readTime: "11 min",
+    isPublic: false,
+    draft: true,
+    sections: [
+      { type: "heading", content: "O trilho que fecha e o capital de giro que aparece" },
+      { type: "paragraph", content: "Versão de trabalho · agosto de 2026. Rascunho para revisão interna. Não publicar como conteúdo público final antes de concluir o checklist ao fim, que inclui revisão jurídica obrigatória." },
+      { type: "callout", content: "Nota metodológica. Este texto é análise operacional sobre o efeito de uma norma no ciclo de caixa da exportação de commodities. Não é parecer jurídico nem recomendação de investimento. Cada afirmação normativa remete ao texto legal; cada afirmação empírica remete à fonte primária." },
+      { type: "heading", content: "1. O que a norma faz, em uma frase" },
+      { type: "paragraph", content: "A Resolução BCB nº 561, publicada em 30 de abril de 2026 e com vigência a partir de 1º de outubro de 2026, altera a Resolução BCB nº 277/2022 e passa a exigir que os pagamentos e recebimentos entre o prestador de eFX e sua contraparte no exterior ocorram exclusivamente por operação de câmbio ou por movimentação em conta em reais de não residente mantida no Brasil." },
+      { type: "paragraph", content: "O efeito prático é conhecido: fecha-se o uso de ativo virtual como trilho de liquidação nesse canal específico." },
+      { type: "heading", content: "2. O que a norma não faz" },
+      { type: "paragraph", content: "A vedação é cirúrgica, não geral. Ela alcança o trilho de liquidação entre prestador de eFX e contraparte estrangeira. Não proíbe a detenção, a negociação ou a transferência de ativos virtuais, que seguem sob o arcabouço da Resolução BCB nº 521, vigente desde fevereiro de 2026." },
+      { type: "paragraph", content: "A distinção importa porque boa parte da leitura de mercado tratou a norma como restrição ampla. Não é. É o fechamento de um canal." },
+      { type: "heading", content: "3. O público que os alertas atenderam, e o que sobrou de fora" },
+      { type: "paragraph", content: "A norma foi amplamente analisada nas semanas seguintes à publicação, e com razão: ela redesenha a operação de fintechs de câmbio, define prazos de autorização e impõe requisitos de governança. Os prazos escalonados são claros. As instituições autorizadas devem incluir a modalidade eFX no Unicad até 30 de outubro de 2026. Os prestadores não listados podem continuar operando desde que solicitem autorização até 31 de maio de 2027." },
+      { type: "paragraph", content: "Essa camada de análise está bem servida." },
+      { type: "paragraph", content: "O que não foi tratado é o outro lado do balcão: o exportador de commodity que recebe por esses canais. Para ele, a pergunta não é de licenciamento. É de ciclo de caixa. E a resposta não está nos alertas publicados." },
+      { type: "heading", content: "4. Primeira constatação: o trilho alternativo valia menos do que se dizia" },
+      { type: "paragraph", content: "Antes de estimar o custo de perder um canal, é preciso saber quanto ele economizava. Três dados da literatura oficial reduzem bastante a estimativa usual." },
+      { type: "paragraph", content: "O spread cambial institucional é uma fração do varejo. O Estudo Especial 48/2019 do Banco Central reporta spread mediano bem abaixo dos benchmarks de varejo, com os contratos de maior porte pagando frações desse valor. O exportador de escala não paga a tarifa que a comparação de mercado costuma usar como base. (Verificar a citação exata antes da publicação final.)" },
+      { type: "paragraph", content: "A exportação de commodity não tem IOF. O Decreto 6.306/2007, art. 15-B, zera a alíquota nas operações de câmbio de exportação. Qualquer cálculo de economia que inclua uma linha de IOF nesse fluxo está inflando o resultado." },
+      { type: "paragraph", content: "O tempo de liquidação internacional é medido em horas, não dias. Os dados analisados pelo BIS apontam mediana da ordem de uma hora e meia para a mensagem de pagamento. A percepção de que a transferência internacional leva dias confunde o tempo da mensagem com o tempo do processo, que inclui conferência documental, alfândega e prazo comercial." },
+      { type: "paragraph", content: "A conclusão desta seção é desconfortável para as duas narrativas em disputa: o trilho alternativo entregava menos economia do que se anunciava, e a norma que o fecha custa menos do que se teme." },
+      { type: "heading", content: "5. Segunda constatação: o que dói não é a vedação, é a vedação de netting" },
+      { type: "paragraph", content: "A norma também proíbe a compensação entre pagamentos e recebimentos relacionados à prestação do serviço, além de exigir relacionamento contratual formal com a contraparte estrangeira e segregação de contas." },
+      { type: "paragraph", content: "Para quem tem fluxo bidirecional, essa é a mudança materialmente relevante, e recebeu muito menos atenção do que a vedação de ativo virtual." },
+      { type: "paragraph", content: "O raciocínio é direto. Se entradas e saídas podem ser compensadas, o capital de giro necessário é função do fluxo líquido. Se não podem, é função do fluxo bruto. Para um agente com movimento nos dois sentidos, a diferença entre bruto e líquido é exatamente a necessidade adicional de caixa." },
+      { type: "paragraph", content: "Esse ponto conecta com um achado empírico relevante. Alfaro, Calani e Varela (NBER Working Paper 28910, 2021) mostram, com o censo transacional chileno, que o hedge cambial corporativo é feito sobre fluxos brutos, e não sobre posições líquidas de balanço, precisamente por causa do descasamento de maturidades entre recebíveis de exportação e obrigações de importação. No mesmo estudo, a maturidade média do crédito comercial de exportação é da ordem de 137 dias, contra cerca de 91 dias na importação, e a correlação entre receitas e obrigações em moeda estrangeira é de apenas 2% a 3% em base mensal." },
+      { type: "paragraph", content: "Em outras palavras: o exportador já operava em bases brutas por razão econômica. A norma agora impede a compensação também por razão regulatória. O efeito se soma." },
+      { type: "heading", content: "6. Terceira constatação: a ampliação do escopo não é para o exportador" },
+      { type: "paragraph", content: "A Resolução amplia o eFX para incluir transferências ligadas a investimentos nos mercados financeiro e de capitais, no Brasil e no exterior, com limite de US$ 10 mil por operação." },
+      { type: "paragraph", content: "Para o exportador de commodity, o limite torna a novidade irrelevante: o tíquete da operação de exportação é de outra ordem de grandeza. A ampliação interessa ao produtor pessoa física que aloca patrimônio no exterior, não à tesouraria que liquida embarque." },
+      { type: "paragraph", content: "Vale registrar para não confundir os dois públicos, que a cobertura jornalística frequentemente mistura." },
+      { type: "heading", content: "7. O problema que a norma não resolve, porque não é dela" },
+      { type: "paragraph", content: "Fechado o trilho alternativo, reduzida a economia que ele prometia e aumentada a necessidade de caixa bruto, sobra o problema estrutural: o descasamento temporal entre embarque e recebimento." },
+      { type: "paragraph", content: "Esse descasamento não é cambial. É documental." },
+      { type: "paragraph", content: "O Brasil desmaterializou o crédito rural. A Cédula de Produto Rural eletrônica existe, é registrada em infraestrutura autorizada e circula. Mas o país não desmaterializou o comércio: não há, no direito brasileiro, equivalência funcional para documento transferível eletrônico nos moldes da Lei Modelo da UNCITRAL sobre Registros Eletrônicos Transferíveis (MLETR)." },
+      { type: "paragraph", content: "A consequência aparece no porto. O conhecimento de embarque continua sendo documento físico transferível por endosso. A carta de crédito continua operando sobre papel conferido por banco. O prazo entre a fixação do preço, o embarque e o recebimento continua governado pela velocidade do documento, não pela velocidade da mensagem de pagamento." },
+      { type: "paragraph", content: "Nenhuma resolução sobre canal de pagamento resolve isso, porque o gargalo não está no canal. (Este ponto é desenvolvido em artigo próprio.)" },
+      { type: "heading", content: "8. O que fazer, operacionalmente" },
+      { type: "paragraph", content: "Três consequências práticas, sem recomendação de alocação." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Recalcular a necessidade de capital de giro em base bruta. Quem projetou caixa assumindo compensação de fluxos precisa refazer a conta antes de outubro. O delta entre bruto e líquido é a nova exigência.",
+        "Reavaliar o custo real do canal atual. Com IOF zero na exportação, spread institucional abaixo do varejo e liquidação em horas, a comparação honesta entre trilhos costuma ser menos favorável ao alternativo do que a narrativa comercial sugere. A conta precisa ser refeita com os parâmetros corretos.",
+        "Reposicionar o ACC/ACE na estrutura. O adiantamento sobre contrato de câmbio funciona simultaneamente como funding e como cobertura. Num cenário de maior exigência de caixa bruto, o instrumento que antecipa recebível e trava taxa merece reexame, com o custo comparado ao custo de oportunidade do capital imobilizado."
+      ] } },
+      { type: "heading", content: "9. Síntese" },
+      { type: "paragraph", content: "A Resolução BCB 561 fecha um canal de liquidação que entregava menos economia do que se anunciava. Sua consequência mais relevante para a tesouraria exportadora não é a vedação de ativo virtual, e sim a proibição de compensação, que desloca a necessidade de capital de giro do fluxo líquido para o fluxo bruto." },
+      { type: "paragraph", content: "O problema estrutural do exportador brasileiro permanece intocado, porque não é um problema de canal de pagamento. É um problema de documento." },
+      { type: "heading", content: "Referências" },
+      { type: "paragraph", content: "Normativas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Resolução BCB nº 561, de 30 de abril de 2026 (vigência 1º/10/2026).",
+        "Resolução BCB nº 277, de 31 de dezembro de 2022.",
+        "Resolução BCB nº 521 (ativos virtuais, vigente desde fevereiro de 2026).",
+        "Lei nº 14.286, de 29 de dezembro de 2021.",
+        "Decreto nº 6.306/2007, art. 15-B (IOF em câmbio de exportação).",
+        "Consulta Pública BCB nº 124/2025."
+      ] } },
+      { type: "paragraph", content: "Empíricas" },
+      { type: "bullet-list", content: "", data: { items: [
+        "ALFARO, L.; CALANI, M.; VARELA, L. Currency Hedging: Managing Cash Flow Exposure. NBER Working Paper nº 28910, 2021 (rev. 2022).",
+        "BANCO CENTRAL DO BRASIL. Estudo Especial nº 48/2019 (spread cambial).",
+        "BIS. Dados sobre tempo de liquidação de pagamentos transfronteiriços."
+      ] } },
+      { type: "heading", content: "Checklist antes de publicar" },
+      { type: "bullet-list", content: "", data: { items: [
+        "☐ Confirmar a citação exata do Estudo Especial 48/2019 (spread mediano institucional vs varejo).",
+        "☐ Confirmar a mediana do BIS para o tempo da mensagem de pagamento transfronteiriço.",
+        "☐ Confirmar datas e números da Resolução BCB 561 e os prazos do Unicad.",
+        "☐ Revisão jurídica completa (direito cambiário e regulatório). Obrigatória: não publicar sem parecer."
+      ] } }
+    ]
+  },
+
+  {
+    id: "brasil-desmaterializou-credito-nao-comercio",
+    date: "Ago 2026",
+    tag: "Finanças Digitais",
+    title: "O Brasil desmaterializou o crédito, não o comércio",
+    desc: "Por que a CPR tokenizada não é título on-chain, e o que isso custa no porto.",
+    author: "Aeternum Quantitative Risk Team",
+    readTime: "14 min",
+    isPublic: false,
+    draft: true,
+    sections: [
+      { type: "heading", content: "Por que a CPR tokenizada não é título on-chain, e o que isso custa no porto" },
+      { type: "paragraph", content: "Versão de trabalho · agosto de 2026. Rascunho para revisão interna. Não publicar como conteúdo público final antes de concluir o checklist ao fim, que inclui revisão jurídica obrigatória." },
+      { type: "callout", content: "Nota metodológica. Este texto é análise de infraestrutura jurídica e seu efeito operacional sobre o ciclo de caixa da exportação. Não é parecer jurídico nem recomendação de investimento. Afirmações normativas remetem ao texto legal; afirmações empíricas, à fonte primária. As conclusões de política são rotuladas como tese." },
+      { type: "heading", content: "1. A tese" },
+      { type: "paragraph", content: "O Brasil resolveu a desmaterialização do crédito e não resolveu a desmaterialização do comércio." },
+      { type: "paragraph", content: "A Cédula de Produto Rural eletrônica existe, é registrada em infraestrutura autorizada, dispensa cartório de imóveis para eficácia contra terceiros e circula. O crédito rural brasileiro é digital de ponta a ponta." },
+      { type: "paragraph", content: "O documento que transfere a propriedade da mercadoria, por outro lado, continua analógico. O conhecimento de embarque marítimo é papel endossado. O warrant agropecuário nasce e morre em cártula. E o warrant geral, fora do agro, ainda é regido por um decreto de 1903." },
+      { type: "paragraph", content: "Dessa assimetria decorrem duas consequências. A primeira é conceitual: a chamada CPR tokenizada não é título on-chain, é título na registradora com espelho on-chain. A segunda é econômica, e aparece no porto: o ciclo entre embarque e recebimento continua governado pela velocidade do documento, não pela velocidade da mensagem de pagamento." },
+      { type: "heading", content: "2. O que a MLETR resolve, e quem já resolveu" },
+      { type: "paragraph", content: "A Lei Modelo da UNCITRAL sobre Registros Eletrônicos Transferíveis (MLETR, 2017) resolve um problema específico: a posse. O direito comercial clássico atribui efeitos à posse de um documento físico. Quem detém o conhecimento de embarque original tem direito à mercadoria. Um arquivo eletrônico, por definição copiável, não sustenta esse regime." },
+      { type: "paragraph", content: "A MLETR não digitaliza o papel. Ela estabelece equivalência funcional: se um sistema garante singularidade, integridade, controle exclusivo, identificabilidade do controlador e desapossamento na transferência, então o registro eletrônico produz os mesmos efeitos jurídicos do documento físico." },
+      { type: "paragraph", content: "Reino Unido. O Electronic Trade Documents Act entrou em vigor em 20 de setembro de 2023, tornando documentos eletrônicos passíveis de posse no direito inglês. O alcance é desproporcional à jurisdição: estima-se que parcela substancial do comércio internacional seja regida pela lei inglesa, de modo que a mudança alcança contratos que nunca tocam o Reino Unido. (Verificar a estimativa antes da publicação.)" },
+      { type: "paragraph", content: "França. Primeira jurisdição da União Europeia a transpor integralmente a MLETR, pela Lei nº 2024-537, criando a categoria do titre transférable. O Decreto nº 2025-811, de agosto de 2025, prescreveu tecnicamente os requisitos do sistema confiável. O caso francês importa mais que o inglês para o Brasil: é sistema de matriz romano-germânica, com a mesma tradição cartular. Se lá foi possível sem romper a dogmática do título de crédito, aqui também é." },
+      { type: "paragraph", content: "Paraguai. Adotou a MLETR em 2021. Sócio do Mercosul, fronteira direta, economia menor. O isolamento normativo brasileiro na região é literal." },
+      { type: "paragraph", content: "Bahrein foi o primeiro adotante, com aplicação em cheques eletrônicos negociáveis. Alemanha, Espanha e Japão têm regimes parciais ou grupos de trabalho em curso." },
+      { type: "paragraph", content: "Todas as afirmações desta seção exigem verificação da situação vigente na data de publicação, e revisão jurídica." },
+      { type: "heading", content: "3. O que o Brasil tem, e por que não basta" },
+      { type: "heading", content: "3.1 A CPR eletrônica resolve o crédito" },
+      { type: "paragraph", content: "A Lei nº 13.986/2020 permitiu a emissão puramente eletrônica da CPR, com assinatura digital e registro em entidade autorizada, dispensando o registro cartorário para eficácia contra terceiros. É desmaterialização real." },
+      { type: "paragraph", content: "Mas a CPR é título de crédito: promessa de entrega ou de pagamento. Não é documento representativo de mercadoria em trânsito internacional. Ela resolve o financiamento da safra, não a transferência da carga no porto de destino." },
+      { type: "heading", content: "3.2 O CT-e é documento fiscal, não título" },
+      { type: "paragraph", content: "O Conhecimento de Transporte eletrônico é referência internacional em digitalização tributária do transporte doméstico. E é frequentemente confundido com desmaterialização comercial." },
+      { type: "paragraph", content: "Não é a mesma coisa. O CT-e documenta a prestação do serviço de frete para a administração tributária. Ele não é transferível por endosso, não confere direito à mercadoria e não serve de colateral para trade finance. Digitaliza o registro fiscal, não a propriedade." },
+      { type: "heading", content: "3.3 O CDA/WA é híbrido, e o híbrido é o problema" },
+      { type: "paragraph", content: "O Certificado de Depósito Agropecuário e o Warrant Agropecuário foram instituídos pela Lei nº 11.076, de 30 de dezembro de 2004 (não pela Lei 10.411/2002, como circula em parte da literatura secundária). São títulos unidos, emitidos simultaneamente pelo depositário, transmissíveis unidos ou separadamente mediante endosso." },
+      { type: "paragraph", content: "O ciclo revela a natureza híbrida. Pela norma operacional da CONAB (Norma 30.107):" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Os títulos são entregues à custódia de instituição autorizada mediante endosso-mandato, contra recibo de caução;",
+        "O registro em depositário central autorizado pelo Banco Central é obrigatório em até 30 dias, sob pena de cancelamento;",
+        "A instituição custodiante efetua o endosso ao credor por ocasião da baixa;",
+        "As mercadorias somente são entregues ou transferidas de propriedade contra a devolução do CDA e do WA."
+      ] } },
+      { type: "paragraph", content: "Ou seja: o título é eletrônico enquanto está no depositário, e volta a ser cártula quando sai. Não há controle exclusivo eletrônico com desapossamento digital, que é exatamente o requisito da MLETR. Há custódia com espelho eletrônico." },
+      { type: "paragraph", content: "E há um detalhe que dispensa comentário: fora do agronegócio, o warrant brasileiro continua regido pelo Decreto nº 1.102, de 21 de novembro de 1903. A Lei 11.076/2004 vedou a emissão daqueles títulos apenas para produtos agropecuários." },
+      { type: "heading", content: "4. A arquitetura do espelho" },
+      { type: "paragraph", content: "Do exposto decorre a proposição central deste artigo." },
+      { type: "code", content: `   ┌──────────────────────────────────────────────┐
+   │            REDE DISTRIBUÍDA                  │
+   │       token · hash · identificador           │
+   └───────────────────┬──────────────────────────┘
+                       │
+              espelho informacional
+                       │
+   ┌───────────────────▼──────────────────────────┐
+   │       INFRAESTRUTURA AUTORIZADA              │
+   │  registradora · depositário central · cartório│
+   │                                              │
+   │        aqui vive o LEGAL TITLE               │
+   └──────────────────────────────────────────────┘` },
+      { type: "paragraph", content: "Duas evidências sustentam a leitura." },
+      { type: "paragraph", content: "O precedente Vert. Em 10 de dezembro de 2024, o Colegiado da CVM indeferiu, por unanimidade, pedido de dispensa de depósito centralizado para instrumento tokenizado. A decisão assenta que a tecnologia de registro distribuído não substitui as funções e as responsabilidades do depositário central autorizado. Não é opinião de mercado: é decisão administrativa." },
+      { type: "paragraph", content: "O caso Cowmed/Target/B3. A operação apresentada como primeira tokenização de gado no Brasil estruturou-se, na prática, assim: emissão de cédula tradicional, cessão de direitos creditórios a um FIDC, penhor pecuário registrado em cartório, e registro do título na infraestrutura da B3. O elemento tokenizado é um identificador criptográfico associado ao dispositivo de monitoramento. A propriedade do animal não transita na rede." },
+      { type: "paragraph", content: "Não há crítica implícita nisso. A estrutura é juridicamente sólida justamente por ser assim. A crítica é à narrativa que a descreve como outra coisa." },
+      { type: "heading", content: "5. Por que o código não basta" },
+      { type: "paragraph", content: "A distinção entre problema técnico e problema jurídico é o núcleo da questão." },
+      { type: "paragraph", content: "A criptografia resolve o duplo gasto. Ela demonstra singularidade e controle exclusivo sobre um registro eletrônico. Esse problema, que inviabilizava o documento eletrônico transferível, está tecnicamente resolvido há mais de uma década." },
+      { type: "paragraph", content: "O que a criptografia não faz é atribuir efeito jurídico a esse controle. Que o controle exclusivo criptográfico equivalha à posse legal, e que a posse legal confira direito à mercadoria, é decisão de política legislativa, não propriedade de um protocolo." },
+      { type: "paragraph", content: "A literatura de trade finance sintetizou isso em duas formulações complementares: code is not law, do BAFT, e code needs law, da OMC. Ambas apontam para a mesma conclusão: sem equivalência funcional em lei ordinária, o registro eletrônico transferível permanece sendo um arranjo contratual privado entre partes que aceitaram aquele arranjo. (Verificar as citações exatas do BAFT e da OMC antes da publicação.)" },
+      { type: "heading", content: "6. O custo: as ilhas digitais" },
+      { type: "paragraph", content: "Na ausência de lei, o mercado tentou a via contratual. Plataformas de conhecimento de embarque eletrônico operam por rulebook: todos os participantes da cadeia aderem a um contrato multilateral que atribui, entre eles, os efeitos que a lei atribuiria." },
+      { type: "paragraph", content: "Funciona, com uma limitação estrutural. Se um único elo da cadeia não for signatário, o arranjo colapsa e é necessário emitir a via física. E a cadeia de uma exportação de commodity é longa: embarcador, transportador, banco emissor, banco confirmador, aduana de origem, aduana de destino, importador." },
+      { type: "paragraph", content: "Daí a expressão ilhas digitais: cada plataforma é um arquipélago fechado, e a interoperabilidade depende de todos estarem na mesma ilha. O ganho de escala não se realiza, porque o custo marginal de adesão recai sobre o elo mais fraco." },
+      { type: "paragraph", content: "Uma lei de equivalência funcional resolve isso por construção: o efeito decorre da lei, não da adesão." },
+      { type: "heading", content: "7. O custo, medido" },
+      { type: "paragraph", content: "O descasamento temporal do exportador tem magnitude documentada." },
+      { type: "paragraph", content: "Alfaro, Calani e Varela (NBER Working Paper 28910) analisam o censo transacional chileno de derivativos, integrado a microdados alfandegários e ao cadastro de crédito, no período 2005 a 2018. Três resultados importam aqui:" },
+      { type: "bullet-list", content: "", data: { items: [
+        "Maturidade média do crédito comercial de exportação: cerca de 137 dias.",
+        "Maturidade média na importação: cerca de 91 dias.",
+        "Correlação entre receitas e obrigações em moeda estrangeira: 2% a 3% em base mensal."
+      ] } },
+      { type: "paragraph", content: "O hiato de aproximadamente 46 dias entre as duas pontas é financiado pelo exportador. E a correlação próxima de zero significa que o hedge natural entre entradas e saídas, que a intuição de balanço sugere, não existe na linha do tempo. Por isso os autores documentam que o hedge cambial corporativo é feito sobre fluxos brutos, não sobre posição líquida." },
+      { type: "paragraph", content: "Nem todo esse prazo é documental. Parte é prazo comercial negociado. Mas a apresentação de documentos, a conferência bancária sob as regras de crédito documentário e o trânsito físico do conhecimento de embarque compõem parcela que nenhuma melhoria no canal de pagamento reduz. Quantificar essa parcela com dados brasileiros é a próxima etapa desta agenda. [tese]" },
+      { type: "paragraph", content: "Pirrong (2014), estudando a economia das tradings físicas, mostra o outro lado do mesmo fato: o financiamento dessas empresas é estruturado sobre borrowing base, crédito rotativo garantido pela carga, com o banco apoiado no controle documental. Toda a arquitetura de garantia do comércio físico pressupõe que alguém detém um papel." },
+      { type: "heading", content: "8. Síntese e agenda" },
+      { type: "paragraph", content: "O Brasil construiu infraestrutura de registro de crédito de padrão internacional e não construiu o regime jurídico do documento comercial transferível eletrônico. A consequência não é retórica: enquanto a propriedade da carga depender de cártula, o ciclo de recebimento do exportador permanece governado pelo trânsito de papel." },
+      { type: "paragraph", content: "Nesse arranjo, a tokenização de ativos reais só pode ser espelho. Não por limitação tecnológica, mas porque o legal title está ancorado, por decisão regulatória expressa e confirmada em precedente, na infraestrutura autorizada." },
+      { type: "paragraph", content: "Três consequências práticas, sem recomendação de alocação." },
+      { type: "bullet-list", content: "", data: { items: [
+        "Para o exportador. A projeção de caixa deve tratar o prazo documental como componente próprio, e não como ruído do prazo comercial. Ele responde a variáveis distintas.",
+        "Para quem estrutura operações tokenizadas. A camada que confere eficácia é a registradora, não a rede. Comunicação que sugira o contrário cria exposição desnecessária, como o precedente Vert demonstra.",
+        "Para a agenda regulatória. O modelo francês, por ser de matriz civilista e por ter prescrito tecnicamente o sistema confiável, é a referência mais próxima para uma eventual transposição brasileira."
+      ] } },
+      { type: "heading", content: "Referências" },
+      { type: "paragraph", content: "Normativas e decisões" },
+      { type: "bullet-list", content: "", data: { items: [
+        "UNCITRAL. Model Law on Electronic Transferable Records (MLETR), 2017.",
+        "Reino Unido. Electronic Trade Documents Act 2023 (vigor 20/09/2023).",
+        "França. Lei nº 2024-537; Decreto nº 2025-811.",
+        "Brasil. Lei nº 13.986/2020 (CPR eletrônica).",
+        "Brasil. Lei nº 11.076, de 30/12/2004 (CDA e WA).",
+        "Brasil. Lei nº 9.973/2000 (armazenagem).",
+        "Brasil. Decreto nº 1.102, de 21/11/1903 (warrant geral).",
+        "CONAB. Norma 30.107 (CDA e WA).",
+        "CVM, Colegiado. Decisão de 10/12/2024 (caso Vert).",
+        "BCB. Resolução nº 561/2026 (vigor 01/10/2026)."
+      ] } },
+      { type: "paragraph", content: "Empíricas e doutrinárias" },
+      { type: "bullet-list", content: "", data: { items: [
+        "ALFARO, L.; CALANI, M.; VARELA, L. NBER WP nº 28910, 2021 (rev.).",
+        "PIRRONG, C. The Economics of Commodity Trading Firms, 2014.",
+        "BAFT. Code is not law, 2017.",
+        "ITC/UNCTAD. Documentação sobre CT-e e documentos de título."
+      ] } },
+      { type: "heading", content: "Checklist antes de publicar" },
+      { type: "paragraph", content: "Verificações factuais" },
+      { type: "bullet-list", content: "", data: { items: [
+        "☐ Situação atual da adoção da MLETR (número e lista de jurisdições).",
+        "☐ Lei francesa nº 2024-537 e Decreto nº 2025-811: números e datas.",
+        "☐ Estimativa do percentual do comércio global sob lei inglesa.",
+        "☐ Citações exatas do BAFT e da OMC.",
+        "☐ Número e teor da decisão do Colegiado da CVM no caso Vert.",
+        "☐ Confirmar que a Norma CONAB 30.107 é a redação vigente.",
+        "☐ Título atual do NBER WP 28910 (foi retitulado entre versões)."
+      ] } },
+      { type: "paragraph", content: "Obrigatório" },
+      { type: "bullet-list", content: "", data: { items: [
+        "☐ Revisão jurídica completa. O artigo faz afirmações sobre direito cambiário, comercial e regulatório. Não publicar sem parecer.",
+        "☐ Verificar se há proposta legislativa em curso no Brasil sobre a MLETR."
+      ] } }
     ]
   }
 
