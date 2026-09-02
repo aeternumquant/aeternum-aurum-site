@@ -1,0 +1,58 @@
+# Ingestor diario de opcoes sobre futuros agro (brapi Pro -> Supabase).
+# Roda o snapshot de fim de dia (cadeia + OI) dos 4 contratos (BGI/ICF/CCM/SJC).
+#
+# HORARIO: cron do GitHub e sempre em UTC. O Brasil NAO tem horario de verao
+# desde 2019 (Decreto 9.772/2019), entao BRT = UTC-3 o ano inteiro, sem ajuste.
+#   30 23 * * 1-5  ==  23:30 UTC  ==  20:30 BRT, de segunda a sexta.
+# (past 19h BRT com folga p/ o EOD entrar; :30 evita a congestao de :00, quando
+#  o GitHub as vezes atrasa/derruba agendamentos. Atraso do agendador so empurra
+#  p/ mais tarde — nao ha problema aqui.)
+#
+# SEGREDOS (Settings -> Secrets and variables -> Actions, NUNCA no arquivo):
+#   VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BRAPI_TOKEN
+# O script le do ambiente e manda a chave brapi so no header (nunca em URL/log).
+#
+# DIA PERDIDO: o diario so pega o snapshot corrente; um dia nao rodado NAO e
+# recuperado no dia seguinte. Recuperar = rerodar o backfill (usa /analytics/
+# history, ~1 ano, idempotente).
+name: opcoes-diario
+
+on:
+  schedule:
+    - cron: "30 23 * * 1-5"
+  workflow_dispatch: {} # disparo manual (Actions -> Run workflow) p/ validar
+
+# O job so le o codigo e fala com APIs externas — sem escrita no repo.
+permissions:
+  contents: read
+
+# Nunca deixar duas rodadas se sobreporem (idempotente, mas evita corrida).
+concurrency:
+  group: opcoes-diario
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.3.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Instala dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Ingestor diario de opcoes
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
+        run: pnpm exec tsx scripts/ingest-opcoes-daily.mts
