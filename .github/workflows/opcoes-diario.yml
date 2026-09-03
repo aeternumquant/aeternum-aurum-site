@@ -38,13 +38,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Sem 'version:' — a action le a versao do packageManager (pnpm@10.3.0) do
+      # package.json. Passar os dois quebra com "Multiple versions of pnpm specified".
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.3.0
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: pnpm
 
       - name: Instala dependencias
