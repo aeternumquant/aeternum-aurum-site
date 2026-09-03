@@ -22,8 +22,10 @@
  */
 import { PostgrestClient } from "@supabase/postgrest-js";
 
-const SB_URL = process.env.VITE_SUPABASE_URL, SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY, BRAPI = process.env.BRAPI_TOKEN;
-if (!SB_URL || !SB_KEY || !BRAPI) { console.error("Faltam VITE_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / BRAPI_TOKEN no ambiente"); process.exit(1); }
+// SUPABASE_URL e o nome limpo (server); VITE_SUPABASE_URL e o fallback do .env do
+// front (a mesma URL publica) p/ o run local seguir funcionando sem duplicar.
+const SB_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL, SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY, BRAPI = process.env.BRAPI_TOKEN;
+if (!SB_URL || !SB_KEY || !BRAPI) { console.error("Faltam SUPABASE_URL (ou VITE_SUPABASE_URL) / SUPABASE_SERVICE_ROLE_KEY / BRAPI_TOKEN no ambiente"); process.exit(1); }
 const db = new PostgrestClient(`${SB_URL}/rest/v1`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } });
 const brapiHeaders = { Authorization: `Bearer ${BRAPI}`, "User-Agent": "AeternumWorker" };
 const API = "https://brapi.dev/api/v2";

@@ -9,7 +9,9 @@
 #  p/ mais tarde — nao ha problema aqui.)
 #
 # SEGREDOS (Settings -> Secrets and variables -> Actions, NUNCA no arquivo):
-#   VITE_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BRAPI_TOKEN
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BRAPI_TOKEN
+# (nome limpo p/ contexto de servidor — sem o prefixo VITE_, que e convencao de
+#  var exposta ao front. O script tambem aceita VITE_SUPABASE_URL no run local.)
 # O script le do ambiente e manda a chave brapi so no header (nunca em URL/log).
 #
 # DIA PERDIDO: o diario so pega o snapshot corrente; um dia nao rodado NAO e
@@ -52,7 +54,7 @@ jobs:
 
       - name: Ingestor diario de opcoes
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           BRAPI_TOKEN: ${{ secrets.BRAPI_TOKEN }}
         run: pnpm exec tsx scripts/ingest-opcoes-daily.mts
