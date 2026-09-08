@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Mercator } from "@visx/geo";
 import * as topojson from "topojson-client";
 import type { Topology } from "topojson-specification";
@@ -66,21 +66,28 @@ export default function BrazilMap() {
     try {
       const topo = (await import("./geo/go-mun.topo.json")).default as unknown as Topology;
       setMunFc(topojson.feature(topo, (topo as any).objects["go-mun"]) as unknown as FeatureCollection);
-      // agregado (publico) — o gancho do free
+      // agregado (publico) — o gancho do free, independe de plano
       const { data: a } = await supabase!.rpc("municipios_por_estado", { p_uf: info.sigla, p_cultura: CULTURA, p_manejo: MANEJO });
       setAgg(Array.isArray(a) ? (a[0] as Agg) : (a as Agg));
-      // detalhe (o VALOR por municipio): so o assinante busca. A gate REAL e o
-      // servidor (municipios_detalhe devolve vazio/401 p/ quem nao e terminal);
-      // este guard so evita o request inutil (e o 401 no console) do visitante.
-      const m = new Map<string, Detail>();
-      if (isPaid) {
-        const { data: d } = await supabase!.rpc("municipios_detalhe", { p_uf: info.sigla, p_cultura: CULTURA, p_manejo: MANEJO });
-        for (const row of (d ?? []) as Detail[]) m.set(row.geocodigo, row);
-      }
-      setDetail(m);
       setStatus("ready");
     } catch { setStatus("nodata"); }
-  }, [isPaid]);
+  }, []);
+
+  // DETALHE (o VALOR por municipio) num EFFECT — nao no clique — para nao depender
+  // do timing do plano. Se isPaid virar true DEPOIS do clique (o current_plan
+  // carregou tarde), o detalhe entra sozinho e o mapa colore. So o assinante busca;
+  // a gate real segue no servidor. (Conserta "tudo uniforme + hover mudo".)
+  useEffect(() => {
+    if (uf !== GO_CODE || !isPaid || !supabase) { setDetail(new Map()); return; }
+    let alive = true;
+    supabase.rpc("municipios_detalhe", { p_uf: "GO", p_cultura: CULTURA, p_manejo: MANEJO }).then(({ data }) => {
+      if (!alive) return;
+      const m = new Map<string, Detail>();
+      for (const row of (data ?? []) as Detail[]) m.set(row.geocodigo, row);
+      setDetail(m);
+    });
+    return () => { alive = false; };
+  }, [uf, isPaid]);
 
   const back = useCallback(() => { setUf(null); setStatus("idle"); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map()); }, []);
 
