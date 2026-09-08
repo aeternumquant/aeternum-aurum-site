@@ -21,6 +21,7 @@ const ConfirmarPage = lazy(() => import("./pages/auth/Confirmar"));
 const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
 const ArticleReader = lazy(() => import("./pages/ArticleReader"));
 const PagamentosGlobaisPage = lazy(() => import("./pages/dashboard/PagamentosGlobais"));
+const TerminalBRPage = lazy(() => import("./pages/dashboard/TerminalBR"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 import RequireAuth from "./routes/RequireAuth";
@@ -74,6 +75,7 @@ function AnimatedRoutes() {
           {/* /execucao dissolvida (Etapa 3): redirect permanente para o nucleo tecnico */}
           <Route path="/execucao" element={<Navigate to="/tecnologia" replace />} />
           <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
+          <Route path="/terminal-br" element={<PageWrapper><TerminalBRPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Authentication */}
           <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
