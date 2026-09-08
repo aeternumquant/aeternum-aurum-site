@@ -1,6 +1,6 @@
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { WireframeCube } from "../../components/common/WireframeCube";
 import { useAuth } from "../../context/AuthContext";
@@ -12,20 +12,21 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { signIn } = useAuth();
 
-  async function handleSubmit(e: React.FormEvent) { 
-    e.preventDefault(); 
-    setLoading(true); 
+  // de onde o RequireAuth mandou (para voltar ao destino apos o login)
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || "/reports";
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
     setError("");
     try {
-      const res = await login(email, password);
-      if (res.success) {
-        navigate("/reports");
-      } else {
-        setError(res.message || "Falha na autenticação");
-      }
-    } catch (err) {
+      const res = await signIn(email, password);
+      if (res.success) navigate(from, { replace: true });
+      else setError(res.message || "Falha na autenticacao");
+    } catch {
       setError("Erro ao autenticar");
     } finally {
       setLoading(false);
@@ -45,7 +46,7 @@ export default function LoginPage() {
           <div className="flex flex-col items-center mb-10">
             <WireframeCube className="w-10 h-10 mb-6 opacity-60" animate={false} />
             <h1 className="font-display text-2xl text-foreground uppercase tracking-[0.25em] mb-1">Acesso Restrito</h1>
-            <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Aeternum Aurum Partners</p>
+            <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Aeternum Aurum</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && <div className="text-red-500/80 text-[11px] tracking-wide text-center bg-red-500/10 border border-red-500/20 py-2 rounded-sm mb-4">{error}</div>}
@@ -58,14 +59,21 @@ export default function LoginPage() {
               <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="w-full bg-card border border-white/8 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 transition-colors font-sans" />
             </div>
             <div className="flex justify-end">
-              <button type="button" className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground tracking-wider font-sans transition-colors">Esqueci minha senha</button>
+              <NavLink to="/recuperar" className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground tracking-wider font-sans transition-colors">Esqueci minha senha</NavLink>
             </div>
             <button type="submit" disabled={loading} className="w-full py-3.5 border border-primary text-primary text-[10px] tracking-[0.25em] uppercase font-sans hover:bg-primary hover:text-background transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-2 btn-glow relative overflow-hidden">
               <span className="relative z-10">{loading ? "Autenticando..." : "Entrar"}</span>
             </button>
           </form>
-          <div className="mt-8 pt-6 border-t border-white/5 text-center">
-            <p className="text-[10px] text-muted-foreground/50 tracking-wider">Ainda não tem acesso?{" "}<NavLink to="/acesso" className="text-primary/70 hover:text-primary transition-colors underline-offset-4 hover:underline">Solicitar acesso</NavLink></p>
+          <div className="mt-8 pt-6 border-t border-white/5 text-center space-y-2">
+            <p className="text-[10px] text-muted-foreground/50 tracking-wider">
+              Ainda nao tem conta?{" "}
+              <NavLink to="/cadastro" className="text-primary/70 hover:text-primary transition-colors underline-offset-4 hover:underline">Criar conta</NavLink>
+            </p>
+            <p className="text-[10px] text-muted-foreground/40 tracking-wider">
+              Acesso institucional (Partners/Aurum)?{" "}
+              <NavLink to="/acesso" className="text-muted-foreground/70 hover:text-muted-foreground transition-colors underline-offset-4 hover:underline">Solicitar</NavLink>
+            </p>
           </div>
         </FadeIn>
       </section>

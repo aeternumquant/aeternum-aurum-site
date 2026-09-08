@@ -15,12 +15,15 @@ const CommoditiesPage = lazy(() => import("./pages/dashboard/Commodities"));
 const AcessoPage = lazy(() => import("./pages/auth/Acesso"));
 const ReportsPage = lazy(() => import("./pages/dashboard/Reports"));
 const LoginPage = lazy(() => import("./pages/auth/Login"));
+const CadastroPage = lazy(() => import("./pages/auth/Cadastro"));
+const RecuperarSenhaPage = lazy(() => import("./pages/auth/RecuperarSenha"));
+const ConfirmarPage = lazy(() => import("./pages/auth/Confirmar"));
 const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
 const ArticleReader = lazy(() => import("./pages/ArticleReader"));
 const PagamentosGlobaisPage = lazy(() => import("./pages/dashboard/PagamentosGlobais"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
-import PrivateRoute from "./routes/PrivateRoute";
+import RequireAuth from "./routes/RequireAuth";
 
 const pageTransition = {
   initial: { opacity: 0, y: 16, filter: "blur(4px)" },
@@ -74,6 +77,9 @@ function AnimatedRoutes() {
 
           {/* Rotas Públicas - Authentication */}
           <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
+          <Route path="/cadastro" element={<PageWrapper><CadastroPage /></PageWrapper>} />
+          <Route path="/recuperar" element={<PageWrapper><RecuperarSenhaPage /></PageWrapper>} />
+          <Route path="/confirmar" element={<PageWrapper><ConfirmarPage /></PageWrapper>} />
           <Route path="/acesso" element={<PageWrapper><AcessoPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Research Section (Blurred Premium Content) */}
@@ -82,12 +88,10 @@ function AnimatedRoutes() {
           <Route path="/pesquisa" element={<PageWrapper><ResearchPage /></PageWrapper>} />
           <Route path="/research/:id" element={<PageWrapper><ArticleReader /></PageWrapper>} />
 
-          {/* Rotas Protegidas - Reports Only */}
-          <Route path="/reports" element={
-            <PrivateRoute>
-              <PageWrapper><ReportsPage /></PageWrapper>
-            </PrivateRoute>
-          } />
+          {/* Rotas Protegidas (RequireAuth: layout com Outlet + state.from) */}
+          <Route element={<RequireAuth />}>
+            <Route path="/reports" element={<PageWrapper><ReportsPage /></PageWrapper>} />
+          </Route>
 
           <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
         </Routes>
