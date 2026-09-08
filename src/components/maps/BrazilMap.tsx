@@ -28,7 +28,6 @@ const W = 640;
 const H = 520;
 const CULTURA = "Soja";
 const MANEJO = 1; // Sequeiro
-const GO_CODE = "52";
 
 // code IBGE -> sigla/nome (a geometria traz o code; as funcoes recebem a sigla)
 const UF: Record<string, { sigla: string; nome: string }> = {
@@ -61,11 +60,14 @@ export default function BrazilMap() {
   const openUf = useCallback(async (code: string) => {
     setUf(code); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map());
     const info = UF[code];
-    if (!info || code !== GO_CODE) { setStatus("nodata"); return; } // v1: so Goias
+    if (!info) { setStatus("nodata"); return; }
+    const sig = info.sigla.toLowerCase();
     setStatus("loading");
     try {
-      const topo = (await import("./geo/go-mun.topo.json")).default as unknown as Topology;
-      setMunFc(topojson.feature(topo, (topo as any).objects["go-mun"]) as unknown as FeatureCollection);
+      // Vite trata isto como glob import: cada ./geo/<uf>-mun.topo.json vira um
+      // chunk separado; so o da UF clicada baixa (sob demanda).
+      const topo = (await import(`./geo/${sig}-mun.topo.json`)).default as unknown as Topology;
+      setMunFc(topojson.feature(topo, (topo as any).objects[`${sig}-mun`]) as unknown as FeatureCollection);
       // agregado (publico) — o gancho do free, independe de plano
       const { data: a } = await supabase!.rpc("municipios_por_estado", { p_uf: info.sigla, p_cultura: CULTURA, p_manejo: MANEJO });
       setAgg(Array.isArray(a) ? (a[0] as Agg) : (a as Agg));
@@ -78,9 +80,10 @@ export default function BrazilMap() {
   // carregou tarde), o detalhe entra sozinho e o mapa colore. So o assinante busca;
   // a gate real segue no servidor. (Conserta "tudo uniforme + hover mudo".)
   useEffect(() => {
-    if (uf !== GO_CODE || !isPaid || !supabase) { setDetail(new Map()); return; }
+    const sig = uf ? UF[uf]?.sigla : null;
+    if (!sig || !isPaid || !supabase) { setDetail(new Map()); return; }
     let alive = true;
-    supabase.rpc("municipios_detalhe", { p_uf: "GO", p_cultura: CULTURA, p_manejo: MANEJO }).then(({ data }) => {
+    supabase.rpc("municipios_detalhe", { p_uf: sig, p_cultura: CULTURA, p_manejo: MANEJO }).then(({ data }) => {
       if (!alive) return;
       const m = new Map<string, Detail>();
       for (const row of (data ?? []) as Detail[]) m.set(row.geocodigo, row);
@@ -130,7 +133,7 @@ export default function BrazilMap() {
               <g>
                 {m.features.map(({ feature, path }, i) => {
                   const code = String((feature as any).id);
-                  const hasData = code === GO_CODE; // v1
+                  const hasData = !!UF[code];
                   return (
                     <path
                       key={i}
@@ -152,7 +155,7 @@ export default function BrazilMap() {
         ) : status === "loading" ? (
           <text x={W / 2} y={H / 2} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: 12, fill: `${GOLD}` }}>carregando municípios…</text>
         ) : status === "nodata" ? (
-          <text x={W / 2} y={H / 2} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: 12, fill: "rgba(229,229,229,0.5)" }}>sem dado para este estado</text>
+          <text x={W / 2} y={H / 2} textAnchor="middle" style={{ fontFamily: "monospace", fontSize: 12, fill: "rgba(229,229,229,0.5)" }}>não foi possível carregar</text>
         ) : munFc ? (
           <Mercator data={munFc.features} fitSize={[[W, H], munFc as any]}>
             {(m) => (
@@ -191,9 +194,9 @@ export default function BrazilMap() {
 
       {/* painel de leitura */}
       <div className="px-4 pb-4 pt-1">
-        {!uf && <p className="text-[11px]" style={{ color: "rgba(229,229,229,0.55)" }}>Clique num estado. Goiás está completo; os demais chegam por estado.</p>}
+        {!uf && <p className="text-[11px]" style={{ color: "rgba(229,229,229,0.55)" }}>Clique num estado para ver a janela de plantio da soja por município.</p>}
 
-        {uf === GO_CODE && agg && (
+        {uf && agg && agg.n_municipios > 0 && (
           <div className="space-y-2">
             {/* AGREGADO REAL — o gancho honesto (cap explicito, estilo Koyfin) */}
             <p className="text-[12px] leading-relaxed" style={{ color: "#e5e5e5" }}>
@@ -216,9 +219,15 @@ export default function BrazilMap() {
           </div>
         )}
 
+        {uf && agg && agg.n_municipios === 0 && (
+          <p className="text-[11px] leading-relaxed" style={{ color: "rgba(229,229,229,0.55)" }}>
+            A soja em sequeiro não é zoneada em {info?.nome}. Outras culturas entram quando houver assinante pedindo.
+          </p>
+        )}
+
         {status === "nodata" && uf && (
           <p className="text-[11px]" style={{ color: "rgba(229,229,229,0.5)" }}>
-            Sem dado para {info?.nome} nesta versão — estamos expandindo por estado. Goiás está completo.
+            Não foi possível carregar {info?.nome}. Tente outro estado.
           </p>
         )}
       </div>

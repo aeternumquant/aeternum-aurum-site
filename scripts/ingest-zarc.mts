@@ -83,7 +83,7 @@ async function ingest(src: (typeof SOURCES)[number]): Promise<number> {
   for (const g of groups.values()) {
     const j: Record<string, number[]> = {}; let dec_ini: number | null = null, dec_fim: number | null = null, risco_min: number | null = null;
     for (let d = 1; d <= 36; d++) { const b = g.best[d]; if (b > 0) { (j[b] = j[b] || []).push(d); if (dec_ini === null) dec_ini = d; dec_fim = d; if (risco_min === null || b < risco_min) risco_min = b; } }
-    batch.push({ ...g.m, janela: j, risco_min, dec_ini, dec_fim });
+    batch.push({ ...g.m, janela: j, janela20_len: j["20"]?.length ?? 0, risco_min, dec_ini, dec_fim });
     if (batch.length >= BATCH) { await flush(batch, src.truncate && first); n += batch.length; first = false; batch = []; }
   }
   if (batch.length) { await flush(batch, src.truncate && first); n += batch.length; }

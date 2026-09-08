@@ -31,6 +31,7 @@ create table if not exists public.zarc_aptidao (
   cod_manejo   int         not null,   -- 1 Sequeiro | 2 Irrigado | 3 Irrigado c/ controle de geada
   nome_manejo  text        not null,
   janela       jsonb       not null,   -- {"20":[decs],"30":[decs],"40":[decs]} decendios aptos por nivel de risco (uniao dos ciclos/solos)
+  janela20_len int         not null,   -- CONTRATO: = jsonb_array_length(janela->'20') (nº de decendios de baixo risco). Precomputado p/ o mapa: o agregado por UF em SP/MG estourava o statement_timeout do anon com jsonb no group by. Mantido na ingestao E derivado no RPC se vier nulo — NUNCA deixar null.
   risco_min    int,                    -- menor nivel (20/30/40) com janela; ordenar "menor risco primeiro"
   dec_ini      int,                    -- 1o decendio apto (qualquer nivel) — a "estacao de plantio"
   dec_fim      int,                    -- ultimo decendio apto
@@ -69,12 +70,14 @@ begin
     truncate table public.zarc_aptidao;
   end if;
   insert into public.zarc_aptidao
-    (cod_cultura, nome_cultura, geocodigo, uf, municipio, cod_meso, cod_micro, cod_manejo, nome_manejo, janela, risco_min, dec_ini, dec_fim, safra, portaria)
-  select r.cod_cultura, r.nome_cultura, r.geocodigo, r.uf, r.municipio, r.cod_meso, r.cod_micro, r.cod_manejo, r.nome_manejo, r.janela, r.risco_min, r.dec_ini, r.dec_fim, r.safra, r.portaria
+    (cod_cultura, nome_cultura, geocodigo, uf, municipio, cod_meso, cod_micro, cod_manejo, nome_manejo, janela, janela20_len, risco_min, dec_ini, dec_fim, safra, portaria)
+  select r.cod_cultura, r.nome_cultura, r.geocodigo, r.uf, r.municipio, r.cod_meso, r.cod_micro, r.cod_manejo, r.nome_manejo, r.janela,
+         coalesce(r.janela20_len, jsonb_array_length(r.janela->'20'), 0),   -- CONTRATO: deriva de janela se a ingestao nao mandar -> nunca null
+         r.risco_min, r.dec_ini, r.dec_fim, r.safra, r.portaria
     from jsonb_to_recordset(p_rows) as r(
       cod_cultura text, nome_cultura text, geocodigo text, uf text, municipio text,
       cod_meso text, cod_micro text, cod_manejo int, nome_manejo text,
-      janela jsonb, risco_min int, dec_ini int, dec_fim int, safra text, portaria text
+      janela jsonb, janela20_len int, risco_min int, dec_ini int, dec_fim int, safra text, portaria text
     );
   get diagnostics n = row_count;
   return n;
