@@ -63,6 +63,7 @@ export default function BrazilMap() {
   const [detail, setDetail] = useState<Map<string, Record<string, any>>>(new Map());
   const [pub, setPub] = useState<Map<string, { municipio: string; bucket: number | null }>>(new Map());
   const [selected, setSelected] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false); // re-busca por troca de cultura/manejo (loading do item 1)
   const [status, setStatus] = useState<"idle" | "loading" | "nodata" | "ready">("idle");
   const [hover, setHover] = useState<{ name: string; value?: number; x: number; y: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -102,13 +103,13 @@ export default function BrazilMap() {
   useEffect(() => {
     const sig = uf ? UF[uf]?.sigla : null;
     setSelected(null);
-    if (!sig || !supabase) { setPub(new Map()); return; }
-    let alive = true;
+    if (!sig || !supabase) { setPub(new Map()); setBusy(false); return; }
+    let alive = true; setBusy(true);
     supabase.rpc(layer.publicFn, layer.toArgs(sig, paramValues)).then(({ data }) => {
       if (!alive) return;
       const m = new Map<string, { municipio: string; bucket: number | null }>();
       for (const row of (data ?? []) as Record<string, any>[]) m.set(row.geocodigo, { municipio: row.municipio, bucket: row.bucket });
-      setPub(m);
+      setPub(m); setBusy(false);
     });
     return () => { alive = false; };
   }, [uf, layer, paramsKey]);
@@ -132,6 +133,9 @@ export default function BrazilMap() {
   const back = useCallback(() => { setUf(null); setStatus("idle"); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map()); setPub(new Map()); setSelected(null); }, []);
 
   const colorFor = useCallback((geocodigo: string) => {
+    // SEM ZONEAMENTO da cultura ativa neste estado -> neutro (cinza), distinto do
+    // dourado de "tem dado". É fato do país (ex.: trigo em GO), não falha nossa.
+    if (agg && agg[layer.aggN] === 0) return "rgba(150,152,162,0.06)";
     // ASSINANTE: gradiente pelo valor real (de detail).
     const row = detail.get(geocodigo);
     if (row && agg) {
@@ -169,7 +173,10 @@ export default function BrazilMap() {
       <div className="flex items-baseline justify-between px-4 pt-2 pb-1">
         <div>
           <h3 className="font-display text-sm uppercase tracking-[0.22em]" style={{ color: "#e5e5e5" }}>{info ? info.nome : "Brasil"}</h3>
-          <p className="text-[10px] tracking-widest uppercase" style={{ color: `${GOLD}aa` }}>{layer.subtitle(paramValues)}</p>
+          <p className="text-[10px] tracking-widest uppercase" style={{ color: `${GOLD}aa` }}>
+            {layer.subtitle(paramValues)}
+            {busy && <span className="ml-2 animate-pulse" style={{ color: GOLD }}>atualizando…</span>}
+          </p>
         </div>
         {uf && (
           <button onClick={back} className="text-[10px] uppercase tracking-widest transition-colors" style={{ color: `${GOLD}b0` }}>← estados</button>
@@ -177,7 +184,7 @@ export default function BrazilMap() {
       </div>
 
       {/* mapa */}
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={info ? `Municípios de ${info.nome}` : "Estados do Brasil"}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ opacity: busy ? 0.45 : 1, transition: "opacity 0.15s" }} role="img" aria-label={info ? `Municípios de ${info.nome}` : "Estados do Brasil"}>
         {uf === null ? (
           <Mercator data={brUf.features} fitSize={[[W, H], brUf as any]}>
             {(m) => (
@@ -220,8 +227,9 @@ export default function BrazilMap() {
                       key={i}
                       d={path || ""}
                       fill={colorFor(geo)}
-                      stroke={geo === selected ? GOLD : "rgba(229,229,229,0.16)"}
+                      stroke={geo === selected ? GOLD : n === 0 ? "rgba(229,229,229,0.28)" : "rgba(229,229,229,0.16)"}
                       strokeWidth={geo === selected ? 0.8 : 0.35}
+                      strokeDasharray={n === 0 ? "1.4 1.4" : undefined}
                       style={{ cursor: "pointer" }}
                       onClick={() => setSelected(geo)}
                       onMouseEnter={(e) => { const r = wrapRef.current?.getBoundingClientRect(); setHover({ name: nome, value: row ? (row[layer.valueKey] as number) : undefined, x: r ? e.clientX - r.left : 0, y: r ? e.clientY - r.top : 0 }); }}

@@ -61,7 +61,7 @@ export const LAYERS: LayerConfig[] = [
     valueLabel: "decêndios de baixo risco",
     subtitle: (p) => `${labelOf(CULTURAS, p.cultura)} · ${labelOf(MANEJOS, p.manejo).toLowerCase()}`,
     emptyMsg: (nome, p) =>
-      `A ${labelOf(CULTURAS, p.cultura).toLowerCase()} em ${labelOf(MANEJOS, p.manejo).toLowerCase()} não é zoneada em ${nome}. Outras culturas entram pelo seletor.`,
+      `Sem zoneamento de ${labelOf(CULTURAS, p.cultura).toLowerCase()} (${labelOf(MANEJOS, p.manejo).toLowerCase()}) em ${nome}. Outras culturas entram pelo seletor.`,
     reading:
       "Um decêndio é um período de dez dias. A cor mostra quantos decêndios do ano são recomendados para a semeadura com risco climático de até 20% — a janela de baixo risco do ZARC. Ex.: 9 decêndios ≈ 90 dias favoráveis à semeadura. É recomendação oficial (portaria ZARC/MAPA), não garantia de safra.",
     why:
