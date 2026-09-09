@@ -12,7 +12,9 @@ export type LayerParam = { key: string; label: string; options: LayerOption[] };
 export type LayerConfig = {
   key: string;
   label: string;                 // "Janela de plantio (ZARC)"
+  metric: string;                // "janela de plantio" (rótulo do ponto no clique)
   aggFn: string;                 // RPC pública (agregado por estado)
+  publicFn: string;              // RPC pública (nome + bucket por município, SEM o valor)
   detailFn: string;             // RPC do assinante (valor por município)
   params: LayerParam[];          // controles além da UF (cultura, manejo, …)
   toArgs: (uf: string, p: Record<string, string>) => Record<string, unknown>;
@@ -45,7 +47,9 @@ export const LAYERS: LayerConfig[] = [
   {
     key: "zarc",
     label: "Janela de plantio (ZARC)",
+    metric: "janela de plantio",
     aggFn: "municipios_por_estado",
+    publicFn: "municipios_publico",
     detailFn: "municipios_detalhe",
     params: [
       { key: "cultura", label: "Cultura", options: CULTURAS },

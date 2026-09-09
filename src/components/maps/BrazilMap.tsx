@@ -61,6 +61,8 @@ export default function BrazilMap() {
   const [munFc, setMunFc] = useState<FeatureCollection | null>(null);
   const [agg, setAgg] = useState<Record<string, any> | null>(null);
   const [detail, setDetail] = useState<Map<string, Record<string, any>>>(new Map());
+  const [pub, setPub] = useState<Map<string, { municipio: string; bucket: number | null }>>(new Map());
+  const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "nodata" | "ready">("idle");
   const [hover, setHover] = useState<{ name: string; value?: number; x: number; y: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ export default function BrazilMap() {
 
   // geometria: só depende da UF (params/camada não a mudam)
   const openUf = useCallback(async (code: string) => {
-    setUf(code); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map());
+    setUf(code); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map()); setPub(new Map()); setSelected(null);
     const info = UF[code];
     if (!info) { setStatus("nodata"); return; }
     const sig = info.sigla.toLowerCase();
@@ -94,6 +96,23 @@ export default function BrazilMap() {
     return () => { alive = false; };
   }, [uf, layer, paramsKey]);
 
+  // PÚBLICO (nome + bucket): para TODOS. O nome é do IBGE (público) e o bucket é
+  // derivado — 2 tons, NUNCA o número (a mediana que os define fica no servidor).
+  // Re-busca ao mudar UF, camada ou parâmetros.
+  useEffect(() => {
+    const sig = uf ? UF[uf]?.sigla : null;
+    setSelected(null);
+    if (!sig || !supabase) { setPub(new Map()); return; }
+    let alive = true;
+    supabase.rpc(layer.publicFn, layer.toArgs(sig, paramValues)).then(({ data }) => {
+      if (!alive) return;
+      const m = new Map<string, { municipio: string; bucket: number | null }>();
+      for (const row of (data ?? []) as Record<string, any>[]) m.set(row.geocodigo, { municipio: row.municipio, bucket: row.bucket });
+      setPub(m);
+    });
+    return () => { alive = false; };
+  }, [uf, layer, paramsKey]);
+
   // DETALHE (o VALOR): só o assinante busca; num effect para não depender do
   // timing do plano. Re-busca ao mudar UF, plano, camada ou parâmetros. A gate
   // real é o servidor (detailFn devolve vazio para quem não é assinante).
@@ -110,15 +129,22 @@ export default function BrazilMap() {
     return () => { alive = false; };
   }, [uf, isPaid, layer, paramsKey]);
 
-  const back = useCallback(() => { setUf(null); setStatus("idle"); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map()); }, []);
+  const back = useCallback(() => { setUf(null); setStatus("idle"); setHover(null); setMunFc(null); setAgg(null); setDetail(new Map()); setPub(new Map()); setSelected(null); }, []);
 
   const colorFor = useCallback((geocodigo: string) => {
+    // ASSINANTE: gradiente pelo valor real (de detail).
     const row = detail.get(geocodigo);
-    if (!row || !agg) return "rgba(198,167,92,0.07)";
-    const mn = agg[layer.aggMin], mx = agg[layer.aggMax], v = row[layer.valueKey];
-    const t = mx > mn ? (v - mn) / (mx - mn) : 1;
-    return `rgba(198,167,92,${(0.22 + t * 0.72).toFixed(2)})`;
-  }, [detail, agg, layer]);
+    if (row && agg) {
+      const mn = agg[layer.aggMin], mx = agg[layer.aggMax], v = row[layer.valueKey];
+      const t = mx > mn ? (v - mn) / (mx - mn) : 1;
+      return `rgba(198,167,92,${(0.22 + t * 0.72).toFixed(2)})`;
+    }
+    // FREE: 2 tons pelo bucket (sem o valor). null/ausente -> uniforme.
+    const bucket = pub.get(geocodigo)?.bucket;
+    if (bucket === 2) return "rgba(198,167,92,0.30)";
+    if (bucket === 1) return "rgba(198,167,92,0.13)";
+    return "rgba(198,167,92,0.07)";
+  }, [detail, agg, layer, pub]);
 
   const onMove = (e: React.MouseEvent) => {
     if (!hover) return;
@@ -188,14 +214,17 @@ export default function BrazilMap() {
                 {m.features.map(({ feature, path }, i) => {
                   const geo = String((feature as any).id);
                   const row = detail.get(geo);
+                  const nome = pub.get(geo)?.municipio ?? "";   // nome público (IBGE), para todos
                   return (
                     <path
                       key={i}
                       d={path || ""}
                       fill={colorFor(geo)}
-                      stroke="rgba(229,229,229,0.16)"
-                      strokeWidth={0.35}
-                      onMouseEnter={(e) => { const r = wrapRef.current?.getBoundingClientRect(); setHover({ name: row?.municipio ?? "", value: row ? (row[layer.valueKey] as number) : undefined, x: r ? e.clientX - r.left : 0, y: r ? e.clientY - r.top : 0 }); }}
+                      stroke={geo === selected ? GOLD : "rgba(229,229,229,0.16)"}
+                      strokeWidth={geo === selected ? 0.8 : 0.35}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setSelected(geo)}
+                      onMouseEnter={(e) => { const r = wrapRef.current?.getBoundingClientRect(); setHover({ name: nome, value: row ? (row[layer.valueKey] as number) : undefined, x: r ? e.clientX - r.left : 0, y: r ? e.clientY - r.top : 0 }); }}
                       onMouseLeave={() => setHover(null)}
                     />
                   );
@@ -237,6 +266,19 @@ export default function BrazilMap() {
               </p>
             )}
           </div>
+        )}
+
+        {/* ponto de decisão: o município clicado. Free vê o rótulo + máscara; o
+            valor real (de detail) só existe para o assinante. */}
+        {uf && selected && pub.get(selected) && (
+          <p className="text-[11px] leading-relaxed pt-1.5" style={{ color: "#e5e5e5" }}>
+            <span style={{ color: GOLD }}>{pub.get(selected)!.municipio}</span> — {layer.metric}:{" "}
+            {detail.get(selected) != null ? (
+              <span style={{ color: GOLD }}>{detail.get(selected)![layer.valueKey]} {layer.valueLabel}</span>
+            ) : (
+              <><span style={{ color: `${GOLD}cc`, letterSpacing: "0.2em" }}>••••</span><span style={{ color: "rgba(229,229,229,0.5)" }}> — disponível no Terminal</span></>
+            )}
+          </p>
         )}
 
         {uf && agg && n === 0 && (
