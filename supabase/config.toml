@@ -1,0 +1,8 @@
+project_id = "mgqlgydbetagfhsdnyxu"
+
+# Webhook do Asaas: entrypoint PÚBLICO no gateway (o Asaas não manda credencial
+# Supabase — assina com o próprio token). A autenticação real é feita DENTRO da
+# função (header asaas-access-token + re-consulta ao Asaas), padrão Stripe/GitHub.
+# Sem isto, o gateway exige apikey (publishable/secret) e barra o webhook real.
+[functions.asaas-webhook]
+verify_jwt = false
