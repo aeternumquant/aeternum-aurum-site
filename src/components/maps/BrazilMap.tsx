@@ -36,6 +36,8 @@ const brUf = topojson.feature(brUfTopo as unknown as Topology, (brUfTopo as any)
 const defaultsFor = (layer: LayerConfig): Record<string, string> =>
   Object.fromEntries(layer.params.map((p) => [p.key, p.options[0].value]));
 
+type Summary = { cultura: string; n_municipios: number; janela20_avg: number };
+
 function Select({ value, onChange, options, aria }: { value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; aria: string }) {
   return (
     <select
@@ -65,8 +67,10 @@ export default function BrazilMap() {
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState(false); // re-busca por troca de cultura/manejo (loading do item 1)
   const [status, setStatus] = useState<"idle" | "loading" | "nodata" | "ready">("idle");
-  const [hover, setHover] = useState<{ name: string; value?: number; x: number; y: number } | null>(null);
+  const [hover, setHover] = useState<{ name: string; value?: number; summary?: Summary[]; loadingSummary?: boolean; x: number; y: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const resumoCache = useRef<Map<string, Summary[]>>(new Map());
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onLayer = (k: string) => { setLayerKey(k); const l = LAYERS.find((x) => x.key === k); if (l) setParamValues(defaultsFor(l)); };
   const onParam = (key: string, value: string) => setParamValues((p) => ({ ...p, [key]: value }));
@@ -156,6 +160,34 @@ export default function BrazilMap() {
     if (r) setHover((h) => (h ? { ...h, x: e.clientX - r.left, y: e.clientY - r.top } : h));
   };
 
+  const culturaLabel = useMemo(() => {
+    const opts = layer.params.find((p) => p.key === "cultura")?.options ?? [];
+    return (v: string) => opts.find((o) => o.value === v)?.label ?? v;
+  }, [layer]);
+
+  // hover no ESTADO (mapa do Brasil) -> resumo das culturas presentes. debounce
+  // 200ms (não dispara ao atravessar) + cache por UF/manejo (2º hover instantâneo)
+  // + "carregando…" (o nome aparece na hora; as culturas preenchem depois).
+  const onStateHover = useCallback((e: React.MouseEvent, code: string) => {
+    const st = UF[code]; if (!st) return;
+    const r = wrapRef.current?.getBoundingClientRect();
+    const x = r ? e.clientX - r.left : 0, y = r ? e.clientY - r.top : 0;
+    const key = `${st.sigla}|${paramValues.manejo}`;
+    const cached = resumoCache.current.get(key);
+    setHover({ name: st.nome, x, y, summary: cached });
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    if (!cached && supabase) {
+      hoverTimer.current = setTimeout(async () => {
+        setHover((h) => (h && h.name === st.nome ? { ...h, loadingSummary: true } : h));
+        const { data } = await supabase!.rpc(layer.summaryFn, layer.summaryArgs(st.sigla, paramValues));
+        const arr = (data ?? []) as Summary[];
+        resumoCache.current.set(key, arr);
+        setHover((h) => (h && h.name === st.nome ? { ...h, summary: arr, loadingSummary: false } : h));
+      }, 200);
+    }
+  }, [layer, paramValues]);
+  const onStateLeave = useCallback(() => { if (hoverTimer.current) clearTimeout(hoverTimer.current); setHover(null); }, []);
+
   const info = uf ? UF[uf] : null;
   const n = agg ? (agg[layer.aggN] as number) : null;
 
@@ -168,6 +200,10 @@ export default function BrazilMap() {
           <Select key={p.key} aria={p.label} value={paramValues[p.key]} onChange={(v) => onParam(p.key, v)} options={p.options} />
         ))}
       </div>
+
+      {layer.manejoHint(paramValues) && (
+        <p className="px-4 pt-1.5 text-[10px] leading-snug" style={{ color: `${GOLD}bb` }}>{layer.manejoHint(paramValues)}</p>
+      )}
 
       {/* subtítulo (muda com o seletor) + voltar */}
       <div className="flex items-baseline justify-between px-4 pt-2 pb-1">
@@ -202,8 +238,8 @@ export default function BrazilMap() {
                       strokeWidth={0.5}
                       style={{ cursor: "pointer" }}
                       onClick={() => openUf(code)}
-                      onMouseEnter={(e) => { const r = wrapRef.current?.getBoundingClientRect(); setHover({ name: UF[code]?.nome ?? code, x: r ? e.clientX - r.left : 0, y: r ? e.clientY - r.top : 0 }); }}
-                      onMouseLeave={() => setHover(null)}
+                      onMouseEnter={(e) => onStateHover(e, code)}
+                      onMouseLeave={onStateLeave}
                     />
                   );
                 })}
@@ -245,9 +281,15 @@ export default function BrazilMap() {
 
       {/* tooltip — visual do ChartHover (caixa #08090c, monospace, hairline) */}
       {hover && (hover.name || hover.value != null) && (
-        <div className="pointer-events-none absolute z-10 px-2 py-1" style={{ left: hover.x + 10, top: hover.y + 10, background: "rgba(8,9,12,0.96)", border: "0.5px solid rgba(255,255,255,0.14)", borderRadius: 2, fontFamily: "monospace" }}>
+        <div className="pointer-events-none absolute z-10 px-2 py-1" style={{ left: hover.x + 10, top: hover.y + 10, maxWidth: 210, background: "rgba(8,9,12,0.96)", border: "0.5px solid rgba(255,255,255,0.14)", borderRadius: 2, fontFamily: "monospace" }}>
           <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.85)" }}>{hover.name}</div>
           {hover.value != null && <div className="text-[11px]" style={{ color: GOLD }}>{hover.value} {layer.valueLabel}</div>}
+          {hover.loadingSummary && <div className="text-[9px]" style={{ color: "rgba(229,229,229,0.5)" }}>carregando…</div>}
+          {hover.summary && (hover.summary.length ? (
+            <div className="text-[9px] leading-snug mt-0.5" style={{ color: "rgba(229,229,229,0.72)" }}>{hover.summary.map((s) => `${culturaLabel(s.cultura)} ${s.janela20_avg}`).join(" · ")}</div>
+          ) : (
+            <div className="text-[9px]" style={{ color: "rgba(229,229,229,0.5)" }}>sem zoneamento das culturas do seletor</div>
+          ))}
         </div>
       )}
 
@@ -301,6 +343,7 @@ export default function BrazilMap() {
       {/* LEITURA DO DADO + POR QUE IMPORTA (mudam com a camada) */}
       <div className="px-4 pb-4 pt-2 space-y-2" style={{ borderTop: "0.5px solid rgba(255,255,255,0.06)" }}>
         <p className="text-[10px] leading-relaxed" style={{ color: "rgba(229,229,229,0.5)" }}>{layer.reading}</p>
+        <p className="text-[10px] leading-relaxed" style={{ color: "rgba(229,229,229,0.5)" }}>{layer.manejoNote}</p>
         <p className="text-[10px] leading-relaxed" style={{ color: "rgba(229,229,229,0.5)" }}>{layer.why}</p>
       </div>
     </div>

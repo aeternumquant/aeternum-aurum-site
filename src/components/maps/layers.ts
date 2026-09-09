@@ -16,8 +16,12 @@ export type LayerConfig = {
   aggFn: string;                 // RPC pública (agregado por estado)
   publicFn: string;              // RPC pública (nome + bucket por município, SEM o valor)
   detailFn: string;             // RPC do assinante (valor por município)
+  summaryFn: string;             // RPC pública (resumo do estado no hover: culturas presentes)
   params: LayerParam[];          // controles além da UF (cultura, manejo, …)
   toArgs: (uf: string, p: Record<string, string>) => Record<string, unknown>;
+  summaryArgs: (uf: string, p: Record<string, string>) => Record<string, unknown>;
+  manejoNote: string;            // #4: o que sequeiro vs irrigado significa (ex. concreto)
+  manejoHint: (p: Record<string, string>) => string | null; // aviso de cultura majoritariamente irrigada
   valueKey: string;              // campo do valor na linha de detalhe
   aggN: string; aggMin: string; aggMax: string; aggAvg: string; // campos do agregado
   valueLabel: string;            // "decêndios de baixo risco"
@@ -51,11 +55,19 @@ export const LAYERS: LayerConfig[] = [
     aggFn: "municipios_por_estado",
     publicFn: "municipios_publico",
     detailFn: "municipios_detalhe",
+    summaryFn: "resumo_uf",
     params: [
       { key: "cultura", label: "Cultura", options: CULTURAS },
       { key: "manejo", label: "Manejo", options: MANEJOS },
     ],
     toArgs: (uf, p) => ({ p_uf: uf, p_cultura: p.cultura, p_manejo: Number(p.manejo) }),
+    summaryArgs: (uf, p) => ({ p_uf: uf, p_manejo: Number(p.manejo) }),
+    manejoNote:
+      "Sequeiro depende só da chuva; irrigado amplia a janela. No café arábica do ES, as mesmas regiões têm janela bem maior no irrigado — é o que a irrigação compra em risco climático.",
+    manejoHint: (p) =>
+      ["Arroz", "Café Arábica"].includes(p.cultura) && p.manejo === "1"
+        ? `A maioria do ${labelOf(CULTURAS, p.cultura).toLowerCase()} zoneado é irrigada — em sequeiro você vê a minoria dos casos.`
+        : null,
     valueKey: "janela20",
     aggN: "n_municipios", aggMin: "janela20_min", aggMax: "janela20_max", aggAvg: "janela20_avg",
     valueLabel: "decêndios de baixo risco",
