@@ -18,13 +18,13 @@ export default function TerminalBRPage() {
       />
       <section className="py-16 sm:py-20 px-4 sm:px-6 max-w-3xl mx-auto">
         <FadeIn>
-          <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal BR</p>
+          <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal Brasil</p>
           <h1 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">
-            Janela de plantio por município
+            O campo por município
           </h1>
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-xl mb-8">
-            Zoneamento de risco climático (ZARC, Embrapa/MAPA) para a soja em sequeiro. É risco climático —
-            recomendação oficial de janela de plantio, não garantia de safra.
+            O Brasil agrícola por município. Comece pela janela de plantio (ZARC); a camada e a cultura mudam
+            no seletor. O agregado por estado é aberto; o valor de cada município é do Terminal.
           </p>
           <BrazilMap />
         </FadeIn>
