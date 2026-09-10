@@ -88,5 +88,14 @@ Deno.serve(async (req) => {
   // (https://.../checkoutSession/show/<id>); mantenho o fallback construído.
   const id = data?.id;
   const url = data?.link ?? (id ? `${ASAAS_BASE.replace("/api/v3", "")}/checkoutSession/show/${id}` : null);
+
+  // GRAVA O VÍNCULO: checkout_id -> user_id. É como o webhook vai achar quem pagou
+  // (o payment traz checkoutSession = este id). Determinístico, sem depender de
+  // propagação do Asaas. Best-effort: se falhar, não derruba o checkout.
+  if (id) {
+    const { error: mapErr } = await db.from("asaas_checkouts").insert({ checkout_id: id, user_id: user.id });
+    if (mapErr) console.error("falha ao gravar asaas_checkouts:", mapErr.message);
+  }
+
   return json({ id, url });
 });

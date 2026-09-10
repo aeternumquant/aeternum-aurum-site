@@ -72,30 +72,6 @@ Deno.serve(async (req) => {
   // final é que corta). Assim um cliente pagante não perde acesso por evento ambíguo.
   if (NOTE.includes(event)) { await log("noted", `${event}: registrado, acesso mantido`); return ok(); }
 
-  // ── CHECKOUT_PAID: no checkout hospedado o externalReference (= nosso usuário)
-  // NÃO desce pro pagamento nem pra assinatura — fica só no checkout (comprovado
-  // no sandbox). Este é o único evento que o carrega. Re-consultamos o checkout
-  // (Camada 2) e ativamos. O objeto cru fica em payload p/ mapear customer/sub. ──
-  if (event === "CHECKOUT_PAID") {
-    const chkId: string | undefined = body?.checkout?.id;
-    let chk: any = body?.checkout ?? {};
-    if (chkId) {
-      try {
-        const r = await fetch(`${ASAAS_BASE}/checkouts/${chkId}`, { headers: { access_token: ASAAS_API_KEY } });
-        if (r.ok) chk = await r.json();
-      } catch { /* re-consulta falhou: usa o payload do evento */ }
-    }
-    const extRef: string | undefined = chk?.externalReference ?? body?.checkout?.externalReference;
-    if (!extRef || !UUID.test(extRef)) { await log("orphan", `CHECKOUT_PAID externalReference inválido: ${JSON.stringify(extRef)}`); return ok(); }
-    const { data: uRes, error: uErr } = await db.auth.admin.getUserById(extRef);
-    if (uErr || !uRes?.user) { await log("orphan", `CHECKOUT_PAID user inexistente para ${extRef}`); return ok(); }
-    const custRef = (typeof chk?.customer === "string" ? chk.customer : chk?.customer?.id) ?? null;
-    const subRef = (typeof chk?.subscription === "string" ? chk.subscription : chk?.subscription?.id) ?? null;
-    await upsertActive(uRes.user.id, subRef, custRef);
-    await log("processed", `checkout pago -> ativado (chk=${chkId} sub=${subRef ?? "-"} cust=${custRef ?? "-"} status=${chk?.status ?? "?"})`);
-    return ok("ativado via checkout");
-  }
-
   // só ativação/desativação (total) nos importa agir
   if (!ACTIVATE.includes(event) && !REVOKE.includes(event)) { await log("ignored", "fora do escopo"); return ok(); }
   if (!payment?.id) { await log("orphan", "sem payment.id"); return ok(); }
@@ -108,50 +84,45 @@ Deno.serve(async (req) => {
     real = await r.json();
   } catch (e) { await log("error", `re-consulta falhou: ${String(e).slice(0, 120)}`); return ok(); }
 
-  // externalReference liga o pagamento ao usuário Supabase. No pagamento DIRETO
-  // ele vem em payment.externalReference. No checkout RECORRENTE a doc do Asaas
-  // NÃO garante que ele desça pro pagamento — pode estar só na assinatura. Então:
-  //  1) tenta o do pagamento;  2) fallback: consulta a assinatura e usa o dela.
-  // refSource registra QUAL caminho resolveu (visível no log p/ auditar).
-  let extRef: string | undefined = real?.externalReference ?? payment?.externalReference;
+  // Resolver QUEM pagou — DETERMINÍSTICO, pelos NOSSOS dados (nenhum GET no Asaas
+  // p/ o vínculo: o vínculo nós criamos, nós resolvemos). Ordem:
+  //  1) externalReference do pagamento          -> pagamento DIRETO (ex. RECEIVED_IN_CASH)
+  //  2) checkoutSession -> asaas_checkouts       -> compra via CHECKOUT (mapa que o
+  //     criar-checkout gravou no ato: checkout_id -> user_id)
+  //  3) subscription/customer -> subscriptions   -> RENOVAÇÃO/estorno (não trazem ref)
+  // refSource audita qual via resolveu (visível no log).
+  const extRef: string | undefined = real?.externalReference ?? payment?.externalReference;
   let refSource = "payment";
   const subId: string | undefined = real?.subscription ?? payment?.subscription;
-  if ((!extRef || !UUID.test(extRef)) && subId) {
-    try {
-      const rs = await fetch(`${ASAAS_BASE}/subscriptions/${subId}`, { headers: { access_token: ASAAS_API_KEY } });
-      if (rs.ok) {
-        const sub = await rs.json();
-        if (sub?.externalReference) { extRef = sub.externalReference; refSource = "subscription-fallback"; }
-      }
-    } catch { /* segue; se ainda inválido, cai no órfão abaixo */ }
-  }
+  const custId: string | undefined = real?.customer ?? payment?.customer;
+  const checkoutId: string | undefined = real?.checkoutSession ?? payment?.checkoutSession;
 
-  // 3) MAPA (renovação/estorno do checkout): o externalReference não desce no
-  // fluxo de checkout, mas o CHECKOUT_PAID gravou provider_subscription_id/customer.
-  // Então resolvemos o usuário por payment.subscription ou payment.customer -> a
-  // nossa tabela subscriptions. Só casa com assinaturas NOSSAS já gravadas.
-  let userId: string | null = null;
-  if (!extRef || !UUID.test(extRef)) {
-    const custId: string | undefined = real?.customer ?? payment?.customer;
-    const orClauses = [subId ? `provider_subscription_id.eq.${subId}` : null, custId ? `provider_customer_id.eq.${custId}` : null].filter(Boolean).join(",");
-    if (orClauses) {
-      const { data: map } = await db.from("subscriptions").select("user_id").or(orClauses).limit(1).maybeSingle();
-      if (map?.user_id) { userId = map.user_id; refSource = subId ? "map-subscription" : "map-customer"; }
-    }
-  }
-
-  // resolve por externalReference se o mapa não pegou
-  if (!userId) {
-    if (!extRef || !UUID.test(extRef)) { await log("orphan", `externalReference inválido: ${JSON.stringify(extRef)} (sub=${subId ?? "-"})`); return ok(); }
+  let userId: string;
+  if (extRef && UUID.test(extRef)) {
     const { data: userRes, error: userErr } = await db.auth.admin.getUserById(extRef);
     if (userErr || !userRes?.user) { await log("orphan", `user inexistente para ${extRef}`); return ok(); }
     userId = userRes.user.id;
+  } else {
+    let mapped: string | null = null;
+    if (checkoutId) {
+      const { data: cm } = await db.from("asaas_checkouts").select("user_id").eq("checkout_id", checkoutId).maybeSingle();
+      if (cm?.user_id) { mapped = cm.user_id; refSource = "checkout-map"; }
+    }
+    if (!mapped) {
+      const orClauses = [subId ? `provider_subscription_id.eq.${subId}` : null, custId ? `provider_customer_id.eq.${custId}` : null].filter(Boolean).join(",");
+      if (orClauses) {
+        const { data: sm } = await db.from("subscriptions").select("user_id").or(orClauses).limit(1).maybeSingle();
+        if (sm?.user_id) { mapped = sm.user_id; refSource = subId ? "map-subscription" : "map-customer"; }
+      }
+    }
+    if (!mapped) { await log("orphan", `sem ref/checkout-map/sub-map (chk=${checkoutId ?? "-"} sub=${subId ?? "-"} cust=${custId ?? "-"})`); return ok(); }
+    userId = mapped;
   }
 
   // ── AÇÃO ──
   if (ACTIVATE.includes(event)) {
     if (!["CONFIRMED", "RECEIVED", "RECEIVED_IN_CASH"].includes(real.status)) { await log("ignored", `status real ${real.status} não ativa`); return ok(); }
-    await upsertActive(userId, real.subscription ?? null, real.customer ?? null);
+    await upsertActive(userId, subId ?? null, custId ?? null); // grava ids -> alimenta o mapa de renovação
     await log("processed", `ativado (${real.status}) [ref via ${refSource}]`);
     return ok("ativado");
   }
