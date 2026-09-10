@@ -1,32 +1,30 @@
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
-import BrazilMap from "../../components/maps/BrazilMap";
+import TerminalGrid from "../../components/terminal/TerminalGrid";
 
 /**
- * Terminal BR — mapa por estado da janela de plantio (ZARC). Publico: o
- * visitante ve os estados e o agregado de Goias; o valor por municipio e do
- * assinante (a gate esta no servidor). v1: Goias completo; demais UFs por vir.
+ * Terminal BR — agora é o PAINEL em grade. Cada dado é um módulo (command); a URL
+ * é o estado (?commands=mapa,stocks&escopo=soja). O mapa do Brasil virou UM módulo,
+ * não a página inteira. Grade fixa nesta versão; tema escuro, tokens da casa.
  */
 export default function TerminalBRPage() {
   return (
     <main className="pt-14 min-h-screen bg-background">
       <RouteSeo
-        title="Terminal BR — Janela de plantio"
-        description="Mapa por estado da janela de plantio de baixo risco (ZARC). O detalhe por município é do Terminal."
+        title="Terminal BR — Painel"
+        description="O Brasil agrícola em módulos: janela de plantio (ZARC) por município, stocks-to-use e mais. Cada card traz o dado, a leitura e a fonte."
         path="/terminal-br"
       />
-      <section className="py-16 sm:py-20 px-4 sm:px-6 max-w-3xl mx-auto">
+      <section className="py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
         <FadeIn>
           <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal Brasil</p>
-          <h1 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">
-            O campo por município
-          </h1>
-          <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-xl mb-8">
-            O Brasil agrícola por município. Comece pela janela de plantio (ZARC); a camada e a cultura mudam
-            no seletor. O agregado por estado é aberto; o valor de cada município é do Terminal.
+          <h1 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">Painel</h1>
+          <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-2xl mb-8">
+            O Brasil agrícola em módulos. Cada card traz o dado, a leitura e a <span className="text-primary/80">fonte</span> —
+            o agregado é aberto; o detalhe é do Terminal.
           </p>
-          <BrazilMap />
+          <TerminalGrid />
         </FadeIn>
       </section>
       <Footer />
