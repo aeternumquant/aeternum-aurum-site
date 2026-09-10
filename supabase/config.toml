@@ -6,3 +6,10 @@ project_id = "mgqlgydbetagfhsdnyxu"
 # Sem isto, o gateway exige apikey (publishable/secret) e barra o webhook real.
 [functions.asaas-webhook]
 verify_jwt = false
+
+# criar-checkout: também público no gateway (o Asaas nem entra aqui — quem chama é
+# o navegador do usuário). A auth é feita DENTRO da função: valida o JWT do usuário
+# e deriva o externalReference do id verificado. O gateway de functions rejeita a
+# anon do modelo novo de chaves, então autenticar dentro é o caminho.
+[functions.criar-checkout]
+verify_jwt = false

@@ -22,6 +22,7 @@ const TecnologiaPage = lazy(() => import("./pages/dashboard/Tecnologia"));
 const ArticleReader = lazy(() => import("./pages/ArticleReader"));
 const PagamentosGlobaisPage = lazy(() => import("./pages/dashboard/PagamentosGlobais"));
 const TerminalBRPage = lazy(() => import("./pages/dashboard/TerminalBR"));
+const AssinarPage = lazy(() => import("./pages/Assinar"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 import RequireAuth from "./routes/RequireAuth";
@@ -76,6 +77,7 @@ function AnimatedRoutes() {
           <Route path="/execucao" element={<Navigate to="/tecnologia" replace />} />
           <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
           <Route path="/terminal-br" element={<PageWrapper><TerminalBRPage /></PageWrapper>} />
+          <Route path="/assinar" element={<PageWrapper><AssinarPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Authentication */}
           <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
