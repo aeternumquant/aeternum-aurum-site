@@ -4,7 +4,7 @@ import { COMMANDS, DEFAULT_LAYOUT, isCommand, commandWidth, type CommandMeta } f
 import StocksToUse from "./modules/StocksToUse";
 import MapaBrasil from "./modules/MapaBrasil";
 import MapaMundial from "./modules/MapaMundial";
-import WorldStageMock from "./modules/WorldStageMock";
+import WorldStage from "./modules/WorldStage";
 import MetricsTable from "./table/MetricsTable";
 
 /**
@@ -17,7 +17,7 @@ import MetricsTable from "./table/MetricsTable";
  * ponteiro órfão). Expandir foca um comando em largura cheia.
  */
 type ModuleProps = { escopo?: string; expanded?: boolean; onRemove?: () => void; onExpand?: () => void };
-const MODULE_RENDER: Record<string, ComponentType<ModuleProps>> = { mapa: MapaBrasil, stocks: StocksToUse, cflow: MapaMundial, palco: WorldStageMock };
+const MODULE_RENDER: Record<string, ComponentType<ModuleProps>> = { mapa: MapaBrasil, stocks: StocksToUse, cflow: MapaMundial, palco: WorldStage };
 
 export default function TerminalGrid() {
   const [params, setParams] = useSearchParams();

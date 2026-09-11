@@ -45,7 +45,7 @@ const GOLD = "#C6A85A";
 const FUTURES_CURVE_CODES = new Set(["SOJA_FUT", "MILHO_FUT", "BOI_FUT", "CAFE_FUT", "ETANOL_FUT"]);
 
 // series_code da curva B3 do ativo selecionado, ou undefined (so os 5 futuros).
-function footerCurveCode(asset: string): string | undefined {
+export function footerCurveCode(asset: string): string | undefined {
   const code = ASSET_SERIES[asset]?.code;
   return code && FUTURES_CURVE_CODES.has(code) ? code : undefined;
 }
@@ -501,7 +501,7 @@ function CurveSparkline({ curve }: { curve: FuturesCurve }) {
  * A curva de futuros (so os 5 B3) entra como sparkline fino no CANTO DIREITO,
  * sem tocar no ranking (que segue horizontal na esquerda/centro).
  */
-function ProductionRankingFooter({ code, curveCode }: { code: string; curveCode?: string }) {
+export function ProductionRankingFooter({ code, curveCode }: { code: string; curveCode?: string }) {
   const { data } = usePsdRanking(code);
   const { data: curve } = useFuturesCurve(curveCode);
   if (!data) return null;
@@ -561,7 +561,7 @@ function ProductionRankingFooter({ code, curveCode }: { code: string; curveCode?
  * nao tem PSD nem USGS). A curva nao some; ocupa a faixa sozinha. Os outros 4
  * futuros B3 (soja/milho/boi/cafe) mostram a curva ao lado do ranking PSD.
  */
-function CurveOnlyFooter({ curveCode }: { curveCode: string }) {
+export function CurveOnlyFooter({ curveCode }: { curveCode: string }) {
   const { data: curve } = useFuturesCurve(curveCode);
   if (!curve) return null;
   return (
@@ -576,7 +576,7 @@ function CurveOnlyFooter({ curveCode }: { curveCode: string }) {
  * Mesmo padrao do agricola (Brasil destacado); o niobio mostra o Brasil ~93%,
  * o espelho da soja. Fonte USGS (nao PSD); unidade por mineral.
  */
-function UsgsRankingFooter({ commodity }: { commodity: string }) {
+export function UsgsRankingFooter({ commodity }: { commodity: string }) {
   const { data } = useUsgsRanking(commodity);
   if (!data) return null;
   const cell = (r: { iso: string; name: string; value: number | null; rank: number; isBrazil: boolean }) => (
@@ -621,7 +621,7 @@ function UsgsRankingFooter({ commodity }: { commodity: string }) {
  * (média mensal vs. atualizado), atribuição, variação com rótulo, secundário.
  * Vive aqui para reusar brlRefLine/freshnessLine sem duplicar as travas.
  */
-function PriceSummary({
+export function PriceSummary({
   point,
   secondary,
   ptax,

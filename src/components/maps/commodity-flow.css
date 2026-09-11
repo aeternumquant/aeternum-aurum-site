@@ -1,0 +1,14 @@
+/* Modo "stage" do CommodityFlowMap (palco do terminal): o card rico vira painel
+   de VIDRO FLUTUANTE. Valores do dossiê visual (DIA 7).
+   Fallback OBRIGATÓRIO onde não há backdrop-filter → fundo sólido a 94%. */
+.cflow-glass {
+  background: rgba(8, 9, 12, 0.78);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  border: 1px solid rgba(198, 167, 92, 0.25);
+  border-radius: 6px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.72);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cflow-glass { background: rgba(8, 9, 12, 0.94); }
+}

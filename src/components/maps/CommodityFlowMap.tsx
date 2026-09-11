@@ -30,8 +30,12 @@ import { TrendingUp, TrendingDown, MapPin, ArrowRight } from "lucide-react";
 import { usePsdBalance, fmtPsd, type PsdBalance } from "../../hooks/usePsdBalance";
 import { usePamProduction, usePamAbate, useLeitePreco, useRebanho, fmtTon, fmtCwe, type PamProduction, type Abate } from "../../hooks/useIbge";
 import { LeiteMapBlock } from "../PecuariaBlocks";
+import "./commodity-flow.css";
 
 const geoUrl = "/data/countries-110m.json";
+// modo "stage": largura do card de vidro (== reserva do mapa à direita) e respiro.
+const STAGE_CARD_W = 220; // px — a reserva aprovada; o card rola vertical (conteúdo rico)
+const STAGE_GAP = 12;     // px — respiro do vidro à borda do palco
 const GOLD = "#C6A85A";
 const GREEN = "#34d399";
 const GREEN_GLOW = "rgba(52,211,153,0.9)";
@@ -481,6 +485,7 @@ export default function CommodityFlowMap({
   flows,
   priceBlockFor,
   assetKey,
+  chrome = "panel",
 }: {
   label: string;
   cfg: FlowCardCfg;
@@ -490,6 +495,10 @@ export default function CommodityFlowMap({
   /** chave do ativo (== assets.ts key) — habilita "ver no terminal". Guarda
    *  graciosa: sem entrada no terminal (ex.: TerrasRaras), o botao NAO aparece. */
   assetKey?: string;
+  /** "panel" (default): layout coluna map+card — usado pelo Framework, INTOCADO.
+   *  "stage": mapa full-bleed (reservando STAGE_CARD_W à direita p/ a geografia
+   *  não ficar sob o vidro) + o MESMO card como painel de vidro flutuante. */
+  chrome?: "panel" | "stage";
 }) {
   const [subKey, setSubKey] = useState(cfg.subs[0]?.key ?? "");
   const [hovered, setHovered] = useState<string | null>(null);
@@ -558,14 +567,28 @@ export default function CommodityFlowMap({
     return () => ro.disconnect();
   }, []);
   const labelFont = 11 / (mapScale || 1); // unidades de viewBox -> 11px renderizados
+  const stage = chrome === "stage"; // palco do terminal: mapa full-bleed + card de vidro
 
   return (
     <div
-      className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
+      className={
+        stage
+          ? "relative w-full h-full overflow-hidden"
+          : "relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
+      }
       style={{ backgroundColor: "#050503" }}
     >
-      {/* ── Mapa: mundial fixo ── */}
-      <div ref={mapBoxRef} className="relative w-full h-[44vh] flex-shrink-0 sm:h-full sm:flex-1 overflow-hidden">
+      {/* ── Mapa: mundial fixo. No palco reserva STAGE_CARD_W à direita p/ a
+          geografia (China/Japão/Austrália, os compradores) não ficar sob o vidro. ── */}
+      <div
+        ref={mapBoxRef}
+        className={
+          stage
+            ? "absolute inset-y-0 left-0 overflow-hidden"
+            : "relative w-full h-[44vh] flex-shrink-0 sm:h-full sm:flex-1 overflow-hidden"
+        }
+        style={stage ? { right: STAGE_CARD_W + STAGE_GAP * 2 } : undefined}
+      >
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{ scale: 132, center: [25, 8] }}
@@ -648,10 +671,18 @@ export default function CommodityFlowMap({
         ) : null}
       </div>
 
-      {/* ── Card ── */}
+      {/* ── Card ── (no palco: painel de VIDRO flutuante à direita, rolável) */}
       <div
-        className="relative w-full sm:w-72 sm:flex-shrink-0 sm:overflow-y-auto"
-        style={{ backgroundColor: "rgba(6,5,3,0.96)", borderLeft: `1px solid ${GOLD}22` }}
+        className={
+          stage
+            ? "cflow-glass absolute z-10 overflow-y-auto"
+            : "relative w-full sm:w-72 sm:flex-shrink-0 sm:overflow-y-auto"
+        }
+        style={
+          stage
+            ? { top: STAGE_GAP, right: STAGE_GAP, bottom: STAGE_GAP, width: STAGE_CARD_W }
+            : { backgroundColor: "rgba(6,5,3,0.96)", borderLeft: `1px solid ${GOLD}22` }
+        }
       >
         <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5" style={{ color: `${GOLD}90` }}>
