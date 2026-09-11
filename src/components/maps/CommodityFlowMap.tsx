@@ -76,6 +76,7 @@ function FlowLayer({
   reduced,
   revealed,
   uid,
+  labelFont,
 }: {
   cfg: FlowCardCfg;
   exp: TradeSide | undefined;
@@ -85,6 +86,7 @@ function FlowLayer({
   reduced: boolean;
   revealed: boolean;
   uid: string;
+  labelFont: number;
 }) {
   const { geographies } = useGeographies({ geography: geoUrl });
 
@@ -271,7 +273,7 @@ function FlowLayer({
                 textAnchor={anchor}
                 style={{
                   fontFamily: "monospace",
-                  fontSize: "6.5px",
+                  fontSize: `${labelFont}px`,
                   fontWeight: 500,
                   fill: isHov ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)",
                   letterSpacing: "0.3px",
@@ -298,7 +300,7 @@ function FlowLayer({
           x={0}
           y={11}
           textAnchor="middle"
-          style={{ fontFamily: "monospace", fontSize: "7px", fontWeight: 600, fill: GOLD, pointerEvents: "none" }}
+          style={{ fontFamily: "monospace", fontSize: `${labelFont * 1.1}px`, fontWeight: 600, fill: GOLD, pointerEvents: "none" }}
         >
           Brasil
         </text>
@@ -542,13 +544,28 @@ export default function CommodityFlowMap({
   const { data: leite } = useLeitePreco();
   const { data: rebanho } = useRebanho();
 
+  // FASE 1.3 (Caminho B): compensa a escala do viewBox (900×470) p/ os rótulos
+  // renderizarem a 11px em qualquer largura — o font-size em unidades de viewBox
+  // escala com o render (a 150px de mapa virava 1,1px, ilegível).
+  const mapBoxRef = useRef<HTMLDivElement>(null);
+  const [mapScale, setMapScale] = useState(1);
+  useEffect(() => {
+    const el = mapBoxRef.current; if (!el) return;
+    const measure = () => { const w = el.clientWidth, h = el.clientHeight; if (w > 0 && h > 0) setMapScale(Math.min(w / 900, h / 470)); };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const labelFont = 11 / (mapScale || 1); // unidades de viewBox -> 11px renderizados
+
   return (
     <div
       className="relative w-full h-full flex flex-col sm:flex-row overflow-y-auto sm:overflow-hidden"
       style={{ backgroundColor: "#050503" }}
     >
       {/* ── Mapa: mundial fixo ── */}
-      <div className="relative w-full h-[44vh] flex-shrink-0 sm:h-full sm:flex-1 overflow-hidden">
+      <div ref={mapBoxRef} className="relative w-full h-[44vh] flex-shrink-0 sm:h-full sm:flex-1 overflow-hidden">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{ scale: 132, center: [25, 8] }}
@@ -586,6 +603,7 @@ export default function CommodityFlowMap({
           </defs>
           <FlowLayer
             cfg={cfg}
+            labelFont={labelFont}
             exp={exp}
             imp={imp}
             hovered={hovered}
