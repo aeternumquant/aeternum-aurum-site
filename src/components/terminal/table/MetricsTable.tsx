@@ -32,6 +32,18 @@ export default function MetricsTable({ config }: { config: TableConfig }) {
   const [err, setErr] = useState<string | null>(null);
   const [pop, setPop] = useState<{ row: RowData; col: Col; datum: Datum } | null>(null);
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+  const tableMinW = useMemo(() => COLS.reduce((s, c) => s + c.width, 0), [COLS]);
+  // overflow REAL (p/ máscara de gradiente só quando há corte) — checa no mount, no resize e ao carregar dados
+  useEffect(() => {
+    const el = scrollRef.current; if (!el) return;
+    const check = () => setOverflowing(el.scrollWidth > el.clientWidth + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [rows]);
 
   const load = useCallback(async () => {
     if (!supabase) { setErr("Supabase indisponível."); return; }
@@ -88,9 +100,8 @@ export default function MetricsTable({ config }: { config: TableConfig }) {
   if (err) return <div className="mtable"><div className="gridwrap" style={{ padding: 20, color: "#a0a0a0", fontSize: 12 }}>Não foi possível carregar: {err}</div></div>;
 
   return (
-    <div className="mtable">
-      <div className="gridwrap">
-        <table className="mgrid">
+    <div className="mtable" ref={scrollRef} data-overflow={overflowing ? "true" : undefined}>
+      <table className="mgrid" style={{ minWidth: tableMinW }}>
           <colgroup>{COLS.map((c) => <col key={c.key} style={{ width: c.width }} />)}</colgroup>
           <thead>
             <tr>
@@ -122,8 +133,7 @@ export default function MetricsTable({ config }: { config: TableConfig }) {
             ))}
             {!rows && <tr>{COLS.map((c, i) => i === 0 ? <td key={c.key} className="tk">…</td> : <td key={c.key} />)}</tr>}
           </tbody>
-        </table>
-      </div>
+      </table>
       {pop && rect && <Popover row={pop.row} col={pop.col} datum={pop.datum} rect={rect} onClose={() => setPop(null)} />}
     </div>
   );

@@ -17,7 +17,6 @@ import MetricsTable from "./table/MetricsTable";
  */
 type ModuleProps = { escopo?: string; expanded?: boolean; onRemove?: () => void; onExpand?: () => void };
 const MODULE_RENDER: Record<string, ComponentType<ModuleProps>> = { mapa: MapaBrasil, stocks: StocksToUse, cflow: MapaMundial };
-const MIN_W = 380; // piso por item; abaixo disso a linha quebra e empilha
 
 export default function TerminalGrid() {
   const [params, setParams] = useSearchParams();
@@ -55,7 +54,7 @@ export default function TerminalGrid() {
       {rows.map((row, ri) => (
         <div key={ri} className="flex flex-wrap gap-4 items-start">
           {row.map((id) => (
-            <div key={id} style={{ flexGrow: commandWidth(COMMANDS[id]), flexBasis: 0, minWidth: MIN_W }}>
+            <div key={id} style={{ flexGrow: commandWidth(COMMANDS[id]), flexBasis: 0, minWidth: 0 }}>
               {renderCmd(id, false)}
             </div>
           ))}

@@ -12,9 +12,17 @@
   --stale: 198, 167, 92;
   --tx: #e5e5e5; --tx2: #a0a0a0; --tx3: #6a6a6a;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* .mtable É o scroller (o script mede .closest('.mtable').scrollWidth) */
+  overflow-x: auto; overflow-y: visible; overscroll-behavior-x: contain;
+  border: 1px solid rgba(255, 255, 255, .06); border-radius: 5px; background: #0c0e12;
+  scrollbar-width: thin; scrollbar-color: rgba(198, 167, 92, .2) transparent;
 }
+.mtable::-webkit-scrollbar { height: 6px; }
+.mtable::-webkit-scrollbar-track { background: transparent; }
+.mtable::-webkit-scrollbar-thumb { background: rgba(198, 167, 92, .2); border-radius: 3px; }
+/* máscara só à direita — sinaliza corte sem apagar a coluna sticky (Ativo) à esquerda */
+.mtable[data-overflow="true"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%); mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%); }
 
-.mtable .gridwrap { overflow-x: auto; border: 1px solid rgba(255, 255, 255, .06); border-radius: 5px; background: #0c0e12; }
 /* display:table + fixed + width:100% garantidos; colgroup (Col.width) manda nas larguras */
 .mtable table.mgrid { display: table; border-collapse: collapse; width: 100%; table-layout: fixed; }
 
