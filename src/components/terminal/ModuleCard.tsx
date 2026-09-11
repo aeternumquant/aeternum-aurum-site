@@ -99,7 +99,10 @@ export function ModuleCard({
           </div>
         )}
         {(state === "ready" || state === "stale") && (
-          <div className="relative">
+          // FASE 1.5 (reduzida): rola por DENTRO quando o card recebe altura limitada
+          // (a FASE 2 dá altura aos palcos). h-full só resolve com pai limitado; hoje
+          // (altura por conteúdo) fica inerte — sem regressão, com durabilidade.
+          <div className="relative h-full overflow-y-auto">
             {state === "stale" && (
               <span className="absolute right-3 top-2 z-10 text-[9px] uppercase tracking-wider text-amber-400/70 flex items-center gap-1">
                 <span className="w-1 h-1 rounded-full bg-amber-400/70" /> {fmtDate(dataDate)}
