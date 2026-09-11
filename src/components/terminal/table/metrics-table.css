@@ -10,11 +10,15 @@
   --pos: 93, 168, 116;
   --neg: 190, 74, 66;
   --stale: 198, 167, 92;
-  --tx: #e5e5e5; --tx2: #a0a0a0; --tx3: #6a6a6a;
+  /* acabamento DIA7: contraste medido — salto primario->secundario vai a ~2,9x,
+     e saem os cinzas neutros puros (r=g=b) que flutuavam sobre o fundo azulado */
+  --tx: #f4f5f8; --tx2: #8b919d; --tx3: #5e636c;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   /* .mtable É o scroller (o script mede .closest('.mtable').scrollWidth) */
   overflow-x: auto; overflow-y: visible; overscroll-behavior-x: contain;
-  border: 1px solid rgba(255, 255, 255, .06); border-radius: 5px; background: #0c0e12;
+  /* acabamento DIA7: superficie S1 (#0e0f13, +6 sobre a S0 #08090c da pagina) +
+     hairline inset como aresta (substitui o border 1px, aresta unica sem bevel duplo) */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .055); border-radius: 5px; background: #0e0f13;
   scrollbar-width: thin; scrollbar-color: rgba(198, 167, 92, .2) transparent;
 }
 .mtable::-webkit-scrollbar { height: 6px; }

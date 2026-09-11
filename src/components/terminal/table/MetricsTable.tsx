@@ -97,7 +97,7 @@ export default function MetricsTable({ config }: { config: TableConfig }) {
   const coverage = (key: string) => rows ? rows.filter((r) => r.cells[key]?.state !== "na").length : total;
   const open = (row: RowData, col: Col, datum: Datum, r: DOMRect) => { setPop({ row, col, datum }); setRect(r); };
 
-  if (err) return <div className="mtable"><div className="gridwrap" style={{ padding: 20, color: "#a0a0a0", fontSize: 12 }}>Não foi possível carregar: {err}</div></div>;
+  if (err) return <div className="mtable"><div className="gridwrap" style={{ padding: 20, color: "#8b919d", fontSize: 12 }}>Não foi possível carregar: {err}</div></div>;
 
   return (
     <div className="mtable" ref={scrollRef} data-overflow={overflowing ? "true" : undefined}>
@@ -114,8 +114,8 @@ export default function MetricsTable({ config }: { config: TableConfig }) {
                     {c.label}
                     {c.type === "bar" && !downgraded && <span className={`scale${cov < total ? " warn" : ""}`}>±{nf(c.cap!, 0)}%{cov < total ? `  ·  ${cov}/${total}` : ""}</span>}
                     {c.type === "bar" && downgraded && <span className="scale warn">{cov}/{total} · num</span>}
-                    {c.key === "vol30" && <span className="scale" style={{ color: "#6a6a6a" }}>{c.unit}</span>}
-                    {c.key === "stu" && (cov < total ? <span className="scale warn">{cov}/{total}</span> : <span className="scale" style={{ color: "#6a6a6a" }}>{c.unit}</span>)}
+                    {c.key === "vol30" && <span className="scale" style={{ color: "#5e636c" }}>{c.unit}</span>}
+                    {c.key === "stu" && (cov < total ? <span className="scale warn">{cov}/{total}</span> : <span className="scale" style={{ color: "#5e636c" }}>{c.unit}</span>)}
                   </th>
                 );
               })}
@@ -153,11 +153,11 @@ function Cell({ col, rd, downgraded, onOpen, isOpen }: { col: Col; rd: RowData; 
 
   if (col.type === "num" || (col.type === "bar" && downgraded)) {
     const txt = naCell ? "—" : (col.key === "last" ? fmtLast(d.v!) : nf(d.v!, col.dec ?? 2) + (col.unit ?? ""));
-    return <td className="num" style={naCell ? { color: "#6a6a6a" } : undefined}>{txt}</td>;
+    return <td className="num" style={naCell ? { color: "#5e636c" } : undefined}>{txt}</td>;
   }
 
   if (col.type === "numchg") {
-    if (naCell) return <td className="num" style={{ color: "#6a6a6a" }}>—</td>;
+    if (naCell) return <td className="num" style={{ color: "#5e636c" }}>—</td>;
     const color = d.v! >= 0 ? "rgb(93,168,116)" : "rgb(190,74,66)";
     return (
       <td style={{ padding: 0 }}>
