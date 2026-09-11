@@ -8,12 +8,13 @@ import { ModuleCard } from "../ModuleCard";
  * BrazilMap segue usando o LAYERS/LayerConfig internamente; aqui só o embrulhamos
  * no contrato do card (título, fonte ZARC, menu). Atualizar = remonta o mapa (key).
  */
-export default function MapaBrasil({ onRemove, onExpand }: { escopo?: string; onRemove?: () => void; onExpand?: () => void }) {
+export default function MapaBrasil({ expanded, onRemove, onExpand }: { escopo?: string; expanded?: boolean; onRemove?: () => void; onExpand?: () => void }) {
   const [k, setK] = useState(0);
   return (
     <ModuleCard command={COMMANDS.mapa as ModuleCommand} state="ready" dataDate="ZARC vigente"
       onRemove={onRemove} onExpand={onExpand} onRefresh={() => setK((v) => v + 1)}>
-      <div className="p-3"><BrazilMap key={k} /></div>
+      {/* compacto (na linha, ~462px) engrossa o stroke municipal; expandido volta ao normal */}
+      <div className="p-3"><BrazilMap key={k} compact={!expanded} /></div>
     </ModuleCard>
   );
 }

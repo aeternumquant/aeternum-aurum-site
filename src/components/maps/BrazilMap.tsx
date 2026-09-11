@@ -52,7 +52,7 @@ function Select({ value, onChange, options, aria }: { value: string; onChange: (
   );
 }
 
-export default function BrazilMap() {
+export default function BrazilMap({ compact = false }: { compact?: boolean }) {
   const { isPaid } = useEntitlements();
   const [layerKey, setLayerKey] = useState(LAYERS[0].key);
   const layer = useMemo(() => LAYERS.find((l) => l.key === layerKey) ?? LAYERS[0], [layerKey]);
@@ -264,7 +264,7 @@ export default function BrazilMap() {
                       d={path || ""}
                       fill={colorFor(geo)}
                       stroke={geo === selected ? GOLD : n === 0 ? "rgba(229,229,229,0.28)" : "rgba(229,229,229,0.16)"}
-                      strokeWidth={geo === selected ? 0.8 : 0.35}
+                      strokeWidth={geo === selected ? (compact ? 1 : 0.8) : (compact ? 0.55 : 0.35)}
                       strokeDasharray={n === 0 ? "1.4 1.4" : undefined}
                       style={{ cursor: "pointer" }}
                       onClick={() => setSelected(geo)}
