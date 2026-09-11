@@ -1,55 +1,55 @@
 /**
- * CommandRegistry — o nível ACIMA do LayerConfig. Um "command" é um MÓDULO do
- * dashboard (card com componente próprio, tamanho, fonte, plano mínimo). A URL é o
- * estado do painel: /terminal-br?commands=mapa,stocks&escopo=soja. O comando MAPA
- * usa internamente o LAYERS/LayerConfig de hoje — composição, não reescrita.
+ * CommandRegistry unificado. Um "command" é um MÓDULO (card com componente próprio)
+ * OU uma TABELA (MetricsTable genérico + {rows, cols}), discriminado por `kind`.
+ * A URL é o estado do painel: /terminal-br?commands=tabela-agro,tabela-macro,mapa,stocks.
  *
- * REGRA: nenhum comando tem fonte vazia. Se não há paper, aponta a fonte do DADO.
+ * Anti-inchaço (as três regras):
+ *  1) dados de tabela vivem em table/tableSchema.ts (TableConfig) — o registry só referencia;
+ *  2) COMPONENTES nunca entram aqui (o mapa id→componente vive no renderer, sem ciclo);
+ *  3) o `kind` mantém `size` fora das tabelas e `config` fora dos cards.
+ * Adicionar a mensal/metais/energia = uma TableConfig nova + UMA entrada aqui.
  */
+import { AGRO_TABLE, MACRO_TABLE, type TableConfig } from "./table/tableSchema";
+
 export type CommandSize = "2x2" | "2x1" | "1x1";
 export type PlanId = "free" | "terminal" | "partners" | "aurum";
 export type CommandSource = { titulo: string; tipo: string; link: string };
+export type CommandKind = "module" | "table";
 
-export type CommandMeta = {
-  id: string;
-  label: string;
-  descricao: string; // uma frase
-  size: CommandSize;
-  fonte: CommandSource; // NUNCA vazia
-  planoMinimo: PlanId; // free = visível a todos (a degradação fina é dentro do módulo)
-};
+type Base = { id: string; label: string; descricao: string; planoMinimo: PlanId };
+export type ModuleCommand = Base & { kind: "module"; size: CommandSize; fonte: CommandSource };
+export type TableCommand = Base & { kind: "table"; config: TableConfig };
+export type CommandMeta = ModuleCommand | TableCommand;
 
 export const COMMANDS: Record<string, CommandMeta> = {
+  "tabela-agro": {
+    kind: "table", id: "tabela-agro", label: "Mercado agro",
+    descricao: "Futuros B3 — variação e aperto de oferta. Barras na régua declarada.",
+    planoMinimo: "free", config: AGRO_TABLE,
+  },
+  "tabela-macro": {
+    kind: "table", id: "tabela-macro", label: "Macro",
+    descricao: "Câmbio, petróleo e ouro — número colorido (vol heterogênea, sem régua única).",
+    planoMinimo: "free", config: MACRO_TABLE,
+  },
   mapa: {
-    id: "mapa",
-    label: "O campo por município",
+    kind: "module", id: "mapa", label: "O campo por município",
     descricao: "Janela de plantio de baixo risco (ZARC) por município. Estado aberto; município é do Terminal.",
-    size: "2x2",
-    fonte: {
-      titulo: "ZARC — Zoneamento Agrícola de Risco Climático (Portaria MAPA)",
-      tipo: "Recomendação oficial",
-      link: "https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico",
-    },
-    planoMinimo: "free",
+    size: "2x2", planoMinimo: "free",
+    fonte: { titulo: "ZARC — Zoneamento Agrícola de Risco Climático (Portaria MAPA)", tipo: "Recomendação oficial", link: "https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico" },
   },
   stocks: {
-    id: "stocks",
-    label: "Stocks-to-use",
+    kind: "module", id: "stocks", label: "Stocks-to-use",
     descricao: "Estoque final sobre o uso total — o quão apertada está a oferta ante a demanda.",
-    size: "2x1",
-    fonte: {
-      titulo: "USDA/FAS — Production, Supply & Distribution (PSD)",
-      tipo: "Base oficial",
-      link: "https://apps.fas.usda.gov/psdonline/app/index.html",
-    },
-    planoMinimo: "free",
+    size: "2x1", planoMinimo: "free",
+    fonte: { titulo: "USDA/FAS — Production, Supply & Distribution (PSD)", tipo: "Base oficial", link: "https://apps.fas.usda.gov/psdonline/app/index.html" },
   },
 };
 
-export const DEFAULT_COMMANDS = ["mapa", "stocks"];
+export const DEFAULT_COMMANDS = ["tabela-agro", "tabela-macro", "mapa", "stocks"];
 export const isCommand = (id: string): id is keyof typeof COMMANDS => id in COMMANDS;
 
-/** escopo=<token> -> commodity do PSD. */
+/** escopo=<token> -> commodity do PSD (usado pelo módulo stocks-to-use). */
 export const COMMODITIES: Record<string, { code: string; label: string }> = {
   soja: { code: "2222000", label: "Soja" },
   milho: { code: "0440000", label: "Milho" },
@@ -59,8 +59,6 @@ export const COMMODITIES: Record<string, { code: string; label: string }> = {
   acucar: { code: "0612000", label: "Açúcar" },
   arroz: { code: "0422110", label: "Arroz" },
 };
-
-/** região do stocks-to-use (commodity × região, parametrizável). */
 export const REGIOES: Record<string, { code: string; label: string }> = {
   WORLD: { code: "WORLD", label: "Mundo" },
   BRA: { code: "BRA", label: "Brasil" },

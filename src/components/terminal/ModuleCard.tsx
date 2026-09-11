@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { MoreVertical, Maximize2, RefreshCw, BookOpen, X, Lock, AlertTriangle, Loader2 } from "lucide-react";
-import type { CommandMeta } from "./commands";
+import type { ModuleCommand } from "./commands";
 
 /**
  * <ModuleCard> — o invólucro que TODO módulo usa. Chrome (título + frase + menu ⋮)
@@ -21,7 +21,7 @@ export function ModuleCard({
   command, state, dataDate, emptyMsg, lockedReason, errorMsg,
   onRefresh, onRemove, onExpand, children,
 }: {
-  command: CommandMeta;
+  command: ModuleCommand;
   state: ModuleState;
   dataDate?: string | Date | null;
   emptyMsg?: string;

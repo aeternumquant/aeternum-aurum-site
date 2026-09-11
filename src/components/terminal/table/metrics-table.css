@@ -1,0 +1,92 @@
+/* Tabela densa — portado da referência medida (DIA 7), escopado em .mtable.
+   IMPORTANTE: a classe da <table> é `.mgrid`, NÃO `.grid` — `.grid` é utilitário
+   do Tailwind (display:grid) e sequestra a tabela (colgroup ignorado, fixed sem
+   efeito, trilho a 0). Não renomear de volta.
+   O que desenha a grade é o TRILHO de cada célula; a tabela não desenha nada. */
+.mtable {
+  --row: 44px; --trackh: 28px; --padx: 10px; --pady: 8px;
+  --track: rgba(255, 255, 255, .045);
+  --axis: rgba(255, 255, 255, .13);
+  --pos: 93, 168, 116;
+  --neg: 190, 74, 66;
+  --stale: 198, 167, 92;
+  --tx: #e5e5e5; --tx2: #a0a0a0; --tx3: #6a6a6a;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.mtable .gridwrap { overflow-x: auto; border: 1px solid rgba(255, 255, 255, .06); border-radius: 5px; background: #0c0e12; }
+/* display:table + fixed + width:100% garantidos; colgroup (Col.width) manda nas larguras */
+.mtable table.mgrid { display: table; border-collapse: collapse; width: 100%; table-layout: fixed; }
+
+.mtable thead th {
+  position: sticky; top: 0; z-index: 5; background: #0b0d11;
+  border-bottom: 1px solid rgba(198, 167, 92, .14);
+  padding: 9px var(--padx); text-align: left; vertical-align: bottom;
+  font-family: var(--mono); font-weight: 600; font-size: 11px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--tx2); white-space: nowrap;
+}
+.mtable thead th .scale { display: block; margin-top: 3px; font-size: 9px; letter-spacing: .04em; color: #c6a75c; text-transform: none; font-weight: 400; }
+.mtable thead th .scale.warn { color: rgb(var(--neg)); }
+.mtable thead th.tk { position: sticky; left: 0; z-index: 6; }
+.mtable thead th.rt { text-align: right; }
+.mtable thead th.ct { text-align: center; }
+
+.mtable tbody td { padding: var(--pady) var(--padx); height: var(--row); vertical-align: middle; border: 0; }
+.mtable tbody tr { transition: background .12s; }
+.mtable tbody tr:hover { background: rgba(255, 255, 255, .03); }
+.mtable td.tk { position: sticky; left: 0; z-index: 2; background: #0b0d11; font-size: 14.5px; font-weight: 600; letter-spacing: .01em; color: var(--tx); white-space: nowrap; }
+.mtable tbody tr:hover td.tk { background: #0e1116; }
+.mtable td.num { text-align: right; font-family: var(--mono); font-size: 14px; font-weight: 400; font-variant-numeric: tabular-nums; color: var(--tx2); white-space: nowrap; }
+
+/* célula-barra clicável: grid [trilho | número]. O número vive numa FAIXA FIXA à
+   direita (grid-column 2) — nunca cruza o eixo. Fim da sobreposição por estrutura. */
+.mtable button.cellbtn { display: grid; grid-template-columns: 1fr 56px; gap: 8px; align-items: center; width: 100%; padding: var(--pady) var(--padx); border: 0; background: none; cursor: pointer; border-radius: 3px; outline: 1px solid transparent; outline-offset: 2px; transition: outline-color .12s; }
+.mtable button.cellbtn:hover { outline-color: rgba(198, 167, 92, .4); }
+.mtable button.cellbtn:focus-visible, .mtable button.cellbtn[aria-expanded="true"] { outline-color: #c6a75c; }
+.mtable button.cellbtn[disabled] { cursor: default; }
+.mtable button.cellbtn[disabled]:hover { outline-color: transparent; }
+.mtable td.m { padding: 0; }
+
+/* o trilho (coluna 1 do grid) */
+.mtable .cell { position: relative; height: var(--trackh); background: var(--track); border-radius: 3px; grid-column: 1; }
+.mtable .cell::before { content: ""; position: absolute; left: 50%; top: 8px; bottom: 8px; width: 1px; background: var(--axis); transform: translateX(-.5px); }
+.mtable .cell .bar { position: absolute; top: 0; height: 100%; border-radius: 3px; min-width: 2px; transition: width .35s cubic-bezier(.4, 0, .2, 1); }
+.mtable .cell .bar.pos { left: 50%; background: rgba(var(--pos), .62); }
+.mtable .cell .bar.neg { right: 50%; background: rgba(var(--neg), .62); }
+.mtable .cell .bar.clip::after { content: ""; position: absolute; top: 50%; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; transform: translateY(-50%); }
+.mtable .cell .bar.pos.clip::after { right: -5px; border-left: 5px solid rgba(var(--pos), .95); }
+.mtable .cell .bar.neg.clip::after { left: -5px; border-right: 5px solid rgba(var(--neg), .95); }
+.mtable .cell .bar.stale { background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, .34) 0 3px, transparent 3px 6px); }
+.mtable .cell .dot { position: absolute; right: 3px; top: 3px; width: 4px; height: 4px; border-radius: 50%; background: rgb(var(--stale)); }
+.mtable .cell.na { background: rgba(255, 255, 255, .018); }
+.mtable .cell.na::before { background: repeating-linear-gradient(to bottom, var(--tx3) 0 2px, transparent 2px 5px); opacity: .5; }
+
+/* o número (coluna 2 do grid), faixa fixa à direita, sem chip */
+.mtable button.cellbtn > .val { grid-column: 2; text-align: right; font-family: var(--mono); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: #f2f0ea; white-space: nowrap; }
+.mtable button.cellbtn > .val.na { color: var(--tx3); font-weight: 400; }
+
+/* numchg (macro): número com sinal, colorido, clicável — bloco à direita, sem barra */
+.mtable .cellbtn.nc { display: block; padding: var(--pady) var(--padx); }
+.mtable .ncv { display: block; text-align: right; font-family: var(--mono); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* badge */
+.mtable .tag { display: block; text-align: center; font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px; border-radius: 3px; border: 1px solid currentColor; background: none; }
+.mtable .tag.up { color: rgb(var(--pos)); }
+.mtable .tag.flat { color: var(--tx3); }
+.mtable .tag.down { color: rgb(var(--neg)); }
+.mtable .tag.na { color: var(--tx3); border-style: dashed; opacity: .6; }
+
+/* popover */
+.mtable-pop { position: fixed; z-index: 60; width: 288px; background: #0d1015; border: 1px solid rgba(198, 167, 92, .3); border-radius: 5px; padding: 14px 15px 13px; box-shadow: 0 18px 44px rgba(0, 0, 0, .72); font-size: 12px; color: var(--tx); }
+.mtable-pop .pt { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #c6a75c; }
+.mtable-pop .pv { font-family: var(--mono); font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.15; margin: 6px 0 10px; }
+.mtable-pop .spark { margin-top: 2px; display: block; width: 100%; height: 38px; }
+.mtable-pop dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 10px 0 0; font-family: var(--mono); font-size: 10.5px; line-height: 1.5; }
+.mtable-pop dt { color: var(--tx3); white-space: nowrap; }
+.mtable-pop dd { margin: 0; color: var(--tx2); text-align: right; font-variant-numeric: tabular-nums; }
+.mtable-pop .close { position: absolute; top: 8px; right: 9px; width: 20px; height: 20px; background: none; border: 0; color: var(--tx3); cursor: pointer; font-size: 15px; line-height: 1; border-radius: 3px; }
+.mtable-pop .close:hover { color: var(--tx); }
+.mtable-pop a.src, .mtable-pop .src { display: block; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .06); font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--tx3); text-decoration: none; }
+.mtable-pop a.src b, .mtable-pop .src b { color: #c6a75c; font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) { .mtable * { transition: none !important; } }

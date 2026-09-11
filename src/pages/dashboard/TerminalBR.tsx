@@ -21,9 +21,11 @@ export default function TerminalBRPage() {
           <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal Brasil</p>
           <h1 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">Painel</h1>
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-2xl mb-8">
-            O Brasil agrícola em módulos. Cada card traz o dado, a leitura e a <span className="text-primary/80">fonte</span> —
-            o agregado é aberto; o detalhe é do Terminal.
+            O Brasil agrícola. A tabela responde <span className="text-primary/80">como está o mercado</span>;
+            os módulos abaixo, <span className="text-primary/80">o que acontece</span> em cada coisa. Cada número tem escala, cobertura e fonte.
           </p>
+
+          {/* tabelas (topo) + módulos (grade), particionados por kind no TerminalGrid */}
           <TerminalGrid />
         </FadeIn>
       </section>

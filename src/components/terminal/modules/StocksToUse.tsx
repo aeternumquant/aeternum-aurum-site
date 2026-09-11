@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useEntitlements } from "../../../hooks/useEntitlements";
-import { COMMANDS, COMMODITIES, REGIOES } from "../commands";
+import { COMMANDS, COMMODITIES, REGIOES, type ModuleCommand } from "../commands";
 import { ModuleCard, type ModuleState } from "../ModuleCard";
 
 /**
@@ -24,7 +24,7 @@ const nf1 = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleStr
 const signed = (n: number | null | undefined) => (n == null ? "—" : (n >= 0 ? "+" : "") + nf1(n));
 
 export default function StocksToUse({ escopo, onRemove, onExpand }: { escopo?: string; onRemove?: () => void; onExpand?: () => void }) {
-  const cmd = COMMANDS.stocks;
+  const cmd = COMMANDS.stocks as ModuleCommand;
   const { isPaid } = useEntitlements();
   const [commodity, setCommodity] = useState(() => (escopo && COMMODITIES[escopo] ? escopo : "soja"));
   const [regiao, setRegiao] = useState("WORLD");
