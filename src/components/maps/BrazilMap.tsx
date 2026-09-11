@@ -18,7 +18,11 @@ import { LAYERS, type LayerConfig } from "./layers";
  * config, não código. Tokens: fundo #08090c, dourado #c6a75c, texto #e5e5e5.
  */
 const GOLD = "#c6a75c";
-const W = 640, H = 520;
+// FASE 1.4: W casa a proporção projetada do Brasil (bbox ~492×520 em Mercator),
+// não os 640 antigos que deixavam ~23% de margem lateral vazia. fitSize passa a
+// preencher a largura; a vista municipal segue centrada no mesmo box (correto p/
+// qualquer UF). svg é w-full (responsivo) — nenhuma coordenada assume 640.
+const W = 492, H = 520;
 
 const UF: Record<string, { sigla: string; nome: string }> = {
   "11": { sigla: "RO", nome: "Rondônia" }, "12": { sigla: "AC", nome: "Acre" }, "13": { sigla: "AM", nome: "Amazonas" },
