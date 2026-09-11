@@ -56,6 +56,13 @@ export const COMMANDS: Record<string, CommandMeta> = {
     size: "2x2", width: 620, planoMinimo: "free",
     fonte: { titulo: "Comex Stat (MDIC) / UN Comtrade — fluxos de comércio", tipo: "Base oficial", link: "https://comexstat.mdic.gov.br/" },
   },
+  // FASE 2 (andaime): mock da casca <Stage> — fora do DEFAULT_LAYOUT, só via ?commands=palco.
+  palco: {
+    kind: "module", id: "palco", label: "Palco (mock)",
+    descricao: "Mock da casca <Stage>: mapa como palco, chrome em slots flutuantes de vidro.",
+    size: "2x2", width: 1600, planoMinimo: "free",
+    fonte: { titulo: "—", tipo: "Andaime FASE 2", link: "#" },
+  },
 };
 
 /** layout default: linhas separadas por ';', comandos lado-a-lado por ','. É o ESTADO
