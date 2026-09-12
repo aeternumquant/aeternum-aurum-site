@@ -5,6 +5,7 @@ import StocksToUse from "./modules/StocksToUse";
 import MapaBrasil from "./modules/MapaBrasil";
 import MapaMundial from "./modules/MapaMundial";
 import WorldStage from "./modules/WorldStage";
+import Dossie from "./Dossie";
 import MetricsTable from "./table/MetricsTable";
 
 /**
@@ -28,6 +29,10 @@ export default function TerminalGrid() {
     const raw = params.get("commands") ?? DEFAULT_LAYOUT;
     return raw.split(";").map((r) => r.split(",").map((s) => s.trim()).filter(isCommand)).filter((r) => r.length);
   }, [params]);
+
+  // Dossiê é o DEFAULT do terminal-br: a commodity (?escopo) dirige tudo. ?commands
+  // presente = modo grid avançado (arranjo manual pela URL); ausente = dossiê.
+  if (params.get("commands") == null) return <Dossie escopo={escopo} />;
 
   const remove = (id: string) => {
     const next = rows.map((r) => r.filter((c) => c !== id)).filter((r) => r.length);
