@@ -21,7 +21,7 @@
 import { useEffect, useMemo, useRef, useState, useId, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ComposableMap, Geography, Line, Marker, useGeographies } from "react-simple-maps";
-import { geoCentroid } from "d3-geo";
+import { geoCentroid, geoMercator } from "d3-geo";
 import { motion, useReducedMotion } from "framer-motion";
 import type { FlowCardCfg, SubCardCfg } from "../../lib/flowMapConfig";
 import type { CommodityFlows, Partner, TradeSide } from "../../hooks/useTradeFlows";
@@ -44,6 +44,11 @@ const AMBER_GLOW = "rgba(217,177,59,0.9)";
 const RED = "#c0564c";
 const PISO_PCT = 1;
 const BRASILIA: [number, number] = [-47.93, -15.78];
+// Projeção espelhando o ComposableMap (geoMercator scale 132, center [25,8],
+// translate = [w/2,h/2] = [450,235]) — só p/ saber o x projetado de um centroide
+// (regra 1 do rótulo: perto da borda direita, ancora à esquerda, longe do vidro).
+const MAP_PROJECTION = geoMercator().scale(132).center([25, 8]).translate([450, 235]);
+const RIGHT_EDGE_VB = 560; // x (viewBox 900) a partir do qual o rótulo vai p/ a esquerda do nó
 
 /** Raio da bolinha: sqrt (area ~ volume). Herdado da soja, sem recalibracao. */
 const R_PISO = 2;
@@ -81,6 +86,7 @@ function FlowLayer({
   revealed,
   uid,
   labelFont,
+  stage,
 }: {
   cfg: FlowCardCfg;
   exp: TradeSide | undefined;
@@ -91,6 +97,7 @@ function FlowLayer({
   revealed: boolean;
   uid: string;
   labelFont: number;
+  stage: boolean; // no palco: aplica as regras de rótulo (âncora à esquerda + cap por volume)
 }) {
   const { geographies } = useGeographies({ geography: geoUrl });
 
@@ -140,6 +147,12 @@ function FlowLayer({
     return [...m.values()];
   }, [expDrawn, impDrawn]);
   const maxMarkerKg = markers.reduce((s, x) => Math.max(s, x.kg), 0);
+  // Regra 2 do rótulo (só no palco): sob pressão de espaço (>LABEL_CAP nós), só os
+  // de MAIOR volume mantêm rótulo — o NÓ nunca some, só o rótulo. Sem pressão, todos.
+  const LABEL_CAP = 12;
+  const labeled = stage && markers.length > LABEL_CAP
+    ? new Set([...markers].sort((a, b) => b.kg - a.kg).slice(0, LABEL_CAP).map((m) => m.b.isoA3))
+    : null; // null = todos com rótulo
 
   return (
     <>
@@ -245,6 +258,13 @@ function FlowLayer({
         const ox = (dxg / len) * (r + 4);
         const oy = (dyg / len) * (r + 4);
         const anchor = ox >= 0 ? "start" : "end";
+        // Regra 1 (palco): perto da borda direita (junto ao vidro), o rótulo vai p/ a
+        // ESQUERDA do nó — não invade o painel. projX espelha o ComposableMap.
+        const nearRight = stage && (MAP_PROJECTION(centroid)?.[0] ?? 450) > RIGHT_EDGE_VB;
+        const labelX = nearRight ? -(r + 4) : ox;
+        const labelY = nearRight ? 2 : oy + 2;
+        const labelAnchor = nearRight ? "end" : anchor;
+        const showLabel = !labeled || labeled.has(b.isoA3) || isHov; // regra 2
         return (
           <Marker key={`m-${b.isoA3}`} coordinates={centroid}>
             <motion.g
@@ -271,10 +291,11 @@ function FlowLayer({
                 filter={`url(#glow-${core === AMBER ? "a" : "g"}-${uid})`}
                 style={{ transition: "r 0.2s ease" }}
               />
+              {showLabel && (
               <text
-                x={ox}
-                y={oy + 2}
-                textAnchor={anchor}
+                x={labelX}
+                y={labelY}
+                textAnchor={labelAnchor}
                 style={{
                   fontFamily: "monospace",
                   fontSize: `${labelFont}px`,
@@ -286,6 +307,7 @@ function FlowLayer({
               >
                 {b.namePt}
               </text>
+              )}
             </motion.g>
           </Marker>
         );
@@ -627,6 +649,7 @@ export default function CommodityFlowMap({
           <FlowLayer
             cfg={cfg}
             labelFont={labelFont}
+            stage={stage}
             exp={exp}
             imp={imp}
             hovered={hovered}
