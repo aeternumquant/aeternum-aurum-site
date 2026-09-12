@@ -1,5 +1,6 @@
 import { useMemo, useState, type ComponentType } from "react";
 import { useSearchParams } from "react-router-dom";
+import "./tokens.css"; // PR1 do dossiê visual: só define variáveis (zero mudança visual)
 import { COMMANDS, DEFAULT_LAYOUT, isCommand, commandWidth, type CommandMeta } from "./commands";
 import StocksToUse from "./modules/StocksToUse";
 import MapaBrasil from "./modules/MapaBrasil";

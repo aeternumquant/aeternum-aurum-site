@@ -1,0 +1,63 @@
+/* tokens.css — o dossiê visual do Linear, CENTRALIZADO (DIA 7 · PR 1).
+ *
+ * Reconstruído dos valores MEDIDOS (o prompt dos 7 PRs do Chrome não está no repo;
+ * fontes: vault/40-MODELOS/PADROES-DE-TERMINAL.md + vault/30-DADOS/menthorq-new-
+ * dashboard-uiux.md + decisões do Gabriel na FASE 1/2). Verificar antes da adoção.
+ *
+ * PR 1 só DEFINE variáveis — ZERO mudança visual até os componentes as adotarem
+ * (PRs 3–7). Escopo: terminal — não toca Hero/header/footer. Aditivo, sem renomear.
+ */
+:root {
+  /* ── ESCADA DE SUPERFÍCIE (5) — S0 é o fundo da página; +6 por degrau ── */
+  --t-s0: #08090c; /* página */
+  --t-s1: #0e0f13; /* card · painel · tabela */
+  --t-s2: #14151a;
+  --t-s3: #1a1b21; /* base do flutuante (vidro) */
+  --t-s4: #202128;
+
+  /* ── TEXTO — 3 cinzas medidos (salto primário→secundário ~2,9×; não-neutros
+        p/ casar a temperatura do fundo azulado) ── */
+  --t-tx1: #f4f5f8; /* primário */
+  --t-tx2: #8b919d; /* secundário */
+  --t-tx3: #5e636c; /* terciário */
+
+  /* ── ARESTA — hairline inset (substitui o border 1px; sem bevel duplo) ── */
+  --t-hairline: inset 0 0 0 1px rgba(255, 255, 255, .055);
+
+  /* ── VIDRO (flutuante sobre S3) — quem adota inclui o fallback @supports ── */
+  --t-glass-bg: rgba(8, 9, 12, .78);
+  --t-glass-bg-fallback: rgba(8, 9, 12, .94);
+  --t-glass-blur: blur(14px) saturate(120%);
+  --t-glass-border: 1px solid rgba(198, 167, 92, .25);
+  --t-glass-shadow: 0 18px 44px rgba(0, 0, 0, .72);
+
+  /* ── ESCALA TIPOGRÁFICA — 7 degraus (mata os 15 tamanhos do concorrente) ── */
+  --t-fs-1: 9px;
+  --t-fs-2: 11px;
+  --t-fs-3: 13px;
+  --t-fs-4: 15px;
+  --t-fs-5: 20px;
+  --t-fs-6: 26px;
+  --t-fs-7: 30px;
+  /* tracking: caixa alta com letter-spacing positivo (medido +0.45–0.72px) */
+  --t-track-eyebrow: 0.06em; /* ~+0.6px em 10px */
+  --t-track-tight: 0.02em;
+
+  /* ── DOURADO — marca/estrutura + estado de atenção NÃO-direcional
+        (Elevated/Rich/Flat). NUNCA direção de dado (isso é verde/vermelho). ── */
+  --t-gold: #c6a75c;
+
+  /* ── PALETA DE 2 EIXOS ──
+        direção → verde/vermelho (subiu/desceu · call/put · suporte/resistência)
+        valuation → azul/âmbar (barato/comprimido · caro/elevado). Azul = também o
+        percentil nos tooltips; azul NUNCA é ação. */
+  --t-dir-up: rgb(93, 168, 116);
+  --t-dir-down: rgb(190, 74, 66);
+  --t-val-cheap: #38bdf8; /* azul */
+  --t-val-rich: #f59e0b;  /* âmbar */
+
+  /* ── TRANSIÇÕES (política — valores já de facto no código) ── */
+  --t-fast: .12s;
+  --t-base: .2s;
+  --t-slow: .35s cubic-bezier(.4, 0, .2, 1);
+}
