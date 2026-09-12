@@ -72,7 +72,9 @@ export default function ZonaPiloto() {
           o warning "non-static position" e força re-medição no scroll. */}
       <div className="w-full relative" style={{ height: "82vh", minHeight: 460, maxHeight: 880 }}>
         <Suspense fallback={<div className="w-full h-full bg-[#1C1C1C] animate-pulse rounded" />}>
-          <GlobalFlowMap />
+          {/* Home = stage-parcial: mapa full-bleed + card de vidro flutuante, mas
+              MANTÉM o link "ver no terminal" (é ele que leva daqui ao terminal). */}
+          <GlobalFlowMap chrome="stage" showTerminalLink />
         </Suspense>
       </div>
 

@@ -799,7 +799,15 @@ function CountryCard({
 }
 
 /* ── Componente Principal ── */
-export default function GlobalFlowMap() {
+export default function GlobalFlowMap({
+  chrome = "panel",
+  showTerminalLink,
+}: {
+  // pass-through p/ o CommodityFlowMap. Default "panel" => todo consumidor atual
+  // (cflow do terminal, etc.) fica INTOCADO; só a Home (ZonaPiloto) pede "stage".
+  chrome?: "panel" | "stage";
+  showTerminalLink?: boolean;
+} = {}) {
   const [selectedAsset, setSelectedAsset]   = useState<AssetType>(null);
   const [activeCategory, setActiveCategory] = useState<MapCategory>("Agro");
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -951,6 +959,8 @@ export default function GlobalFlowMap() {
           <div className="flex-1 relative min-h-0">
           {tradeFlows.data || flowCfg.mode === "priceOnly" ? (
             <CommodityFlowMap
+              chrome={chrome}
+              showTerminalLink={showTerminalLink}
               label={flowCfg.cardLabel ?? assetFlows[selectedAsset].label}
               cfg={flowCfg}
               flows={tradeFlows.data}

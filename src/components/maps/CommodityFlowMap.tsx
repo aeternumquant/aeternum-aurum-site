@@ -508,6 +508,7 @@ export default function CommodityFlowMap({
   priceBlockFor,
   assetKey,
   chrome = "panel",
+  showTerminalLink,
 }: {
   label: string;
   cfg: FlowCardCfg;
@@ -521,6 +522,9 @@ export default function CommodityFlowMap({
    *  "stage": mapa full-bleed (reservando STAGE_CARD_W à direita p/ a geografia
    *  não ficar sob o vidro) + o MESMO card como painel de vidro flutuante. */
   chrome?: "panel" | "stage";
+  /** mostra "ver no terminal". Default: só no panel. A Home (stage-parcial) passa
+   *  true p/ manter o link mesmo em stage (layout e link são ortogonais). */
+  showTerminalLink?: boolean;
 }) {
   const [subKey, setSubKey] = useState(cfg.subs[0]?.key ?? "");
   const [hovered, setHovered] = useState<string | null>(null);
@@ -747,9 +751,11 @@ export default function CommodityFlowMap({
               nela, via ?commodity=<chave>). Affordance de "aprofundar", nao banner
               — o mapa segue limpo. So aparece se a commodity tem terminal (guarda
               graciosa). Funciona no card mobile (mesmo JSX, largura cheia). */}
-          {/* "Ver no terminal": só no modo PANEL (leva da home ao terminal). No
-              STAGE não existe "outro lugar" — o escopo já dirige tudo. */}
-          {hasTerminal && !stage && (
+          {/* "Ver no terminal": leva da home ao terminal de commodities. Default:
+              só no PANEL (no palco do terminal o escopo já dirige tudo). A Home
+              (stage-parcial) passa showTerminalLink p/ manter o link. Layout e link
+              são ORTOGONAIS. */}
+          {hasTerminal && (showTerminalLink ?? !stage) && (
             <button
               onClick={() => navigate(`/commodities?commodity=${encodeURIComponent(assetKey!)}`)}
               title={`Abrir ${label} no terminal`}
