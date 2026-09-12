@@ -35,6 +35,8 @@ export type CommodityEntry = {
   temTabela: boolean;
   temStocks: boolean;
   temMapa: boolean;
+  temBrasil: boolean;  // zoneamento ZARC (mapa do Brasil por município)
+  temOpcoes: boolean;  // futuro B3 com opção listada (gregas/vol)
   relatedSeries: string[];    // sub-produtos/refs (series_latest) — profundidade real
   researchId: string | null;  // artigo em researchData.ts quando há (convite, não conteúdo)
 };
@@ -50,6 +52,13 @@ const RESEARCH: Record<string, string> = {
   soja: "superficie-volatilidade-soja",
   niobio: "estrategia-mineral-niobio",
 };
+/** Culturas com zoneamento ZARC (mapa do Brasil por município). São as 8 culturas
+ *  do ZARC menos feijão (que não é commodity do mapa). */
+const ZARC_IDS = new Set(["soja", "milho", "algodao", "arroz", "trigo", "cafe"]);
+/** Futuros B3 com opção listada (gregas/vol): SJC, CCM, BGI, ICF.
+ *  ⚠️ Publicação das gregas/vol é license-gated (brapi): só indicador DERIVADO
+ *  (skew, term structure, IV rank), nunca o dado bruto, e só após parecer jurídico. */
+const OPCOES_IDS = new Set(["soja", "milho", "boigordo", "cafe"]);
 
 const AGRO_CODES = new Set(AGRO_TABLE.rows.map((r) => r.code));
 
@@ -80,6 +89,8 @@ export const COMMODITIES_REGISTRY: CommodityEntry[] = ASSETS.map((a) => {
     temTabela: tableCode != null,
     temStocks: psdCode != null,          // == está no vocabulário PSD/COMMODITIES
     temMapa: a.category !== "Financeiro", // Financeiro (Dólar/RWA) não é ativo do mapa
+    temBrasil: ZARC_IDS.has(id),
+    temOpcoes: OPCOES_IDS.has(id),
     relatedSeries: [...refsOf(a), ...(EXTRA_RELATED[id] ?? [])],
     researchId: RESEARCH[id] ?? null,
   };
