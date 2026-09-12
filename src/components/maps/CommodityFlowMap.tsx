@@ -724,7 +724,9 @@ export default function CommodityFlowMap({
               nela, via ?commodity=<chave>). Affordance de "aprofundar", nao banner
               — o mapa segue limpo. So aparece se a commodity tem terminal (guarda
               graciosa). Funciona no card mobile (mesmo JSX, largura cheia). */}
-          {hasTerminal && (
+          {/* "Ver no terminal": só no modo PANEL (leva da home ao terminal). No
+              STAGE não existe "outro lugar" — o escopo já dirige tudo. */}
+          {hasTerminal && !stage && (
             <button
               onClick={() => navigate(`/commodities?commodity=${encodeURIComponent(assetKey!)}`)}
               title={`Abrir ${label} no terminal`}
