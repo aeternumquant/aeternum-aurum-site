@@ -19,7 +19,7 @@ export default function TerminalBRPage() {
       <section className="py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
         <FadeIn>
           <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal Brasil</p>
-          <h1 className="font-display text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">Painel</h1>
+          <h1 className="font-sans text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">Painel</h1>
           <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-2xl mb-8">
             O Brasil agrícola. A tabela responde <span className="text-primary/80">como está o mercado</span>;
             os módulos abaixo, <span className="text-primary/80">o que acontece</span> em cada coisa. Cada número tem escala, cobertura e fonte.

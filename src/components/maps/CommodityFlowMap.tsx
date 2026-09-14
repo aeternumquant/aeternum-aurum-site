@@ -721,7 +721,7 @@ export default function CommodityFlowMap({
               ? "Fluxo de exportação"
               : "Referência de preço"}
           </div>
-          <div className="font-display text-base mb-2" style={{ color: GOLD }}>
+          <div className={`${stage ? "font-sans" : "font-display"} text-base mb-2`} style={{ color: GOLD }}>
             {label}
           </div>
           {cfg.subs.length > 1 && (

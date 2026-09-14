@@ -76,8 +76,8 @@ export default function StocksToUse({ escopo, onRemove, onExpand }: { escopo?: s
 
           {/* veredito | número */}
           <div className="flex items-baseline justify-between mb-3">
-            <span className={`font-display text-lg uppercase tracking-wider ${VTEXT[pub.veredito]}`}>{pub.veredito}</span>
-            <span className="font-display text-3xl text-foreground tabular-nums tracking-tight">{nf1(pub.ratio)}<span className="text-lg text-muted-foreground">%</span></span>
+            <span className={`font-sans text-lg uppercase tracking-wider ${VTEXT[pub.veredito]}`}>{pub.veredito}</span>
+            <span className="font-sans text-3xl text-foreground tabular-nums tracking-tight">{nf1(pub.ratio)}<span className="text-lg text-muted-foreground">%</span></span>
           </div>
 
           <Bar veredito={pub.veredito} percentil={det?.percentil ?? null} isPaid={isPaid} det={det} />

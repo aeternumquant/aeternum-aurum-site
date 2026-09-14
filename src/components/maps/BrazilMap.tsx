@@ -212,7 +212,7 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
       {/* subtítulo (muda com o seletor) + voltar */}
       <div className="flex items-baseline justify-between px-4 pt-2 pb-1">
         <div>
-          <h3 className="font-display text-sm uppercase tracking-[0.22em]" style={{ color: "var(--t-tx-1)" }}>{info ? info.nome : "Brasil"}</h3>
+          <h3 className="font-sans text-sm uppercase tracking-[0.22em]" style={{ color: "var(--t-tx-1)" }}>{info ? info.nome : "Brasil"}</h3>
           <p className="text-[10px] tracking-widest uppercase" style={{ color: `${GOLD}aa` }}>
             {layer.subtitle(paramValues)}
             {busy && <span className="ml-2 animate-pulse" style={{ color: GOLD }}>atualizando…</span>}
