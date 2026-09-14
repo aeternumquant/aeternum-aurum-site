@@ -16,7 +16,7 @@ export default function TerminalBRPage() {
         description="O Brasil agrícola em módulos: janela de plantio (ZARC) por município, stocks-to-use e mais. Cada card traz o dado, a leitura e a fonte."
         path="/terminal-br"
       />
-      <section className="py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
+      <section className="tbr py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
         <FadeIn>
           <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-3">Terminal Brasil</p>
           <h1 className="font-sans text-2xl sm:text-3xl text-primary uppercase tracking-widest mb-2">Painel</h1>

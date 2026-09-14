@@ -112,7 +112,7 @@ export default function WorldStage({ escopo }: { escopo?: string }) {
               <button
                 key={c.id}
                 onClick={() => setEscopo(c.id)}
-                className="font-sans text-[8px] uppercase tracking-[0.08em] px-2 py-0.5 rounded-sm border transition-all"
+                className="font-sans text-[8px] uppercase tracking-[0.08em] px-2 py-0.5 rounded-sm border transition-colors"
                 style={
                   c.id === ws.entry.id
                     ? { background: GOLD, color: "#050503", borderColor: GOLD }

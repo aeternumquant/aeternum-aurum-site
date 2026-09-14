@@ -730,7 +730,7 @@ export default function CommodityFlowMap({
                 <button
                   key={s.key}
                   onClick={() => setSubKey(s.key)}
-                  className="font-sans text-[9px] uppercase tracking-wider px-2.5 py-1 transition-all"
+                  className="font-sans text-[9px] uppercase tracking-wider px-2.5 py-1 transition-colors"
                   style={
                     (sub?.key ?? "") === s.key
                       ? { backgroundColor: GOLD, color: "#050503", border: `1px solid ${GOLD}` }
@@ -848,7 +848,7 @@ export default function CommodityFlowMap({
                         style={{
                           backgroundColor: isHov ? `${color}14` : "rgba(255,255,255,0.02)",
                           border: `1px solid ${isHov ? `${color}44` : "rgba(255,255,255,0.05)"}`,
-                          transition: "all 0.2s ease",
+                          transition: "background-color 0.16s ease, border-color 0.16s ease",
                         }}
                       >
                         <span className="font-sans text-[9px] text-white/75">{b.namePt}</span>
