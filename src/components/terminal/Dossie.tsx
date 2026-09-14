@@ -39,7 +39,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
       {/* dossiê da commodity ativa */}
       <section>
         <div className="flex items-baseline justify-between gap-3 mb-3">
-          <h2 className="font-sans text-sm uppercase tracking-[0.2em]" style={{ color: GOLD }}>
+          <h2 className="font-sans text-sm uppercase tracking-[0.2em]" style={{ color: "var(--t-tx-1)" }}>
             Dossiê · {e.label}
           </h2>
           <span className="font-mono text-[10px] uppercase tracking-widest text-white/35">
@@ -70,7 +70,7 @@ function SlotBox({ i, title, hint, full, gated }: { i: number; title: string; hi
       className={`rounded-sm bg-[var(--t-s1)] shadow-[var(--t-edge)] p-4 ${full ? "" : "min-h-[140px]"}`}
     >
       <div className="flex items-baseline justify-between gap-2">
-        <span className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: `${GOLD}b0` }}>
+        <span className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: "var(--t-tx-2)" }}>
           {i + 1}. {title}
         </span>
         {gated && (

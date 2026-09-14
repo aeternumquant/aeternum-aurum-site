@@ -89,7 +89,7 @@ export default function WorldStage({ escopo }: { escopo?: string }) {
       }
       topLeft={
         <div className="cflow-glass p-3">
-          <p className="font-sans text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: `${GOLD}c0` }}>
+          <p className="font-sans text-[10px] tracking-[0.22em] uppercase mb-2" style={{ color: "var(--t-tx-2)" }}>
             Fluxo global · <span className="text-white/85">{ws.entry.label}</span>
           </p>
           <div className="flex gap-2 mb-2 border-b border-white/8 pb-1.5">

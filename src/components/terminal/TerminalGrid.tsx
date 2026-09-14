@@ -77,7 +77,7 @@ function TableBlock({ cmd, onRemove, onExpand }: { cmd: Extract<CommandMeta, { k
   return (
     <section>
       <div className="flex items-baseline justify-between gap-3 mb-2">
-        <h2 className="font-sans text-sm text-primary uppercase tracking-[0.18em]">{cmd.label}</h2>
+        <h2 className="font-sans text-sm text-[var(--t-tx-1)] uppercase tracking-[0.18em]">{cmd.label}</h2>
         <span className="text-[10px] text-muted-foreground/55 font-light text-right max-w-[22rem] hidden md:block">{cmd.descricao}</span>
       </div>
       <MetricsTable config={cmd.config} />

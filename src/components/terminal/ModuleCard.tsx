@@ -48,7 +48,7 @@ export function ModuleCard({
       {/* HEADER — sempre visível (não some em nenhum estado) */}
       <header className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-3 border-b border-white/5">
         <div className={dim ? "opacity-40 transition-opacity" : "transition-opacity"}>
-          <h3 className="font-sans text-[13px] text-primary uppercase tracking-[0.18em] leading-tight">{command.label}</h3>
+          <h3 className="font-sans text-[13px] text-[var(--t-tx-1)] uppercase tracking-[0.18em] leading-tight">{command.label}</h3>
           <p className="text-[11px] text-muted-foreground/70 font-light leading-snug mt-1 max-w-md">{command.descricao}</p>
         </div>
         <div className="relative flex-shrink-0" ref={ref}>
