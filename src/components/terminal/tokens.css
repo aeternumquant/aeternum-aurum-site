@@ -1,63 +1,94 @@
 /* tokens.css — o dossiê visual do Linear, CENTRALIZADO (DIA 7 · PR 1).
  *
- * Reconstruído dos valores MEDIDOS (o prompt dos 7 PRs do Chrome não está no repo;
- * fontes: vault/40-MODELOS/PADROES-DE-TERMINAL.md + vault/30-DADOS/menthorq-new-
- * dashboard-uiux.md + decisões do Gabriel na FASE 1/2). Verificar antes da adoção.
+ * VALORES EXATOS do documento (fornecidos pelo Gabriel). Prefixo `--t-` de propósito
+ * — evita colisão com vars globais/locais já existentes (ex.: o `--pos` da
+ * metrics-table usa formato rgb-componente, incompatível com o hex daqui).
  *
- * PR 1 só DEFINE variáveis — ZERO mudança visual até os componentes as adotarem
- * (PRs 3–7). Escopo: terminal — não toca Hero/header/footer. Aditivo, sem renomear.
+ * Escopo: terminal. Aditivo, sem renomear, sem dependência nova, sem tocar
+ * Hero/header/footer. Cormorant NÃO entra no terminal. PR1 só define — os PRs 2–7
+ * adotam (nenhum hex literal deve sobrar nos componentes: tudo via var()).
  */
 :root {
-  /* ── ESCADA DE SUPERFÍCIE (5) — S0 é o fundo da página; +6 por degrau ── */
-  --t-s0: #08090c; /* página */
+  /* ── SUPERFÍCIE — escada de 5 (S0 = fundo da página; +6 por degrau) ── */
+  --t-s0: #08090c;
   --t-s1: #0e0f13; /* card · painel · tabela */
   --t-s2: #14151a;
-  --t-s3: #1a1b21; /* base do flutuante (vidro) */
+  --t-s3: #1a1b21; /* base do flutuante */
   --t-s4: #202128;
 
-  /* ── TEXTO — 3 cinzas medidos (salto primário→secundário ~2,9×; não-neutros
-        p/ casar a temperatura do fundo azulado) ── */
-  --t-tx1: #f4f5f8; /* primário */
-  --t-tx2: #8b919d; /* secundário */
-  --t-tx3: #5e636c; /* terciário */
+  /* ── TEXTO — tx-1 primário; tx-2 cabeçalho/eixo; tx-0 é o hover (mais claro) ── */
+  --t-tx-0: #ffffff; /* ⚠ INFERIDO: o doc cita tx-0 (hover tx-1→tx-0) mas não deu o hex — confirmar */
+  --t-tx-1: #f4f5f8;
+  --t-tx-2: #8b919d;
+  --t-tx-3: #5e636c;
 
-  /* ── ARESTA — hairline inset (substitui o border 1px; sem bevel duplo) ── */
-  --t-hairline: inset 0 0 0 1px rgba(255, 255, 255, .055);
+  /* ── FIOS / ARESTA ── */
+  --t-line: rgba(255, 255, 255, .07);        /* fronteira de módulo */
+  --t-line-soft: rgba(255, 255, 255, .045);  /* entre células de tabela */
+  --t-line-strong: rgba(255, 255, 255, .12); /* input em foco */
+  --t-edge: inset 0 0 0 1px rgba(255, 255, 255, .055); /* hairline (substitui border 1px) */
+
+  /* ── ESTADOS (fundo) ── */
+  --t-state-hover: rgba(255, 255, 255, .035);
+  --t-state-active: rgba(255, 255, 255, .055);
+  --t-state-press: rgba(255, 255, 255, .075);
+
+  /* ── SOMBRA FLUTUANTE — SÓ em S3 ── */
+  --t-shadow-float: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px -8px rgba(0, 0, 0, .65);
 
   /* ── VIDRO (flutuante sobre S3) — quem adota inclui o fallback @supports ── */
   --t-glass-bg: rgba(8, 9, 12, .78);
   --t-glass-bg-fallback: rgba(8, 9, 12, .94);
   --t-glass-blur: blur(14px) saturate(120%);
   --t-glass-border: 1px solid rgba(198, 167, 92, .25);
-  --t-glass-shadow: 0 18px 44px rgba(0, 0, 0, .72);
 
-  /* ── ESCALA TIPOGRÁFICA — 7 degraus (mata os 15 tamanhos do concorrente) ── */
-  --t-fs-1: 9px;
-  --t-fs-2: 11px;
-  --t-fs-3: 13px;
-  --t-fs-4: 15px;
-  --t-fs-5: 20px;
-  --t-fs-6: 26px;
-  --t-fs-7: 30px;
-  /* tracking: caixa alta com letter-spacing positivo (medido +0.45–0.72px) */
-  --t-track-eyebrow: 0.06em; /* ~+0.6px em 10px */
-  --t-track-tight: 0.02em;
+  /* ── SEMÂNTICA DE DADO — dessaturados p/ não competir com o dourado ── */
+  --t-pos: #4e9e6a;
+  --t-neg: #c9565c;
+  --t-warn: #c19a4e;                    /* âmbar — "caro/elevado" (eixo valuation) */
+  --t-pos-wash: rgba(78, 158, 106, .12); /* flash de dado chegando (célula que subiu) */
+  --t-neg-wash: rgba(201, 86, 92, .12);  /* idem (célula que caiu) */
+  --t-val-cheap: #5b90b3;               /* ⚠ PROPOSTA: azul dessaturado (mesma família do --t-warn)
+                                              p/ "barato/comprimido" — o doc não definiu; confirmar */
 
-  /* ── DOURADO — marca/estrutura + estado de atenção NÃO-direcional
-        (Elevated/Rich/Flat). NUNCA direção de dado (isso é verde/vermelho). ── */
+  /* ── DOURADO — marca/estrutura/atenção. Teto 2% da tela, 1 por bloco visual.
+        Nunca direção de dado, nunca gradiente, nunca borda de card. ── */
   --t-gold: #c6a75c;
+  --t-gold-btn-bg: rgba(198, 167, 92, .08);        /* fundo do botão primário */
+  --t-gold-btn-edge: inset 0 0 0 1px rgba(198, 167, 92, .35);
+  --t-focus: 2px solid rgba(198, 167, 92, .55);    /* anel de foco de teclado */
 
-  /* ── PALETA DE 2 EIXOS ──
-        direção → verde/vermelho (subiu/desceu · call/put · suporte/resistência)
-        valuation → azul/âmbar (barato/comprimido · caro/elevado). Azul = também o
-        percentil nos tooltips; azul NUNCA é ação. */
-  --t-dir-up: rgb(93, 168, 116);
-  --t-dir-down: rgb(190, 74, 66);
-  --t-val-cheap: #38bdf8; /* azul */
-  --t-val-rich: #f59e0b;  /* âmbar */
+  /* ── TIPOGRAFIA — 7 degraus (px / line-height / tracking). Inter VARIÁVEL
+        (pesos 510 e 590 exatos). Números sempre JetBrains Mono 400 tabular. ── */
+  --t-font-ui: Inter, ui-sans-serif, system-ui, sans-serif;
+  --t-font-num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --t-weight-normal: 400;
+  --t-weight-medium: 510;
+  --t-weight-semi: 590;
+  /* T1 · rótulo/unidade/metadado — JetBrains 500 caixa alta */
+  --t-t1-size: 11px; --t-t1-lh: 16px; --t-t1-track: .10em;
+  /* T2 · BASE DA UI: lista/menu/célula/lateral — Inter 400/510 */
+  --t-t2-size: 13px; --t-t2-lh: 20px; --t-t2-track: -.010em;
+  /* T3 · corpo de texto (máx 640px) — Inter 400 */
+  --t-t3-size: 15px; --t-t3-lh: 24px; --t-t3-track: -.011em;
+  /* T4 · lead de seção / título de módulo — Inter 510 */
+  --t-t4-size: 18px; --t-t4-lh: 27px; --t-t4-track: -.012em;
+  /* T5 · título de vista (TERMINAL) — Inter 590 */
+  --t-t5-size: 24px; --t-t5-lh: 30px; --t-t5-track: -.016em;
+  /* T6 · seção (SITE) — Inter 600. NO TERMINAL só Inter (nunca Cormorant) */
+  --t-t6-size: 32px; --t-t6-lh: 36px; --t-t6-track: -.020em;
+  /* T7 · h1 (SITE) — Cormorant 300, ls 0. NÃO entra no terminal */
+  --t-t7-size: 46px; --t-t7-lh: 50px; --t-t7-track: 0;
 
-  /* ── TRANSIÇÕES (política — valores já de facto no código) ── */
-  --t-fast: .12s;
-  --t-base: .2s;
-  --t-slow: .35s cubic-bezier(.4, 0, .2, 1);
+  /* ── MOVIMENTO ── */
+  --t-e-fast: cubic-bezier(.25, .46, .45, .94);  /* ease-out quad */
+  --t-e-panel: cubic-bezier(.32, .72, 0, 1);     /* painel grande */
+  --t-d-color: .10s;
+  --t-d-surface: .16s;
+  --t-d-enter: .40s;
+  --t-d-panel: .28s;
+  /* transição padrão de interativo (componentes copiam esta lista, nunca `all`):
+     color var(--t-d-color) var(--t-e-fast),
+     background-color var(--t-d-surface) var(--t-e-fast),
+     box-shadow var(--t-d-surface) var(--t-e-fast) */
 }
