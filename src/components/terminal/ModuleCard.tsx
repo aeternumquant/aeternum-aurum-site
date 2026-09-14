@@ -44,7 +44,7 @@ export function ModuleCard({
   const dim = state === "loading" || state === "locked";
 
   return (
-    <section className="w-full h-full bg-[#0e0f13] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] rounded-sm flex flex-col overflow-hidden">
+    <section className="w-full h-full bg-[var(--t-s1)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] rounded-sm flex flex-col overflow-hidden">
       {/* HEADER — sempre visível (não some em nenhum estado) */}
       <header className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-3 border-b border-white/5">
         <div className={dim ? "opacity-40 transition-opacity" : "transition-opacity"}>
