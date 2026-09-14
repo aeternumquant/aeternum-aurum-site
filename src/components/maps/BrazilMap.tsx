@@ -15,7 +15,7 @@ import { LAYERS, type LayerConfig } from "./layers";
  * volta para 'terminal'+ (a função devolve vazio para o resto).
  *
  * O que é mostrado vem da camada ativa (LayerConfig) — trocar/adicionar camada é
- * config, não código. Tokens: fundo #08090c, dourado #c6a75c, texto #f4f5f8.
+ * config, não código. Tokens: fundo #08090c, dourado #c6a75c, texto var(--t-tx-1).
  */
 const GOLD = "#c6a75c";
 // FASE 1.4: W casa a proporção projetada do Brasil (bbox ~492×520 em Mercator),
@@ -49,7 +49,7 @@ function Select({ value, onChange, options, aria }: { value: string; onChange: (
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="bg-transparent text-[11px] tracking-wide py-1 pl-1 pr-4 focus:outline-none cursor-pointer"
-      style={{ color: "#f4f5f8", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 2 }}
+      style={{ color: "var(--t-tx-1)", border: "0.5px solid rgba(255,255,255,0.12)", borderRadius: 2 }}
     >
       {options.map((o) => <option key={o.value} value={o.value} style={{ background: "#08090c" }}>{o.label}</option>)}
     </select>
@@ -212,7 +212,7 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
       {/* subtítulo (muda com o seletor) + voltar */}
       <div className="flex items-baseline justify-between px-4 pt-2 pb-1">
         <div>
-          <h3 className="font-display text-sm uppercase tracking-[0.22em]" style={{ color: "#f4f5f8" }}>{info ? info.nome : "Brasil"}</h3>
+          <h3 className="font-display text-sm uppercase tracking-[0.22em]" style={{ color: "var(--t-tx-1)" }}>{info ? info.nome : "Brasil"}</h3>
           <p className="text-[10px] tracking-widest uppercase" style={{ color: `${GOLD}aa` }}>
             {layer.subtitle(paramValues)}
             {busy && <span className="ml-2 animate-pulse" style={{ color: GOLD }}>atualizando…</span>}
@@ -303,7 +303,7 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
 
         {uf && agg && n != null && n > 0 && (
           <div className="space-y-2">
-            <p className="text-[12px] leading-relaxed" style={{ color: "#f4f5f8" }}>
+            <p className="text-[12px] leading-relaxed" style={{ color: "var(--t-tx-1)" }}>
               <span style={{ color: GOLD }}>{n} municípios</span> · de{" "}
               <span style={{ color: GOLD }}>{agg[layer.aggMin]} a {agg[layer.aggMax]}</span> {layer.valueLabel} · média{" "}
               <span style={{ color: GOLD }}>{Number(agg[layer.aggAvg]).toFixed(1)}</span>
@@ -325,7 +325,7 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
         {/* ponto de decisão: o município clicado. Free vê o rótulo + máscara; o
             valor real (de detail) só existe para o assinante. */}
         {uf && selected && pub.get(selected) && (
-          <p className="text-[11px] leading-relaxed pt-1.5" style={{ color: "#f4f5f8" }}>
+          <p className="text-[11px] leading-relaxed pt-1.5" style={{ color: "var(--t-tx-1)" }}>
             <span style={{ color: GOLD }}>{pub.get(selected)!.municipio}</span> — {layer.metric}:{" "}
             {detail.get(selected) != null ? (
               <span style={{ color: GOLD }}>{detail.get(selected)![layer.valueKey]} {layer.valueLabel}</span>

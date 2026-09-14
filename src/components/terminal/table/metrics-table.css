@@ -12,7 +12,7 @@
   --stale: 198, 167, 92;
   /* acabamento DIA7: contraste medido — salto primario->secundario vai a ~2,9x,
      e saem os cinzas neutros puros (r=g=b) que flutuavam sobre o fundo azulado */
-  --tx: #f4f5f8; --tx2: #8b919d; --tx3: #5e636c;
+  --tx: var(--t-tx-1); --tx2: var(--t-tx-2); --tx3: var(--t-tx-3);
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   /* .mtable É o scroller (o script mede .closest('.mtable').scrollWidth) */
   overflow-x: auto; overflow-y: visible; overscroll-behavior-x: contain;
