@@ -67,7 +67,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
 function SlotBox({ i, title, hint, full, gated }: { i: number; title: string; hint: string; full?: boolean; gated?: boolean }) {
   return (
     <div
-      className={`rounded-sm bg-[var(--t-s1)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)] p-4 ${full ? "" : "min-h-[140px]"}`}
+      className={`rounded-sm bg-[var(--t-s1)] shadow-[var(--t-edge)] p-4 ${full ? "" : "min-h-[140px]"}`}
     >
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: `${GOLD}b0` }}>

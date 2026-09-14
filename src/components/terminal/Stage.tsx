@@ -42,7 +42,7 @@ export default function Stage({
   const bandRight = sidePanel ? sideWidth + GAP * 2 : GAP;
   return (
     <section
-      className="relative w-full overflow-hidden rounded-sm bg-[var(--t-s1)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]"
+      className="relative w-full overflow-hidden rounded-sm bg-[var(--t-s1)] shadow-[var(--t-edge)]"
       style={{ aspectRatio: `${ratio} / 1`, maxHeight }}
     >
       {/* MAPA — preenche o palco (fundo) */}

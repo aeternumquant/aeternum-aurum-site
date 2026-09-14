@@ -18,7 +18,7 @@
   overflow-x: auto; overflow-y: visible; overscroll-behavior-x: contain;
   /* acabamento DIA7: superficie S1 (var(--t-s1), +6 sobre a S0 #08090c da pagina) +
      hairline inset como aresta (substitui o border 1px, aresta unica sem bevel duplo) */
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .055); border-radius: 5px; background: var(--t-s1);
+  box-shadow: var(--t-edge); border-radius: 5px; background: var(--t-s1);
   scrollbar-width: thin; scrollbar-color: rgba(198, 167, 92, .2) transparent;
 }
 .mtable::-webkit-scrollbar { height: 6px; }
