@@ -23,10 +23,12 @@ const VTEXT: Record<string, string> = { Apertado: "text-amber-400", Normal: "tex
 const nf1 = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 const signed = (n: number | null | undefined) => (n == null ? "—" : (n >= 0 ? "+" : "") + nf1(n));
 
-export default function StocksToUse({ escopo, onRemove, onExpand }: { escopo?: string; onRemove?: () => void; onExpand?: () => void }) {
+export default function StocksToUse({ escopo, onRemove, onExpand, dossie }: { escopo?: string; onRemove?: () => void; onExpand?: () => void; dossie?: boolean }) {
   const cmd = COMMANDS.stocks as ModuleCommand;
   const { isPaid } = useEntitlements();
-  const [commodity, setCommodity] = useState(() => (escopo && COMMODITIES[escopo] ? escopo : "soja"));
+  const [commodityLocal, setCommodity] = useState(() => (escopo && COMMODITIES[escopo] ? escopo : "soja"));
+  // no dossiê o ESCOPO dirige (o seletor de commodity some); fora dele, seleção local.
+  const commodity = dossie && escopo && COMMODITIES[escopo] ? escopo : commodityLocal;
   const [regiao, setRegiao] = useState("WORLD");
   const [pub, setPub] = useState<Publico | null>(null);
   const [det, setDet] = useState<Detalhe | null>(null);
@@ -65,7 +67,7 @@ export default function StocksToUse({ escopo, onRemove, onExpand }: { escopo?: s
           {/* seletores commodity × região (escopo parametrizável) + safra/projeção */}
           <div className="flex items-start justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
-              <Selector value={commodity} onChange={setCommodity} options={Object.entries(COMMODITIES).map(([k, v]) => [k, v.label])} />
+              {!dossie && <Selector value={commodity} onChange={setCommodity} options={Object.entries(COMMODITIES).map(([k, v]) => [k, v.label])} />}
               <Selector value={regiao} onChange={setRegiao} options={Object.entries(REGIOES).map(([k, v]) => [k, v.label])} />
             </div>
             <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 text-right leading-relaxed flex-shrink-0">

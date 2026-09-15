@@ -1,6 +1,7 @@
 import WorldStage from "./modules/WorldStage";
 import GregasSlot from "./modules/GregasSlot";
 import SeriesSlot from "./modules/SeriesSlot";
+import StocksToUse from "./modules/StocksToUse";
 import { ModuleCard } from "./ModuleCard";
 import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
@@ -30,11 +31,6 @@ const SLOT_META: Record<string, ModuleCommand> = {
     descricao: "Skew, term structure e IV rank do futuro B3 — indicador derivado.",
     fonte: { titulo: "brapi Pro — opções sobre futuros B3", tipo: "Base (uso derivado)", link: "https://brapi.dev" },
   },
-  research: {
-    id: "research", label: "Research", planoMinimo: "free", kind: "module", size: "2x1", width: 380,
-    descricao: "O paper ou artigo da casa sobre esta commodity.",
-    fonte: { titulo: "Aeternum Research", tipo: "Editorial", link: "/research" },
-  },
 };
 
 export default function Dossie({ escopo }: { escopo?: string }) {
@@ -46,8 +42,8 @@ export default function Dossie({ escopo }: { escopo?: string }) {
     e.temOpcoes && { cmd: SLOT_META.gregas, msg: "license-gated: construído, não publicado — a preencher" },
     e.temBrasil && { cmd: COMMANDS.mapa as ModuleCommand, msg: "janela de plantio ZARC por município — a preencher" },
     e.temStocks && { cmd: COMMANDS.stocks as ModuleCommand, msg: "aperto da oferta mundial (PSD) — a preencher" },
-    e.researchId && { cmd: SLOT_META.research, msg: `${e.researchId} — a preencher` },
   ].filter(Boolean) as { cmd: ModuleCommand; msg: string }[];
+  // research não é 5º card: é o link discreto no rodapé do slot de séries (composição "existe aqui").
   const total = 1 + extras.length;
 
   return (
@@ -76,6 +72,8 @@ export default function Dossie({ escopo }: { escopo?: string }) {
               <div key={cmd.id} className="min-h-[160px]">
                 {cmd.id === "gregas" ? (
                   <GregasSlot cmd={cmd} />
+                ) : cmd.id === "stocks" ? (
+                  <StocksToUse escopo={escopo} dossie />
                 ) : (
                   <ModuleCard command={cmd} state="empty" emptyMsg={msg} />
                 )}
