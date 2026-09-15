@@ -70,7 +70,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
         {extras.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {extras.map(({ cmd, msg }) => (
-              <div key={cmd.id} className="min-h-[160px]">
+              <div key={cmd.id}>
                 {cmd.id === "gregas" ? (
                   <GregasSlot cmd={cmd} />
                 ) : cmd.id === "stocks" ? (

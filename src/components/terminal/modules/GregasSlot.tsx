@@ -11,11 +11,12 @@ import type { ModuleCommand } from "../commands";
  * SVG puro (recharts fica fora do bundle do terminal). Glifos estáticos, sem dado.
  * Cor em tx (o dourado é só funcional; glifo é conteúdo, não acento).
  */
+// cor por glifo (paleta dessaturada) — distingue as 4 sem gastar o dourado; nomes em tx-1.
 const GREGAS = [
-  { key: "delta", nome: "Delta", frase: "quanto o preço da opção anda quando o ativo anda R$ 1", glyph: "delta" },
-  { key: "gamma", nome: "Gamma", frase: "quão rápido o delta muda — a curvatura da resposta", glyph: "gamma" },
-  { key: "vega", nome: "Vega", frase: "quanto a opção reage quando a volatilidade sobe", glyph: "vega" },
-  { key: "theta", nome: "Theta", frase: "quanto a opção perde a cada dia que passa", glyph: "theta" },
+  { key: "delta", nome: "Delta", frase: "quanto o preço da opção anda quando o ativo anda R$ 1", glyph: "delta", cor: "var(--t-val-cheap)" },
+  { key: "gamma", nome: "Gamma", frase: "quão rápido o delta muda — a curvatura da resposta", glyph: "gamma", cor: "var(--t-warn)" },
+  { key: "vega", nome: "Vega", frase: "quanto a opção reage quando a volatilidade sobe", glyph: "vega", cor: "var(--t-pos)" },
+  { key: "theta", nome: "Theta", frase: "quanto a opção perde a cada dia que passa", glyph: "theta", cor: "var(--t-neg)" },
 ] as const;
 
 export default function GregasSlot({ cmd }: { cmd: ModuleCommand }) {
@@ -28,7 +29,7 @@ export default function GregasSlot({ cmd }: { cmd: ModuleCommand }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5 mt-3">
           {GREGAS.map((g) => (
             <div key={g.key} className="flex items-start gap-2.5">
-              <Glyph kind={g.glyph} />
+              <Glyph kind={g.glyph} color={g.cor} />
               <div className="min-w-0">
                 <div className="font-sans font-[510] text-[12px]" style={{ color: "var(--t-tx-1)" }}>{g.nome}</div>
                 <div className="font-sans text-[10px] leading-snug mt-0.5" style={{ color: "var(--t-tx-3)" }}>{g.frase}</div>
@@ -42,8 +43,8 @@ export default function GregasSlot({ cmd }: { cmd: ModuleCommand }) {
 }
 
 /** o glifo de intuição — reta (delta), curva (gamma), cone (vega), decaimento (theta). */
-function Glyph({ kind }: { kind: string }) {
-  const s = "var(--t-tx-2)";
+function Glyph({ kind, color }: { kind: string; color: string }) {
+  const s = color;
   const axis = "var(--t-line-soft)";
   return (
     <svg width="52" height="34" viewBox="0 0 52 34" fill="none" className="flex-shrink-0 mt-0.5" aria-hidden="true">

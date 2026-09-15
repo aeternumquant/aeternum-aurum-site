@@ -45,8 +45,8 @@ export const COMMANDS: Record<string, CommandMeta> = {
     fonte: { titulo: "ZARC — Zoneamento Agrícola de Risco Climático (Portaria MAPA)", tipo: "Recomendação oficial", link: "https://www.gov.br/agricultura/pt-br/assuntos/riscos-seguro/programa-nacional-de-zoneamento-agricola-de-risco-climatico" },
   },
   stocks: {
-    kind: "module", id: "stocks", label: "Stocks-to-use",
-    descricao: "Estoque final sobre o uso total — o quão apertada está a oferta ante a demanda.",
+    kind: "module", id: "stocks", label: "Cobertura de estoque",
+    descricao: "Quantos meses de consumo o estoque final cobre — quanto menor, mais apertada a oferta e mais sensível o preço.",
     size: "2x1", width: 380, planoMinimo: "free",
     fonte: { titulo: "USDA/FAS — Production, Supply & Distribution (PSD)", tipo: "Base oficial", link: "https://apps.fas.usda.gov/psdonline/app/index.html" },
   },

@@ -13,12 +13,15 @@ import { ModuleCard, type ModuleState } from "../ModuleCard";
 type Publico = { market_year: number; ratio: number; veredito: "Apertado" | "Normal" | "Folgado"; ending_stocks: number; dom_consumption: number; production: number; unidade: string };
 type Detalhe = { percentil: number; delta_1a: number | null; delta_5a: number | null; serie: { ano: number; ratio: number }[] };
 
+// cor NEUTRA de propósito: aperto de estoque = preço alto (bom p/ quem vende, ruim p/ quem
+// compra) — a cor não toma partido. A POSIÇÃO (apertado à esquerda, folgado à direita) + o
+// realce da zona ativa dizem tudo; sem âmbar/azul de julgamento de valor.
 const ZONES = [
-  { key: "Apertado", label: "APERTADO", color: "#f59e0b" }, // âmbar = oferta elevada de preocupação (tight)
-  { key: "Normal", label: "NORMAL", color: "#6b7280" },
-  { key: "Folgado", label: "FOLGADO", color: "#38bdf8" }, // azul = comprimido/folgado (ample)
+  { key: "Apertado", label: "APERTADO", color: "var(--t-tx-2)" },
+  { key: "Normal", label: "NORMAL", color: "var(--t-tx-2)" },
+  { key: "Folgado", label: "FOLGADO", color: "var(--t-tx-2)" },
 ] as const;
-const VTEXT: Record<string, string> = { Apertado: "text-amber-400", Normal: "text-muted-foreground", Folgado: "text-sky-400" };
+const VTEXT: Record<string, string> = { Apertado: "text-[var(--t-tx-1)]", Normal: "text-[var(--t-tx-1)]", Folgado: "text-[var(--t-tx-1)]" };
 
 const nf1 = (n: number | null | undefined) => (n == null ? "—" : n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
 const signed = (n: number | null | undefined) => (n == null ? "—" : (n >= 0 ? "+" : "") + nf1(n));
@@ -114,7 +117,7 @@ function Bar({ veredito, percentil, isPaid, det }: { veredito: string; percentil
         {/* rótulos das zonas (9px, caixa alta) */}
         {ZONES.map((z, i) => (
           <text key={z.key} x={(i * W) / 3 + W / 6} y={38} textAnchor="middle"
-            fontSize={9} letterSpacing={1} fill={i === zoneIdx ? z.color : "#6b7280"}
+            fontSize={9} letterSpacing={1} fill={i === zoneIdx ? "var(--t-tx-1)" : "var(--t-tx-3)"}
             style={{ textTransform: "uppercase", fontWeight: i === zoneIdx ? 600 : 400 }}>{z.label}</text>
         ))}
         {/* TICK — só com percentil real (terminal). Afordância visível: haste + losango. */}
