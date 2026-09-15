@@ -56,7 +56,12 @@ function Select({ value, onChange, options, aria }: { value: string; onChange: (
   );
 }
 
-export default function BrazilMap({ compact = false }: { compact?: boolean }) {
+/** escopo (id canônico) -> cultura ZARC. Milho abre na 1ª safra; o toggle no dossiê dá a 2ª. */
+const ESCOPO_CULTURA: Record<string, string> = {
+  soja: "Soja", milho: "Milho 1ª Safra", algodao: "Algodão Herbáceo", arroz: "Arroz", trigo: "Trigo", cafe: "Café Arábica",
+};
+
+export default function BrazilMap({ compact = false, dossie = false, escopo }: { compact?: boolean; dossie?: boolean; escopo?: string }) {
   const { isPaid } = useEntitlements();
   const [layerKey, setLayerKey] = useState(LAYERS[0].key);
   const layer = useMemo(() => LAYERS.find((l) => l.key === layerKey) ?? LAYERS[0], [layerKey]);
@@ -78,6 +83,14 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
 
   const onLayer = (k: string) => { setLayerKey(k); const l = LAYERS.find((x) => x.key === k); if (l) setParamValues(defaultsFor(l)); };
   const onParam = (key: string, value: string) => setParamValues((p) => ({ ...p, [key]: value }));
+
+  // no dossiê o ESCOPO dirige a cultura (o seletor de cultura some); trava ao trocar
+  // de commodity. Não sobrescreve o toggle de safra do milho (só re-roda se o escopo muda).
+  useEffect(() => {
+    if (!dossie || !escopo) return;
+    const c = ESCOPO_CULTURA[escopo];
+    if (c) setParamValues((p) => (p.cultura === c ? p : { ...p, cultura: c }));
+  }, [dossie, escopo]);
 
   // geometria: só depende da UF (params/camada não a mudam)
   const openUf = useCallback(async (code: string) => {
@@ -200,9 +213,16 @@ export default function BrazilMap({ compact = false }: { compact?: boolean }) {
       {/* BARRA DE CONTROLE (genérica pela camada ativa) */}
       <div className="flex flex-wrap items-center gap-2 px-4 pt-3 pb-2" style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}>
         <Select aria="Camada" value={layerKey} onChange={onLayer} options={LAYERS.map((l) => ({ value: l.key, label: l.label }))} />
-        {layer.params.map((p) => (
-          <Select key={p.key} aria={p.label} value={paramValues[p.key]} onChange={(v) => onParam(p.key, v)} options={p.options} />
-        ))}
+        {layer.params
+          .filter((p) => !(dossie && p.key === "cultura")) /* no dossiê o escopo dirige a cultura */
+          .map((p) => (
+            <Select key={p.key} aria={p.label} value={paramValues[p.key]} onChange={(v) => onParam(p.key, v)} options={p.options} />
+          ))}
+        {/* milho tem 1ª e 2ª safra no ZARC, mas o escopo é só "milho": toggle residual */}
+        {dossie && escopo === "milho" && (
+          <Select aria="Safra" value={paramValues.cultura} onChange={(v) => onParam("cultura", v)}
+            options={[{ value: "Milho 1ª Safra", label: "1ª safra" }, { value: "Milho 2ª Safra", label: "2ª safra" }]} />
+        )}
       </div>
 
       {layer.manejoHint(paramValues) && (

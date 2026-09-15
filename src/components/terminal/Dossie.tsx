@@ -2,6 +2,7 @@ import WorldStage from "./modules/WorldStage";
 import GregasSlot from "./modules/GregasSlot";
 import SeriesSlot from "./modules/SeriesSlot";
 import StocksToUse from "./modules/StocksToUse";
+import MapaBrasil from "./modules/MapaBrasil";
 import { ModuleCard } from "./ModuleCard";
 import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
@@ -74,6 +75,8 @@ export default function Dossie({ escopo }: { escopo?: string }) {
                   <GregasSlot cmd={cmd} />
                 ) : cmd.id === "stocks" ? (
                   <StocksToUse escopo={escopo} dossie />
+                ) : cmd.id === "mapa" ? (
+                  <MapaBrasil escopo={escopo} dossie />
                 ) : (
                   <ModuleCard command={cmd} state="empty" emptyMsg={msg} />
                 )}
