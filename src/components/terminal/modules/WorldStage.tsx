@@ -115,7 +115,7 @@ export default function WorldStage({ escopo }: { escopo?: string }) {
                 className="font-sans text-[8px] uppercase tracking-[0.08em] px-2 py-0.5 rounded-sm border transition-colors"
                 style={
                   c.id === ws.entry.id
-                    ? { background: GOLD, color: "#050503", borderColor: GOLD }
+                    ? { background: "var(--t-state-active)", color: "var(--t-tx-1)", borderColor: "var(--t-line-strong)" }
                     : { background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.55)", borderColor: "rgba(255,255,255,0.1)" }
                 }
               >

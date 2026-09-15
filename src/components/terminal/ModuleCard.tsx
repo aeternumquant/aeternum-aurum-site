@@ -48,12 +48,12 @@ export function ModuleCard({
       {/* HEADER — sempre visível (não some em nenhum estado) */}
       <header className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-3 border-b border-white/5">
         <div className={dim ? "opacity-40 transition-opacity" : "transition-opacity"}>
-          <h3 className="font-sans text-[13px] text-[var(--t-tx-1)] uppercase tracking-[0.18em] leading-tight">{command.label}</h3>
+          <h3 className="font-sans font-[510] text-[13px] text-[var(--t-tx-1)] uppercase tracking-[0.18em] leading-tight">{command.label}</h3>
           <p className="text-[11px] text-muted-foreground/70 font-light leading-snug mt-1 max-w-md">{command.descricao}</p>
         </div>
         <div className="relative flex-shrink-0" ref={ref}>
           <button onClick={() => setMenu((v) => !v)} aria-label="Ações do módulo"
-            className="text-muted-foreground/60 hover:text-primary transition-colors p-1 -mr-1">
+            className="text-[var(--t-tx-2)] hover:text-[var(--t-tx-1)] transition-colors p-1 -mr-1">
             <MoreVertical className="w-4 h-4" />
           </button>
           {menu && (
@@ -63,7 +63,7 @@ export function ModuleCard({
                 sub={dataDate ? `dado de ${fmtDate(dataDate)}` : undefined}>Atualizar</MenuItem>
               <a href={command.fonte.link} target="_blank" rel="noreferrer" onClick={() => setMenu(false)}
                 className="flex items-start gap-2.5 px-3 py-2 text-[11px] text-foreground hover:bg-primary/10 transition-colors">
-                <BookOpen className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+                <BookOpen className="w-3.5 h-3.5 text-[var(--t-tx-2)] flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Ler a fonte<span className="block text-[9px] uppercase tracking-wider text-muted-foreground/60 mt-0.5">{command.fonte.titulo}</span></span>
               </a>
               <MenuItem icon={<X className="w-3.5 h-3.5" />} onClick={() => { setMenu(false); onRemove?.(); }}>Remover do painel</MenuItem>
@@ -119,7 +119,7 @@ export function ModuleCard({
 function MenuItem({ icon, children, sub, onClick }: { icon: ReactNode; children: ReactNode; sub?: string; onClick?: () => void }) {
   return (
     <button onClick={onClick} className="w-full flex items-start gap-2.5 px-3 py-2 text-[11px] text-foreground hover:bg-primary/10 transition-colors text-left">
-      <span className="text-primary flex-shrink-0 mt-0.5">{icon}</span>
+      <span className="text-[var(--t-tx-2)] flex-shrink-0 mt-0.5">{icon}</span>
       <span className="leading-tight">{children}{sub && <span className="block text-[9px] uppercase tracking-wider text-muted-foreground/60 mt-0.5">{sub}</span>}</span>
     </button>
   );

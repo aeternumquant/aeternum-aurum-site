@@ -16,11 +16,11 @@
   --t-s3: #1a1b21; /* base do flutuante */
   --t-s4: #202128;
 
-  /* ── TEXTO — tx-1 primário; tx-2 cabeçalho/eixo; tx-0 é o hover (mais claro) ── */
-  --t-tx-0: #ffffff; /* ⚠ INFERIDO: o doc cita tx-0 (hover tx-1→tx-0) mas não deu o hex — confirmar */
-  --t-tx-1: #f4f5f8;
-  --t-tx-2: #8b919d;
-  --t-tx-3: #5e636c;
+  /* ── TEXTO — escala de 3 níveis. Hover = tx-2 → tx-1 (secundário vira primário),
+        NUNCA branco puro (contraste alto demais sobre S0 quebra a hierarquia). ── */
+  --t-tx-1: #f4f5f8; /* primário */
+  --t-tx-2: #8b919d; /* secundário (cabeçalho/eixo/hover-origem) */
+  --t-tx-3: #5e636c; /* terciário */
 
   /* ── FIOS / ARESTA ── */
   --t-line: rgba(255, 255, 255, .07);        /* fronteira de módulo */
