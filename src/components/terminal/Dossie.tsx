@@ -1,4 +1,6 @@
 import WorldStage from "./modules/WorldStage";
+import { ModuleCard } from "./ModuleCard";
+import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
 
 /**
@@ -7,13 +9,31 @@ import { resolveEscopo } from "./commodityRegistry";
  * ESTA commodity, em slots equilibrados, montando SÓ os cobertos (registry).
  *
  * Ordem aprovada (prioridade): séries > gregas/vol > Brasil/ZARC > stocks > research.
- * "Primeiro o que TODA commodity tem (séries), depois o EXCLUSIVO nosso (gregas),
- * depois o que o assinante paga (ZARC), por fim contexto (stocks) e leitura (research)."
  *
- * ESQUELETO: por ora os 5 slots são PLACEHOLDERS rotulados — o objetivo é provar a
- * ordem e a adaptação nos extremos (soja 5/5 × minério 1/5) ANTES de encher.
+ * Cada slot usa o <ModuleCard> (contrato: título + frase rebaixada + menu ⋮ com as
+ * quatro ações), mesmo VAZIO — o andaime já tem o chrome certo; encher vira trocar
+ * o corpo (state="ready" com o conteúdo), não refazer a moldura. Brasil e stocks
+ * reusam a metadata dos comandos existentes; séries/gregas/research têm a sua.
  */
-const GOLD = "#c6a75c";
+
+// metadata dos slots que ainda não são comandos próprios (séries/gregas/research)
+const SLOT_META: Record<string, ModuleCommand> = {
+  series: {
+    id: "series", label: "Séries", planoMinimo: "free", kind: "module", size: "2x1", width: 760,
+    descricao: "Preço, sub-produtos e referências relacionadas desta commodity.",
+    fonte: { titulo: "World Bank Pink Sheet · B3 · séries do banco", tipo: "Base oficial", link: "https://www.worldbank.org/en/research/commodity-markets" },
+  },
+  gregas: {
+    id: "gregas", label: "Gregas & volatilidade", planoMinimo: "terminal", kind: "module", size: "2x1", width: 380,
+    descricao: "Skew, term structure e IV rank do futuro B3 — indicador derivado.",
+    fonte: { titulo: "brapi Pro — opções sobre futuros B3", tipo: "Base (uso derivado)", link: "https://brapi.dev" },
+  },
+  research: {
+    id: "research", label: "Research", planoMinimo: "free", kind: "module", size: "2x1", width: 380,
+    descricao: "O paper ou artigo da casa sobre esta commodity.",
+    fonte: { titulo: "Aeternum Research", tipo: "Editorial", link: "/research" },
+  },
+};
 
 export default function Dossie({ escopo }: { escopo?: string }) {
   const e = resolveEscopo(escopo);
@@ -21,14 +41,14 @@ export default function Dossie({ escopo }: { escopo?: string }) {
   // séries é SEMPRE presente (garante que nenhuma commodity fica vazia; carrega o
   // "existe aqui" pra quem tem só preço). Os demais entram por cobertura declarada.
   const seriesHint = e.seriesCode
-    ? `preço ${e.seriesCode}${e.relatedSeries.length ? ` · +${e.relatedSeries.length} relacionadas` : ""}`
-    : (e.noQuote ?? "sem cotação pública");
+    ? `${e.seriesCode}${e.relatedSeries.length ? ` · +${e.relatedSeries.length} relacionadas` : ""} — a preencher`
+    : `${e.noQuote ?? "sem cotação pública"} — a preencher`;
   const extras = [
-    { key: "gregas", show: e.temOpcoes, title: "Gregas & volatilidade", hint: "skew · term structure · IV rank", gated: true },
-    { key: "brasil", show: e.temBrasil, title: "Brasil · ZARC", hint: "janela de plantio por município" },
-    { key: "stocks", show: e.temStocks, title: "Stocks-to-use", hint: "aperto da oferta mundial · PSD" },
-    { key: "research", show: !!e.researchId, title: "Research", hint: e.researchId ?? "" },
-  ].filter((s) => s.show);
+    e.temOpcoes && { cmd: SLOT_META.gregas, msg: "license-gated: construído, não publicado — a preencher" },
+    e.temBrasil && { cmd: COMMANDS.mapa as ModuleCommand, msg: "janela de plantio ZARC por município — a preencher" },
+    e.temStocks && { cmd: COMMANDS.stocks as ModuleCommand, msg: "aperto da oferta mundial (PSD) — a preencher" },
+    e.researchId && { cmd: SLOT_META.research, msg: `${e.researchId} — a preencher` },
+  ].filter(Boolean) as { cmd: ModuleCommand; msg: string }[];
   const total = 1 + extras.length;
 
   return (
@@ -39,48 +59,28 @@ export default function Dossie({ escopo }: { escopo?: string }) {
       {/* dossiê da commodity ativa */}
       <section>
         <div className="flex items-baseline justify-between gap-3 mb-3">
-          <h2 className="font-sans text-sm uppercase tracking-[0.2em]" style={{ color: "var(--t-tx-1)" }}>
+          <h2 className="font-sans font-[590] text-sm uppercase tracking-[0.2em]" style={{ color: "var(--t-tx-1)" }}>
             Dossiê · {e.label}
           </h2>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-white/35">
+          <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--t-tx-3)" }}>
             {total} {total === 1 ? "slot coberto" : "slots cobertos"}
           </span>
         </div>
 
         {/* séries: full-width (é o primário; sozinho quando só há preço) */}
-        <SlotBox i={0} title="Séries" hint={seriesHint} full />
+        <ModuleCard command={SLOT_META.series} state="empty" emptyMsg={seriesHint} />
 
         {/* extras cobertos: grade equilibrada 2 colunas, na ordem de prioridade */}
         {extras.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {extras.map((s, i) => (
-              <SlotBox key={s.key} i={i + 1} title={s.title} hint={s.hint} gated={s.gated} />
+            {extras.map(({ cmd, msg }) => (
+              <div key={cmd.id} className="min-h-[160px]">
+                <ModuleCard command={cmd} state="empty" emptyMsg={msg} />
+              </div>
             ))}
           </div>
         )}
       </section>
-    </div>
-  );
-}
-
-/** placeholder de um slot do dossiê (esqueleto) — título + o que vai vir + ordem. */
-function SlotBox({ i, title, hint, full, gated }: { i: number; title: string; hint: string; full?: boolean; gated?: boolean }) {
-  return (
-    <div
-      className={`rounded-sm bg-[var(--t-s1)] shadow-[var(--t-edge)] p-4 ${full ? "" : "min-h-[140px]"}`}
-    >
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="font-mono text-[9px] uppercase tracking-[0.18em]" style={{ color: "var(--t-tx-2)" }}>
-          {i + 1}. {title}
-        </span>
-        {gated && (
-          <span className="font-mono text-[8px] uppercase tracking-widest text-amber-400/70">
-            license-gated · não publicado
-          </span>
-        )}
-      </div>
-      <p className="font-mono text-[11px] text-white/55 mt-2">{hint}</p>
-      <p className="font-mono text-[8px] uppercase tracking-widest text-white/20 mt-3">slot a preencher</p>
     </div>
   );
 }
