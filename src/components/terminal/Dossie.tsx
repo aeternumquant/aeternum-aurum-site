@@ -1,5 +1,6 @@
 import WorldStage from "./modules/WorldStage";
 import GregasSlot from "./modules/GregasSlot";
+import SeriesSlot from "./modules/SeriesSlot";
 import { ModuleCard } from "./ModuleCard";
 import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
@@ -41,9 +42,6 @@ export default function Dossie({ escopo }: { escopo?: string }) {
 
   // séries é SEMPRE presente (garante que nenhuma commodity fica vazia; carrega o
   // "existe aqui" pra quem tem só preço). Os demais entram por cobertura declarada.
-  const seriesHint = e.seriesCode
-    ? `${e.seriesCode}${e.relatedSeries.length ? ` · +${e.relatedSeries.length} relacionadas` : ""} — a preencher`
-    : `${e.noQuote ?? "sem cotação pública"} — a preencher`;
   const extras = [
     e.temOpcoes && { cmd: SLOT_META.gregas, msg: "license-gated: construído, não publicado — a preencher" },
     e.temBrasil && { cmd: COMMANDS.mapa as ModuleCommand, msg: "janela de plantio ZARC por município — a preencher" },
@@ -69,7 +67,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
         </div>
 
         {/* séries: full-width (é o primário; sozinho quando só há preço) */}
-        <ModuleCard command={SLOT_META.series} state="empty" emptyMsg={seriesHint} />
+        <SeriesSlot cmd={SLOT_META.series} entry={e} />
 
         {/* extras cobertos: grade equilibrada 2 colunas, na ordem de prioridade */}
         {extras.length > 0 && (
