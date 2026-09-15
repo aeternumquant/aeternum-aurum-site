@@ -7,7 +7,9 @@ import MapaBrasil from "./modules/MapaBrasil";
 import MapaMundial from "./modules/MapaMundial";
 import WorldStage from "./modules/WorldStage";
 import Dossie from "./Dossie";
+import LoginGate from "./LoginGate";
 import MetricsTable from "./table/MetricsTable";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * O dashboard. A URL é o estado: ?commands=tabela-agro,mapa;tabela-macro,cflow;stocks
@@ -23,6 +25,7 @@ const MODULE_RENDER: Record<string, ComponentType<ModuleProps>> = { mapa: MapaBr
 
 export default function TerminalGrid() {
   const [params, setParams] = useSearchParams();
+  const { isAuthenticated, loading } = useAuth();
   const escopo = params.get("escopo") ?? "soja";
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -34,6 +37,10 @@ export default function TerminalGrid() {
   // Dossiê é o DEFAULT do terminal-br: a commodity (?escopo) dirige tudo. ?commands
   // presente = modo grid avançado (arranjo manual pela URL); ausente = dossiê.
   if (params.get("commands") == null) return <Dossie escopo={escopo} />;
+
+  // modo grid = 2ª camada (logado). Sem isto, ?commands=stocks furaria o gate pela URL.
+  if (loading) return <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-center py-16" style={{ color: "var(--t-tx-3)" }}>Verificando acesso…</p>;
+  if (!isAuthenticated) return <LoginGate titulo="Entre para montar seu painel" sub="O modo grade (arranjo manual dos comandos) é do terminal. O palco e os preços seguem livres na tela principal." />;
 
   const remove = (id: string) => {
     const next = rows.map((r) => r.filter((c) => c !== id)).filter((r) => r.length);

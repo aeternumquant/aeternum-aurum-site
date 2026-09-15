@@ -4,8 +4,10 @@ import SeriesSlot from "./modules/SeriesSlot";
 import StocksToUse from "./modules/StocksToUse";
 import MapaBrasil from "./modules/MapaBrasil";
 import { ModuleCard } from "./ModuleCard";
+import LoginGate from "./LoginGate";
 import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
+import { useAuth } from "../../context/AuthContext";
 
 /**
  * <Dossie> — o DEFAULT do terminal-br (Arranjo 2): palco no topo + o dossiê da
@@ -46,13 +48,19 @@ export default function Dossie({ escopo }: { escopo?: string }) {
   ].filter(Boolean) as { cmd: ModuleCommand; msg: string }[];
   // research não é 5º card: é o link discreto no rodapé do slot de séries (composição "existe aqui").
   const total = 1 + extras.length;
+  const { isAuthenticated, loading } = useAuth();
 
   return (
     <div className="space-y-6">
-      {/* palco (real) */}
+      {/* palco (real) — PÚBLICO (a isca de conversão) */}
       <WorldStage escopo={escopo} />
 
-      {/* dossiê da commodity ativa */}
+      {/* dossiê — LOGADO (2ª camada). loading não pisca o gate antes da sessão resolver. */}
+      {loading ? (
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-center py-8" style={{ color: "var(--t-tx-3)" }}>Verificando acesso…</p>
+      ) : !isAuthenticated ? (
+        <LoginGate titulo="Entre para ver o dossiê" sub={`O palco acima é livre. Séries, ZARC, cobertura de estoque e mais sobre ${e.label} são de quem entra — sem custo para começar.`} />
+      ) : (
       <section>
         <div className="flex items-baseline justify-between gap-3 mb-3">
           <h2 className="font-sans font-[590] text-sm uppercase tracking-[0.2em]" style={{ color: "var(--t-tx-1)" }}>
@@ -85,6 +93,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
           </div>
         )}
       </section>
+      )}
     </div>
   );
 }
