@@ -1,4 +1,5 @@
 import WorldStage from "./modules/WorldStage";
+import GregasSlot from "./modules/GregasSlot";
 import { ModuleCard } from "./ModuleCard";
 import { COMMANDS, type ModuleCommand } from "./commands";
 import { resolveEscopo } from "./commodityRegistry";
@@ -75,7 +76,11 @@ export default function Dossie({ escopo }: { escopo?: string }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             {extras.map(({ cmd, msg }) => (
               <div key={cmd.id} className="min-h-[160px]">
-                <ModuleCard command={cmd} state="empty" emptyMsg={msg} />
+                {cmd.id === "gregas" ? (
+                  <GregasSlot cmd={cmd} />
+                ) : (
+                  <ModuleCard command={cmd} state="empty" emptyMsg={msg} />
+                )}
               </div>
             ))}
           </div>
