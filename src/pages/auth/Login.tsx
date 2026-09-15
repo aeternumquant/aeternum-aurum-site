@@ -15,8 +15,10 @@ export default function LoginPage() {
   const location = useLocation();
   const { signIn } = useAuth();
 
-  // de onde o RequireAuth mandou (para voltar ao destino apos o login)
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || "/reports";
+  // de onde o RequireAuth/LoginGate mandou (para voltar ao destino apos o login).
+  // PRESERVA o search: /terminal-br?escopo=X tem que voltar COM o escopo (nao so o pathname).
+  const fromLoc = (location.state as { from?: { pathname?: string; search?: string } } | null)?.from;
+  const from = fromLoc?.pathname ? `${fromLoc.pathname}${fromLoc.search ?? ""}` : "/reports";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
