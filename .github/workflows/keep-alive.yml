@@ -1,0 +1,36 @@
+name: keep-alive
+
+# Repo PUBLICO tem os workflows `schedule` desabilitados apos 60 dias SEM commit no
+# repo (a diaria de opcoes escreve no Supabase, NUNCA commita -> nunca resetava o
+# timer; foi o que devastou julho/2026). Este job commita vazio 1x/semana -> mantem
+# o repo ativo -> nenhum `schedule` (diaria de opcoes, este, o de recuperacao)
+# desabilita. GITHUB_TOKEN: o push conta como atividade (a data do push e agnostica
+# ao autor; o anti-loop do token e sobre TRIGGER, nao sobre o timer) e NAO expira
+# (um PAT expiraria em silencio = a mesma falha que estamos matando). O risco
+# residual (nao contar) e capturado pela notificacao do job de recuperacao.
+# [skip ci] evita rebuild inutil da Netlify a cada commit vazio.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # toda segunda 06:17 UTC — margem enorme sob os 60 dias
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Commit vazio de keep-alive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: keep-alive semanal — evita auto-disable de schedule após 60d [skip ci]"
+          git push
