@@ -40,7 +40,12 @@ export function statusPlantio(
   riscoMin: number | null,
   base?: Date,
 ): StatusPlantio | null {
-  if (!janelas) return null;
+  if (!Array.isArray(janelas)) return null;
+
+  // BLINDAGEM: cada janela tem que ser um par [abre,fecha]. Se a forma vier errada
+  // (ex. jsonb achatado), retorna null (não renderiza) em vez de frase errada silenciosa.
+  const formaOk = janelas.every((j) => Array.isArray(j) && j.length === 2 && typeof j[0] === "number" && typeof j[1] === "number");
+  if (!formaOk) return null;
 
   // 20% vazio: procedência, NUNCA "fora da janela"
   if (janelas.length === 0) {
