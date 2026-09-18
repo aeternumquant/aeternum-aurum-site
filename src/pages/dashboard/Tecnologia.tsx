@@ -105,7 +105,7 @@ export default function TecnologiaPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background z-0" />
         <div className="relative z-10 max-w-4xl mx-auto">
           <FadeIn>
-            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">TRL 7+ Certificado</p>
+            <p className="text-[10px] text-muted-foreground tracking-[0.3em] uppercase mb-4">Nível TRL 7+</p>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-foreground uppercase tracking-widest mb-4 leading-tight">
               Tecnologia <span className="text-primary">EUA</span><br />
               Aplicada ao Brasil
@@ -190,27 +190,9 @@ export default function TecnologiaPage() {
             ))}
           </div>
 
-          {/* Métricas de desempenho do sistema */}
-          <FadeIn delay={0.35}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { value: "73%", label: "Taxa de Acerto vs Narrativa" },
-                { value: "1,5%", label: "Risco Máximo por Trade" },
-                { value: "23 anos", label: "Histórico de Backtests" },
-                { value: "65%", label: "Redução de Drawdown em Crise" },
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className="border border-primary/15 bg-primary/3 p-4 text-center"
-                >
-                  <div className="font-display text-2xl text-primary mb-1">{stat.value}</div>
-                  <div className="text-[9px] text-muted-foreground/60 uppercase tracking-wider">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
+          {/* Métricas de desempenho removidas: eram números sem fonte (acerto/backtest/
+              drawdown). A afirmação qualitativa fica nos 3 pilares acima; o limite de
+              1,5% por operação segue declarado no pilar 02. */}
         </div>
       </section>
 
@@ -246,7 +228,8 @@ export default function TecnologiaPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 border-b border-white/5 bg-card/15">
         <div className="max-w-6xl mx-auto">
           <FadeIn>
-            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-4">Análise Operacional</h2>
+            <h2 className="font-display text-3xl text-primary uppercase tracking-widest mb-3">Análise Operacional</h2>
+            <span className="inline-block mb-4 text-[9px] tracking-[0.2em] uppercase border border-primary/25 text-primary/70 px-2 py-0.5">Dados de demonstração</span>
             <p className="text-muted-foreground text-sm font-light max-w-3xl leading-relaxed mb-12">
               Monitoramento em tempo real de fluxos de opções, níveis de <Tooltip content="Gamma Exposure (GEX): Métrica do impacto de proteção de portfólio dos market makers, mostrando suporte ou resistência dinâmica.">gamma (GEX)</Tooltip> e <Tooltip content="Volatility Skew: A diferença da volatilidade implícita entre opções fora do dinheiro de compra e venda.">skew de volatilidade</Tooltip> para os principais ativos.
             </p>
@@ -294,9 +277,10 @@ export default function TecnologiaPage() {
         <div className="max-w-[1600px] mx-auto">
           <FadeIn>
             <p className="text-[9px] tracking-[0.3em] uppercase mb-3" style={{ color: "rgba(198,168,90,0.6)" }}>{t("tec.dash.title", "Dashboard Quantitativo")}</p>
-            <h2 className="font-display text-3xl sm:text-4xl text-primary uppercase tracking-widest mb-5">{t("tec.dash.title", "Dashboard Quantitativo")}</h2>
+            <h2 className="font-display text-3xl sm:text-4xl text-primary uppercase tracking-widest mb-4">{t("tec.dash.title", "Dashboard Quantitativo")}</h2>
+            <span className="inline-block mb-5 text-[9px] tracking-[0.2em] uppercase border border-primary/25 text-primary/70 px-2 py-0.5">Dados de demonstração</span>
             <div className="h-px w-24 bg-gradient-to-r from-primary to-primary/10 mb-8" />
-            <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-8">{t("tec.dash.desc", "Painel operacional em tempo real com dados institucionais para tomada de decisão quantitativa.")}</p>
+            <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-8">{t("tec.dash.desc", "Painel de demonstração da interface operacional para decisão quantitativa.")}</p>
           </FadeIn>
 
           <div className="bg-[#1C1C1C]/50 border-b border-[#C6A85A]/10 px-4 sm:px-8 py-3 flex items-center justify-between mb-4 rounded-sm">
@@ -398,10 +382,10 @@ export default function TecnologiaPage() {
             {/* Termômetro Real-Time */}
             <FadeIn>
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
-                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Atualizado a cada 15 min</p>
+                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Atualização intradiária</p>
                 <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.realtime.title", "Termômetro de Volatilidade em Tempo Real")}</h4>
                 <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.realtime.text", 'Entregamos um termômetro de volatilidade em tempo real atualizado a cada 15 minutos. Quando o termômetro sobe acima de certo nível, o sistema automaticamente sugere (ou executa, se o cliente autorizar) aumento de hedge ou redução de exposição. É como ter um "alerta de tempestade" 24 horas por dia.')}
+                  {t("exec.science.realtime.text", 'Entregamos um termômetro de volatilidade atualizado ao longo do pregão. Quando ele sobe acima de certo nível, o sistema sugere (ou executa, se o cliente autorizar) aumento de hedge ou redução de exposição. É como ter um "alerta de tempestade" acompanhando o mercado.')}
                 </p>
               </div>
             </FadeIn>
@@ -409,34 +393,29 @@ export default function TecnologiaPage() {
             {/* Hedging Inteligente */}
             <FadeIn delay={0.1}>
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/20 rounded-sm p-6 h-full hover:border-[#C6A85A]/40 transition-colors">
-                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Hanetho, 2023 • arXiv:2309.00630</p>
+                <p className="text-[9px] text-[#C6A85A]/60 tracking-[0.3em] uppercase mb-2">Fonte: Hanetho, 2023 • arXiv:2309.00630</p>
                 <h4 className="text-[#C6A85A] font-display text-base tracking-widest mb-3 uppercase">{t("exec.science.hedging.title", "Hedging Inteligente")}</h4>
                 <p className="text-xs text-[#F5F5F5]/70 leading-relaxed font-light">
-                  {t("exec.science.hedging.text", "Desenvolvemos algoritmos de hedging automático usando Deep Policy Gradient e Reinforcement Learning. Em vez de proteção estática, o sistema aprende e se adapta em tempo real, reduzindo custos de hedging em 23% a 42% comparado a métodos tradicionais.")}
+                  {t("exec.science.hedging.text", "A literatura de deep hedging (Hanetho, 2023) reporta redução de custo de 23% a 42% com Deep Policy Gradient e Reinforcement Learning frente a métodos estáticos. É a abordagem que orienta nosso desenho de hedge dinâmico, que aprende e se adapta em vez de proteger de forma estática.")}
                 </p>
               </div>
             </FadeIn>
 
-            {/* Backtests Reais */}
+            {/* Validação Quantitativa — qualitativo (números de performance sem fonte removidos) */}
             <FadeIn delay={0.2}>
               <div className="bg-gradient-to-br from-[#0a0a0a] to-[#C6A85A]/5 border border-[#C6A85A]/30 rounded-sm p-6 h-full flex flex-col justify-center">
-                <h4 className="text-[#F5F5F5] font-display text-lg tracking-widest mb-6 uppercase text-center">{t("exec.backtests.title", "Backtests Reais")}</h4>
-                <div className="space-y-4">
-                  <div className="border-b border-[#C6A85A]/10 pb-3">
-                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.soy", "Soja (ZS) - Índice Sharpe")}</p>
-                    <p className="text-3xl text-[#C6A85A] font-display">1,42</p>
-                  </div>
-                  <div className="border-b border-[#C6A85A]/10 pb-3">
-                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.mae", "Otimização de Erro (MAE)")}</p>
-                    <p className="text-3xl text-[#C6A85A] font-display">+48%</p>
-                    <p className="text-xs text-[#F5F5F5]/60 mt-1">{t("exec.backtests.maeNote", "Improvement sobre benchmark")}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#F5F5F5]/40 uppercase tracking-widest mb-1">{t("exec.backtests.costReduction", "Redução de Custos")}</p>
-                    <p className="text-2xl text-[#F5F5F5] font-display">23% a 42%</p>
-                    <p className="text-xs text-[#F5F5F5]/60 mt-1">{t("exec.backtests.costNote", "Hedging via opções dinâmicas")}</p>
-                  </div>
-                </div>
+                <h4 className="text-[#F5F5F5] font-display text-lg tracking-widest mb-6 uppercase text-center">{t("exec.backtests.title", "Validação Quantitativa")}</h4>
+                <ul className="space-y-4">
+                  <li className="border-b border-[#C6A85A]/10 pb-3">
+                    <p className="text-sm text-[#F5F5F5]/85 leading-relaxed">Métricas de risco-retorno por ativo (Sharpe, MAE), avaliadas em janelas longas.</p>
+                  </li>
+                  <li className="border-b border-[#C6A85A]/10 pb-3">
+                    <p className="text-sm text-[#F5F5F5]/85 leading-relaxed">Comparação sempre contra benchmark, não contra o pior caso.</p>
+                  </li>
+                  <li>
+                    <p className="text-sm text-[#F5F5F5]/85 leading-relaxed">Foco em reduzir o custo de hedge via opções dinâmicas.</p>
+                  </li>
+                </ul>
               </div>
             </FadeIn>
           </div>
