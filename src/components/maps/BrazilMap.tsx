@@ -7,6 +7,7 @@ import brUfTopo from "./geo/br-uf.topo.json";
 import { supabase } from "../../lib/supabase";
 import { useEntitlements } from "../../hooks/useEntitlements";
 import { LAYERS, type LayerConfig } from "./layers";
+import { statusPlantio, type Janela } from "./janelaPlantio";
 
 /**
  * <BrazilMap/> — o Terminal-BR. Mapa por ESTADO (público); clique carrega os
@@ -301,14 +302,16 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
                   const geo = String((feature as any).id);
                   const row = detail.get(geo);
                   const nome = pub.get(geo)?.municipio ?? "";   // nome público (IBGE), para todos
+                  // 2+ janelas = DERIVADO (modelo nosso) -> contorno tracejado dourado
+                  const duasEpocas = ((row?.janelas as unknown[])?.length ?? 0) >= 2;
                   return (
                     <path
                       key={i}
                       d={path || ""}
                       fill={colorFor(geo)}
-                      stroke={geo === selected ? GOLD : n === 0 ? "rgba(229,229,229,0.28)" : "rgba(229,229,229,0.16)"}
-                      strokeWidth={geo === selected ? (compact ? 1 : 0.8) : (compact ? 0.55 : 0.35)}
-                      strokeDasharray={n === 0 ? "1.4 1.4" : undefined}
+                      stroke={geo === selected ? GOLD : duasEpocas ? `${GOLD}aa` : n === 0 ? "rgba(229,229,229,0.28)" : "rgba(229,229,229,0.16)"}
+                      strokeWidth={geo === selected ? (compact ? 1 : 0.8) : duasEpocas ? (compact ? 0.8 : 0.6) : (compact ? 0.55 : 0.35)}
+                      strokeDasharray={geo !== selected && duasEpocas ? "2 1.4" : n === 0 ? "1.4 1.4" : undefined}
                       style={{ cursor: "pointer" }}
                       onClick={() => setSelected(geo)}
                       onMouseEnter={(e) => { const r = wrapRef.current?.getBoundingClientRect(); setHover({ name: nome, value: row ? (row[layer.valueKey] as number) : undefined, x: r ? e.clientX - r.left : 0, y: r ? e.clientY - r.top : 0 }); }}
@@ -373,6 +376,28 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
             )}
           </p>
         )}
+
+        {/* "HOJE dá pra plantar?" — só assinante (vem de detail); janelas derivadas
+            do ZARC. 2+ janelas = MODELO nosso -> marca de procedência (glyph + título). */}
+        {uf && selected && (() => {
+          const row = detail.get(selected);
+          const st = row ? statusPlantio(row.janelas as Janela[] | undefined, row.risco_min ?? null) : null;
+          if (!st) return null;
+          return (
+            <div className="pt-1.5 space-y-0.5">
+              {st.derivado && (
+                <p className="text-[10px]" style={{ color: GOLD }}
+                   title="Duas épocas identificadas por análise da janela — o ZARC publica os decêndios; a separação é nossa.">
+                  ⁘ duas épocas <span style={{ color: `${GOLD}99` }}>(derivado — passe o cursor)</span>
+                </p>
+              )}
+              {st.lines.map((l, i) => (
+                <p key={i} className="text-[11px] leading-relaxed"
+                   style={{ color: i === 0 ? "var(--t-tx-1)" : "rgba(229,229,229,0.6)" }}>{l}</p>
+              ))}
+            </div>
+          );
+        })()}
 
         {uf && agg && n === 0 && (
           <p className="text-[11px] leading-relaxed" style={{ color: "rgba(229,229,229,0.55)" }}>{layer.emptyMsg(info?.nome ?? "", paramValues)}</p>
