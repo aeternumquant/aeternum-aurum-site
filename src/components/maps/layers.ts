@@ -72,8 +72,15 @@ export const LAYERS: LayerConfig[] = [
     aggN: "n_municipios", aggMin: "janela20_min", aggMax: "janela20_max", aggAvg: "janela20_avg",
     valueLabel: "decêndios de baixo risco",
     subtitle: (p) => `${labelOf(CULTURAS, p.cultura)} · ${labelOf(MANEJOS, p.manejo).toLowerCase()}`,
-    emptyMsg: (nome, p) =>
-      `Sem zoneamento de ${labelOf(CULTURAS, p.cultura).toLowerCase()} (${labelOf(MANEJOS, p.manejo).toLowerCase()}) em ${nome}. Outras culturas entram pelo seletor.`,
+    emptyMsg: (nome, p) => {
+      const cult = labelOf(CULTURAS, p.cultura).toLowerCase();
+      // n=0 NÃO é erro nem falha de carga: é o ZARC dizendo que não há zoneamento
+      // dessa cultura NESTE manejo. O irrigado engana mais (soja/milho quase não
+      // têm zoneamento irrigado) — deixar EXPLÍCITO que é esperado, não quebra.
+      return p.manejo === "2"
+        ? `O ZARC não zoneia ${cult} irrigada em ${nome} — não é erro de carregamento: a ${cult} no país é cultura de sequeiro. Troque o manejo para Sequeiro, ou a cultura, no seletor.`
+        : `O ZARC não tem zoneamento de ${cult} (sequeiro) em ${nome}. Não é falha: essa cultura não é zoneada aqui. Outras culturas entram pelo seletor.`;
+    },
     reading:
       "Um decêndio é um período de dez dias. A cor mostra quantos decêndios do ano são recomendados para a semeadura com risco climático de até 20% — a janela de baixo risco do ZARC. Ex.: 9 decêndios ≈ 90 dias favoráveis à semeadura. É recomendação oficial (portaria ZARC/MAPA), não garantia de safra.",
     why:

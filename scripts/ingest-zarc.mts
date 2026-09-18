@@ -28,9 +28,20 @@ if (!URL || !KEY) { console.error("Faltam VITE_SUPABASE_URL / SUPABASE_SERVICE_R
 const db = new PostgrestClient(`${URL}/rest/v1`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
 
 const BASE = "https://dados.agricultura.gov.br/dataset/6d3d141c-885e-41a4-ab7f-dc8ff323b96f/resource";
+// CEREAIS DE INVERNO: presentes na 2025/2026, AUSENTES na 2026/2027 (o MAPA ainda
+// não publicou o zoneamento de inverno da safra corrente — verificado 18/09/2026).
+// Merge (opção B): traz o VERÃO da 2026/27 (soja/milho/algodão/arroz/...) e MANTÉM
+// o inverno da 2025/26 até o MAPA publicar. A safra fica GRAVADA por linha (chave
+// única inclui safra) -> o front mostra a procedência NA TELA. Promover ao sair a
+// 2026/27 de inverno = remover este filtro (o resto se resolve pelo upsert por safra).
+const CEREAIS_INVERNO = new Set(["Aveia", "Cevada Cervejeira", "Cevada Grãos", "Trigo", "Trigo - Duplo Propósito"]);
 const SOURCES = [
-  { safra: "2025/2026", truncate: true,  url: `${BASE}/f9d597f9-0fee-47eb-9344-8642274ca9da/download/dados-abertos-tabua-de-risco-safra-2025-2026.csv` },
+  // 1) VERÃO corrente (trunca): tudo que a 2026/27 já tem (não inclui inverno).
+  { safra: "2026/2027", truncate: true,  url: `${BASE}/139e5a60-1f43-4cc8-aeab-a35dbbf816c0/download/dados-abertos-tabua-de-risco-safra-2026-2027.csv` },
+  // 2) PERENE (café/citros/...): independe de safra.
   { safra: "perene",    truncate: false, url: `${BASE}/dae65d31-683f-4ac4-ab90-3abd0c1583ba/download/dados-abertos-tabua-de-risco-safra-perene-olericola-sem-safra.csv` },
+  // 3) INVERNO da safra PASSADA, SÓ os cereais que a 2026/27 ainda não tem.
+  { safra: "2025/2026", truncate: false, url: `${BASE}/f9d597f9-0fee-47eb-9344-8642274ca9da/download/dados-abertos-tabua-de-risco-safra-2025-2026.csv`, onlyCulturas: CEREAIS_INVERNO },
 ];
 const MANEJO: Record<number, string> = { 1: "Sequeiro", 2: "Irrigado", 3: "Irrigado com controle de geada" };
 const BATCH = 1500;
@@ -52,7 +63,10 @@ async function flush(rows: any[], truncate: boolean): Promise<void> {
 }
 
 async function ingest(src: (typeof SOURCES)[number]): Promise<number> {
-  const tmp = path.join(os.tmpdir(), `zarc-${src.safra.replace(/\W/g, "_")}.csv`);
+  const onlyCulturas: Set<string> | undefined = (src as any).onlyCulturas;
+  // fonte filtrada (inverno) baixa/cacheia com nome próprio p/ não colidir com a fonte cheia da mesma safra
+  const tag = onlyCulturas ? `${src.safra.replace(/\W/g, "_")}-inverno` : src.safra.replace(/\W/g, "_");
+  const tmp = path.join(os.tmpdir(), `zarc-${tag}.csv`);
   console.log(`\n== ${src.safra}: baixando/lendo ${tmp}`);
   await download(src.url, tmp);
 
@@ -67,6 +81,8 @@ async function ingest(src: (typeof SOURCES)[number]): Promise<number> {
     // E Producao): a consulta reversa e sobre QUANDO PLANTAR -> so a Implantacao
     // importa; a Producao e densidade de membro. Anuais nao tem esse split.
     if (/Produção/i.test(p[col["Nome_cultura"]])) continue;
+    // fonte de inverno (opção B): fica SÓ com os cereais que a 2026/27 não tem.
+    if (onlyCulturas && !onlyCulturas.has(p[col["Nome_cultura"]])) continue;
     const codC = p[col["Cod_Cultura"]], geo = p[col["geocodigo"]], man = Number(p[col["Cod_Outros_Manejos"]]);
     const si = p[col["SafraIni"]], sf = p[col["SafraFin"]];
     const safra = si && /^\d{4}$/.test(si) && sf ? `${si}/${sf}` : "perene";

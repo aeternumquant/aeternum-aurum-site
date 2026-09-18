@@ -61,6 +61,12 @@ const ESCOPO_CULTURA: Record<string, string> = {
   soja: "Soja", milho: "Milho 1ª Safra", algodao: "Algodão Herbáceo", arroz: "Arroz", trigo: "Trigo", cafe: "Café Arábica",
 };
 
+// Cereais de inverno: o MAPA ainda não publicou o zoneamento 2026/27 deles, então
+// o banco os serve da safra PASSADA (2025/26). A procedência VAI NA TELA (exigência):
+// quando a cultura for uma destas e a safra vier antiga, o painel diz por quê.
+const CEREAIS_INVERNO = new Set(["Trigo", "Trigo - Duplo Propósito", "Aveia", "Cevada Cervejeira", "Cevada Grãos"]);
+const SAFRA_CORRENTE = "2026/2027";
+
 export default function BrazilMap({ compact = false, dossie = false, escopo }: { compact?: boolean; dossie?: boolean; escopo?: string }) {
   const { isPaid } = useEntitlements();
   const [layerKey, setLayerKey] = useState(LAYERS[0].key);
@@ -207,6 +213,9 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
 
   const info = uf ? UF[uf] : null;
   const n = agg ? (agg[layer.aggN] as number) : null;
+  // procedência da safra (só ZARC devolve `safra`; noutras camadas fica undefined)
+  const safra = agg ? (agg.safra as string | undefined) : undefined;
+  const safraPendente = CEREAIS_INVERNO.has(paramValues.cultura) && !!safra && safra !== SAFRA_CORRENTE;
 
   return (
     <div ref={wrapRef} data-testid="brazilmap" className="relative w-full max-w-2xl" style={{ background: "#08090c" }} onMouseMove={onMove}>
@@ -237,6 +246,16 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
             {layer.subtitle(paramValues)}
             {busy && <span className="ml-2 animate-pulse" style={{ color: GOLD }}>atualizando…</span>}
           </p>
+          {/* PROCEDÊNCIA da safra — visível junto do dado, sempre (não em rodapé/tooltip) */}
+          {uf && safra && (
+            <p className="text-[10px] leading-snug mt-1" style={{ color: safraPendente ? GOLD : "rgba(229,229,229,0.5)" }}>
+              {safra === "perene"
+                ? "Zoneamento perene — não depende de safra."
+                : safraPendente
+                  ? `Zoneamento da safra ${safra} — o MAPA ainda não publicou a ${SAFRA_CORRENTE} para cereais de inverno.`
+                  : `Zoneamento da safra ${safra}.`}
+            </p>
+          )}
         </div>
         {uf && (
           <button onClick={back} className="text-[10px] uppercase tracking-widest transition-colors" style={{ color: `${GOLD}b0` }}>← estados</button>
