@@ -144,21 +144,21 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         label: "Suco FCOJ",
         export: ["200911"],
         price: { code: null, noQuote: "Sem cotação pública de FCOJ" },
-        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos — o suco descola da fruta.",
+        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos: o suco descola da fruta.",
       },
       {
         key: "nfc",
         label: "Suco NFC",
         export: ["200912", "200919"],
         price: { code: null, noQuote: "Sem cotação pública de suco NFC" },
-        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos — o suco descola da fruta.",
+        note: "Preço da laranja-fruta: ver o sub-card Laranja (fruta). Mercados distintos: o suco descola da fruta.",
       },
       {
         key: "fruta",
         label: "Laranja (fruta)",
         price: { code: "LARANJA_WB" },
         note:
-          "Preço de referência da fruta na UE (Mediterrâneo, navel, importação) — não o recebido pelo Brasil. O Brasil exporta ~zero de fruta: a laranja vira suco.",
+          "Preço de referência da fruta na UE (Mediterrâneo, navel, importação), não o recebido pelo Brasil. O Brasil exporta ~zero de fruta: a laranja vira suco.",
         ibge: { slug: "laranja" }, // o numero que faltava: producao da fruta (IBGE)
       },
     ],
@@ -313,7 +313,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         label: "Gasoduto",
         import: ["271121"],
         price: { code: null, noQuote: "Sem cotação do gás importado" },
-        note: "Gás boliviano é contrato indexado a petróleo — sem cotação spot. O Henry Hub (EUA) não descreve o que o Brasil paga.",
+        note: "Gás boliviano é contrato indexado a petróleo, sem cotação spot. O Henry Hub (EUA) não descreve o que o Brasil paga.",
       },
     ],
   },
@@ -324,7 +324,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     subs: [{ key: "map", label: "MAP", import: ["310540"], price: { code: "DAP_WB" } }],
     // MAP e DAP sao SUBSTITUTOS no mesmo estagio: o preco de referencia
     // internacional e DAP; o que o Brasil compra e MAP. O rotulo diz.
-    priceNote: "Preço: DAP (referência internacional — substituto do MAP)",
+    priceNote: "Preço: DAP (referência internacional, substituto do MAP)",
     flowNote: "Fluxo: MAP (importação)",
   },
   TSP: { subs: [{ key: "tsp", label: "TSP", import: ["310311"], price: { code: "TSP_WB" } }] },
@@ -388,7 +388,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         key: "prata",
         label: "Prata",
         price: { code: "PRATA_LBMA" },
-        note: "O Brasil exporta ~zero — sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
+        note: "O Brasil exporta ~zero, sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
       },
     ],
     usgs: "Silver",
@@ -400,7 +400,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         key: "paladio",
         label: "Paládio",
         price: { code: null, noQuote: "Sem cotação disponível" },
-        note: "O Brasil exporta ~zero — sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
+        note: "O Brasil exporta ~zero, sem fluxo relevante. As linhas de quem compra virão com fontes futuras.",
       },
     ],
   },
@@ -447,13 +447,13 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
         // fluxo (leite nao e export relevante) -> mapa sem linhas, e honesto.
         key: "comum", label: "Leite comum", ibgeLeite: true,
         price: { code: null, noQuote: "Preço ao produtor · IBGE (abaixo)" },
-        note: "Preço ao produtor (leite cru, R$/litro, IBGE trimestral). Mercado INTERNO: a produção nacional é consumida internamente, não é pauta de exportação — por isso o mapa fica sem linhas de fluxo.",
+        note: "Preço ao produtor (leite cru, R$/litro, IBGE trimestral). Mercado INTERNO: a produção nacional é consumida internamente, não é pauta de exportação: por isso o mapa fica sem linhas de fluxo.",
       },
       {
         // SECUNDARIO: o volume de importacao de leite em po (Comex).
         key: "po", label: "Leite em pó", import: ["040221"],
         price: { code: null, noQuote: "Sem cotação pública no nosso banco" },
-        note: "Leite em pó integral: VOLUME de importação (Comex), sobretudo Argentina e Uruguai. Elo industrializado/importado — NÃO é a receita do produtor. Fluxo MDIC/Secex.",
+        note: "Leite em pó integral: VOLUME de importação (Comex), sobretudo Argentina e Uruguai. Elo industrializado/importado, NÃO é a receita do produtor. Fluxo MDIC/Secex.",
       },
     ],
   },
@@ -461,7 +461,7 @@ export const FLOW_CARDS: Record<string, FlowCardCfg> = {
     subs: [{
       key: "borracha", label: "Borracha natural", import: ["400122"],
       price: { code: "BORRACHA_WB" },
-      note: "Borracha natural TSNR (importação, insumo de pneus). Preço: TSR20 (SGX/SICOM), o benchmark do TSNR — match direto. Referência mensal (World Bank Pink Sheet). Fluxo MDIC/Secex.",
+      note: "Borracha natural TSNR (importação, insumo de pneus). Preço: TSR20 (SGX/SICOM), o benchmark do TSNR, match direto. Referência mensal (World Bank Pink Sheet). Fluxo MDIC/Secex.",
     }],
   },
   // ENERGIA. Encadeamento: carvao importado + minerio de ferro exportado sao os

@@ -54,7 +54,7 @@ export function statusPlantio(
       total: 0,
       lines: [
         riscoMin
-          ? `Sem janela de baixo risco (20%) neste município — a recomendação do ZARC começa em risco de ${riscoMin}%.`
+          ? `Sem janela de baixo risco (20%) neste município: a recomendação do ZARC começa em risco de ${riscoMin}%.`
           : "Sem zoneamento de baixo risco neste município.",
       ],
     };
@@ -71,7 +71,7 @@ export function statusPlantio(
 
   if (dentroIdx >= 0) {
     const [a, f] = ws[dentroIdx];
-    lines.push(`${cap(nome(dentroIdx))} abriu em ${decendioData(a)} — você está dentro, faltam ~${dias(fwd(hoje, f))} dias para fechar.`);
+    lines.push(`${cap(nome(dentroIdx))} abriu em ${decendioData(a)}. Você está dentro, faltam ~${dias(fwd(hoje, f))} dias para fechar.`);
     ws.forEach(([oa, of_], i) => { if (i !== dentroIdx) lines.push(`Há ${nome(i)}, de ${decendioData(oa)} a ${decendioData(of_)}.`); });
     return { lines, derivado, total };
   }
@@ -84,7 +84,7 @@ export function statusPlantio(
     lines.push(`${cap(nome(lastI))} fechou há ~${dias(lastD)} dias (por volta de ${decendioData(ws[lastI][1])}).`);
     const [na, nf] = ws[nextI];
     lines.push(total > 1
-      ? `${cap(nome(nextI))} vai de ${decendioData(na)} a ${decendioData(nf)} — abre em ~${dias(nextD)} dias.`
+      ? `${cap(nome(nextI))} vai de ${decendioData(na)} a ${decendioData(nf)}, abre em ~${dias(nextD)} dias.`
       : `Abre de novo em ~${dias(nextD)} dias (por volta de ${decendioData(na)}).`);
   } else {
     const [na, nf] = ws[nextI];

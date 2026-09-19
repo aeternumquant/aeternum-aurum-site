@@ -226,7 +226,7 @@ export default function RareEarthMap() {
           <div className="absolute bottom-3 left-3 z-10 flex flex-col gap-1 px-3 py-2" style={{ backgroundColor: "rgba(5,5,3,0.88)", border: "1px solid rgba(255,255,255,0.07)" }}>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5" style={{ backgroundColor: `${PROD_RED}88` }} />
-              <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.55)" }}>produz terras raras (China domina — ver o tamanho)</span>
+              <span className="font-sans text-[7px]" style={{ color: "rgba(255,255,255,0.55)" }}>produz terras raras (China domina, ver o tamanho)</span>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5" style={{ backgroundColor: `${AMBER}bb` }} />
@@ -245,7 +245,7 @@ export default function RareEarthMap() {
             <div className="font-sans text-[8px] uppercase tracking-[0.22em] mb-0.5" style={{ color: `${GOLD}90` }}>Terras raras</div>
             <div className="font-display text-base mb-1" style={{ color: GOLD }}>Reserva × produção</div>
             <div className="font-sans text-[8px] leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-              Cada país é um ponto. O Brasil isola no canto: 2ª maior reserva do mundo, produção quase nula. A distância entre ter no solo e extrair — o dado, não uma recomendação.
+              Cada país é um ponto. O Brasil isola no canto: 2ª maior reserva do mundo, produção quase nula. A distância entre ter no solo e extrair: o dado, não uma recomendação.
             </div>
           </div>
           <div className="px-3 py-3">
@@ -312,7 +312,7 @@ export default function RareEarthMap() {
             ))}
           </div>
           <div className="font-sans text-[6.5px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.3)" }}>
-            Mesmo o minério extraído fora vai para a China refinar. As terras raras pesadas (Disprósio, Térbio) — quase todo o refino é chinês.
+            Mesmo o minério extraído fora vai para a China refinar. As terras raras pesadas (Disprósio, Térbio): quase todo o refino é chinês.
           </div>
         </div>
 

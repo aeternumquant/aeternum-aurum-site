@@ -63,10 +63,10 @@ export const LAYERS: LayerConfig[] = [
     toArgs: (uf, p) => ({ p_uf: uf, p_cultura: p.cultura, p_manejo: Number(p.manejo) }),
     summaryArgs: (uf, p) => ({ p_uf: uf, p_manejo: Number(p.manejo) }),
     manejoNote:
-      "Sequeiro depende só da chuva; irrigado amplia a janela. No café arábica do ES, as mesmas regiões têm janela bem maior no irrigado — é o que a irrigação compra em risco climático.",
+      "Sequeiro depende só da chuva; irrigado amplia a janela. No café arábica do ES, as mesmas regiões têm janela bem maior no irrigado: é o que a irrigação compra em risco climático.",
     manejoHint: (p) =>
       ["Arroz", "Café Arábica"].includes(p.cultura) && p.manejo === "1"
-        ? `A maioria do ${labelOf(CULTURAS, p.cultura).toLowerCase()} zoneado é irrigada — em sequeiro você vê a minoria dos casos.`
+        ? `A maioria do ${labelOf(CULTURAS, p.cultura).toLowerCase()} zoneado é irrigada; em sequeiro você vê a minoria dos casos.`
         : null,
     valueKey: "janela20",
     aggN: "n_municipios", aggMin: "janela20_min", aggMax: "janela20_max", aggAvg: "janela20_avg",
@@ -78,12 +78,12 @@ export const LAYERS: LayerConfig[] = [
       // dessa cultura NESTE manejo. O irrigado engana mais (soja/milho quase não
       // têm zoneamento irrigado) — deixar EXPLÍCITO que é esperado, não quebra.
       return p.manejo === "2"
-        ? `O ZARC não zoneia ${cult} irrigada em ${nome} — não é erro de carregamento: a ${cult} no país é cultura de sequeiro. Troque o manejo para Sequeiro, ou a cultura, no seletor.`
+        ? `O ZARC não zoneia ${cult} irrigada em ${nome}. Não é erro de carregamento: a ${cult} no país é cultura de sequeiro. Troque o manejo para Sequeiro, ou a cultura, no seletor.`
         : `O ZARC não tem zoneamento de ${cult} (sequeiro) em ${nome}. Não é falha: essa cultura não é zoneada aqui. Outras culturas entram pelo seletor.`;
     },
     reading:
-      "Um decêndio é um período de dez dias. A cor mostra quantos decêndios do ano são recomendados para a semeadura com risco climático de até 20% — a janela de baixo risco do ZARC. Ex.: 9 decêndios ≈ 90 dias favoráveis à semeadura. É recomendação oficial (portaria ZARC/MAPA), não garantia de safra.",
+      "Um decêndio é um período de dez dias. A cor mostra quantos decêndios do ano são recomendados para a semeadura com risco climático de até 20%, a janela de baixo risco do ZARC. Ex.: 9 decêndios ≈ 90 dias favoráveis à semeadura. É recomendação oficial (portaria ZARC/MAPA), não garantia de safra.",
     why:
-      "A janela de plantio determina quando a safra é semeada e, portanto, quando chega ao mercado. O calendário de colheita é um dos fatores que formam o basis regional e influenciam o prazo de liquidação. Mapear o campo por município é acompanhar a formação da oferta física na origem — o elo entre o agronômico e o financeiro. (Informação analítica; não é recomendação de investimento nem promessa de resultado.)",
+      "A janela de plantio determina quando a safra é semeada e, portanto, quando chega ao mercado. O calendário de colheita é um dos fatores que formam o basis regional e influenciam o prazo de liquidação. Mapear o campo por município é acompanhar a formação da oferta física na origem, o elo entre o agronômico e o financeiro. (Informação analítica; não é recomendação de investimento nem promessa de resultado.)",
   },
 ];

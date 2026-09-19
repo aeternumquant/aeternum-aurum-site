@@ -12,7 +12,7 @@ export default function TerminalBRPage() {
   return (
     <main className="pt-14 min-h-screen bg-background">
       <RouteSeo
-        title="Terminal BR — Painel"
+        title="Terminal BR · Painel"
         description="O Brasil agrícola em módulos: janela de plantio (ZARC) por município, stocks-to-use e mais. Cada card traz o dado, a leitura e a fonte."
         path="/terminal-br"
       />

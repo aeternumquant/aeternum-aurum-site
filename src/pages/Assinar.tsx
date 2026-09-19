@@ -19,7 +19,7 @@ const CHECKOUT_FN = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/criar-che
 const INCLUI = [
   { icon: MapPin, t: "5.570 municípios", d: "o valor por município, não só o agregado por estado." },
   { icon: Layers, t: "8 culturas", d: "soja, milho 1ª e 2ª safra, algodão, feijão, arroz, trigo e café arábica." },
-  { icon: Droplets, t: "Sequeiro e irrigado", d: "os dois manejos — o que a irrigação compra em janela de plantio." },
+  { icon: Droplets, t: "Sequeiro e irrigado", d: "os dois manejos: o que a irrigação compra em janela de plantio." },
 ];
 
 export default function AssinarPage() {
@@ -89,8 +89,8 @@ export default function AssinarPage() {
           <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-6" />
           <h1 className="font-display text-2xl text-primary uppercase tracking-widest mb-3">Confirmando o pagamento</h1>
           <p className="text-muted-foreground text-sm font-light max-w-md mx-auto">
-            Recebemos seu retorno do checkout. Estamos aguardando a confirmação do pagamento —
-            leva alguns segundos. Assim que cair, o Terminal abre sozinho.
+            Recebemos seu retorno do checkout. Estamos aguardando a confirmação do pagamento.
+            Leva alguns segundos. Assim que cair, o Terminal abre sozinho.
           </p>
         </div>
       </Shell>
@@ -124,14 +124,14 @@ export default function AssinarPage() {
         <h1 className="font-display text-3xl sm:text-4xl text-primary uppercase tracking-widest mb-3">Terminal-BR</h1>
         <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-xl mb-10">
           O Brasil agrícola por município. O agregado por estado é aberto a todos; a assinatura
-          libera o valor de cada município — o dado que sai do Postgres só para quem assina.
+          libera o valor de cada município: o dado que sai do Postgres só para quem assina.
         </p>
 
         {(status === "cancelado" || status === "expirado" || demorou) && (
           <div className="border border-white/10 bg-card/60 p-4 mb-8 text-xs text-muted-foreground">
             {status === "cancelado" && "Checkout cancelado. Você pode tentar de novo quando quiser."}
             {status === "expirado" && "O checkout expirou. Gere um novo abaixo."}
-            {demorou && "O pagamento ainda está sendo processado. Assim que confirmar, seu acesso libera — recarregue esta página em instantes ou tente o Terminal direto."}
+            {demorou && "O pagamento ainda está sendo processado. Assim que confirmar, seu acesso libera. Recarregue esta página em instantes ou tente o Terminal direto."}
           </div>
         )}
 
@@ -181,7 +181,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <main className="pt-14 min-h-screen bg-background">
       <RouteSeo
         title="Assinar o Terminal-BR"
-        description="Assine o Terminal-BR: o valor da janela de plantio (ZARC) por município — 5.570 municípios, 8 culturas, sequeiro e irrigado. R$249/mês."
+        description="Assine o Terminal-BR: o valor da janela de plantio (ZARC) por município: 5.570 municípios, 8 culturas, sequeiro e irrigado. R$249/mês."
         path="/assinar"
       />
       <section className="py-16 sm:py-24 px-4 sm:px-6 max-w-3xl mx-auto">{children}</section>

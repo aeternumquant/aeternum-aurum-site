@@ -76,7 +76,7 @@ const strategicCountries = [
     keyPoints: [
       "Maior importador global de soja (58%) e carne bovina",
       "Sinal de compra define o CME Group",
-      "Reservas em alta — demanda de ouro +18% a/a",
+      "Reservas em alta, demanda de ouro +18% a/a",
     ],
     exports: ["Soja", "Milho", "Boi Gordo", "Algodão", "Cacau"],
   },
@@ -263,7 +263,7 @@ const assetFlows: Record<NonNullable<AssetType>, {
   // ── Minérios ──
   Ouro: {
     label: "Ouro", category: "Minérios",
-    flowData: "Precificado na CME/COMEX e armazenado em cofres via LBMA. Bancos Centrais adicionaram 1.037 ton em 2023 — maior compra desde 1967.",
+    flowData: "Precificado na CME/COMEX e armazenado em cofres via LBMA. Bancos Centrais adicionaram 1.037 ton em 2023, maior compra desde 1967.",
     percentage: "Reserva global", volume: "3.644 ton/ano",
   },
   Prata: {

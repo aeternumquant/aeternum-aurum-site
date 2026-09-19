@@ -11,7 +11,7 @@ const SITE = "https://aeternumaurum.com";
 
 export function RouteSeo({ title, description, path, fullTitle }: Props) {
   const url = `${SITE}${path}`;
-  const finalTitle = fullTitle ?? `${title} — Aeternum Aurum Partners`;
+  const finalTitle = fullTitle ?? `${title} · Aeternum Aurum Partners`;
   return (
     <Helmet>
       <title>{finalTitle}</title>

@@ -30,12 +30,12 @@ export const commandWidth = (cmd: CommandMeta): number =>
 export const COMMANDS: Record<string, CommandMeta> = {
   "tabela-agro": {
     kind: "table", id: "tabela-agro", label: "Mercado agro",
-    descricao: "Futuros B3 — variação e aperto de oferta. Barras na régua declarada.",
+    descricao: "Futuros B3: variação e aperto de oferta. Barras na régua declarada.",
     planoMinimo: "free", config: AGRO_TABLE,
   },
   "tabela-macro": {
     kind: "table", id: "tabela-macro", label: "Macro",
-    descricao: "Câmbio, petróleo e ouro — número colorido (vol heterogênea, sem régua única).",
+    descricao: "Câmbio, petróleo e ouro: número colorido (vol heterogênea, sem régua única).",
     planoMinimo: "free", config: MACRO_TABLE,
   },
   mapa: {
@@ -46,13 +46,13 @@ export const COMMANDS: Record<string, CommandMeta> = {
   },
   stocks: {
     kind: "module", id: "stocks", label: "Cobertura de estoque",
-    descricao: "Quantos meses de consumo o estoque final cobre — quanto menor, mais apertada a oferta e mais sensível o preço.",
+    descricao: "Quantos meses de consumo o estoque final cobre: quanto menor, mais apertada a oferta e mais sensível o preço.",
     size: "2x1", width: 380, planoMinimo: "free",
     fonte: { titulo: "USDA/FAS — Production, Supply & Distribution (PSD)", tipo: "Base oficial", link: "https://apps.fas.usda.gov/psdonline/app/index.html" },
   },
   cflow: {
     kind: "module", id: "cflow", label: "Fluxo global de commodities",
-    descricao: "Quem compra e quem fornece — exportação e importação de cada commodity por país.",
+    descricao: "Quem compra e quem fornece: exportação e importação de cada commodity por país.",
     size: "2x2", width: 620, planoMinimo: "free",
     fonte: { titulo: "Comex Stat (MDIC) / UN Comtrade — fluxos de comércio", tipo: "Base oficial", link: "https://comexstat.mdic.gov.br/" },
   },

@@ -30,8 +30,8 @@ export default function Home() {
     <main className="relative" style={{ backgroundColor: "#0a0a0a", minHeight: "100vh" }}>
       <RouteSeo
         title="Plataforma de Inteligência Quantitativa"
-        fullTitle="Aeternum Aurum Partners — Plataforma de Inteligência Quantitativa"
-        description="Plataforma de tecnologia quantitativa para clientes institucionais. Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos. Goiânia, Brasil — atuação global."
+        fullTitle="Aeternum Aurum Partners · Plataforma de Inteligência Quantitativa"
+        description="Plataforma de tecnologia quantitativa para clientes institucionais. Foundation Models, Engenharia de Volatilidade, Inferência Bayesiana e Derivativos Climáticos. Goiânia, Brasil, atuação global."
         path="/"
       />
       {/* Efeito de luz dourada que segue o mouse */}
@@ -51,7 +51,7 @@ export default function Home() {
               { title: "Inteligência Institucional", desc: "Análise de fluxos de capital, movimentações institucionais e trends macro que impactam portfólios." },
               { title: "Modelos Quantitativos", desc: "Algoritmos proprietários testados em 23+ anos de crises, bolhas e mudanças de regime de mercado." },
               { title: "ISO 20022 & Padrões", desc: "Estruturação de dados segundo os padrões de liquidação global, conectando Brasil aos mercados americanos." },
-              { title: "Proteção Assimétrica", desc: "Estratégias que ganham em crises, ganham em altas e minimizam perdas — com histórico comprovado." }
+              { title: "Proteção Assimétrica", desc: "Estratégias que ganham em crises, ganham em altas e minimizam perdas, com histórico comprovado." }
             ].map((pilar, i) => (
               <RevealSection key={i} delay={i * 0.1}>
                 <div className="p-6 h-full bg-[#0A0A0A] border border-[#C6A85A]/20 hover:border-[#C6A85A]/55 hover:bg-[#C6A85A]/[0.03] transition-all duration-300 rounded-sm relative overflow-hidden group">

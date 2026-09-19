@@ -251,9 +251,9 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
           {uf && safra && (
             <p className="text-[10px] leading-snug mt-1" style={{ color: safraPendente ? GOLD : "rgba(229,229,229,0.5)" }}>
               {safra === "perene"
-                ? "Zoneamento perene — não depende de safra."
+                ? "Zoneamento perene, não depende de safra."
                 : safraPendente
-                  ? `Zoneamento da safra ${safra} — o MAPA ainda não publicou a ${SAFRA_CORRENTE} para cereais de inverno.`
+                  ? `Zoneamento da safra ${safra}: o MAPA ainda não publicou a ${SAFRA_CORRENTE} para cereais de inverno.`
                   : `Zoneamento da safra ${safra}.`}
             </p>
           )}
@@ -368,11 +368,11 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
             valor real (de detail) só existe para o assinante. */}
         {uf && selected && pub.get(selected) && (
           <p className="text-[11px] leading-relaxed pt-1.5" style={{ color: "var(--t-tx-1)" }}>
-            <span style={{ color: GOLD }}>{pub.get(selected)!.municipio}</span> — {layer.metric}:{" "}
+            <span style={{ color: GOLD }}>{pub.get(selected)!.municipio}</span> · {layer.metric}:{" "}
             {detail.get(selected) != null ? (
               <span style={{ color: GOLD }}>{detail.get(selected)![layer.valueKey]} {layer.valueLabel}</span>
             ) : (
-              <><span style={{ color: `${GOLD}cc`, letterSpacing: "0.2em" }}>••••</span><span style={{ color: "rgba(229,229,229,0.5)" }}> — disponível no Terminal</span></>
+              <><span style={{ color: `${GOLD}cc`, letterSpacing: "0.2em" }}>••••</span><span style={{ color: "rgba(229,229,229,0.5)" }}> · disponível no Terminal</span></>
             )}
           </p>
         )}
@@ -387,8 +387,8 @@ export default function BrazilMap({ compact = false, dossie = false, escopo }: {
             <div className="pt-1.5 space-y-0.5">
               {st.derivado && (
                 <p className="text-[10px]" style={{ color: GOLD }}
-                   title="Duas épocas identificadas por análise da janela — o ZARC publica os decêndios; a separação é nossa.">
-                  ⁘ duas épocas <span style={{ color: `${GOLD}99` }}>(derivado — passe o cursor)</span>
+                   title="Duas épocas identificadas por análise da janela: o ZARC publica os decêndios; a separação é nossa.">
+                  ⁘ duas épocas <span style={{ color: `${GOLD}99` }}>(derivado, passe o cursor)</span>
                 </p>
               )}
               {st.lines.map((l, i) => (

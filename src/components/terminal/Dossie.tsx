@@ -31,7 +31,7 @@ const SLOT_META: Record<string, ModuleCommand> = {
   },
   gregas: {
     id: "gregas", label: "Gregas & volatilidade", planoMinimo: "terminal", kind: "module", size: "2x1", width: 380,
-    descricao: "Skew, term structure e IV rank do futuro B3 — indicador derivado.",
+    descricao: "Skew, term structure e IV rank do futuro B3: indicador derivado.",
     fonte: { titulo: "brapi Pro — opções sobre futuros B3", tipo: "Base (uso derivado)", link: "https://brapi.dev" },
   },
 };
@@ -42,9 +42,9 @@ export default function Dossie({ escopo }: { escopo?: string }) {
   // séries é SEMPRE presente (garante que nenhuma commodity fica vazia; carrega o
   // "existe aqui" pra quem tem só preço). Os demais entram por cobertura declarada.
   const extras = [
-    e.temOpcoes && { cmd: SLOT_META.gregas, msg: "license-gated: construído, não publicado — a preencher" },
-    e.temBrasil && { cmd: COMMANDS.mapa as ModuleCommand, msg: "janela de plantio ZARC por município — a preencher" },
-    e.temStocks && { cmd: COMMANDS.stocks as ModuleCommand, msg: "aperto da oferta mundial (PSD) — a preencher" },
+    e.temOpcoes && { cmd: SLOT_META.gregas, msg: "license-gated: construído, não publicado, a preencher" },
+    e.temBrasil && { cmd: COMMANDS.mapa as ModuleCommand, msg: "janela de plantio ZARC por município, a preencher" },
+    e.temStocks && { cmd: COMMANDS.stocks as ModuleCommand, msg: "aperto da oferta mundial (PSD), a preencher" },
   ].filter(Boolean) as { cmd: ModuleCommand; msg: string }[];
   // research não é 5º card: é o link discreto no rodapé do slot de séries (composição "existe aqui").
   const total = 1 + extras.length;
@@ -59,7 +59,7 @@ export default function Dossie({ escopo }: { escopo?: string }) {
       {loading ? (
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-center py-8" style={{ color: "var(--t-tx-3)" }}>Verificando acesso…</p>
       ) : !isAuthenticated ? (
-        <LoginGate titulo="Entre para ver o dossiê" sub={`O palco acima é livre. Séries, ZARC, cobertura de estoque e mais sobre ${e.label} são de quem entra — sem custo para começar.`} />
+        <LoginGate titulo="Entre para ver o dossiê" sub={`O palco acima é livre. Séries, ZARC, cobertura de estoque e mais sobre ${e.label} são de quem entra, sem custo para começar.`} />
       ) : (
       <section>
         <div className="flex items-baseline justify-between gap-3 mb-3">

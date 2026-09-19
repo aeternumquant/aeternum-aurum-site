@@ -247,7 +247,7 @@ function Popover({ row, col, datum, rect, onClose }: { row: RowData; col: Col; d
         <div className="pv" style={{ color }}>{valTxt}</div>
         {isPrice && spark && <svg className="spark" viewBox="0 0 260 38" preserveAspectRatio="none" aria-hidden="true" dangerouslySetInnerHTML={{ __html: spark }} />}
         <dl>
-          {cap != null && v != null && <><dt>escala</dt><dd>±{nf(cap, 0)}%</dd><dt>posição</dt><dd style={Math.abs(v) > cap ? { color: "rgb(190,74,66)" } : undefined}>{Math.abs(v) > cap ? "fora — cortada" : Math.round((Math.abs(v) / cap) * 100) + "% do teto"}</dd></>}
+          {cap != null && v != null && <><dt>escala</dt><dd>±{nf(cap, 0)}%</dd><dt>posição</dt><dd style={Math.abs(v) > cap ? { color: "rgb(190,74,66)" } : undefined}>{Math.abs(v) > cap ? "fora, cortada" : Math.round((Math.abs(v) / cap) * 100) + "% do teto"}</dd></>}
           {col.key === "stu" && <><dt>referência</dt><dd>{row.psd ? PSD_LABEL[row.psd] : "—"} · mundo</dd></>}
           {col.key === "regime" && <><dt>base</dt><dd>21 pregões (1M)</dd></>}
           <dt>frescor</dt><dd style={row.stale ? { color: "rgb(198,167,92)" } : undefined}>{row.stale ? "fora da janela" : "no prazo"}{row.ts ? ` · ${new Date(row.ts).toLocaleDateString("pt-BR")}` : ""}</dd>

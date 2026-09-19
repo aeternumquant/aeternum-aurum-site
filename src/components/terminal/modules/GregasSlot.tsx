@@ -14,7 +14,7 @@ import type { ModuleCommand } from "../commands";
 // cor por glifo (paleta dessaturada) — distingue as 4 sem gastar o dourado; nomes em tx-1.
 const GREGAS = [
   { key: "delta", nome: "Delta", frase: "quanto o preço da opção anda quando o ativo anda R$ 1", glyph: "delta", cor: "var(--t-val-cheap)" },
-  { key: "gamma", nome: "Gamma", frase: "quão rápido o delta muda — a curvatura da resposta", glyph: "gamma", cor: "var(--t-warn)" },
+  { key: "gamma", nome: "Gamma", frase: "quão rápido o delta muda, a curvatura da resposta", glyph: "gamma", cor: "var(--t-warn)" },
   { key: "vega", nome: "Vega", frase: "quanto a opção reage quando a volatilidade sobe", glyph: "vega", cor: "var(--t-pos)" },
   { key: "theta", nome: "Theta", frase: "quanto a opção perde a cada dia que passa", glyph: "theta", cor: "var(--t-neg)" },
 ] as const;
@@ -24,7 +24,7 @@ export default function GregasSlot({ cmd }: { cmd: ModuleCommand }) {
     <ModuleCard command={cmd} state="ready">
       <div className="p-4">
         <p className="font-sans text-[11px] leading-snug" style={{ color: "var(--t-tx-2)" }}>
-          O que cada grega mede. A forma explica sem número — os valores ao vivo entram quando a licença permitir.
+          O que cada grega mede. A forma explica sem número: os valores ao vivo entram quando a licença permitir.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3.5 mt-3">
           {GREGAS.map((g) => (

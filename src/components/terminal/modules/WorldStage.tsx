@@ -144,7 +144,7 @@ function SemFluxo({ entry }: { entry: CommodityEntry }) {
     <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: "#050503" }}>
       <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-center" style={{ color: "rgba(255,255,255,0.3)" }}>
         {entry.label}
-        <span className="block text-[8px] tracking-widest mt-1 text-white/20">sem carta de fluxo — só preço</span>
+        <span className="block text-[8px] tracking-widest mt-1 text-white/20">sem carta de fluxo, só preço</span>
       </p>
     </div>
   );

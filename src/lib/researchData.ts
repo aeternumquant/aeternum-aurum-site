@@ -164,7 +164,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "food-powerhouse-brasil",
     date: "Abr 2026",
     tag: "Geopolítica de Commodities",
-    title: "Food Powerhouse — O Brasil É a Agricultura do Mundo",
+    title: "Food Powerhouse: O Brasil É a Agricultura do Mundo",
     desc: "Análise profunda do domínio estrutural do agronegócio brasileiro: por que Wall Street ainda precifica o maior produtor de alimentos do planeta como 'risco alto' e o que isso significa como janela de arbitragem histórica.",
     author: "Aeternum Macro Research",
     readTime: "18 min",
@@ -172,7 +172,7 @@ export const researchPapers: ResearchPaper[] = [
     sections: [
       {
         type: "abstract",
-        content: "O Brasil não tem agricultura. O Brasil é a agricultura do mundo. Todo dia, o planeta consome o que o Brasil planta. E ainda assim, Wall Street continua precificando o país como um risco alto. Esse é o maior mispricing estrutural do planeta — uma janela de arbitragem que se alarga a cada safra recorde."
+        content: "O Brasil não tem agricultura. O Brasil é a agricultura do mundo. Todo dia, o planeta consome o que o Brasil planta. E ainda assim, Wall Street continua precificando o país como um risco alto. Esse é o maior mispricing estrutural do planeta: uma janela de arbitragem que se alarga a cada safra recorde."
       },
       {
         type: "heading",
@@ -206,11 +206,11 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "callout",
-        content: "Soja: 108,2 milhões de toneladas exportadas em 2025 — recorde histórico mundial. A dupla safra representa hoje 79% da produção total brasileira de milho. A soja brasileira praticamente não usa nitrogênio sintético graças à fixação biológica."
+        content: "Soja: 108,2 milhões de toneladas exportadas em 2025, recorde histórico mundial. A dupla safra representa hoje 79% da produção total brasileira de milho. A soja brasileira praticamente não usa nitrogênio sintético graças à fixação biológica."
       },
       {
         type: "heading",
-        content: "MATOPIBA — A Fronteira do Século XXI"
+        content: "MATOPIBA: A Fronteira do Século XXI"
       },
       {
         type: "paragraph",
@@ -223,7 +223,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "estrategia-mineral-niobio",
     date: "Abr 2026",
     tag: "Geopolítica de Commodities",
-    title: "Arsenal Mineral do Século XXI — Nióbio, Terras Raras e o Poder Silencioso do Brasil",
+    title: "Arsenal Mineral do Século XXI: Nióbio, Terras Raras e o Poder Silencioso do Brasil",
     desc: "O Brasil não é apenas o celeiro do mundo. É o arsenal mineral do século XXI. Uma análise do maior monopólio de recurso estratégico do planeta e o que ele significa para a transição energética global.",
     author: "Aeternum Strategic Research",
     readTime: "14 min",
@@ -231,11 +231,11 @@ export const researchPapers: ResearchPaper[] = [
     sections: [
       {
         type: "abstract",
-        content: "Uma única empresa, em uma única cidade — Araxá, Minas Gerais — controla 94% da produção mundial de nióbio, o metal estratégico usado em aços de alta resistência, motores de avião, carros elétricos, turbinas e praticamente todas as máquinas de ressonância magnética do planeta. A Europa depende em 92% desse único suprimento brasileiro. Os Estados Unidos não produzem nióbio doméstico desde 1959."
+        content: "Uma única empresa, em uma única cidade (Araxá, Minas Gerais), controla 94% da produção mundial de nióbio, o metal estratégico usado em aços de alta resistência, motores de avião, carros elétricos, turbinas e praticamente todas as máquinas de ressonância magnética do planeta. A Europa depende em 92% desse único suprimento brasileiro. Os Estados Unidos não produzem nióbio doméstico desde 1959."
       },
       {
         type: "heading",
-        content: "Nióbio — O Monopólio Invisível"
+        content: "Nióbio: O Monopólio Invisível"
       },
       {
         type: "paragraph",
@@ -247,18 +247,18 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "heading",
-        content: "O Arsenal Completo — Além do Nióbio"
+        content: "O Arsenal Completo: Além do Nióbio"
       },
       {
         type: "bullet-list",
         content: "",
         data: {
           items: [
-            "2ª maior reserva mundial de terras raras — elemento-chave para baterias, ímãs permanentes e eletrônica de defesa",
-            "2ª maior reserva de grafite do planeta — insumo crítico para baterias de íon-lítio de próxima geração",
+            "2ª maior reserva mundial de terras raras, elemento-chave para baterias, ímãs permanentes e eletrônica de defesa",
+            "2ª maior reserva de grafite do planeta, insumo crítico para baterias de íon-lítio de próxima geração",
             "14% da produção mundial de lítio, com reservas ainda subexploradas no interior do país",
-            "Maior exportador de minério de ferro para China e Ásia — Vale sozinha representa 20% do supply global",
-            "Menos de 50% do território brasileiro foi mapeado geologicamente — o que já foi encontrado já é extraordinário"
+            "Maior exportador de minério de ferro para China e Ásia: a Vale sozinha representa 20% do supply global",
+            "Menos de 50% do território brasileiro foi mapeado geologicamente, e o que já foi encontrado já é extraordinário"
           ]
         }
       },
@@ -277,7 +277,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "energia-renovavel-ia",
     date: "Ago 2025",
     tag: "Macro",
-    title: "Brasil e a Corrida da IA — Por Que o País Já Ganhou a Batalha da Energia Limpa",
+    title: "Brasil e a Corrida da IA: Por Que o País Já Ganhou a Batalha da Energia Limpa",
     desc: "Mais de 84% da eletricidade brasileira vem de fontes renováveis. O custo do kWh limpo é metade do americano. A corrida da IA é, acima de tudo, uma corrida por eletricidade barata. O Brasil já ganhou essa etapa.",
     author: "Aeternum Macro Research",
     readTime: "10 min",
@@ -296,7 +296,7 @@ export const researchPapers: ResearchPaper[] = [
         data: {
           items: [
             { stat: "84%+", label: "Da eletricidade brasileira vem de fontes renováveis" },
-            { stat: "½", label: "Do custo do kWh americano — vantagem brutal para IA" },
+            { stat: "½", label: "Do custo do kWh americano, vantagem brutal para IA" },
             { stat: "10%", label: "Da energia do país gerada por Itaipu sozinha" },
             { stat: "34%", label: "Cobertura de vento + solar em 2025, mesmo com hidro em baixa" },
           ]
@@ -304,7 +304,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "paragraph",
-        content: "O Brasil construiu nas últimas décadas um hedge eólico e solar massivo contra secas. Em 2025, mesmo com hidrelétrica em 48% — menor patamar em quatro anos — vento mais solar cobriram 34% da matriz, mantendo a geração térmica em apenas 14%. Itaipu sozinha gera energia suficiente para abastecer todo o Paraguai. Uma única turbina de Itaipu gera mais energia do que toda a capacidade instalada de vários países africanos."
+        content: "O Brasil construiu nas últimas décadas um hedge eólico e solar massivo contra secas. Em 2025, mesmo com hidrelétrica em 48%, menor patamar em quatro anos, vento mais solar cobriram 34% da matriz, mantendo a geração térmica em apenas 14%. Itaipu sozinha gera energia suficiente para abastecer todo o Paraguai. Uma única turbina de Itaipu gera mais energia do que toda a capacidade instalada de vários países africanos."
       },
       {
         type: "callout",
@@ -324,7 +324,7 @@ export const researchPapers: ResearchPaper[] = [
     sections: [
       {
         type: "abstract",
-        content: "Em 2023 e 2025 o Brasil aprovou a maior reforma tributária de sua história moderna. A Emenda Constitucional 132 e a Lei Complementar 214 acabaram com cinco impostos em cascata — PIS, COFINS, IPI, ICMS, ISS — e os substituíram por dois impostos limpos no modelo VAT europeu. O mercado ainda não precificou completamente essa transformação."
+        content: "Em 2023 e 2025 o Brasil aprovou a maior reforma tributária de sua história moderna. A Emenda Constitucional 132 e a Lei Complementar 214 acabaram com cinco impostos em cascata (PIS, COFINS, IPI, ICMS, ISS) e os substituíram por dois impostos limpos no modelo VAT europeu. O mercado ainda não precificou completamente essa transformação."
       },
       {
         type: "heading",
@@ -381,7 +381,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "geopolitica-commodities-brasil",
     date: "Jan 2024",
     tag: "Geopolítica de Commodities",
-    title: "Brasil Como Ponte Global — Geopolítica de Commodities e Rotas Estratégicas",
+    title: "Brasil Como Ponte Global: Geopolítica de Commodities e Rotas Estratégicas",
     desc: "O Brasil é o único grande produtor que não depende de rotas controladas pela China ou Rússia. Análise dos fluxos estratégicos e do posicionamento único do país na nova ordem mundial de commodities.",
     author: "Aeternum Strategic Research",
     readTime: "13 min",
@@ -400,7 +400,7 @@ export const researchPapers: ResearchPaper[] = [
         content: "",
         data: {
           items: [
-            "Fluxo Brasil para China: 55% de toda soja brasileira vai para a China — relação que sustenta a proteína animal de 1,4 bilhão de pessoas",
+            "Fluxo Brasil para China: 55% de toda soja brasileira vai para a China, relação que sustenta a proteína animal de 1,4 bilhão de pessoas",
             "Fluxo Brasil para Europa: principal fornecedor de café, açúcar e carne para o bloco europeu",
             "Rota alternativa ao Panamá: Mato Grosso para os Portos do Norte, chegando à Ásia sem depender do Canal do Panamá",
             "Sanções russas e ucranianas: cada escalada aumenta o valor estratégico do Brasil como fornecedor confiável e neutro",
@@ -418,7 +418,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "callout",
-        content: "A Bom Futuro, de Erasto Spagnol, tem mais de 1 milhão de hectares — a maior fazenda individual do planeta. Ela produz volumes equivalentes a países inteiros. É o símbolo máximo da escala brasileira: tecnologia de ponta, verticalização completa e eficiência que impressiona até fundos soberanos asiáticos."
+        content: "A Bom Futuro, de Erasto Spagnol, tem mais de 1 milhão de hectares, a maior fazenda individual do planeta. Ela produz volumes equivalentes a países inteiros. É o símbolo máximo da escala brasileira: tecnologia de ponta, verticalização completa e eficiência que impressiona até fundos soberanos asiáticos."
       }
     ]
   },
@@ -427,7 +427,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "risco-hedge-filosofia-aeternum",
     date: "Nov 2023",
     tag: "Risco e Hedge",
-    title: "Não Tentamos Prever o Futuro — A Filosofia Aeternum de Risco e Hedge",
+    title: "Não Tentamos Prever o Futuro: A Filosofia Aeternum de Risco e Hedge",
     desc: "VIX, OVX, Gamma Exposure, CTA positioning e distribuições de probabilidade. A diferença entre especulação e engenharia institucional explicada em termos precisos e aplicáveis.",
     author: "Diretoria de Risco (CRO)",
     readTime: "12 min",
@@ -443,7 +443,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "paragraph",
-        content: "No mercado, o medo e a ganância não são apenas sentimentos. São números que deixam pegadas digitais. O VIX é o batimento cardíaco do mercado financeiro. Quando está abaixo de 15, o mercado está calmo — possivelmente complacente demais. Quando dispara acima de 30, o medo domina e grandes oportunidades se abrem para quem está posicionado corretamente e tem capital disponível para agir. O OVX faz o mesmo para o petróleo. Um salto súbito no OVX frequentemente precede choques em toda a cadeia de commodities, incluindo soja, milho e açúcar, criando janelas de entrada assimétricas que duram, em média, 72 horas."
+        content: "No mercado, o medo e a ganância não são apenas sentimentos. São números que deixam pegadas digitais. O VIX é o batimento cardíaco do mercado financeiro. Quando está abaixo de 15, o mercado está calmo, possivelmente complacente demais. Quando dispara acima de 30, o medo domina e grandes oportunidades se abrem para quem está posicionado corretamente e tem capital disponível para agir. O OVX faz o mesmo para o petróleo. Um salto súbito no OVX frequentemente precede choques em toda a cadeia de commodities, incluindo soja, milho e açúcar, criando janelas de entrada assimétricas que duram, em média, 72 horas."
       },
       {
         type: "stat-grid",
@@ -510,7 +510,7 @@ export const researchPapers: ResearchPaper[] = [
             { stat: "R$ 140B+", label: "Receita somada das 7 maiores cooperativas (Coamo, Lar, C.Vale, Aurora, Cooxupé, COCAMAR, Castrolanda)" },
             { stat: "4.384", label: "Total de cooperativas ativas no Brasil" },
             { stat: "R$ 757,9B", label: "Receita agregada no Brasil" },
-            { stat: "25,8M", label: "Milhões de associados — maior que o setor de mineração nacional" }
+            { stat: "25,8M", label: "Milhões de associados, maior que o setor de mineração nacional" }
           ]
         },
         content: ""
@@ -623,7 +623,7 @@ export const researchPapers: ResearchPaper[] = [
     sections: [
       {
         type: "abstract" as const,
-        content: "A China controla 70% da extração e 90% do processamento global de terras raras. Em resposta, os Estados Unidos estão canalizando investimentos estratégicos para projetos no Brasil — especificamente no estado de Goiás — através de empresas como a Aclara Resources. Elementos como Dysprosium e Terbium, essenciais para ímãs permanentes de motores EV e turbinas eólicas, estão no centro desta corrida geopolítica."
+        content: "A China controla 70% da extração e 90% do processamento global de terras raras. Em resposta, os Estados Unidos estão canalizando investimentos estratégicos para projetos no Brasil, especificamente no estado de Goiás, através de empresas como a Aclara Resources. Elementos como Dysprosium e Terbium, essenciais para ímãs permanentes de motores EV e turbinas eólicas, estão no centro desta corrida geopolítica."
       },
       {
         type: "heading" as const,
@@ -631,7 +631,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "paragraph" as const,
-        content: "O estado de Goiás concentra depósitos de terras raras pesadas que rivalizam com os melhores do mundo. A Aclara Resources, listada na TSX, avança rapidamente com o projeto Carina, focado em extração iônica de elementos pesados — a mesma tecnologia que deu à China seu domínio nas últimas três décadas. Com suporte financeiro de fundos americanos de defesa e energia, o Brasil emerge como a única alternativa geopoliticamente estável ao eixo China-Myanmar."
+        content: "O estado de Goiás concentra depósitos de terras raras pesadas que rivalizam com os melhores do mundo. A Aclara Resources, listada na TSX, avança rapidamente com o projeto Carina, focado em extração iônica de elementos pesados, a mesma tecnologia que deu à China seu domínio nas últimas três décadas. Com suporte financeiro de fundos americanos de defesa e energia, o Brasil emerge como a única alternativa geopoliticamente estável ao eixo China-Myanmar."
       },
       {
         type: "stat-grid" as const,
@@ -647,7 +647,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "callout" as const,
-        content: "Dysprosium e Terbium são considerados os 'elementos impossíveis de substituir' — sem eles, não existem motores elétricos de alta performance, turbinas eólicas offshore ou sistemas de defesa avançados. O Brasil tem ambos em escala comercial."
+        content: "Dysprosium e Terbium são considerados os 'elementos impossíveis de substituir': sem eles, não existem motores elétricos de alta performance, turbinas eólicas offshore ou sistemas de defesa avançados. O Brasil tem ambos em escala comercial."
       }
     ]
   },
@@ -675,7 +675,7 @@ export const researchPapers: ResearchPaper[] = [
         content: "",
         data: {
           items: [
-            "Duas Safras por Ano (Safrinha): O Brasil colhe soja e milho no mesmo ano agrícola. 79% do milho brasileiro vem da segunda safra. Nenhum país frio consegue replicar essa produtividade dupla — é uma vantagem permanente do clima tropical.",
+            "Duas Safras por Ano (Safrinha): O Brasil colhe soja e milho no mesmo ano agrícola. 79% do milho brasileiro vem da segunda safra. Nenhum país frio consegue replicar essa produtividade dupla. É uma vantagem permanente do clima tropical.",
             "Eucalipto de Crescimento Rápido: O eucalipto brasileiro atinge maturidade de corte em 6-7 anos. Na Escandinávia, são 25-30 anos para pinus. O Brasil lidera globalmente em celulose com o menor custo e maior velocidade de reposição do planeta.",
             "Gado 100% a Pasto: O Brasil tem o maior rebanho comercial do mundo (230M+ cabeças) e a maior parte é criada a pasto. Custo de produção dramaticamente inferior ao confinamento americano. Carne grass-fed premium com escala.",
             "Cana-de-Açúcar Flex: A cana brasileira produz simultaneamente açúcar e etanol. Quando o preço do açúcar cai, as usinas convertem para etanol. Quando o etanol cai, voltam ao açúcar. Hedge natural embutido na biologia da planta.",
@@ -685,7 +685,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "callout" as const,
-        content: "Conclusão Drew Crawford: 'O Brasil não é competitivo em agricultura. O Brasil É a agricultura do mundo. Tentar replicar essas vantagens seria como tentar replicar a gravidade — são forças naturais, não estratégias que podem ser copiadas.'"
+        content: "Conclusão Drew Crawford: 'O Brasil não é competitivo em agricultura. O Brasil É a agricultura do mundo. Tentar replicar essas vantagens seria como tentar replicar a gravidade: são forças naturais, não estratégias que podem ser copiadas.'"
       }
     ]
   },
@@ -694,7 +694,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "escassez-oferta-agricola-2026",
     date: "Mai 2026",
     tag: "Macro",
-    title: "70% dos Agricultores Não Conseguem Plantar Tudo — Alta de Commodities Agrícolas",
+    title: "70% dos Agricultores Não Conseguem Plantar Tudo: Alta de Commodities Agrícolas",
     desc: "Análise da restrição de oferta global: chuvas atrasadas, custos elevados e menor área plantada criam oportunidade em DBA, arroz, açúcar e suco de laranja.",
     author: "Aeternum Macro Research",
     readTime: "10 min",
@@ -702,7 +702,7 @@ export const researchPapers: ResearchPaper[] = [
     sections: [
       {
         type: "abstract" as const,
-        content: "Dados recentes indicam que até 70% dos agricultores globais enfrentaram restrições para completar o plantio na safra 2025/26 — seja por chuvas atrasadas, custos de insumos elevados ou crédito restrito. O resultado é uma contração de oferta que sustenta preços elevados em soft commodities por múltiplos trimestres."
+        content: "Dados recentes indicam que até 70% dos agricultores globais enfrentaram restrições para completar o plantio na safra 2025/26, seja por chuvas atrasadas, custos de insumos elevados ou crédito restrito. O resultado é uma contração de oferta que sustenta preços elevados em soft commodities por múltiplos trimestres."
       },
       {
         type: "heading" as const,
@@ -710,7 +710,7 @@ export const researchPapers: ResearchPaper[] = [
       },
       {
         type: "paragraph" as const,
-        content: "O fenômeno não é isolado. Na Ásia, monções atrasadas reduziram a área plantada de arroz na Índia e Tailândia. Na Europa, secas consecutivas impactaram trigo e cevada. Na América do Norte, custos de fertilizantes e diesel ainda são 35% superiores à média pré-COVID. O único grande produtor que manteve expansão de área plantada foi o Brasil — reforçando sua posição de 'fornecedor de última instância' para o sistema alimentar global."
+        content: "O fenômeno não é isolado. Na Ásia, monções atrasadas reduziram a área plantada de arroz na Índia e Tailândia. Na Europa, secas consecutivas impactaram trigo e cevada. Na América do Norte, custos de fertilizantes e diesel ainda são 35% superiores à média pré-COVID. O único grande produtor que manteve expansão de área plantada foi o Brasil, reforçando sua posição de 'fornecedor de última instância' para o sistema alimentar global."
       },
       {
         type: "stat-grid" as const,
@@ -735,7 +735,7 @@ export const researchPapers: ResearchPaper[] = [
     id: "white-house-rare-earth-stocks",
     date: "Mai 2026",
     tag: "Event-Driven",
-    title: "White House Sinalizando Compra de Rare Earth Stocks — MP, USAR e o Paralelo Intel",
+    title: "White House Sinalizando Compra de Rare Earth Stocks: MP, USAR e o Paralelo Intel",
     desc: "O governo americano está posicionando capital estratégico em minerais raros. Análise das ações MP Materials, USA Rare Earth e a repetição do modelo Intel CHIPS Act.",
     author: "Aeternum Strategic Research",
     readTime: "11 min",
@@ -760,7 +760,7 @@ export const researchPapers: ResearchPaper[] = [
           items: [
             "MP Materials (MP): Única mina de terras raras em operação nos EUA (Mountain Pass, Califórnia). Já recebeu contratos do Departamento de Defesa.",
             "USA Rare Earth (USAR): Focada em processamento doméstico de elementos pesados. Potencial beneficiária direta de novos subsídios federais.",
-            "Aclara Resources: Projeto Carina em Goiás — posiciona o Brasil como fornecedor aliado de terras raras pesadas para os EUA.",
+            "Aclara Resources: Projeto Carina em Goiás, posicionando o Brasil como fornecedor aliado de terras raras pesadas para os EUA.",
             "Paralelo Intel: Se o CHIPS Act elevou a Intel em 180% desde o anúncio, um 'Rare Earth Act' pode fazer o mesmo com MP e USAR."
           ]
         }
