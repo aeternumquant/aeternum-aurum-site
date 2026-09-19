@@ -1,0 +1,33 @@
+/* Acabamento /tecnologia — migra a página dos tokens antigos (shadcn) para o
+ * dossiê Linear SEM reescrever centenas de classes. Tailwind v4: os utilitários
+ * resolvem `--color-*` / `--font-display` em runtime, então remapear esses vars
+ * sob um escopo re-tokeniza a árvore inteira. Importa o padrão de tokens.css
+ * (--t-*), não reinventa.
+ *
+ * Escopo: só a página (main.tec-linear). Não toca terminal, header, footer.
+ */
+.tec-linear {
+  /* superfícies → escada S0-S4 do dossiê */
+  --color-background: var(--t-s0);
+  --color-card: var(--t-s1);
+  --color-card-foreground: var(--t-tx-1);
+  --color-muted: var(--t-s2);
+
+  /* texto → os três cinzas */
+  --color-foreground: var(--t-tx-1);
+  --color-muted-foreground: var(--t-tx-2);
+
+  /* fios/aresta → hairline sutil (não borda dura) */
+  --color-border: rgba(255, 255, 255, .07);
+  --color-card-border: rgba(255, 255, 255, .07);
+
+  /* dourado (primary) MANTÉM o valor — a "regra do dourado" (teto 2%, um por
+     bloco, nunca fundo cheio) é de USO e vive no markup, não no token. */
+
+  /* Cormorant FORA — a serifa separa "quem somos" de "o que os dados dizem".
+     A página de dados usa Inter (mesma decisão do Terminal, PR5). */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --app-font-display: 'Inter', system-ui, sans-serif;
+
+  background: var(--t-s0);
+}

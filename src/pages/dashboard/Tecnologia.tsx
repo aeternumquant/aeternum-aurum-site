@@ -2,23 +2,17 @@ import { useState, lazy, Suspense } from "react";
 import Footer from "../../components/common/Footer";
 import { FadeIn } from "../../components/common/FadeIn";
 import { RouteSeo } from "../../lib/seo/RouteSeo";
+import "../../components/terminal/tokens.css"; // dossiê Linear (--t-*), global
+import "./tecnologia-linear.css";              // remapeia shadcn → Linear no escopo da página
 const GammaExposureChart = lazy(() => import("../../components/GammaExposureChart"));
 import OptionsMatrixGrid from "../../components/OptionsMatrixGrid";
 import VolatilitySurface from "../../components/common/VolatilitySurface";
-const DarkPoolLiquidity = lazy(() => import("../../components/DarkPoolLiquidity"));
 import { Tooltip } from "../../components/common/Tooltip";
 import { useLanguage } from "../../context/LanguageContext";
 const GexProfileChart = lazy(() => import("../../components/charts/tecnologia/GexProfileChart"));
-const FuturesCurveChart = lazy(() => import("../../components/charts/tecnologia/FuturesCurveChart"));
 const ScoreHistoryChart = lazy(() => import("../../components/charts/tecnologia/ScoreHistoryChart"));
+const TermStructureModule = lazy(() => import("../../components/charts/tecnologia/TermStructureModule"));
 
-const curveData = [
-  { days: 0, price: 2370, past: 2345 },
-  { days: 30, price: 2385, past: 2360 },
-  { days: 60, price: 2415, past: 2390 },
-  { days: 90, price: 2450, past: 2425 },
-  { days: 120, price: 2485, past: 2460 },
-];
 const scoreHistoryData = [
   { d: "03-15", mom: 2, vol: 2 },
   { d: "03-20", mom: 2, vol: 4 },
@@ -78,24 +72,11 @@ const indicators = [
 ];
 
 export default function TecnologiaPage() {
-  const [isLoadingMarketData, setIsLoadingMarketData] = useState(false);
   const [assetTarget, setAssetTarget] = useState("GOLD FUTURES (GCQ2026)");
   const { t } = useLanguage();
 
-  const handleRefreshMarketData = async () => {
-    setIsLoadingMarketData(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Dados de mercado atualizados");
-    } catch (error) {
-      console.error("Erro ao atualizar dados de mercado:", error);
-    } finally {
-      setIsLoadingMarketData(false);
-    }
-  };
-
   return (
-    <main className="pt-14 min-h-screen" style={{ backgroundColor: "#0A0A0A" }}>
+    <main className="tbr tec-linear pt-14 min-h-screen" style={{ background: "var(--t-s0)" }}>
       <RouteSeo
         title="Tecnologia"
         description="Stack técnico da plataforma: Time-MoE, EGARCH, Redes Bayesianas e otimização CVaR com aceleração de 160x via NVIDIA cuOpt."
@@ -210,7 +191,7 @@ export default function TecnologiaPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {indicators.map((indicator, i) => (
               <FadeIn key={i} delay={0.05 * i} direction="up">
-                <div className="border border-primary/20 bg-primary/5 p-6 rounded-sm hover:border-primary/40 transition-all duration-300">
+                <div className="border border-primary/20 bg-primary/5 p-6 rounded-sm hover:border-primary/40 transition-colors duration-300">
                   <h3 className="font-display text-base sm:text-lg text-primary mb-3 uppercase tracking-wider leading-tight">
                     {indicator.title}
                   </h3>
@@ -248,14 +229,11 @@ export default function TecnologiaPage() {
             </FadeIn>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <FadeIn delay={0.3} className="lg:col-span-8">
+          {/* Dark pool removido: dado de bolsa dos EUA, sem fonte grátis/automatizável
+              — módulo sem caminho para dado real vira decoração. OptionsMatrix ocupa a linha. */}
+          <div className="grid grid-cols-1 gap-8">
+            <FadeIn delay={0.3}>
               <OptionsMatrixGrid />
-            </FadeIn>
-            <FadeIn delay={0.4} className="lg:col-span-4 flex items-stretch">
-              <Suspense fallback={<div className="h-96 bg-[#1C1C1C] animate-pulse rounded" />}>
-                <DarkPoolLiquidity />
-              </Suspense>
             </FadeIn>
           </div>
 
@@ -265,6 +243,29 @@ export default function TecnologiaPage() {
               <p className="text-foreground/80 text-sm leading-relaxed font-light">
                 Combinando análise quantitativa direta com <Tooltip content="Dark Pools: Redes privadas de negociação de ativos usadas para evitar impactos maciços nos preços das exchanges públicas.">Dark Pools</Tooltip> e modelagem de derivativos avançada, a Aeternum Aurum isola oportunidades descorrelacionadas com alta precisão. Nosso framework instituional permite identificar inflexões estruturais e posicionar-se à frente de movimentos de grande magnitude.
               </p>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          BLOCO: Estrutura a Termo — DADO REAL (futures_curve)
+      ══════════════════════════════════════════════ */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-b border-white/5">
+        <div className="max-w-3xl mx-auto">
+          <FadeIn>
+            <p className="text-[9px] tracking-[0.3em] uppercase mb-3" style={{ color: "rgba(198,168,90,0.6)" }}>Dado real · B3</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-primary uppercase tracking-widest mb-4">Estrutura a Termo</h2>
+            <div className="h-px w-24 bg-gradient-to-r from-primary to-primary/10 mb-6" />
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl mb-8">
+              A curva de futuros por data de entrega: o settlement (ajuste) de cada vencimento no último pregão. É o único módulo desta página com dado de mercado ao vivo; os demais são demonstração.
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <div className="max-w-xl">
+              <Suspense fallback={<div className="h-64 bg-[#1C1C1C] animate-pulse rounded" />}>
+                <TermStructureModule />
+              </Suspense>
             </div>
           </FadeIn>
         </div>
@@ -302,7 +303,7 @@ export default function TecnologiaPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div><p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("tec.dash.pcoi", "P/C OI (Liquidez)")}</p><p className="text-[#F5F5F5] font-mono text-lg">0.68</p></div>
                   <div><p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("tec.dash.move1d", "Movimento Esp. 1D")}</p><p className="text-[#F5F5F5] font-mono text-lg">± 1.25%</p></div>
-                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("tec.dash.gammaCondition", "Condição Gamma")}</p><p className="text-[#C6A85A] font-mono text-lg">{t("tec.dash.positive", "Positivo")}</p></div>
+                  <div><p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("tec.dash.gammaCondition", "Condição Gamma")}</p><p className="text-[#F5F5F5] font-mono text-lg">{t("tec.dash.positive", "Positivo")}</p></div>
                   <div><p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("tec.dash.implVol", "Vol. Implícita 30D")}</p><p className="text-[#F5F5F5] font-mono text-lg">18.45%</p></div>
                 </div>
               </div>
@@ -315,7 +316,7 @@ export default function TecnologiaPage() {
                   <div className="bg-[#0A0A0A]/50 border border-[#C6A85A]/10 p-4 text-center"><p className="text-3xl text-[#F5F5F5] font-display mb-1">2</p><p className="text-[10px] text-[#F5F5F5] uppercase tracking-widest">{t("tec.dash.neutral", "Neutro")}</p><div className="w-8 h-[1px] bg-white/20 mx-auto my-2" /><p className="text-[9px] text-[#C6A85A] uppercase tracking-wider">{t("tec.dash.options", "Opções")}</p></div>
                   <div className="bg-[#0A0A0A]/50 border border-[#F5F5F5]/20 p-4 text-center"><p className="text-3xl text-[#F5F5F5] font-display mb-1">4</p><p className="text-[10px] text-[#F5F5F5] uppercase tracking-widest">{t("tec.dash.high", "Alto")}</p><div className="w-8 h-[1px] bg-[#F5F5F5]/20 mx-auto my-2" /><p className="text-[9px] text-[#F5F5F5] uppercase tracking-wider">{t("tec.dash.volatility", "Volatilidade")}</p></div>
                   <div className="bg-[#0A0A0A]/50 border border-[#C6A85A]/10 p-4 text-center"><p className="text-3xl text-[#F5F5F5] font-display mb-1">3</p><p className="text-[10px] text-[#F5F5F5] uppercase tracking-widest">{t("tec.dash.alert", "Alerta")}</p><div className="w-8 h-[1px] bg-white/20 mx-auto my-2" /><p className="text-[9px] text-[#C6A85A] uppercase tracking-wider">{t("tec.dash.momentum", "Momentum")}</p></div>
-                  <div className="bg-[#0A0A0A]/50 border border-[#C6A85A]/20 p-4 text-center"><p className="text-3xl text-[#F5F5F5] font-display mb-1">4</p><p className="text-[10px] text-[#C6A85A] uppercase tracking-widest">{t("tec.dash.positive", "Positivo")}</p><div className="w-8 h-[1px] bg-[#C6A85A]/20 mx-auto my-2" /><p className="text-[9px] text-[#C6A85A] uppercase tracking-wider">{t("tec.dash.seasonality", "Sazonalidade")}</p></div>
+                  <div className="bg-[#0A0A0A]/50 border border-[#C6A85A]/10 p-4 text-center"><p className="text-3xl text-[#F5F5F5] font-display mb-1">4</p><p className="text-[10px] text-[#F5F5F5] uppercase tracking-widest">{t("tec.dash.positive", "Positivo")}</p><div className="w-8 h-[1px] bg-white/20 mx-auto my-2" /><p className="text-[9px] text-[#C6A85A] uppercase tracking-wider">{t("tec.dash.seasonality", "Sazonalidade")}</p></div>
                 </div>
               </div>
             </div>
@@ -343,18 +344,14 @@ export default function TecnologiaPage() {
             </div>
 
             {/* Row 3: Mini Charts */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
-                <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.futuresCurve", "Estrutura Termo (Futuros)")}</h3>
-                <div className="flex-1 w-full"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><FuturesCurveChart data={curveData} /></Suspense></div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
                 <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.momentumHistory", "Histórico de Momentum")}</h3>
-                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="mom" stroke="#4CAF50" /></Suspense></div>
+                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="mom" stroke="#5b90b3" /></Suspense></div>
               </div>
               <div className="bg-[#1C1C1C]/50 border border-[#C6A85A]/10 rounded-sm p-4 h-[220px] flex flex-col">
                 <h3 className="text-[#F5F5F5] font-display text-sm tracking-widest mb-1">{t("tec.dash.volHistory", "Histórico de Volatilidade")}</h3>
-                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="vol" stroke="#9C27B0" /></Suspense></div>
+                <div className="flex-1 w-full mt-2"><Suspense fallback={<div className="w-full h-full bg-white/5 animate-pulse rounded" />}><ScoreHistoryChart data={scoreHistoryData} dataKey="vol" stroke="#c19a4e" /></Suspense></div>
               </div>
             </div>
           </div>
