@@ -26,6 +26,7 @@ const AssinarPage = lazy(() => import("./pages/Assinar"));
 const NotFound = lazy(() => import("./pages/not-found"));
 
 import RequireAuth from "./routes/RequireAuth";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
 
 const pageTransition = {
   initial: { opacity: 0, y: 16, filter: "blur(4px)" },
@@ -69,14 +70,12 @@ function AnimatedRoutes() {
           {/* Rotas Públicas - General Pages */}
           <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
           <Route path="/framework" element={<PageWrapper><FrameworkPage /></PageWrapper>} />
-          <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
           <Route path="/tecnologia" element={<PageWrapper><TecnologiaPage /></PageWrapper>} />
           {/* /alocacoes aposentada (Etapa 4): conteudo de valor migrou para a Liquidacao */}
           <Route path="/alocacoes" element={<Navigate to="/pagamentos-globais" replace />} />
           {/* /execucao dissolvida (Etapa 3): redirect permanente para o nucleo tecnico */}
           <Route path="/execucao" element={<Navigate to="/tecnologia" replace />} />
           <Route path="/pagamentos-globais" element={<PageWrapper><PagamentosGlobaisPage /></PageWrapper>} />
-          <Route path="/terminal-br" element={<PageWrapper><TerminalBRPage /></PageWrapper>} />
           <Route path="/assinar" element={<PageWrapper><AssinarPage /></PageWrapper>} />
 
           {/* Rotas Públicas - Authentication */}
@@ -92,9 +91,14 @@ function AnimatedRoutes() {
           <Route path="/pesquisa" element={<PageWrapper><ResearchPage /></PageWrapper>} />
           <Route path="/research/:id" element={<PageWrapper><ArticleReader /></PageWrapper>} />
 
-          {/* Rotas Protegidas (RequireAuth: layout com Outlet + state.from) */}
-          <Route element={<RequireAuth />}>
-            <Route path="/reports" element={<PageWrapper><ReportsPage /></PageWrapper>} />
+          {/* Rotas de APP — casca com sidebar (Fase 1). URLs preservadas; marketing fica fora. */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/terminal-br" element={<PageWrapper><TerminalBRPage /></PageWrapper>} />
+            <Route path="/commodities" element={<PageWrapper><CommoditiesPage /></PageWrapper>} />
+            {/* Protegida: RequireAuth aninhado dentro da casca */}
+            <Route element={<RequireAuth />}>
+              <Route path="/reports" element={<PageWrapper><ReportsPage /></PageWrapper>} />
+            </Route>
           </Route>
 
           <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
